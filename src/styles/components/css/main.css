@@ -1,0 +1,147 @@
+:root {
+    --primary-color : #FF6F00; 
+    --gray-color : #C7C7C7;
+}
+* {
+    font-family: "DM Sans", sans-serif;
+}
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+
+
+.text-gray {
+    color: var(--gray-color);
+}
+.text-dark {
+    color: var(--gray-color);
+}
+.title-1 {
+    font-size: 28px;
+    font-weight: 700;
+}
+.title-2 {
+    font-size: 20px;
+    font-weight: 500;
+}
+.title-3 {
+    font-size: 18px;
+    font-weight: 500; 
+}
+.title-4 {
+    font-size: 16px;
+    font-weight: 500; 
+}
+
+main {
+    min-height: calc(100vh - 113px);
+    width: 100%;
+}
+
+main .left-container {
+    padding: 20px;
+    width: 69%;
+}
+
+main .right-container {
+    padding: 20px;
+    border-left: 1px solid #FF6F0033;
+    width: 31%;
+}
+
+.icon-notification {
+    margin-right: 20px;
+}
+
+.header-search-input {
+    width: 600px;
+    height: 52px;
+    border-radius: 4px;
+    padding-right: 20px;
+    padding-left: 64px;
+    gap: 16px;
+    background: #F1F1F1;
+    color: #606060;
+    font-weight: 500;
+    border: 0px;
+}
+
+input.header-search-input::placeholder {
+    color: #606060;
+}
+
+
+.card-row-1 {
+    padding: 0px 10px;
+}
+.card-conatiner {
+    border: 1px solid var(--gray-color);
+    border-radius: 10px;
+    height: 124px;
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    padding: 24px;
+}
+.card-conatiner h2 {
+    font-size: 28px;
+    font-weight: 700;
+    font-family: "DM Sans", sans-serif;
+}
+.card-conatiner h2 span {
+    display: block;
+    font-size: 14px;
+    font-weight: 400;
+    margin-bottom: 10px;
+}
+.pending-approvel-conatiner {
+    border: 1px solid var(--gray-color);
+    border-radius: 10px;
+    padding: 12px;
+}
+span.pending-approvel-count {
+    background-color: #C65600;
+    color: #fff;
+    font-size: 12px;
+    width: 32px;
+    height: 20px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 5px;
+}
+.card-pending-approvel-content {
+    border-bottom: 1px solid var(--gray-color);
+    margin-bottom: 20px;
+}
+
+.card-pending-approvel-content p {
+    font-size: 12px;
+}
+.project-dept {
+    background-color: #FF5151;
+    padding: 5px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    height: 24px;
+    border-radius: 4px;
+    color: #fff;
+}
+@media (max-width: 1440px) {
+    main .right-container {
+        width: 440px;
+        max-width: 440px;
+    }
+    main .left-container {
+        padding: 20px;
+        width: 900px;
+        max-width: 900px;
+    }
+    .card-conatiner {
+        max-width: 200px;
+    }
+    .card-row-1 {
+        padding: 0px 0px;
+    }
+}
