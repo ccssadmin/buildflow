@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { showToast } from "../../store/slice/toast";
 import {
   setAuthToken,
   getAuthToken,
   setExpiresOn,
-  setAuthType,
   getAuthType,
   getDeepLinkURL,
   setDeepLinkURL,
@@ -13,6 +12,9 @@ import {
 import { useDispatch } from "react-redux";
 import useAuth from "../../hooks/useAuth";
 import { useTranslation } from "react-i18next";
+import { PRODUCT_LOGO } from "../../assets/images";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import '../../styles/components/css/login.css';
 
 export default function Login() {
   const [{ data }, { getAuth, setAuth, getUserInfo }] = useAuth();
@@ -23,6 +25,7 @@ export default function Login() {
   const [activeForm, setActiveForm] = useState("login");
   const [inProgress, setInProgress] = useState(false);
   const dispatch = useDispatch();
+  const [showPassword, setShowPassword] = useState(false); // State for password visibility
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -35,16 +38,6 @@ export default function Login() {
 
   const [errorMsg, setErrorMsg] = useState({});
   const inputRef = useRef(null);
-
-  const handlePhoneNumber = (e) => {
-    const phone = e.target.value;
-    if (!/^[0-9]*$/.test(phone)) {
-      setErrorMsg((prev) => ({ ...prev, phone: true }));
-    } else {
-      setFormData((prev) => ({ ...prev, phone }));
-      setErrorMsg((prev) => ({ ...prev, phone: false }));
-    }
-  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -66,7 +59,7 @@ export default function Login() {
       if (response.payload?.token) {
         setAuthToken(response.payload.token);
         setAuth(response.payload.token);
-        await getUserInfo(); // Call immediately
+        await getUserInfo();
       } else {
         setIsTokenSuccess(false);
         dispatch(
@@ -80,7 +73,6 @@ export default function Login() {
       setInProgress(false);
     }
   };
-
 
   useEffect(() => {
     if (isTokenSuccess) {
@@ -115,31 +107,6 @@ export default function Login() {
     setExpiresOn("");
   };
 
-  const handleSubmitForm = (e) => {
-    e.preventDefault();
-    // Perform form validation and API call for signup
-  };
-
-  useEffect(() => {
-    if (activeForm === "signup" && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [activeForm]);
-
-  const getUserNameData = (val) => {
-    setFormData((prev) => ({ ...prev, username: val }));
-    if (val.length > 0) {
-      setErrorMsg((prev) => ({ ...prev, username: false }));
-    }
-  };
-  const getUserPasswordData = (val) => {
-    setFormData((prev) => ({ ...prev, password: val }));
-    if (val.length > 0) {
-      setErrorMsg((prev) => ({ ...prev, password: false }));
-    }
-  };
-
-  // Handle "Enter" key press to trigger login
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       handleLogin(e);
@@ -147,192 +114,94 @@ export default function Login() {
   };
 
   return (
-    <div className="login-page">
-      <div className="login-form">
-        <div className="login-form-container">
-          {activeForm === "login" && (
-            <div className="login-form-container-button">
-              <div className="user-flex">
-                <div className="user-row">
-                  <label>{t("login.label.userName")} </label>
-                  <input
-                    type="email"
-                    value={formData.username}
-                    onChange={(e) => getUserNameData(e.target.value)}
-                    onKeyDown={handleKeyDown} // Press "Enter" to trigger login
-                    placeholder={t("login.label.userName")}
+    <main className="main-login">
+      <div className="login-page">
+        <div className="login-form">
+          <div className="login-form-container">
+            {activeForm === "login" && (
+              <div className="login-form-container-button">
+                <div className="user-flex">
+                  <img
+                    className="mb-5"
+                    src={PRODUCT_LOGO}
+                    alt="Agent Board Icon"
                   />
+                  <div className="user-row">
+                    <label>{t("login.label.userName")} </label>
+                    <input
+                      type="email"
+                      value={formData.username}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          username: e.target.value,
+                        }))
+                      }
+                      onKeyDown={handleKeyDown}
+                    />
+                    {errorMsg.username && (
+                      <p className="errorMsg">{t("login.error.email")}</p>
+                    )}
+                  </div>
+                  <div className="user-row mb-0">
+                    <label>{t("login.label.password")}</label>
+                    {/* <div style={{ position: "relative" }}> */}
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        value={formData.password}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            password: e.target.value,
+                          }))
+                        }
+                        onKeyDown={handleKeyDown}
+                        style={{ paddingRight: "40px" }}
+                      />
+                      <span
+                        onClick={() => setShowPassword(!showPassword)}
+                        style={{
+                          position: "absolute",
+                          right: "10px",
+                          top: "50%",
+                          transform: "translateY(-50%)",
+                          cursor: "pointer",
+                        }}
+                      >
+                        {showPassword ? <FaEye /> :<FaEyeSlash />  }
+                      </span>
+                    {/* </div> */}
+                    {errorMsg.password && (
+                      <p className="errorMsg">
+                        {t("please enter valid password.")}
+                      </p>
+                    )}
+                  </div>
+                  <div className="forgot-password">
+                    <Link className="text-decoration-none forgot">
+                      Forgot Password?
+                    </Link>
+                  </div>
                 </div>
-                <div className="user-row">
-                  {errorMsg.username && (
-                    <p className="errorMsg">{t("login.error.email")}</p>
-                  )}
-                </div>
-                <div className="user-row">
-                  <label>{t("login.label.password")}</label>
-                  <input
-                    type="password"
-                    value={formData.password}
-                    onChange={(e) => getUserPasswordData(e.target.value)}
-                    onKeyDown={handleKeyDown} // Press "Enter" to trigger login
-                    placeholder={t("login.label.password")}
-                  />
-                </div>
-                <div className="user-row">
-                  {errorMsg.password && (
-                    <p className="errorMsg">
-                      {t("please enter valid password.")}
-                    </p>
-                  )}
+                <button
+                  className="login-form-container-button-common btn-login my-4"
+                  onClick={(e) => handleLogin(e)}
+                  disabled={inProgress}
+                >
+                  {inProgress
+                    ? t("login.inprogress")
+                    : t("login.with_eurolandID")}
+                </button>
+                <div className="google mt-3">
+                  <Link className="text-decoration-none">
+                    Login with Google Account
+                  </Link>
                 </div>
               </div>
-              <button
-                className="login-form-container-button-common"
-                onClick={(e)=>handleLogin(e)}
-                disabled={inProgress}
-              >
-                {inProgress
-                  ? t("login.inprogress")
-                  : t("login.with_eurolandID")}
-              </button>
-              {/* <p className="login-form-container-signupbtn">
-                {t("login.no_account")}{" "}
-                <span onClick={() => setActiveForm("signup")}>
-                  {t("login.signup")}
-                </span>{" "}
-                ?
-              </p> */}
-            </div>
-          )}
-
-          {/* {activeForm === "signup" && (
-            <form onSubmit={handleSubmitForm}>
-              <div className="login-form-signup">
-                <div className="form-row">
-                  <div className="form-col">
-                    <label className="input-label">
-                      {t("login.label.firstname")} <sup>*</sup>{" "}
-                    </label>
-                    <input
-                      ref={inputRef}
-                      className="input-type"
-                      value={formData.firstName}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          firstName: e.target?.value,
-                        })
-                      }
-                      placeholder={t("login.label.firstname")}
-                      maxLength={"50"}
-                      autofocus
-                    />
-                    <label className="error-msg">
-                      {errorMsg.firstName === true &&
-                        t("login.error.firstname")}
-                    </label>
-                  </div>
-                  <div className="form-col">
-                    <label className="input-label">
-                      {" "}
-                      {t("login.label.lastname")}{" "}
-                    </label>
-                    <input
-                      className="input-type"
-                      value={formData.lastName}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          lastName: e.target?.value,
-                        })
-                      }
-                      maxLength={"50"}
-                      placeholder={t("login.label.lastname")}
-                    />
-                  </div>
-                </div>
-                <div className="form-row">
-                  <div className="form-col">
-                    <label className="input-label">
-                      {" "}
-                      {t("login.label.email")} <sup>*</sup>{" "}
-                    </label>
-                    <input
-                      className="input-type"
-                      value={formData.email}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          email: e.target?.value,
-                        })
-                      }
-                      placeholder={t("login.label.email")}
-                    />
-                    <label className="error-msg">
-                      {errorMsg.email === true &&
-                        formData.email === "" &&
-                        t("login.error.email")}
-                      {errorMsg.email === true &&
-                        formData.email !== "" &&
-                        errorMsg.invalidEmail === true &&
-                        t("login.error.invalidEmail")}
-                    </label>
-                  </div>
-                </div>
-                <div className="form-row">
-                  <div className="form-col">
-                    <label className="input-label">
-                      {" "}
-                      {t("login.label.jobTitle")} <sup>*</sup>{" "}
-                    </label>
-                    <input
-                      className="input-type"
-                      value={formData.email}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          email: e.target?.value,
-                        })
-                      }
-                      placeholder={t("login.label.jobTitle_placeholder")}
-                    />
-                    <label className="error-msg">
-                      {errorMsg.email === true &&
-                        formData.email === "" &&
-                        t("login.error.jobTitle")}
-                    </label>
-                  </div>
-                </div>
-                <div className="form-row">
-                  <div className="form-col">
-                    <label className="input-label">
-                      {t("login.label.password")} <sup>*</sup>{" "}
-                    </label>
-                    <input
-                      className="input-type"
-                      value={formData.password}
-                      onChange={(e) => getUserPasswordData(e.target.value)}
-                      placeholder={t("login.label.password")}
-                      maxLength={50}
-                    />
-                  </div>
-                </div>
-                <div className="form-row">
-                  <div className="form-col">
-                    <button
-                      className="form-button"
-                      disabled={inProgress}
-                      onClick={handleSubmitForm}
-                    >
-                      {inProgress ? t("login.inprogress") : t("signup.submit")}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </form> 
-          )} */}
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
