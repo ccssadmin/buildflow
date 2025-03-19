@@ -1,0 +1,104 @@
+.report-container {
+  width: auto;
+  height: auto;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin: auto;
+  overflow-y: auto; /* Add scroll for overflow */
+}
+
+/* .report-header h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+} */
+
+.report-details label {
+  font-weight: bold;
+}
+
+.daily-progress-summary,
+.material-usage-report,
+.safety-compliance-report,
+.issue-risk-report,
+.attached-file {
+  margin-top: 20px;
+}
+
+.daily-progress-summary h3,
+.material-usage-report h3,
+.safety-compliance-report h3,
+.issue-risk-report h3,
+.attached-file h3 {
+  font-size: 20px;
+  margin-bottom: 15px;
+}
+
+.table {
+  margin-bottom: 20px;
+}
+
+.table-bordered {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.table-bordered th,
+.table-bordered td {
+  padding: 12px;
+  text-align: left;
+  border: 1px solid #C3C3C3;
+  
+}
+
+.table-bordered th {
+  background-color: #DEDEDE;
+  color: #333333;
+}
+
+.table-bordered tr:hover {
+  background-color: #f1f1f1;
+}
+
+.btn {
+  margin-right: 10px;
+}
+
+/* Add Column Button Styling */
+.btn-add-column {
+  background-color: transparent;
+  border: none;
+  color: #FF6F00;
+  font-weight: bold;
+  padding: 0;
+}
+
+.btn-add-column:hover {
+  text-decoration: underline;
+}
+
+/* Cancel and Submit Buttons */
+.form-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.upload-file{
+  text-decoration: underline;
+}
+
+
+
+.btn-cancel {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-submit {
+  background-color: #28a745;
+  color: white;
+}

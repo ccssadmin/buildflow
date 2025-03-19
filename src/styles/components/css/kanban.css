@@ -1,0 +1,237 @@
+.kanban-container {
+  width: 100%;
+  height: 90vh;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.kanban-board {
+  display: flex;
+  gap: 15px;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding-bottom: 20px;
+}
+
+.kanban-column {
+  /* width: 250px; */
+  background: #f7f7f7;
+  border-radius: 8px;
+  padding: 10px;
+  flex-shrink: 0;
+  width:310px;
+
+}
+
+.kanban-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: bold;
+  position: relative;
+}
+
+.kanban-header-left {
+  display: flex;
+  align-items: center;
+}
+
+.kanban-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.column-title {
+  font-size: 16px;
+}
+
+.count-badge {
+  background-color: white;
+  color: black;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: bold;
+  margin-left: 8px;
+}
+
+.menu-button {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.add-task-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.task-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.kanban-card {
+  background: white;
+  padding: 10px;
+  border-radius: 5px;
+  margin: 10px 0;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+  min-height: 100px;
+}
+
+.task-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.tag-badge {
+  color: black !important;
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.task-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+.task-icons {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.profile-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.profile-info {
+  display: flex;
+  align-items: center;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  background: #007bff;
+  color: white;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.kanban-header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.kanban-button {
+  display: flex;
+  align-items: center;
+  background: gray;
+  color: black;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-left: auto;
+}
+
+.kanban-button:hover {
+  background: #0056b3;
+}
+
+.task-input-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.create-button, .cancel-button {
+  padding: 6px 12px;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.create-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+}
+
+.cancel-button {
+  background-color: #f8f9fa;
+  color: black;
+  border: 1px solid #ccc;
+}
+.Addbutton{
+  background-color: #FFFFFF99 !important;
+  border-radius: 4px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .kanban-container {
+    padding: 10px;
+  }
+  
+  .kanban-board {
+    flex-direction: column;
+    white-space: normal;
+  }
+  
+  .kanban-column {
+    width: 100%;
+    margin-bottom: 15px;
+  }
+  
+  .kanban-header-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .kanban-button {
+    margin-left: 0;
+  }
+  
+  .profile-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}
+
+/* Additional styles for TicketDetails */
+.sticky-sidebar {
+  position: sticky;
+  top: 0;
+  height: 100%;
+}
