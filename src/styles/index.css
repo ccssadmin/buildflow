@@ -13,11 +13,14 @@
 /* // Engineer Flow Styles */
 
 
-@import './components/css/engineerdashboard.css';
-@import './components/css/engineermaterial.css';
-@import './components/css/engineermaterialcreate.css';
-@import './components/css/engineermaterialview.css';
-@import './components/css/engineertask.css';
-@import './components/css/engineerreport.css';
-@import './components/css/engineerreportcreate.css';
-@import './components/css/engineerreportview.css';
+@import './components/css/engineerStyles/engineerdashboard.css';
+@import './components/css/engineerStyles/engineermaterial.css';
+@import './components/css/engineerStyles/engineermaterialcreate.css';
+@import './components/css/engineerStyles/engineermaterialview.css';
+@import './components/css/engineerStyles/engineertask.css';
+@import './components/css/engineerStyles/engineerreport.css';
+@import './components/css/engineerStyles/engineerreportcreate.css';
+@import './components/css/engineerStyles/engineerreportview.css';
+
+
+/* AQS FLOW STYLES */
