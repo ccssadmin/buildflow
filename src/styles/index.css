@@ -1,0 +1,23 @@
+@import './components/css/main.css';
+@import './components//css/kanban.css';
+@import './components/css/chatapp.css';
+@import './components/css/Permissions.css';
+@import './components/css/Logout.css';
+@import './components/css/notification.css';
+@import './components/css/projects.css';
+@import './components/css/projectemployeeslist.css';
+@import './components/css/home.css';
+@import './components/css/settings.css';
+@import './components/css/rolesmanagement.css';
+
+/* // Engineer Flow Styles */
+
+
+@import './components/css/engineerdashboard.css';
+@import './components/css/engineermaterial.css';
+@import './components/css/engineermaterialcreate.css';
+@import './components/css/engineermaterialview.css';
+@import './components/css/engineertask.css';
+@import './components/css/engineerreport.css';
+@import './components/css/engineerreportcreate.css';
+@import './components/css/engineerreportview.css';

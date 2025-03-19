@@ -1,0 +1,70 @@
+/* General Styling */
+.container {
+  max-width: 100%;
+}
+
+/* Table Styling */
+.table-responsive {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.table-header {
+  background-color: #f8f9fa; /* Light Gray */
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.table thead th {
+  background-color:#DEDEDE; /* Orange */
+  color: #333333;
+  padding: 12px;
+  font-size: 14px;
+}
+
+
+
+/* Main Row Styling */
+/* Apply dark orange background to fw-bold rows */
+tr.fw-bold  td {
+  background-color: #c65600 !important;
+  font-size: 16px;
+  color: #FFFFFF;
+}
+
+
+
+.table tbody tr {
+  transition: all 0.3s ease-in-out;
+}
+
+.table tbody tr:hover {
+  background-color: #ffe5d5; /* Light Orange */
+}
+
+/* Main Row Styling */
+
+
+/* Sub-Row Styling */
+.bg-light {
+  background-color: #f8f9fa !important;
+}
+
+td, th {
+  vertical-align: middle !important;
+  text-align: center;
+}
+
+/* Buttons */
+button {
+  border-radius: 50%;
+  font-size: 14px;
+  padding: 4px 8px;
+}
+
+/* Dropdown Styling */
+form select {
+  border-radius: 5px;
+  padding: 4px;
+  cursor: pointer;
+}
