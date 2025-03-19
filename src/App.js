@@ -70,6 +70,13 @@ const App = () => {
         "/admin/engineertask",
         "/admin/engineersetting"
       ]
+    },
+    AQS : {
+      default : "",
+      layout :"",
+      paths : [
+        
+      ]
     }
   };
 
