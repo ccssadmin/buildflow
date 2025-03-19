@@ -1,6 +1,6 @@
 /* General Styling */
 .container {
-  max-width: 100%;
+  width: auto;
 }
 
 /* Table Styling */

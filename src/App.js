@@ -8,6 +8,7 @@ import "./styles/index.css";
 /** LAYOUTS */
 const MdLayout = lazy(() => import("./components/layout/user-layout.component"));
 const EngineerLayout = lazy(() => import("./components/layout/engineer-layout.component"));
+const AqsLayout = lazy ( ( ) => import('./components/layout/aqs-layout.component'));
 
 /** PAGES */
 const Login = lazy(() => import("./pages/Login/Login"));
@@ -35,6 +36,27 @@ const EngineerMaterialCreate = lazy(() => import('./pages/engineerFlow/Material/
 const EngineerChat = lazy(() => import('./pages/engineerFlow/ChatPage/Chat/ChatApp'));
 const EngineerTask = lazy(() => import('./pages/engineerFlow/Task/index'));
 const EngineerSetting = lazy(() => import('./pages/engineerFlow/Settings/index'));
+
+
+// AQS FLOW
+
+const AqsDashboard = lazy ( () => import ('./pages/aqsFlow/Dashboard/index'));
+const KanbanAqs = lazy ( () => import ('./pages/aqsFlow/KanbanBoard/index'));
+const AqsTicketDetails = lazy ( ( ) => import('./pages/aqsFlow/KanbanBoard/TicketDetails'));
+const AqsChat = lazy( ( ) => import('./pages/aqsFlow/ChatPage/Chat/ChatApp'));
+const AqsMaterial = lazy( ( ) => import('./pages/aqsFlow/Materials/index'));
+const AqsInventory = lazy ( ( ) => import('./pages/aqsFlow/Inventory/index'));
+const AqsBoq = lazy ( ( ) => import('./pages/aqsFlow/Boq/index'));
+const AqsBoqCreate = lazy ( ( ) => import ('./pages/aqsFlow/Boq/BoqCreate'));
+const AqsBoqOpen = lazy ( ( ) => import ('./pages/aqsFlow/Boq/BoqOpen'));
+const AqsCostEstimation = lazy ( ( ) => import('./pages/aqsFlow/CostEstimation/index'));
+const AqsCostEstimationCreate = lazy ( ( ) => import('./pages/aqsFlow/CostEstimation/CostEstimationCreate'));
+const AqsCostEstimationOpen = lazy ( ( ) => import('./pages/aqsFlow/CostEstimation/CostEstimationOpen'));
+const AqsVendor = lazy( ( ) => import('./pages/aqsFlow/Vendors/index'));
+const AqsVendorDetails = lazy ( ( ) => import ('./pages/aqsFlow/Vendors/VendorDetails'));
+const AqsVendorPriceDetails = lazy ( ( ) => import ('./pages/aqsFlow/Vendors/VendorPriceDetails'));
+const AqsSetting = lazy( ( ) => import ('./pages/aqsFlow/Settings/index'));
+
 // Not Found
 const NotFound = lazy(() => import("./pages/mdflow/NotFound/NotFound"));
 
@@ -50,33 +72,14 @@ const App = () => {
     ManagingDirector: {
       default: "/home",
       layout: MdLayout,
-      paths: ["/home", "/approvals", "/ticket/:ticketId", "/projects", "/projectdetails", "/chat", "/settings"]
     },
     Engineer: {
       default: "/admin/engineerdashboard",
       layout: EngineerLayout,
-      paths: [
-        "/admin/engineerdashboard", 
-        "/admin/engineerproject", 
-        "/admin/engineerapprovals", 
-        "/admin/engineerticketdetails",
-        "/admin/engineerchats",
-        "/admin/engineerreport",
-        "/admin/engineerreportview",
-        "/admin/engineerreportcreate",
-        "/admin/engineermaterial",
-        "/admin/engineermaterialview",
-        "/admin/engineermaterialcreate",
-        "/admin/engineertask",
-        "/admin/engineersetting"
-      ]
     },
     AQS : {
-      default : "",
-      layout :"",
-      paths : [
-        
-      ]
+      default : "/aqs/aqsdashboard",
+      layout : AqsLayout,
     }
   };
 
@@ -212,6 +215,31 @@ const App = () => {
           <Route path="engineersetting" element={<EngineerSetting />} />
           <Route path="*" element={<NotFound />} />
         </Route>
+
+
+        {/* AqsRoutes */}
+
+        <Route
+          path="/aqs"
+          element={<ProtectedRoute allowedRole="AQS"><AqsLayout onLogout={handleLogout} /></ProtectedRoute>}
+        >
+          <Route path="aqsdashboard" element={ <AqsDashboard />} />
+          <Route path="aqsapprovals" element={ <KanbanAqs />} />
+          <Route path="aqsticketdetails/:ticketId" element={ <AqsTicketDetails />} />
+          <Route path="aqschats" element={<AqsChat />} />
+          <Route path="aqsmaterial" element={ <AqsMaterial />} />
+          <Route path="aqsinventory" element={ <AqsInventory />} />
+          <Route path="aqsboq" element={ <AqsBoq />} />
+          <Route path="aqsboqcreate" element={ <AqsBoqCreate />} />
+          <Route path="aqsboqopen" element= { <AqsBoqOpen />} />
+          <Route path="aqscostestimation" element={ <AqsCostEstimation />} />
+          <Route path="aqscostestimationcreate" element={ <AqsCostEstimationCreate />} />
+          <Route path="aqscostestimationopen" element={ <AqsCostEstimationOpen />} />
+          <Route path="aqsvendor" element={ <AqsVendor />} />
+          <Route path="aqsvendordetails" element={ <AqsVendorDetails />} />
+          <Route path="aqsvendorpricedetails" element = {<AqsVendorPriceDetails />} />
+          <Route path="aqssetting" element={ <AqsSetting />} />
+          </Route>
 
         {/* Catch all redirect */}
         <Route path="*" element={<Navigate to="/login" replace />} />
