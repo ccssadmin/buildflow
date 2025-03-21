@@ -252,7 +252,16 @@ h5.sidenav-content__headings-lists--title {
     margin: 10px 0px;
 }
 
-
+/* Table Globel */
+.tbl th {
+    background-color: #ebebeb !important;
+    color: #333333;
+}
+.tbl td, .tbl th {
+    border: 1px solid #d9d9d9;
+    padding: 10px;
+    vertical-align: middle;
+}
 
 /* Large Side Nav Changes */
 .layout-large-sidenav-container .sidenav-content {

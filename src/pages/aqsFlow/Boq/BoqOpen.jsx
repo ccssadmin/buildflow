@@ -76,7 +76,7 @@ const BoqOpen = () => {
 
             {/* Table Section */}
             <div className="table-responsive">
-                <Table bordered className="mt-3">
+                <Table bordered className="tbl">
                     <thead className="table-light">
                         <tr>
                             <th>S. No</th>

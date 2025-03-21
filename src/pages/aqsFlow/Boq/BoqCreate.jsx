@@ -31,7 +31,7 @@ const BoqCreate = () => {
   return (
     <div className="container boq-form">
       <nav className="breadcrumb">
-        <span>Material &gt; </span> <span className="text-orange">Create</span>
+        <span>Material &gt; </span> <span className="text-orange">Create BOQ</span>
       </nav>
       
       <h2 className="form-title">New BOQ</h2>
@@ -75,7 +75,7 @@ const BoqCreate = () => {
           </div>
         </div>
 
-        <Table bordered className="boq-table">
+        <Table bordered className="tbl">
           <thead>
             <tr>
               <th>S. No</th>
