@@ -1,0 +1,150 @@
+/* Inventory Container */
+.inventory-container {
+  width: auto;
+  height: auto;
+  /* position: absolute; */
+  top: 113px;
+  left: 220px;
+  background-color: #FFFFFF;
+  padding: 20px;
+  border-radius: 10px;
+  font-family: DM Sans;
+}
+
+/* MRM Site Dropdown */
+.site-header {
+  height:52px;
+  width: 400px;
+  padding:10px 20px 10px ;
+  font-size: 24px;
+  font-weight: 700;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.site-dropdown {
+  width: 400px;
+  height: 52px;
+  font-size: 24px;
+  padding: 5px;
+  margin-left: 10px;
+  font-weight:700;
+  font-family: DM Sans;
+  color: #333333;
+  background-color: #E8E8E8;
+  border: none;
+  border-radius: 4px;
+}
+.site-dropdown-container {
+  position: relative;
+  display: inline-block;
+  right:24px;
+
+}
+
+/* Table Headers */
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 15px 0;
+}
+
+.table-header h3 {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+/* Add & Issue Stock Buttons */
+.add-stock-btn,
+.issue-stock-btn {
+  background-color: #FFFFFF;
+  color: #FF6F00;
+  border: 1px solid #FFFFFF;
+  padding: 8px 15px;
+  border-radius: 5px;
+  font-size:16px;
+  font-weight: 500;
+  font-family: DM Sans;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Table Styling */
+.table-container {
+  border: 1px solid #C3C3C3;
+  background: white;
+  /* padding: 15px; */
+  /* border-radius: 10px; */
+  margin-bottom: 20px;
+  overflow-x: auto;
+}
+
+
+/* Table Header */
+th {
+  background-color: #D6D6D6;
+  padding: 12px;
+  text-align: left;
+  border: 1px solid #ddd; /* Column borders */
+}
+
+/* Table Row & Column Borders */
+td {
+  padding: 12px;
+  width: 246px;
+  height:66px;
+  border: 1px solid #DEDEDE; /* Row & Column Borders */
+}
+
+/* Row Hover Effect */
+tr:hover {
+  background-color: #f9f9f9;
+}
+
+/* Status Colors */
+.status {
+  font-weight: bold;
+  padding: 5px 10px;
+  border-radius: 5px;
+  text-align: center;
+}
+.table-header h3{
+  font-size: 28px;
+}
+
+.status.approved {
+  color: #30A335;
+}
+
+.status.pending {
+  color: #F1C300;
+}
+
+.status.rejected {
+  font-family: DM Sans;
+  color: #D00416;
+}
+
+/* View Action */
+.view-action {
+  color: #0456D0;
+  cursor: pointer;
+}
+
+.view-action:hover {
+  text-decoration: underline;
+}
+
+
+.vendor-image {
+  width: 17px; /* Adjust size as needed */
+  height: 17px;
+  border-radius: 50%;
+  margin-right: 8px;
+  vertical-align: middle;
+  font-size: 14px;
+  font-family: DM sans;
+  font-weight: 400;
+}
