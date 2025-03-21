@@ -1,32 +1,23 @@
-/* General Styling */
-.container {
-  width: auto;
-}
-
-/* Table Styling */
-.table-responsive {
+/* .page-add-task .table-responsive {
   border-radius: 10px;
   overflow: hidden;
 }
 
-.table-header {
-  background-color: #f8f9fa; /* Light Gray */
+.page-add-task .table-header {
+  background-color: #f8f9fa; 
   font-weight: bold;
   text-transform: uppercase;
 }
 
-.table thead th {
-  background-color:#DEDEDE; /* Orange */
+.page-add-task .table thead th {
+  background-color:#DEDEDE; 
   color: #333333;
   padding: 12px;
   font-size: 14px;
 }
 
 
-
-/* Main Row Styling */
-/* Apply dark orange background to fw-bold rows */
-tr.fw-bold  td {
+.page-add-task tr.fw-bold  td {
   background-color: #c65600 !important;
   font-size: 16px;
   color: #FFFFFF;
@@ -34,37 +25,42 @@ tr.fw-bold  td {
 
 
 
-.table tbody tr {
+.page-add-task .table tbody tr {
   transition: all 0.3s ease-in-out;
 }
 
-.table tbody tr:hover {
-  background-color: #ffe5d5; /* Light Orange */
+.page-add-task .table tbody tr:hover {
+  background-color: #ffe5d5;
 }
 
-/* Main Row Styling */
-
-
-/* Sub-Row Styling */
-.bg-light {
+.page-add-task .bg-light {
   background-color: #f8f9fa !important;
 }
 
-td, th {
+.page-add-task td, .page-add-task th {
   vertical-align: middle !important;
   text-align: center;
 }
 
-/* Buttons */
-button {
-  border-radius: 50%;
-  font-size: 14px;
-  padding: 4px 8px;
-}
-
-/* Dropdown Styling */
-form select {
+.page-add-task form select {
   border-radius: 5px;
   padding: 4px;
   cursor: pointer;
+} */
+.page-add-task.full-width .left-container {
+  padding: 0px;
+  width: 99%;
+}
+
+.page-add-task .left-container>.row {
+  padding: 20px;
+}
+
+
+
+@media (max-width: 1440px) {
+  main.page-add-task .left-container {
+    width: 100%;
+    max-width: 100%;
+  }
 }

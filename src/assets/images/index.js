@@ -19,6 +19,18 @@ import ContactUs from "./menu/active/contact-us.svg";
 import calenderActive from "./menu/active/calendarActive.svg";
 import calenderInActive from "./menu/inactive/calanderinActive.svg";
 
+
+/** SideNav Icons **/
+import IconProjects from "./menu/icon-projects.svg"
+import IconDashboard from "./menu/icon-dashboard.svg"
+import IconSettings from "./menu/icon-settings.svg"
+import IconApprovals from "./menu/icon-approvals.svg"
+import IconChat from "./menu/icon-chat.svg"
+import IconMaterial from "./menu/icon-material.svg"
+import IconTasks from "./menu/icon-tasks.svg"
+import IconReports from "./menu/icon-reports.svg"
+
+
 /** SETTINGS ICONS */
 import generalIcon from "./settings/general.svg";
 import securityIcon from "./settings/security.svg";
@@ -107,6 +119,9 @@ import profile_pic from "../images/Profile-pic.png"
 import comment from "../images/Comment.png"
 import fileAttach from "../images/FileAttach.png"
 import date from "../images/Time.png"
+import x_mark from "../images/x-mark.svg"
+import icon_gantt from "../images/icon-gantt.svg"
+
 
 export {
   Home,
@@ -213,4 +228,14 @@ export {
   comment,
   fileAttach,
   date,
+  IconProjects,
+  IconDashboard,
+  IconSettings,
+  IconApprovals,
+  IconChat,
+  IconMaterial,
+  IconTasks,
+  IconReports,
+  x_mark,
+  icon_gantt,
 };
