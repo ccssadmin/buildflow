@@ -35,9 +35,9 @@
     font-weight: 700;
     margin-bottom: 24px;
 }
-.task-conatiner {
-    max-height: 346px;
+.task-conatiner .task-content {
     overflow-y: scroll;
+    max-height: 306px;
 }
 main .task-conatiner::-webkit-scrollbar {
     width: 0px;
@@ -57,4 +57,12 @@ main .task-conatiner::-webkit-scrollbar-thumb {
 }
 .layout-large-sidenav-container main.page-engineer-project .left-container {
     width: 100%;
+}
+.pending-max-height-large {
+    max-height: 648px;
+    overflow-y: scroll;
+}
+.tbl-engineer-project-details-milestone .fs-20-500 {
+    font-size: 20px;
+    font-weight: 500px;
 }

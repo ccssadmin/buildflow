@@ -1,13 +1,13 @@
 import React, { Fragment } from "react";
-import { Link } from "react-router-dom";
-// import { filter } from "../../assets/images";
-import { ProgressBar } from "react-bootstrap";
 import ProjectMilestoneTable from "./ProjectMilestoneTable";
 import ProjectEmployeesList from "../../../components/common/ProjectEmployeesList";
+import ProjectProgressBar from "./ProjectProgressBar";
 export const roleCheck = { role: "admin" };
 
-const ProjectDetails = ({ progress = 50, maxValue = 100 }) => {
-  const percentage = (progress / maxValue) * 100;
+const ProjectDetails = () => {
+  const project = {
+    completion: 50, 
+  };
   return (
     <Fragment>
       <main className="page-project-details d-flex">
@@ -56,21 +56,7 @@ const ProjectDetails = ({ progress = 50, maxValue = 100 }) => {
                     <span>Start Date</span>22-07-2023
                   </h4>
                 </div>
-                <div className="progress-container mt-3 mb-2">
-                  <div className="custom-progress-bar">
-                    <div
-                      className="progress-fill"
-                      style={{ width: `${percentage}%` }}
-                    />
-
-                    <div
-                      className="progress-indicator large"
-                      style={{ left: `${percentage}%` }}
-                    >
-                      {percentage}%
-                    </div>
-                  </div>
-                </div>
+                <ProjectProgressBar progress={project.completion} />
               </div>
               <div className="card-site-conatiner project-milestone mt-4">
                 <h4>Project Milestone</h4>
