@@ -54,7 +54,7 @@ const AqssideNav = ({ onChange }) => {
                       src={IconDashboard}
                       alt={"Kanban"}
                     />                    
-                    <span>Dashboard 11</span>
+                    <span>Dashboard </span>
                     {collaps && "Kanban"}
                   </>
                   
