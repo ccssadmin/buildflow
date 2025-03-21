@@ -27,6 +27,8 @@
 @import './components/css/aqsStyles/aqsinventory.css';
 @import './components/css/aqsStyles/aqsboqcreate.css';
 @import './components/css/aqsStyles/aqsboqopen.css';
+@import './components/css/aqsStyles/aqscostestimationcreate.css';
+@import './components/css/aqsStyles/aqscostestimationopen.css';
 @import './components/css/aqsStyles/aqsboqmain.css';
 @import './components/css/aqsStyles/aqsvendordetails.css';
 @import './components/css/aqsStyles/aqsvendorpricedetails.css';
