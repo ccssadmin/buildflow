@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import inTransitIcon from "../../../assets/images/intransit.jpg";
+import { useNavigate } from "react-router-dom";
 
 const vendors = [
   { name: "SS Enterprises", category: "Materials, Labor, and Rental Assets", status: "In transit", color: "bg-ss" },
@@ -15,10 +16,14 @@ const vendors = [
 ];
 
 const AqsVendor = () => 
+
   {
     const [selectedSite, setSelectedSite] = useState("MRM Site");
 
     const sites = ["MRM Site", "Vendor Site", "Customer Site", "Admin Site"];
+
+    const navigate = useNavigate();
+
   return (
     <div className="container mt-4">
   <div className="d-flex justify-content-between align-items-center mb-3">
@@ -37,7 +42,9 @@ const AqsVendor = () =>
     </button>
   </div>
 
-      <div className="row">
+      <div className="row" 
+      style={ { cursor : 'pointer'}}
+      onClick={ () => navigate('/aqs/aqsvendordetails')}>
         {vendors.map((vendor, index) => (
           <div key={index} className="col-md-6 mb-3">
             <div className="card p-3 shadow-sm">
@@ -52,15 +59,15 @@ const AqsVendor = () =>
                   <p className="text-muted mb-0" style={{ fontSize: "14px" }}>{vendor.category}</p>
                 </div>
                 {vendor.status === "In transit" && (
-  <span className="badge badge-warning-custom ms-auto d-flex align-items-center">
-    <img 
-      src={inTransitIcon} 
-      alt="In Transit" 
-      className="me-1 bright-image" 
-    />
-    <span className="blur-text">{vendor.status}</span>
-  </span>
-)}
+                  <span className="badge badge-warning-custom ms-auto d-flex align-items-center">
+                    <img 
+                      src={inTransitIcon} 
+                      alt="In Transit" 
+                      className="me-1 bright-image" 
+                    />
+                    <span className="blur-text">{vendor.status}</span>
+                  </span>
+                )}
 
                 
                 {vendor.button && (

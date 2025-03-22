@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 
 const AqsCostEstimation = () => {
   const [selectedSite, setSelectedSite] = useState('MRM Site');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const navigate = useNavigate();
   
   const sites = ['MRM Site', 'Second Site', 'Third Site'];
   
@@ -112,7 +115,9 @@ const AqsCostEstimation = () => {
             </svg>
             <span className="ms-1">Sort By</span>
           </button>
-          <button className="create-button">
+          <button 
+          onClick={ ( ) => navigate('/aqs/aqscostestimationcreate')}
+          className="create-button">
             + Create
           </button>
         </div>
@@ -120,7 +125,12 @@ const AqsCostEstimation = () => {
       
       <div className="row g-3 ">
         {blocks.map((block, index) => (
-          <div className="col-md-6 border border-1" key={index}>
+          <div 
+          className="col-md-6 border border-1" 
+          key={index} 
+          onClick={ () => navigate('/aqs/aqscostestimationopen')}
+          style={{ cursor : 'pointer'}}
+          >
             <div className="block-card">
               <div className="card-header-info">
                 <div className="id-text">ID - {block.id}</div>

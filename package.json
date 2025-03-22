@@ -45,7 +45,7 @@
     "xlsx": "^0.18.5"
   },
   "scripts": {
-    "start": "env-cmd -f .env.development react-scripts start",
+    "start": "cross-env PORT=2126 env-cmd -f .env.development react-scripts start",
     "build": "react-scripts build",
     "build:dev": "env-cmd -f .env.development react-scripts build",
     "build:test": "env-cmd -f .env.testing react-scripts build",
@@ -74,6 +74,7 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "cross-env": "^7.0.3",
     "env-cmd": "^10.1.0",
     "react-app-rewired": "^2.2.1"
   }

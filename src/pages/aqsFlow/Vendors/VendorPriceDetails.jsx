@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 
 const AqsVendorPriceDetails = () => {
+  const navigate = useNavigate();
   const [vendorData, setVendorData] = useState({
     vendorName: 'SS Enterprises',
     vendorId: 'VEND-00052',
@@ -53,7 +55,10 @@ const AqsVendorPriceDetails = () => {
      <div className="breadcrumb-nav">
         <span className="text-muted">Vendors</span>
         <span className="mx-2">›</span>
-        <span className="text-muted">Open</span>
+        <span 
+        className="text-muted" 
+        style={ { cursor : 'pointer'}}
+        onClick={ ( ) => navigate('/aqs/aqsvendordetails')}>Open</span>
         <span className="mx-2">›</span>
         <span className="text-orange">Price Details</span>
       </div>
@@ -74,7 +79,7 @@ const AqsVendorPriceDetails = () => {
               <label className="form-label">Vendor Name</label>
               <input
                 type="text"
-                className="form-control"
+                className="form-control-vendor"
                 name="vendorName"
                 value={vendorData.vendorName}
                 onChange={handleInputChange}
@@ -84,7 +89,7 @@ const AqsVendorPriceDetails = () => {
               <label className="form-label">Vendor ID</label>
               <input
                 type="text"
-                className="form-control"
+                className="form-control-vendor"
                 name="vendorId"
                 value={vendorData.vendorId}
                 onChange={handleInputChange}
@@ -95,7 +100,7 @@ const AqsVendorPriceDetails = () => {
               <div className="input-group">
                 <input
                   type="text"
-                  className="form-control"
+                  className="form-control-vendor"
                   name="category"
                   value={vendorData.category}
                   onChange={handleInputChange}
@@ -112,7 +117,7 @@ const AqsVendorPriceDetails = () => {
               <label className="form-label">Contact Person</label>
               <input
                 type="text"
-                className="form-control"
+                className="form-control-vendor"
                 name="contactPerson"
                 value={vendorData.contactPerson}
                 onChange={handleInputChange}
@@ -122,7 +127,7 @@ const AqsVendorPriceDetails = () => {
               <label className="form-label">Phone Number</label>
               <input
                 type="text"
-                className="form-control"
+                className="form-control-vendor"
                 name="phoneNumber"
                 value={vendorData.phoneNumber}
                 onChange={handleInputChange}
@@ -132,7 +137,7 @@ const AqsVendorPriceDetails = () => {
               <label className="form-label">Email</label>
               <input
                 type="email"
-                className="form-control"
+                className="form-control-vendor"
                 name="email"
                 value={vendorData.email}
                 onChange={handleInputChange}

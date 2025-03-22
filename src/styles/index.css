@@ -30,7 +30,8 @@
 @import './components/css/aqsStyles/aqsboqmain.css';
 @import './components/css/aqsStyles/aqsvendordetails.css';
 @import './components/css/aqsStyles/aqsvendorpricedetails.css';
-@import './components/css/aqsStyles/aqsmaterial.css';
+@import './components/css/aqsStyles/aqsmaterial.css'; 
 @import './components/css/aqsStyles/aqsvendor.css';
 @import './components/css/aqsStyles/aqsvendordetails.css';
 @import './components/css/aqsStyles/aqscostestimation.css';
+@import './components/css/aqsStyles/aqscostestimationcreate.css';
