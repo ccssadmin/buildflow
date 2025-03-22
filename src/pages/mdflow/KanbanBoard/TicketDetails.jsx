@@ -266,7 +266,8 @@ const TicketDetails = () => {
   };
 
   return (
-    <Container fluid className="p-0">
+    <Container fluid className="p-0 auto-container">
+
       {/* Toast notification */}
       <ToastContainer position="top-end" className="p-3" style={{ zIndex: 1060 }}>
         <Toast 
