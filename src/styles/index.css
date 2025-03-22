@@ -24,7 +24,7 @@
 
 
 /* AQS FLOW STYLES */
-@import './components/css/aqsStyles/aqsinventory.css';
+@import './components/css/aqsStyles/aqsinventory.css'; 
 @import './components/css/aqsStyles/aqsboqcreate.css';
 @import './components/css/aqsStyles/aqsboqopen.css';
 @import './components/css/aqsStyles/aqsboqmain.css';
