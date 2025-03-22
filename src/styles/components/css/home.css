@@ -115,7 +115,7 @@ span.pending-approvel-count {
     font-size: 14px;
     font-weight: 400;
     margin-bottom: 10px;
-    color: #606060;
+    color: var(--dark-gray-color) !important;
 }
 .pending-approvel-conatiner .card-pending-approvel:last-child .card-pending-approvel-content,
 .pending-approvel-conatiner .card-pending-approvel:last-child .work-delays-body,

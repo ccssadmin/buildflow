@@ -95,7 +95,26 @@ body {
   .table-light {
     background-color: #f8f9fa;
   }
+  .page-engineer-material.create.view .tbl tr th, .page-engineer-material.create.view .tbl tr td, .tbl-footer .amt {
+    width: 204px;
+    text-align: center;
+  }
   
+  .btn-group-footer .btn, .btn-group-footer .btn:hover {
+    background-color: transparent !important;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0px;
+    color: var(--dark-gray-color) !important;
+    border: 0px;
+}
+.btn-group-footer .btn.btn-download, .btn-group-footer .btn.btn-download:hover {
+  width: 240px;
+  background-color: var(--primary-color) !important;
+  color: #ffffff !important;
+}
   .table th {
     vertical-align: middle;
     padding: 12px 8px;
