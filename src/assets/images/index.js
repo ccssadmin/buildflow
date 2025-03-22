@@ -121,6 +121,13 @@ import fileAttach from "../images/FileAttach.png"
 import date from "../images/Time.png"
 import x_mark from "../images/x-mark.svg"
 import icon_gantt from "../images/icon-gantt.svg"
+import icon_plus from "../images/icon-plus.svg"
+import icon_down_radius from "../images/icon-down-radius.svg"
+import icon_dropdown_arrow from "../images/icon-dropdown-arrow.svg"
+import icon_breadcrumb_arrow from "../images/icon-breadcrumb-arrow.svg"
+import cil_send from "../images/cil_send.svg"
+import icon_approval from "../images/icon-approval.svg"
+import icon_download from "../images/icon-download.svg"
 
 
 export {
@@ -238,4 +245,11 @@ export {
   IconReports,
   x_mark,
   icon_gantt,
+  icon_plus,
+  icon_down_radius,
+  icon_dropdown_arrow,
+  icon_breadcrumb_arrow,
+  cil_send,
+  icon_approval,
+  icon_download
 };
