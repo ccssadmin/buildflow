@@ -111,10 +111,7 @@ const AqsCostEstimationOpen = () => {
           <div style={{ position: 'relative' }}>
             <input
               type="date"
-              style={{ width: '300px', height: '42px', marginTop: '5px', border: '1px solid #ccc', borderRadius: '4px' , paddingLeft : '3px' }}
-              value={selectedDate ? selectedDate.toLocaleDateString() : ''}
-              onClick={() => setIsOpen(!isOpen)}
-              readOnly
+              style={{ width: '300px', height: '42px', marginTop: '5px', border: '1px solid #ccc', borderRadius: '4px' , paddingLeft : '4px' , paddingRight: '3px' }}             
             />
           </div>
         </div>
@@ -123,10 +120,7 @@ const AqsCostEstimationOpen = () => {
           <div style={{ position: 'relative' }}>
             <input
               type="date"
-              style={{ width: '300px', height: '42px', marginTop: '5px', border: '1px solid #ccc', borderRadius: '4px' , marginLeft : '25px' ,  paddingLeft : '3px' }}
-               value={selectedDate ? selectedDate.toLocaleDateString() : ''}
-               onClick={() => setIsOpen(!isOpen)}
-              readOnly
+              style={{ width: '300px', height: '42px', marginTop: '5px', border: '1px solid #ccc', borderRadius: '4px' , marginLeft : '25px' ,  paddingLeft : '4px' , paddingRight : '3px'}}
             />
           </div>
         </div>
