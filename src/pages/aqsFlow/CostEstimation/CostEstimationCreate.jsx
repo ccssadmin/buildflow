@@ -34,27 +34,21 @@ const navigate = useNavigate();
                <label>Project Name</label>
                <input
                  type="text"
-                 style={{ width: '380px', height: '52px', marginTop: '5px', border: '1px solid #ccc', borderRadius: '4px' }}
-                 value=" "
-                 readOnly
+                 style={{ width: '300px', height: '42px', marginTop: '5px', border: '1px solid #ccc', borderRadius: '4px' , paddingLeft : '4px' }}
                />
              </div>
              <div style={{ flex: 1, marginLeft: '-25px' }}>
                <label>Project Code</label>
                <input
                  type="text"
-                 style={{ width: '380px', height: '52px', marginTop: '5px', border: '1px solid #ccc', borderRadius: '4px' }}
-                 value=""
-                 readOnly
+                 style={{ width: '300px', height: '42px', marginTop: '5px', border: '1px solid #ccc', borderRadius: '4px' , paddingLeft : '4px' }}
                />
              </div>
              <div style={{ flex: 1, marginLeft: '-25px' }}>
                <label>Title of CE</label>
                <input
                  type="text"
-                 style={{ width: '380px', height: '52px', marginTop: '5px', border: '1px solid #ccc', borderRadius: '4px' }}
-                 value=""
-                 readOnly
+                 style={{ width: '300px', height: '42px', marginTop: '5px', border: '1px solid #ccc', borderRadius: '4px' , paddingLeft : '4px' }}
                />
              </div>
            </div>
@@ -65,27 +59,21 @@ const navigate = useNavigate();
                <label>Total Budget</label>
                <input
                  type="text"
-                 style={{ width: '380px', height: '52px', marginTop: '5px', border: '1px solid #ccc', borderRadius: '4px' }}
-                 value=""
-                 readOnly
+                 style={{ width: '300px', height: '42px', marginTop: '5px', border: '1px solid #ccc', borderRadius: '4px' , paddingLeft : '4px' }}
                />
              </div>
              <div style={{ flex: 1, marginLeft: '-25px' }}>
                <label>Remaining Budget</label>
                <input
                  type="text"
-                 style={{ width: '380px', height: '52px', marginTop: '5px', border: '1px solid #ccc', borderRadius: '4px' }}
-                 value=""
-                 readOnly
+                 style={{ width: '300px', height: '42px', marginTop: '5px', border: '1px solid #ccc', borderRadius: '4px' , paddingLeft : '4px' }}
                /> 
              </div>
              <div style={{ flex: 1, marginLeft: '-25px' }}>
                <label>Send to Approval</label>
                <input
                  type="text"
-                 style={{ width: '380px', height: '52px', marginTop: '5px', border: '1px solid #ccc', borderRadius: '4px' }}
-                 value=""
-                 readOnly
+                 style={{ width: '300px', height: '42px', marginTop: '5px', border: '1px solid #ccc', borderRadius: '4px' , paddingLeft : '4px' }}
                />   
              </div>
            </div>
@@ -96,19 +84,17 @@ const navigate = useNavigate();
                <label>End Date</label>
                <div style={{ position: 'relative' }}>
                  <input
-                   type="text"
-                   style={{ width: '380px', height: '52px', marginTop: '5px', border: '1px solid #ccc', borderRadius: '4px' }}
-                   readOnly
+                   type="date"
+                   style={{ width: '300px', height: '42px', marginTop: '5px', border: '1px solid #ccc', borderRadius: '4px' , padding :'4px' }}
                  />
                </div>
              </div>
              <div style={{ flex: 1, marginLeft: '-415px' }}>
-               <label>Start Date</label>
+               <label style={{ marginLeft : '30px'}}>Start Date</label>
                <div style={{ position: 'relative' }}>
                  <input
-                   type="text"
-                   style={{ width: '380px', height: '52px', marginTop: '5px', border: '1px solid #ccc', borderRadius: '4px' }}
-                   readOnly
+                   type="date"
+                   style={{ width: '300px', height: '42px', marginTop: '5px', border: '1px solid #ccc', borderRadius: '4px' , marginLeft: '30px' , padding :'4px'}}
                  />
                </div>
              </div>
