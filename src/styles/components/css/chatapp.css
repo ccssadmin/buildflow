@@ -164,7 +164,7 @@
     transform: scale(1.1);
   }
   
-  .chat-window { display: flex; flex-direction: column; height: 100vh; }
+  .chat-window { display: flex; flex-direction: column; height: auto; width: auto; }
 .chat-messages { overflow-y: auto; flex-grow: 1; }
 .chat-bubble { padding: 8px 12px; border-radius: 10px; margin-bottom: 8px; max-width: 60%; }
 .sent { align-self: flex-end; background-color: #FF6F00; color: white; }

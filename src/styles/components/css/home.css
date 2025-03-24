@@ -60,7 +60,7 @@ span.pending-approvel-count {
     height: 16px;
 }
 .project-dept {
-    background-color: #FF5151 !important;
+    /* background-color: #FF5151 !important; */
     padding: 5px 8px;
     display: flex;
     align-items: center;
@@ -71,6 +71,14 @@ span.pending-approvel-count {
     color: #fff;  
     width: fit-content; 
 }
+/* Add to your CSS file */
+/* .dept-finance {
+    background-color: #FF4040; 
+  }
+  
+  .dept-purchase {
+    background-color:  #4086FF; 
+  } */
 .card-pending-approvel-project-user p {
     font-size: 12px;
     text-align: end;

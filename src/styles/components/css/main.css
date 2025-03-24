@@ -371,7 +371,7 @@ h5.sidenav-content__headings-lists--title {
         align-items: center;
     }
     .header-search-input {
-        width: 100%;
+        width: 600px;
     }
     .card-conatiner {
         margin-bottom: 16px;
