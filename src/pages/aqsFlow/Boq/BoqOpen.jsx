@@ -1,8 +1,10 @@
 import React from "react";
 import { Form, Table, Dropdown } from "react-bootstrap";
 import { RiArrowDropDownLine } from "react-icons/ri";
+import { useNavigate } from "react-router-dom";
 
 const BoqOpen = () => {
+    const navigate = useNavigate();
     const boqData = [
         { id: "01", name: "Dalmia Cements", unit: "Bag", rate: 321, quantity: 12, total: 3852 },
         { id: "02", name: "MTR TMT Rod", unit: "Piece", rate: 86, quantity: 54, total: 4644 },
@@ -17,14 +19,17 @@ const BoqOpen = () => {
 
     return (
         <div className="container mt-4">
-            <nav>
-                <span className="text-muted">BOQ &gt; </span>
-                <span style={{ color: "#FF6F00" }}>Open BOQ</span>
-            </nav>
-
-            <h3 className="mt-3">New BOQ</h3>
-
-            {/* Form Section */}
+        <div style={{ paddingTop: '20px', paddingBottom: '20px', borderBottom: '1px solid #ddd', marginBottom: '20px' }}>
+        <h2 style={{ margin: 0, fontSize: '16px', color: '#333' }}>
+            <span 
+            onClick={() => navigate('/aqs/aqsboq')}
+            style={ { cursor : 'pointer'}}
+            >BOQ
+            </span> &gt; <span style={{ color: '#FF6F00' }}>Open BOQ</span>
+        </h2>
+      </div>
+     <h3 className="mt-3">New BOQ</h3>
+        {/* Form Section */}
             <div className="row">
                 <div className="col-md-6">
                     <Form.Group className="mb-3">

@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { Form, Button, Table } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 
 const BoqCreate = () => {
+  const navigate = useNavigate();
   const [rows, setRows] = useState([{ itemName: "", unit: "", rate: "", quantity: "", total: "" }]);
 
   const handleAddRow = () => {
@@ -30,9 +32,15 @@ const BoqCreate = () => {
 
   return (
     <div className="container boq-form">
-      <nav className="breadcrumb">
-        <span>Material &gt; </span> <span className="text-orange">Create BOQ</span>
-      </nav>
+      <div style={{ paddingTop: '20px', paddingBottom: '20px', borderBottom: '1px solid #ddd', marginBottom: '20px' }}>
+        <h2 style={{ margin: 0, fontSize: '16px', color: '#333' }}>
+            <span 
+            onClick={() => navigate('/aqs/aqsboq')}
+            style={ { cursor : 'pointer'}}
+            >BOQ
+            </span> &gt; <span style={{ color: '#FF6F00' }}>Create BOQ</span>
+        </h2>
+      </div>
       
       <h2 className="form-title">New BOQ</h2>
 

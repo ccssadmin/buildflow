@@ -94,11 +94,11 @@
 
 
 .btn-cancel {
-  background-color: #6c757d;
-  color: white;
+  background-color: white;
+  color: black;
 }
 
 .btn-submit {
-  background-color: #28a745;
+  background-color:#FF6F00;
   color: white;
 }
