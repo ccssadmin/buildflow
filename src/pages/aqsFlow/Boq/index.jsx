@@ -14,10 +14,10 @@ const boqData = [
 ];
 
 const BOQCard = ({ boq, onCardClick }) => (
-  <div 
-  className="boq-card" 
-  onClick={onCardClick}
-  style={ { cursor : 'pointer'}}
+  <div
+    className="boq-card"
+    onClick={onCardClick}
+    style={{ cursor: 'pointer' }}
   >
     <div className="boq-meta">
       <p>ID - {boq.id}</p>
@@ -54,7 +54,21 @@ const BOQDashboard = () => {
           ))}
         </select>
         <div className="actions">
-          <button className="sort-button">Sort By</button>
+          <button className="sort-button me-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="currentColor"
+              className="bi bi-filter-left"
+              viewBox="0 0 16 16"
+            >
+              <path d="M2 2.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm2 4a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm2 4a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5z" />
+            </svg>
+            <span className="ms-1">Sort By</span>
+          </button>
+
+
           <button
             className="create-boq-btn"
             onClick={() => navigate('/aqs/aqsboqcreate')}

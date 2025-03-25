@@ -7,9 +7,9 @@ const AqsCostEstimation = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const navigate = useNavigate();
-  
+
   const sites = ['MRM Site', 'Second Site', 'Third Site'];
-  
+
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
@@ -18,7 +18,7 @@ const AqsCostEstimation = () => {
     setSelectedSite(site);
     setIsDropdownOpen(false);
   };
-  
+
   // Sample data matching exactly what's in the image
   const blocks = [
     {
@@ -95,60 +95,69 @@ const AqsCostEstimation = () => {
     <div className="container-fluid p-3">
       <div className="row justify-content-between align-items-center mb-3">
         <div className="col-auto">
-        <div className="d-flex justify-content-between align-items-center mb-3">
+          <div className="d-flex justify-content-between align-items-center mb-3">
             <select
-            className="form-select select-custom"
-            value={selectedSite}
-            onChange={(e) => setSelectedSite(e.target.value)}
+              className="form-select select-custom"
+              style={{ backgroundColor: '#E8E8E8' }}
+              value={selectedSite}
+              onChange={(e) => setSelectedSite(e.target.value)}
             >
-            {sites.map((site, index) => (
+              {sites.map((site, index) => (
                 <option key={index} value={site}>{site}</option>
-            ))}
+              ))}
             </select>
+          </div>
         </div>
-        </div>
-        
+
         <div className="col-auto d-flex align-items-center">
           <button className="sort-button me-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-funnel" viewBox="0 0 16 16">
-              <path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2z"/>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="currentColor"
+              className="bi bi-filter-left"
+              viewBox="0 0 16 16"
+            >
+              <path d="M2 2.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm2 4a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm2 4a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5z" />
             </svg>
             <span className="ms-1">Sort By</span>
           </button>
-          <button 
-          onClick={ ( ) => navigate('/aqs/aqscostestimationcreate')}
-          className="create-button">
+
+          <button
+            onClick={() => navigate('/aqs/aqscostestimationcreate')}
+            className="create-button">
             + Create
           </button>
         </div>
       </div>
-      
+
       <div className="row g-3 ">
         {blocks.map((block, index) => (
-          <div 
-          className="col-md-6 border border-1" 
-          key={index} 
-          onClick={ () => navigate('/aqs/aqscostestimationopen')}
-          style={{ cursor : 'pointer'}}
+          <div
+            className="col-md-6"
+            key={index}
+            onClick={() => navigate('/aqs/aqscostestimationopen')}
+            style={{ cursor: 'pointer' }}
           >
             <div className="block-card">
               <div className="card-header-info">
                 <div className="id-text">ID - {block.id}</div>
                 <div className="time-text">{block.time} • {block.date}</div>
               </div>
-              
+
               <div className="card-title-row justify-content-start">
                 <h5 className="block-name">{block.name}</h5>
                 {block.status && (
                   <span className="inactive-badge">{block.status}</span>
                 )}
               </div>
-              
+
               <div className="approval-row">
                 <span className="approval-text">Approved by</span>
                 <span className="surveyor-badge">{block.approvedBy}</span>
               </div>
-              
+
               <p className="description-text">
                 {block.description}
               </p>
