@@ -55,15 +55,17 @@ const Material = () => {
   return (
     <div className="container mt-4">
       <div className="header-section">
-        <Dropdown>
-          <Dropdown.Toggle className="dropdown-toggle">
-            MRM Site <RiArrowDropDownLine />
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            <Dropdown.Item>MRM Site 1</Dropdown.Item>
-            <Dropdown.Item>MRM Site 2</Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>
+      <div className="site-dropdown-container" style={{marginLeft:'15px'}}>
+          <select
+            className="site-dropdown"
+            // value={selectedSite}
+            // onChange={handleSiteChange}
+          >
+            <option>MRM Site</option>
+            <option>ABC Construction</option>
+            <option>XYZ Builders</option>
+          </select>
+        </div>
         <Button className="create-button"
         onClick={ () => navigate('/admin/engineermaterialcreate')}
         >Create</Button>

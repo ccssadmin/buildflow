@@ -39,7 +39,7 @@ const ReportViewScreen = () => {
           <input type="text" value="DPR2025–00152" readOnly />
         </div>
         <div className="input-group">
-          <label>Report Type *</label>
+          <label>Report Type</label><span className='text-danger'>*</span>
           <select>
             <option>Daily Report</option>
             <option>Weekly Report</option>
@@ -47,7 +47,7 @@ const ReportViewScreen = () => {
           </select>
         </div>
         <div className="input-group">
-          <label>Project</label>
+          <label>Project</label><span className='text-danger'>*</span>
           <select>
             <option>BOQ TITLE</option>
             <option>Project A</option>
@@ -62,7 +62,7 @@ const ReportViewScreen = () => {
           <input type="text" value="15–03–2025 • 06:04 pm" readOnly />
         </div>
         <div className="input-group">
-          <label>Reported By</label>
+          <label>Reported By</label><span className='text-danger'>*</span>
           <input type="text" value="Marvin McKinney" readOnly />
         </div>
       </div>
