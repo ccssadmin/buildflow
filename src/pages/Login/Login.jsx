@@ -263,7 +263,7 @@ export default function Login({ onLoginSuccess }) {
                         }))
                       }
                       onKeyDown={handleKeyDown}
-                      style={{ paddingRight: "40px" , marginBottom :'10px'}}
+                      style={{ paddingRight: "40px" }}
                     />
                     <span
                       onClick={() => setShowPassword(!showPassword)}
@@ -273,7 +273,6 @@ export default function Login({ onLoginSuccess }) {
                         top: "50%",
                         transform: "translateY(-50%)",
                         cursor: "pointer",
-                        color: "#BBBBBB",
                       }}
                     >
                       {showPassword ? <FaEye /> : <FaEyeSlash />}

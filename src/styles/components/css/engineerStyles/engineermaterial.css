@@ -66,13 +66,51 @@
     padding: 2px;
     border-radius: 3px;
     color: white;
+    width: 60px;
+    height: 24px;
+    display: flex;
+    justify-content: center;
+    margin: 0px auto;
   }
   
   /* Status Styling */
   .status-badge {
-    font-weight: bold;
+    font-weight: 500;
+    font-size: 16px;
   }
   
+.page-engineer-material .btn.show, .page-engineer-material .btn:hover {
+  background-color: var(--light-gray) !important;
+  color: var(--text-dark) !important;
+  border: 0px;
+}
+.page-engineer-material .dropdown-toggle {
+  width: 400px;
+  height: 52px;
+  background-color: var(--light-gray);
+  color: var(--text-dark);
+  justify-content: space-between;
+  padding: 0px 20px;
+}
+.page-engineer-material .dropdown-menu {
+  width: 400px;
+  background-color: var(--light-gray);
+  color: var(--text-dark);
+  padding: 0px 0px;
+}
+.page-engineer-material .dropdown-menu .dropdown-item {
+  background-color: #ffffff;
+  color: var(--text-dark);
+  padding: 0px 20px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+.tbl-material td {
+  height: 44px;
+}
+
   /* Responsive Design */
   @media (max-width: 768px) {
     .header-section {

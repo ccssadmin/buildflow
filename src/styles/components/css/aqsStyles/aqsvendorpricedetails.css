@@ -1,3 +1,5 @@
+
+
 body {
   font-family: 'Inter', sans-serif;
   background-color: #f8f9fa;
@@ -63,7 +65,7 @@ body {
   margin-bottom: 8px;
 }
 
-.form-control-vendor {
+.form-control {
   border: 1px solid #ced4da;
   border-radius: 4px;
   height: 38px;

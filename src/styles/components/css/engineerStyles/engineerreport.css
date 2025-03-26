@@ -20,11 +20,10 @@
     padding: 5px;
     border: 1px solid #ccc;
     border-radius: 5px;
-    background-color: #E8E8E8;
   }
   
   .create-btn {
-    background-color: #FF6F00;
+    background-color: #ff7f0e;
     color: white;
     border: none;
     padding: 8px 20px;
@@ -72,4 +71,20 @@
     border-radius: 50%;
     margin-right: 5px;
   }
-  
+  .tbl-report tr th, .tbl-report tr td {
+      padding: 10px;
+      height: unset;
+  }
+  .tbl-report th {
+      background: #EBEBEB;
+  }
+  .tbl-report tr th:first-child, .tbl-report tr td:first-child {
+    
+    width: 80px;
+}
+.tbl-report tr th:nth-child(2), .tbl-report tr td:nth-child(2) {
+  width: 256px;
+}
+.tbl-report tr th:nth-child(3), .tbl-report tr td:nth-child(3) {
+  width: 218px;
+}

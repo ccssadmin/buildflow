@@ -1,13 +1,9 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Container, Row, Col, Form, Button, Table, Badge } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
 
 
 const AqsVendorDetails = () => {
-
-  const navigate = useNavigate();
-
   const [vendorData, setVendorData] = useState({
     name: 'SS Enterprises',
     id: 'VEND-00052',
@@ -72,15 +68,9 @@ const AqsVendorDetails = () => {
     <Container fluid className="p-0">
       {/* Navigation breadcrumb */}
       <div className="breadcrumb-nav">
-        <span 
-        className="text-muted"
-        style={ { cursor : 'pointer'}}
-        onClick={ ( ) => navigate('/aqs/aqsvendor')}
-        >Vendors</span>
+        <span className="text-muted">Vendors</span>
         <span className="mx-2">›</span>
-        <span 
-        className="text-orange"
-        >Open</span>
+        <span className="text-orange">Open</span>
       </div>
 
       {/* Vendor Header */}
@@ -91,9 +81,7 @@ const AqsVendorDetails = () => {
           </div>
           <h5 className="mb-0">SS Enterprises</h5>
         </div>
-        <Button variant="warning" className="view-price-btn" style={{ backgroundColor: "#FF6F00" }}
-        onClick={ () => navigate('/aqs/aqsvendorpricedetails')}
-        >View Price Details</Button>
+        <Button variant="warning" className="view-price-btn" style={{ backgroundColor: "#FF6F00" }}>View Price Details</Button>
       </div>
 
       {/* Vendor Details Form */}
