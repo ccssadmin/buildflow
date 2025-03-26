@@ -6,37 +6,16 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-// Custom plugin to show values on top of bars
-const barLabelPlugin = {
-  id: "barLabelPlugin",
-  afterDraw(chart) {
-    const { ctx } = chart;
-    const dataset = chart.data.datasets[0];
-
-    chart.getDatasetMeta(0).data.forEach((bar, index) => {
-      const value = dataset.data[index];
-      if (value !== undefined) {
-        ctx.save();
-        ctx.fillStyle = "#333"; // Text color
-        ctx.font = "bold 12px Arial"; // Font style
-        ctx.textAlign = "center";
-        ctx.fillText(value, bar.x, bar.y - 10); // Positioning text above the bar
-        ctx.restore();
-      }
-    });
-  },
-};
-
 const ProjectPerformanceChart = () => {
   const data = {
-    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
+    labels: ["0", "1", "2", "3", "4", "5", "6"],
     datasets: [
       {
         label: "Project Performance",
         data: [44, 69, 38, 79, 36, 80, 70],
         backgroundColor: "#5687F2",
         borderRadius: 0,
-        barThickness: 30, // Bar thickness similar to image
+        barThickness: 25,
       },
     ],
   };
@@ -44,43 +23,56 @@ const ProjectPerformanceChart = () => {
   const options = {
     responsive: true,
     plugins: {
-      legend: { display: false }, // Hide legend
-      title: { display: false }, // Hide title
+      legend: { display: false },
+      title: { display: true, font: { size: 18 } },
     },
     scales: {
       x: {
         grid: {
           display: true, // Show vertical grid lines
-          color: "#E0E0E0", // Light gray vertical lines
-          drawTicks: false, // Hide tick marks
+          drawBorder: true,
+          drawOnChartArea: true,
+          drawTicks: false,
+          color: "#E0E0E0", // Set vertical grid line color
         },
-        ticks: { color: "#333", font: { size: 12 }, padding: 10 },
-        border: { display: false }, // Hide X-axis border
+        border: {
+          display: true,
+          color: "#606060", // X-axis border color (Green)
+        },
+        ticks: {
+          color: "#333333", // Y-axis value color (Purple)
+          font: { size: 12 },
+          padding: 10,
+        },
       },
       y: {
         beginAtZero: true,
         max: 100,
-        ticks: {
-          stepSize: 20, // Show 0, 20, 40, 60, 80, 100
-          color: "#333", // Y-axis number color
-          font: { size: 12 },
-        },
         grid: {
           display: false, // Hide horizontal grid lines
         },
-        border: { display: false }, // Hide Y-axis border
+        border: {
+          display: true,
+          color: "#606060", // Y-axis border color (Blue)
+        },
+        ticks: {
+          color: "#333333", // Y-axis value color (Purple)
+          font: { size: 12 }, // Customize font
+        },
       },
     },
   };
   
+  
+
   return (
     <>
-      <h2 className="title-2 d-block mb-2">Project Performance</h2>
-      <Card className="border-0 shadow-sm">
-        <Card.Body>
-          <Bar data={data} options={options} plugins={[barLabelPlugin]} />
-        </Card.Body>
-      </Card>
+    <h2 className="title-2 d-block mb-0">Project Performance</h2>
+    <Card className="">
+      <Card.Body>
+        <Bar data={data} options={options} />
+      </Card.Body>
+    </Card>
     </>
   );
 };
