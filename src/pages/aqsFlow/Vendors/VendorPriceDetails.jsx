@@ -49,7 +49,7 @@ const AqsVendorPriceDetails = () => {
   };
 
   return (
-    <div className="container-fluid px-0">
+    <div className="page-vendor container-fluid px-0">
      <div className="breadcrumb-nav">
         <span className="text-muted">Vendors</span>
         <span className="mx-2">›</span>

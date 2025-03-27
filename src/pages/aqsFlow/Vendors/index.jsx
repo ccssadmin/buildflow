@@ -20,7 +20,7 @@ const AqsVendor = () =>
 
     const sites = ["MRM Site", "Vendor Site", "Customer Site", "Admin Site"];
   return (
-    <div className="container mt-4">
+    <div className="page-vendor container mt-4">
   <div className="d-flex justify-content-between align-items-center mb-3">
     {/* Dropdown */}
     <select
