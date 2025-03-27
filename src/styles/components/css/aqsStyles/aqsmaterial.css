@@ -1,32 +1,32 @@
-.site-selector {
+.page-material .site-selector {
     width: 250px;
     margin-bottom: 10px;
 }
   
-.table-container {
+.page-material .table-container {
     max-height: auto;
     overflow-y: auto;
     padding: 15px;
 }
 
 /* Increase table width */
-.table {
+.page-material .table {
     width: 100%;
     border: none;
 }
 
 
-.required-quantity {
+.page-material .required-quantity {
     color: red;
     font-weight: bold;
 }
 /* Increase table width */
-.tbl {
+.page-material .tbl {
     width: 600px;
   }
   
   /* Reduce row height */
-  .tbl th, .tbl td {
+  .page-material .tbl th, .page-material .tbl td {
     padding: 5px; /* Reduce padding for smaller row height */
     text-align: center;
     vertical-align: middle;
@@ -34,7 +34,7 @@
   }
   
   /* Style for 0 Meter */
-  .zero-required {
+  .page-material .zero-required {
     color: gray;
     font-weight: bold;
   }

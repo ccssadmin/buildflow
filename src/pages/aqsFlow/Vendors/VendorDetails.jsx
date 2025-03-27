@@ -65,7 +65,7 @@ const AqsVendorDetails = () => {
 
 
   return (
-    <Container fluid className="p-0">
+    <Container fluid className="p-0 page-vendor">
       {/* Navigation breadcrumb */}
       <div className="breadcrumb-nav">
         <span className="text-muted">Vendors</span>

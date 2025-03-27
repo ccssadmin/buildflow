@@ -26,7 +26,7 @@ const AqsMaterials = () => {
 
     return (
         <Fragment>
-            <main className="page-home d-flex">
+            <main className="page-material d-flex">
                 <div className="container-fluid">
                     <div className="row">
                         {/* Left Panel - Table */}

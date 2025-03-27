@@ -96,7 +96,7 @@ const App = () => {
       layout : AqsLayout,
     },
     CEO : {
-      default : "/ceo/ceoDashboard",
+      default : "/ceo/dashboard",
       layout : CeoLayout,
     }
   };
