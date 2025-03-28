@@ -70,6 +70,9 @@ body .bg-primary {
 .bg-platinum-gray {
     background-color: var(--platinum-gray-color) !important;
 }
+.bg-golden-yellow {
+    background-color: var(--golden-yellow) !important;
+}
 .bg-burnt-orange {
     background-color: var(--burnt-orange) !important;
 }
@@ -77,22 +80,22 @@ body .bg-primary {
     cursor: pointer !important;
 }
 .border-radius-0 {
-    border-radius: 0px;
+    border-radius: 0px !important;
 }
 .border-radius-2 {
-    border-radius: 2px;
+    border-radius: 2px !important;
 }
 .border-radius-4 {
-    border-radius: 4px;
+    border-radius: 4px !important;
 }
 .border-radius-6 {
-    border-radius: 6px;
+    border-radius: 6px !important;
 }
 .border-radius-8 {
-    border-radius: 8px;
+    border-radius: 8px !important;
 }
 .border-radius-10 {
-    border-radius: 10px;
+    border-radius: 10px !important;
 }
 .btn.btn-primary {
     width: 140px;
@@ -139,6 +142,10 @@ body .bg-primary {
     font-size: 28px;
     font-weight: 700;
 }
+.fs-26-700 {
+    font-size: 26px;
+    font-weight: 700;
+}
 .fs-24-700 {
     font-size: 24px;
     font-weight: 700;
@@ -179,6 +186,9 @@ body .bg-primary {
     font-size: 10px;
     font-weight: 400px;
 }
+.h440px {
+    height: 440px;
+}
 .h20px {
     height: 20px;
 }
@@ -201,6 +211,9 @@ body .bg-primary {
 }
 .scrollbar-none::-webkit-scrollbar {
     width: 0px;
+}
+.scrollbar-none {
+    overflow-y: scroll;
 }
 
 main {

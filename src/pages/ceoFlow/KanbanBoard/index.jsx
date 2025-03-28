@@ -74,7 +74,7 @@ const KanbanCeo = () => {
     };
 
     const handleTaskClick = (task) => {
-        navigate(`/admin/engineerticketdetails/${task.title}`, { state: { task } });
+        navigate(`/ceo/ticketdetails/${task.title}`, { state: { task } });
     };
 
     const handleMenuClick = (columnIndex) => {
