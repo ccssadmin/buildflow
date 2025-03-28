@@ -1,41 +1,40 @@
-.page-material .site-selector {
-    width: 250px;
-    margin-bottom: 10px;
+.site-selector {
+  width: 250px;
+  margin-bottom: 10px;
 }
-  
-.page-material .table-container {
-    max-height: auto;
-    overflow-y: auto;
-    padding: 15px;
+
+.table-container {
+  max-height: auto;
+  overflow-y: auto;
+  padding: 15px;
 }
 
 /* Increase table width */
-.page-material .table {
-    width: 100%;
-    border: none;
+.table {
+  width: 100%;
+  border: none;
 }
 
 
-.page-material .required-quantity {
-    color: red;
-    font-weight: bold;
+.required-quantity {
+  color: red;
+  font-weight: bold;
 }
 /* Increase table width */
-.page-material .tbl {
-    width: 600px;
-  }
-  
-  /* Reduce row height */
-  .page-material .tbl th, .page-material .tbl td {
-    padding: 5px; /* Reduce padding for smaller row height */
-    text-align: center;
-    vertical-align: middle;
-    width: auto;
-  }
-  
-  /* Style for 0 Meter */
-  .page-material .zero-required {
-    color: gray;
-    font-weight: bold;
-  }
-  
+.tbl {
+  width: 600px;
+}
+
+/* Reduce row height */
+.tbl th, .tbl td {
+  padding: 5px; /* Reduce padding for smaller row height */
+  text-align: center;
+  vertical-align: middle;
+  width: auto;
+}
+
+/* Style for 0 Meter */
+.zero-required {
+  color: gray;
+  font-weight: bold;
+}

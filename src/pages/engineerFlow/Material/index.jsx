@@ -1,9 +1,7 @@
-import React, { Fragment } from "react";
+import React from "react";
+import { Table, Dropdown, Button } from "react-bootstrap";
+import { RiArrowDropDownLine } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
-import { profile , icon_dropdown_arrow } from '../../../assets/images';
-import { Dropdown } from "react-bootstrap";
-export const roleCheck = { role: "admin" };
-
 
 const Material = () => {
 
@@ -53,67 +51,61 @@ const Material = () => {
       </span>
     );
   };
+
   return (
-    <Fragment>
-      <main className="page-engineer-material d-flex">
-        <div className="left-container left-container-100">
-          <div className="row mt-4">
-            <div className="col-sm-6 col-md-6 col-lg-6 col-xl-6 text-left">
-              <Dropdown>
-                <Dropdown.Toggle className="dropdown-toggle fs-24-700">
-                  MRM Site <img src={icon_dropdown_arrow} alt="" />
-                </Dropdown.Toggle>
-                <Dropdown.Menu>
-                  <Dropdown.Item>MRM Site 1</Dropdown.Item>
-                  <Dropdown.Item>MRM Site 2</Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown>
-            </div>
-            <div className="col-sm-6 col-md-6 col-lg-6 col-xl-6">
-              <div className="text-end btn-remove-add-group d-flex justify-content-end">
-                <button className="btn btn-primary bg-primary text-light border-0 border-radius-2 fs-14-600 me-0" onClick={ () => navigate('/admin/engineermaterialcreate')} >Create</button>
-              </div>
-            </div>
-          </div>
-          <div className="row mt-4">
-            <div className="col-sm-12 col-md-12 col-lg-12 col-xl-12">
-              <div className="tbl-container table-responsive">
-                <table  className="text-center tbl-material ">
-                  <thead>
-                    <tr>
-                      <th className="fs-16-500 text-dark text-center h-44">S.No</th>
-                      <th className="fs-16-500 text-dark text-center h-44">Material List</th>
-                      <th className="fs-16-500 text-dark text-center h-44">In Stock Quantity</th>
-                      <th className="fs-16-500 text-dark text-center h-44">Required Quantity</th>
-                      <th className="fs-16-500 text-dark text-center h-44">Level</th>
-                      <th className="fs-16-500 text-dark text-center h-44">Request Status</th>
-                      <th className="fs-16-500 text-dark text-center h-44">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {materials.map((material, index) => (
-                      <tr key={index}>
-                        <td  className="fs-16-500 text-dark text-center h-44">{material.id}</td>
-                        <td className="fs-16-500 text-dark text-center h-44">{material.name}</td>
-                        <td className="fs-16-500 text-dark text-center h-44">{material.stock}</td>
-                        <td className="fs-16-500 text-dark text-center h-44">{material.required}</td>
-                        <td className="fs-16-500 text-dark text-center h-44"><sapn className="fs-12-400">{getLevelBadge(material.level)}</sapn></td>
-                        <td className="fs-16-500 text-dark text-center h-44">{getStatusBadge(material.status)}</td>
-                        <td className="fs-16-500 text-dark text-center h-44">
-                          <a href="#" className="text-bright-royal-blue"  onClick={ () => navigate('/admin/engineermaterialview')}>
-                            {material.action}
-                          </a>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+    <div className="container mt-4">
+      <div className="header-section">
+      <div className="site-dropdown-container" style={{marginLeft:'15px'}}>
+          <select
+            className="site-dropdown"
+            // value={selectedSite}
+            // onChange={handleSiteChange}
+          >
+            <option>MRM Site</option>
+            <option>ABC Construction</option>
+            <option>XYZ Builders</option>
+          </select>
         </div>
-      </main>
-    </Fragment>
+        <Button className="create-button"
+        onClick={ () => navigate('/admin/engineermaterialcreate')}
+        >Create</Button>
+      </div>
+
+      <div className="table-responsive">
+        <Table bordered className="material-table">
+          <thead>
+            <tr>
+              <th>S.No</th>
+              <th>Material List</th>
+              <th>In Stock Quantity</th>
+              <th>Required Quantity</th>
+              <th>Level</th>
+              <th>Request Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {materials.map((material, index) => (
+              <tr key={index}>
+                <td>{material.id}</td>
+                <td>{material.name}</td>
+                <td>{material.stock}</td>
+                <td>{material.required}</td>
+                <td>{getLevelBadge(material.level)}</td>
+                <td>{getStatusBadge(material.status)}</td>
+                <td>
+                  <a href="#" className={material.action === "View" ? "text-primary" : "text-success"}
+                  onClick={ () => navigate('/admin/engineermaterialview')}
+                  >
+                    {material.action}
+                  </a>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </div>
+    </div>
   );
 };
 
