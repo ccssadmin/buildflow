@@ -34,7 +34,7 @@ const Home = () => {
             <div className="col-sm-12 col-md-6 col-lg-6 col-xl-3">
               <div className="card-conatiner">
                 <div>
-                  <h2><span className="text-dark-gray">Pending Approvals</span>12</h2>
+                  <h2><span className="text-dark-gray">Pending Approval</span>12</h2>
                 </div>
               </div>
             </div>
