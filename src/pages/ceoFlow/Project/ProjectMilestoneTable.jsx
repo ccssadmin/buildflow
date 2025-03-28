@@ -1,5 +1,4 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
 
 const milestones = [
@@ -24,24 +23,28 @@ const getStatusIndicator = (completion) => {
   const status = getStatus(completion);
   switch (status) {
     case "Completed":
-      return <span style={{  }}>✅ Completed</span>;
+      return <span className="text-dark-gray" style={{  }}>✅ Completed</span>;
     case "InProgress":
-      return <span style={{  }}>🟡 InProgress</span>;
+      return <span  className="text-dark-gray"  style={{  }}>🟡 InProgress</span>;
     case "Pending":
-      return <span style={{  }}>⚪ Pending</span>;
+      return <span  className="text-dark-gray"  style={{  }}>⚪ Pending</span>;
     default:
       return null;
   }
 };
 
-
+// Function to export row data to Excel
+const exportToExcel = (milestone) => {
+  const worksheet = XLSX.utils.json_to_sheet([milestone]); // Convert JSON to Excel sheet
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Milestone Data");
+  XLSX.writeFile(workbook, `${milestone.name.replace(/\s+/g, "_")}.xlsx`); // Save as file
+};
 
 const ProjectMilestoneTable = () => {
-
-  const navigate = useNavigate();
   return (
       <div className="project-milestone-scroll">
-        <table className="table table-bordered mb-0">
+        <table className="tbl table table-bordered mb-0">
             <thead>
             <tr>
                 <th>Name</th>
@@ -55,28 +58,27 @@ const ProjectMilestoneTable = () => {
             <tbody>
             {milestones.map((milestone, index) => (
                 <tr key={index}>
-                    <td className="text-center">{milestone.name}</td>
+                    <td className="text-dark-gray text-center">{milestone.name}</td>
                     <td className="text-left">{milestone.description}</td>
-                    <td className="text-center">{milestone.dueDate}</td>
-                    <td className="text-center">{getStatusIndicator(milestone.completion)}</td>
-                    <td className="text-center">{milestone.completion}%</td>
-                    <td className="text-center">
+                    <td className="text-dark-gray text-center">{milestone.dueDate}</td>
+                    <td className="text-dark-gray text-center">{getStatusIndicator(milestone.completion)}</td>
+                    <td className="text-dark fs-14-600 text-center">{milestone.completion}%</td>
+                    <td className="text-dark-gray text-center">
                         {milestone.completion > 0 ? (
                         <button
-                            
+                            onClick={() => exportToExcel(milestone)}
                             style={{
                             color: "blue",
-                            textDecoration: "none",
+                            textDecoration: "underline",
                             border: "none",
                             background: "none",
                             cursor: "pointer",
                             }}
-                            onClick={ () => navigate('/admin/engineertask')}
                         >
                             View &gt;&gt;
                         </button>
                         ) : (
-                        <span style={{ color: "gray" }}>View &gt;&gt;</span>
+                        <span style={{ textDecoration: "underline", color: "gray" }}>View &gt;&gt;</span>
                         )}
                     </td>
                 </tr>

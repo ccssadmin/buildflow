@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import * as menu from "../../../assets/images";
 import useAuth from "../../../hooks/useAuth";
 import PopupModal from "../../common/PopupModal";
@@ -28,7 +28,9 @@ const CeoSidenav = ({ onChange }) => {
   const closeModal = () => {
     setContactUsForm(false);
   };
-
+  const location = useLocation();
+  const isProjectActive = location.pathname === "/ceo/projects" || location.pathname === "/ceo/projectdetails" || location.pathname === "/ceo/createproject";
+  const isApprovelActive = location.pathname === "/ceo/approvals" || location.pathname.startsWith("/ceo/ticketdetails");
   return (
     <>
       <div className="sidenav-content">
@@ -66,7 +68,7 @@ const CeoSidenav = ({ onChange }) => {
                                 title="Team"
                                 disabled={auth?.details?.roleName == null ? true : false}
                               >
-                                <NavLink to="/ceo/project" className="link-tag">
+                                <NavLink to="/ceo/project" className={`link-tag ${isProjectActive ? "active" : ""}`}>
                                   {({ isActive, isPending }) => (
                                     <>
                                       <img
@@ -85,7 +87,7 @@ const CeoSidenav = ({ onChange }) => {
                     title="Team"
                     disabled={auth?.details?.roleName == null ? true : false}
                   >
-                    <NavLink to="/ceo/approvals" className="link-tag">
+                    <NavLink to="/ceo/approvals" className={`link-tag ${isApprovelActive ? "active" : ""}`}>
                       {({ isActive, isPending }) => (
                         <>
                           <img

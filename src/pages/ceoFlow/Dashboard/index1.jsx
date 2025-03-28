@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { profile, constructions_img } from "../../../assets/images";
 import { MdOutlineCurrencyRupee } from "react-icons/md";
 import ProjectsIssuesChart from "./ProjectsIssuesChart";
+import Notification from "../../../components/common/NotificationTab";
 export const roleCheck = { role: "admin" };
 
 const pendingAlerts = [
@@ -209,50 +210,50 @@ const financeStatus = [
   { id: 4, metric: "Closing Balance", value: "22 cr" },
 ];
 
-const CeoDashboard = () => {
+const CeoDashboard1 = () => {
   const navigate = useNavigate();
 
   return (
     <Fragment>
       <main className="page-ceodashboard d-flex">
-        <div className="left-container left-container-100">
+        <div className="left-container">
           <div className="row">
-            <div className="col-sm-12 col-md-6 col-lg-2 col-xl-2">
+            <div className="col-sm-12 col-md-6 col-lg-4 col-xl-4  mb-4">
               <div className="card-conatiner">
                 <h2>
                   <span className="text-dark-gray">Total Projects</span>420
                 </h2>
               </div>
             </div>
-            <div className="col-sm-12 col-md-6 col-lg-2 col-xl-2">
+            <div className="col-sm-12 col-md-6 col-lg-4 col-xl-4  mb-4">
               <div className="card-conatiner">
                 <h2>
                   <span className="text-dark-gray">Active Projects</span>112
                 </h2>
               </div>
             </div>
-            <div className="col-sm-12 col-md-6 col-lg-2 col-xl-2">
+            <div className="col-sm-12 col-md-6 col-lg-4 col-xl-4  mb-4">
               <div className="card-conatiner">
                 <h2>
                   <span className="text-dark-gray">Biding Projects</span>24
                 </h2>
               </div>
             </div>
-            <div className="col-sm-12 col-md-6 col-lg-2 col-xl-2">
+            <div className="col-sm-12 col-md-6 col-lg-4 col-xl-4">
               <div className="card-conatiner">
                 <h2>
                   <span className="text-dark-gray">Pending Approvals</span>12
                 </h2>
               </div>
             </div>
-            <div className="col-sm-12 col-md-6 col-lg-2 col-xl-2">
+            <div className="col-sm-12 col-md-6 col-lg-4 col-xl-4">
               <div className="card-conatiner">
                 <h2>
                   <span className="text-dark-gray">Total Employees</span>1458
                 </h2>
               </div>
             </div>
-            <div className="col-sm-12 col-md-6 col-lg-2 col-xl-2">
+            <div className="col-sm-12 col-md-6 col-lg-4 col-xl-4">
               <div className="card-conatiner">
                 <h2>
                   <span className="text-dark-gray">Total Vendors</span>48
@@ -406,9 +407,12 @@ const CeoDashboard = () => {
             </div>
           </div>
         </div>
+        <div className="right-container">
+          <Notification />
+        </div>
       </main>
     </Fragment>
   );
 };
 
-export default CeoDashboard;
+export default CeoDashboard1;
