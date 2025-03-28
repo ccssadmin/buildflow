@@ -74,7 +74,7 @@ const EngineerKanbanBoard = () => {
     };
 
     const handleTaskClick = (task) => {
-        navigate(`/aqs/aqsticketdetails/${task.title}`, { state: { task } });
+        navigate(`/admin/engineerticketdetails/${task.title}`, { state: { task } });
     };
 
     const handleMenuClick = (columnIndex) => {

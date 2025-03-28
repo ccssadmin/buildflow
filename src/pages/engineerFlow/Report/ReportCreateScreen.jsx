@@ -87,7 +87,7 @@ function ReportCreateScreen  ()  {
           <input type="text" className="form-control" value={formData.reportId} readOnly />
         </div>
         <div className="col-md-4">
-          <label>Report Type</label><span className='text-danger'>*</span>
+          <label>Report Type *</label>
           <select
             className="form-control"
             value={formData.reportType}
@@ -100,7 +100,7 @@ function ReportCreateScreen  ()  {
           </select>
         </div>
         <div className="col-md-4">
-          <label>Project</label><span className='text-danger'>*</span>
+          <label>Project *</label>
           <select
             className="form-control"
             value={formData.project}
@@ -121,7 +121,7 @@ function ReportCreateScreen  ()  {
           <input type="text" className="form-control" value={formData.dateTime} readOnly />
         </div>
         <div className="col-md-6">
-          <label>Reported By</label><span className='text-danger'>*</span>
+          <label>Reported By *</label>
           <input type="text" className="form-control" value={formData.reportedBy} readOnly />
         </div>
       </div>

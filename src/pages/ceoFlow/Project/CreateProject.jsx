@@ -1,0 +1,1175 @@
+import { Calendar, ChevronLeft, ChevronRight, Plus, User } from "lucide-react";
+import { useState, Fragment, useRef } from "react";
+import { Form, Button, Table, Row, Col } from "react-bootstrap";
+import ProjectSummary from "./ProjectSummary";
+import { GoAlertFill } from "react-icons/go";
+// Form validation schema
+const validateForm = (step, formData) => {
+  const errors = {};
+
+  if (step === 0) {
+    if (!formData.projectName) errors.projectName = "Project name is required";
+    if (!formData.projectType) errors.projectType = "Project type is required";
+    if (!formData.projectSector)
+      errors.projectSector = "Project sector is required";
+    if (!formData.projectStartDate)
+      errors.projectStartDate = "Start date is required";
+  } else if (step === 1) {
+    if (!formData.totalBudget) errors.totalBudget = "Total budget is required";
+  }
+
+  return errors;
+};
+
+const CeoCreateProject = () => {
+  // Update the state to handle multiple selections for dropdowns
+  const [formData, setFormData] = useState({
+    // Step 1: Project Basic Details
+    projectName: "",
+    location: "",
+    projectType: "",
+    projectSector: "",
+    projectStartDate: "",
+    expectedCompletionDate: "",
+    description: "",
+
+    // Step 2: Budget & Financial Allocation
+    totalBudget: "",
+    sendTo: "",
+    budgetBreakdown: [
+      {
+        id: 1,
+        category: "Employee Salary",
+        estimatedCost: "",
+        approvedBudget: "",
+      },
+      { id: 2, category: "Labor Cost", estimatedCost: "", approvedBudget: "" },
+      {
+        id: 3,
+        category: "Material Cost",
+        estimatedCost: "",
+        approvedBudget: "",
+      },
+      {
+        id: 4,
+        category: "Equipment Cost",
+        estimatedCost: "",
+        approvedBudget: "",
+      },
+      {
+        id: 5,
+        category: "Subcontractors",
+        estimatedCost: "",
+        approvedBudget: "",
+      },
+      { id: 6, category: "Contingency", estimatedCost: "", approvedBudget: "" },
+    ],
+
+    // Step 3: Project Team & Stakeholder Assignment
+    projectManager: [],
+    assistantProjectManager: [],
+    leadEngineer: [],
+    siteSupervisor: [],
+    qs: [],
+    assistantQs: [],
+    siteEngineer: [],
+    engineer: [],
+    designer: [],
+    vendors: [],
+    subcontractors: [],
+
+    // Step 4: Timeline & Milestone Planning
+    milestones: [
+      {
+        id: 1,
+        name: "Foundation Work",
+        description: "Complete excavation and concrete laying",
+        startDate: "",
+        endDate: "",
+        status: "Planned",
+      },
+      {
+        id: 2,
+        name: "Structural Framing",
+        description: "Assemble steel and structural framing",
+        startDate: "",
+        endDate: "",
+        status: "Planned",
+      },
+      {
+        id: 3,
+        name: "Roofing Installation",
+        description: "Complete installation of roofing system",
+        startDate: "",
+        endDate: "",
+        status: "Planned",
+      },
+      {
+        id: 4,
+        name: "Exterior Walls",
+        description: "Brickwork, plastering, and painting",
+        startDate: "",
+        endDate: "",
+        status: "Planned",
+      },
+      {
+        id: 5,
+        name: "Plumbing & Electrical Work",
+        description: "Install pipes, wiring, and fixtures",
+        startDate: "",
+        endDate: "",
+        status: "Planned",
+      },
+      {
+        id: 6,
+        name: "Interior Design & Finishing",
+        description: "Install doors, windows & interiors",
+        startDate: "",
+        endDate: "",
+        status: "Planned",
+      },
+      {
+        id: 7,
+        name: "Final Inspection & Handover",
+        description: "Quality check and handover to client",
+        startDate: "",
+        endDate: "",
+        status: "Planned",
+      },
+    ],
+
+    // Step 5: Risk & Compliance Assessment
+    risks: [
+      {
+        id: 1,
+        category: "Complete excavation and concrete laying",
+        status: "Completed",
+        file: null,
+      },
+      {
+        id: 2,
+        category: "Environmental Clearance",
+        status: "Pending",
+        file: null,
+      },
+      {
+        id: 3,
+        category: "Labor Safety Measures",
+        status: "Completed",
+        file: null,
+      },
+      {
+        id: 4,
+        category: "PPE Compliance Checklists",
+        status: "Pending",
+        file: null,
+      },
+      {
+        id: 5,
+        category: "Legal Dispute Files",
+        status: "Completed",
+        file: null,
+      },
+    ],
+  });
+
+  // Add state for search filters
+  const [searchFilters, setSearchFilters] = useState({
+    projectManager: "",
+    assistantProjectManager: "",
+    leadEngineer: "",
+    siteSupervisor: "",
+    qs: "",
+    assistantQs: "",
+    siteEngineer: "",
+    engineer: "",
+    designer: "",
+    vendors: "",
+    subcontractors: "",
+  });
+
+  // Add state for dropdown visibility
+  const [dropdownVisible, setDropdownVisible] = useState({
+    projectManager: false,
+    assistantProjectManager: false,
+    leadEngineer: false,
+    siteSupervisor: false,
+    qs: false,
+    assistantQs: false,
+    siteEngineer: false,
+    engineer: false,
+    designer: false,
+    vendors: false,
+    subcontractors: false,
+  });
+
+  // Add state for showing summary page
+  const [showSummary, setShowSummary] = useState(false);
+
+  // Sample data for dropdowns
+  const teamMembers = {
+    projectManager: [
+      { id: 1, name: "John Doe" },
+      { id: 2, name: "Jane Smith" },
+      { id: 3, name: "Michael Johnson" },
+      { id: 4, name: "Emily Williams" },
+    ],
+    assistantProjectManager: [
+      { id: 1, name: "Mike Johnson" },
+      { id: 2, name: "Sarah Williams" },
+      { id: 3, name: "David Brown" },
+      { id: 4, name: "Lisa Davis" },
+    ],
+    leadEngineer: [
+      { id: 1, name: "Robert Brown" },
+      { id: 2, name: "Emily Davis" },
+      { id: 3, name: "Thomas Wilson" },
+      { id: 4, name: "Olivia Martin" },
+    ],
+    siteSupervisor: [
+      { id: 1, name: "David Wilson" },
+      { id: 2, name: "Lisa Miller" },
+      { id: 3, name: "James Taylor" },
+      { id: 4, name: "Emma Clark" },
+    ],
+    qs: [
+      { id: 1, name: "James Taylor" },
+      { id: 2, name: "Emma Clark" },
+      { id: 3, name: "William Harris" },
+      { id: 4, name: "Sophia Martin" },
+    ],
+    assistantQs: [
+      { id: 1, name: "Thomas White" },
+      { id: 2, name: "Olivia Green" },
+      { id: 3, name: "Daniel Thompson" },
+      { id: 4, name: "Ava Robinson" },
+    ],
+    siteEngineer: [
+      { id: 1, name: "William Harris" },
+      { id: 2, name: "Sophia Martin" },
+      { id: 3, name: "Joseph Lewis" },
+      { id: 4, name: "Mia Walker" },
+    ],
+    engineer: [
+      { id: 1, name: "Daniel Thompson" },
+      { id: 2, name: "Ava Robinson" },
+      { id: 3, name: "Alexander Hall" },
+      { id: 4, name: "Charlotte Young" },
+    ],
+    designer: [
+      { id: 1, name: "Joseph Lewis" },
+      { id: 2, name: "Mia Walker" },
+      { id: 3, name: "Benjamin Allen" },
+      { id: 4, name: "Amelia King" },
+    ],
+    vendors: [
+      { id: 1, name: "Acme Supplies" },
+      { id: 2, name: "Global Materials" },
+      { id: 3, name: "Quality Products" },
+      { id: 4, name: "Premium Vendors" },
+    ],
+    subcontractors: [
+      { id: 1, name: "Elite Construction" },
+      { id: 2, name: "Premier Services" },
+      { id: 3, name: "Expert Builders" },
+      { id: 4, name: "Professional Contractors" },
+    ],
+  };
+
+  // Handle search filter change
+  const handleSearchFilterChange = (e, field) => {
+    setSearchFilters({
+      ...searchFilters,
+      [field]: e.target.value,
+    });
+  };
+
+  // Toggle dropdown visibility
+  const toggleDropdown = (field) => {
+    setDropdownVisible({
+      ...dropdownVisible,
+      [field]: !dropdownVisible[field],
+    });
+  };
+
+  // Handle selection of an item
+  const handleSelectItem = (field, item) => {
+    // Check if item is already selected
+    const isSelected = formData[field].some(
+      (selected) => selected.id === item.id
+    );
+
+    if (isSelected) {
+      // Remove item if already selected
+      setFormData({
+        ...formData,
+        [field]: formData[field].filter((selected) => selected.id !== item.id),
+      });
+    } else {
+      // Add item if not selected
+      setFormData({
+        ...formData,
+        [field]: [...formData[field], item],
+      });
+    }
+  };
+
+  // Remove a selected item
+  const handleRemoveItem = (field, itemId) => {
+    setFormData({
+      ...formData,
+      [field]: formData[field].filter((item) => item.id !== itemId),
+    });
+  };
+
+  // Filter items based on search text
+  const getFilteredItems = (field) => {
+    return teamMembers[field].filter((item) =>
+      item.name.toLowerCase().includes(searchFilters[field].toLowerCase())
+    );
+  };
+
+  // Handle form submission after final step
+  const handleSubmit = () => {
+    // Navigate to summary page
+    setShowSummary(true);
+  };
+
+  // Handle back from summary to edit
+  const handleBackFromSummary = () => {
+    setShowSummary(false);
+  };
+
+  // Modify the handleNext function
+  const handleNext = () => {
+    const errors = validateForm(currentStep, formData);
+    setFormErrors(errors);
+
+    if (Object.keys(errors).length === 0) {
+      if (currentStep === 4) {
+        // If on the last step, show summary
+        handleSubmit();
+      } else {
+        setCurrentStep(currentStep + 1);
+      }
+    }
+  };
+
+  const handleBack = () => {
+    setCurrentStep(currentStep - 1);
+  };
+
+  // Create a custom multi-select component
+  const MultiSelect = ({ field, label, required = false }) => {
+    return (
+      <Form.Group>
+        <Form.Label className="text-dark">
+          {label} {required && <span className="required">*</span>}
+        </Form.Label>
+        <div className="multi-select-container">
+          <div className="selected-items">
+            {formData[field].map((item) => (
+              <div key={item.id} className="selected-item">
+                <span>{item.name}</span>
+                <button
+                  type="button"
+                  className="remove-btn"
+                  onClick={() => handleRemoveItem(field, item.id)}
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+          <div className="search-container">
+            <Form.Control
+              type="text"
+              placeholder="Search..."
+              value={searchFilters[field]}
+              onChange={(e) => handleSearchFilterChange(e, field)}
+              onClick={() => toggleDropdown(field)}
+            />
+            {dropdownVisible[field] && (
+              <div className="dropdown-menu show">
+                {getFilteredItems(field).length > 0 ? (
+                  getFilteredItems(field).map((item) => (
+                    <div
+                      key={item.id}
+                      className={`dropdown-item ${
+                        formData[field].some(
+                          (selected) => selected.id === item.id
+                        )
+                          ? "selected"
+                          : ""
+                      }`}
+                      onClick={() => handleSelectItem(field, item)}
+                    >
+                      {item.name}
+                      {formData[field].some(
+                        (selected) => selected.id === item.id
+                      ) && <span className="check-mark">✓</span>}
+                    </div>
+                  ))
+                ) : (
+                  <div className="dropdown-item no-results">
+                    No results found
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </Form.Group>
+    );
+  };
+
+  const [currentStep, setCurrentStep] = useState(0);
+  const [formErrors, setFormErrors] = useState({});
+
+  // Permission and Finance Approval data
+  const permissionData = [
+    { id: 1, role: "MD", employee: "Kristin Watson", amount: "" },
+    { id: 2, role: "Directors", employee: "Floyd Miles", amount: "" },
+    { id: 3, role: "Head Finance", employee: "Jerome Bell", amount: "" },
+    { id: 4, role: "CEO", employee: "Albert Flores", amount: "" },
+    {
+      id: 5,
+      role: "General Manager (Technology)",
+      employee: "Bessie Cooper",
+      amount: "",
+    },
+    {
+      id: 6,
+      role: "General Manager (Operation)",
+      employee: "Robert Fox",
+      amount: "",
+    },
+    { id: 7, role: "Finance", employee: "Jane Cooper", amount: "" },
+  ];
+
+  const steps = [
+    "Project Basic Details",
+    "Budget & Financial Allocation",
+    "Project Team & Stakeholder Assignment",
+    "Timeline & Milestone Planning",
+    "Risk & Compliance Assessment",
+  ];
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const handleBudgetBreakdownChange = (id, field, value) => {
+    const updatedBreakdown = formData.budgetBreakdown.map((item) =>
+      item.id === id ? { ...item, [field]: value } : item
+    );
+
+    setFormData({
+      ...formData,
+      budgetBreakdown: updatedBreakdown,
+    });
+  };
+
+  const handleMilestoneChange = (id, field, value) => {
+    const updatedMilestones = formData.milestones.map((item) =>
+      item.id === id ? { ...item, [field]: value } : item
+    );
+
+    setFormData({
+      ...formData,
+      milestones: updatedMilestones,
+    });
+  };
+
+  const handleAddColumn = () => {
+    // Function to add a new column to tables
+    alert("Add column functionality will be implemented here");
+  };
+
+  const renderProgressBar = () => {
+    return (
+      <div className="progress-container">
+        <div className="breadcrumb-container pb-3 d-flex align-items-center">
+          <span className="breadcrumb-item fs-16-500 text-dark-gray">
+            Projects
+          </span>
+          <svg
+            className="mx-2"
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="M6 4.5L9.5 8L6 11.5" stroke="#606060" />
+          </svg>
+          <span className="breadcrumb-item fs-16-500 text-primary">
+            Creation
+          </span>
+        </div>
+        <div className="progress-steps">
+          {steps.map((step, index) => (
+            <div key={index} className="step-item">
+              <div
+                className={`step-circle ${
+                  index <= currentStep ? "active" : ""
+                }`}
+              >
+                <svg
+                  width="15"
+                  height="14"
+                  viewBox="0 0 15 14"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <g opacity="0.4" clip-path="url(#clip0_1809_21197)">
+                    <path
+                      fill-rule="evenodd"
+                      clip-rule="evenodd"
+                      d="M10.0611 0.439453L7.00558 1.7456V12.5731H7.93582V10.2971L7.72054 10.3175C7.67833 10.3214 7.63631 10.3083 7.6037 10.2813C7.57108 10.2542 7.55053 10.2153 7.54655 10.1731C7.54257 10.1309 7.55547 10.0888 7.58244 10.0561C7.60941 10.0234 7.64825 10.0027 7.69044 9.9986L9.34612 9.84102C9.38811 9.83759 9.42976 9.85085 9.46204 9.87791C9.49433 9.90497 9.51466 9.94366 9.51862 9.9856C9.52259 10.0275 9.50987 10.0694 9.48322 10.102C9.45657 10.1346 9.41814 10.1554 9.37625 10.1599L9.13087 10.1833V12.5731H13.1166V1.7456L10.0611 0.439453ZM8.20421 8.83817L7.62666 8.89345V7.77751L8.20421 7.68844V8.83817ZM8.2044 7.02544L7.62669 7.13398V6.01536L8.2044 5.87296V7.02544ZM8.2044 5.21181L7.62669 5.37362V4.255L8.2044 4.05933V5.21181ZM8.2044 3.39724L7.62669 3.61147V2.56643L8.20459 2.31871L8.2044 3.39724ZM9.44 8.72044L8.78919 8.78283V7.59697L9.44 7.49644V8.72044ZM9.44 6.79177L8.78919 6.91426V5.72934L9.44 5.56873V6.79174V6.79177ZM9.44 4.86405L8.78919 5.0466V3.86074L9.44 3.64005V4.86405ZM9.44 2.93634L8.78919 3.17894L8.789 2.06832L9.43997 1.78902V2.93634H9.44ZM10.9857 10.6716C10.9857 10.7142 10.9688 10.7551 10.9386 10.7853C10.9085 10.8154 10.8676 10.8323 10.825 10.8323C10.7824 10.8323 10.7415 10.8154 10.7113 10.7853C10.6812 10.7551 10.6643 10.7142 10.6643 10.6716V1.84321C10.6643 1.80059 10.6812 1.75971 10.7113 1.72957C10.7415 1.69943 10.7824 1.6825 10.825 1.6825C10.8676 1.6825 10.9085 1.69943 10.9386 1.72957C10.9688 1.75971 10.9857 1.80059 10.9857 1.84321V10.6717V10.6716ZM11.7496 10.6716C11.7496 10.7142 11.7326 10.7551 11.7025 10.7853C11.6724 10.8154 11.6315 10.8323 11.5889 10.8323C11.5462 10.8323 11.5054 10.8154 11.4752 10.7853C11.4451 10.7551 11.4281 10.7142 11.4281 10.6716V2.16976C11.4281 2.12713 11.4451 2.08625 11.4752 2.05611C11.5054 2.02597 11.5462 2.00904 11.5889 2.00904C11.6315 2.00904 11.6724 2.02597 11.7025 2.05611C11.7326 2.08625 11.7496 2.12713 11.7496 2.16976V10.6717V10.6716ZM12.5134 10.6716C12.5134 10.7142 12.4965 10.7551 12.4664 10.7853C12.4362 10.8154 12.3954 10.8323 12.3527 10.8323C12.3101 10.8323 12.2692 10.8154 12.2391 10.7853C12.209 10.7551 12.192 10.7142 12.192 10.6716V2.4963C12.192 2.45368 12.209 2.4128 12.2391 2.38266C12.2692 2.35252 12.3101 2.33559 12.3527 2.33559C12.3954 2.33559 12.4362 2.35252 12.4664 2.38266C12.4965 2.4128 12.5134 2.45368 12.5134 2.4963V10.6717V10.6716ZM5.42613 3.5939L2.24437 4.95402V12.5731H3.23774V10.806L3.02246 10.8265C3.00137 10.8287 2.98004 10.8268 2.9597 10.8208C2.93936 10.8147 2.92043 10.8047 2.90399 10.7913C2.88756 10.7779 2.87395 10.7613 2.86397 10.7426C2.85398 10.7239 2.84781 10.7034 2.84582 10.6823C2.84382 10.6611 2.84604 10.6398 2.85235 10.6196C2.85866 10.5993 2.86893 10.5805 2.88256 10.5643C2.89619 10.548 2.91292 10.5346 2.93177 10.5249C2.95062 10.5152 2.97121 10.5093 2.99236 10.5076L4.64804 10.35C4.69033 10.346 4.73248 10.359 4.76521 10.386C4.79794 10.4131 4.81857 10.4521 4.82257 10.4944C4.82657 10.5367 4.8136 10.5788 4.78652 10.6116C4.75944 10.6443 4.72046 10.6649 4.67817 10.6689L4.43279 10.6923V12.5731H6.68418V4.13168L5.42613 3.5939ZM3.39425 9.16193L2.92419 9.22629V8.32147L3.39425 8.22491V9.16193ZM3.39425 7.68708L2.92419 7.80269V6.89784L3.39425 6.75006V7.68708ZM3.39441 6.21167L2.92421 6.37793V5.53284L3.39457 5.33473L3.39441 6.21167ZM4.41642 9.02079L3.87505 9.09539V8.12636L4.41642 8.01464V9.02079ZM4.41642 7.43468L3.87505 7.56804V6.59843L4.41642 6.42735V7.43468ZM4.41642 5.84797L3.87489 6.04072V5.13269L4.41642 4.90321V5.84797ZM1.13281 12.8945H14.2281V13.5645H1.13281V12.8945Z"
+                      fill="#676767"
+                    />
+                  </g>
+                  <defs>
+                    <clipPath id="clip0_1809_21197">
+                      <rect
+                        width="13.7143"
+                        height="13.7143"
+                        fill="white"
+                        transform="translate(0.824219 0.142578)"
+                      />
+                    </clipPath>
+                  </defs>
+                </svg>
+              </div>
+              <div
+                className={`step-line ${index < currentStep ? "active" : ""} ${
+                  index === steps.length - 1 ? "hidden" : ""
+                }`}
+              ></div>
+              <div
+                className={`step-label ${index <= currentStep ? "active" : ""}`}
+              >
+                Step {String(index + 1).padStart(2, "0")}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  const renderProjectBasicDetails = () => {
+    return (
+      <div className="form-section">
+        <h2 className="section-title ">Project Basic Details</h2>
+        <Row className="mb-4">
+          <Col md={6} lg={4}>
+            <Form.Group>
+              <Form.Label className="text-dark">
+                Project Name <span className="required">*</span>
+              </Form.Label>
+              <Form.Control
+                type="text"
+                name="projectName"
+                placeholder="Name....."
+                value={formData.projectName}
+                onChange={handleInputChange}
+                isInvalid={!!formErrors.projectName}
+              />
+              <Form.Control.Feedback type="invalid">
+                {formErrors.projectName}
+              </Form.Control.Feedback>
+            </Form.Group>
+          </Col>
+          <Col md={6} lg={4}>
+            <Form.Group>
+              <Form.Label className="text-dark">Location</Form.Label>
+              <Form.Control
+                type="text"
+                name="location"
+                placeholder="Search location"
+                value={formData.location}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+          </Col>
+          <Col md={6} lg={4}>
+            <Form.Group>
+              <Form.Label className="text-dark">
+                Project Type <span className="required">*</span>
+              </Form.Label>
+              <Form.Select
+                name="projectType"
+                value={formData.projectType}
+                onChange={handleInputChange}
+                isInvalid={!!formErrors.projectType}
+              >
+                <option value="">Select</option>
+                <option value="residential">Residential</option>
+                <option value="commercial">Commercial</option>
+                <option value="industrial">Industrial</option>
+                <option value="infrastructure">Infrastructure</option>
+              </Form.Select>
+              <Form.Control.Feedback type="invalid">
+                {formErrors.projectType}
+              </Form.Control.Feedback>
+            </Form.Group>
+          </Col>
+        </Row>
+        <Row className="mb-4">
+          <Col md={6} lg={4}>
+            <Form.Group>
+              <Form.Label className="text-dark">
+                Project Sector <span className="required">*</span>
+              </Form.Label>
+              <Form.Select
+                name="projectSector"
+                value={formData.projectSector}
+                onChange={handleInputChange}
+                isInvalid={!!formErrors.projectSector}
+              >
+                <option value="">Select</option>
+                <option value="public">Public</option>
+                <option value="private">Private</option>
+                <option value="government">Government</option>
+              </Form.Select>
+              <Form.Control.Feedback type="invalid">
+                {formErrors.projectSector}
+              </Form.Control.Feedback>
+            </Form.Group>
+          </Col>
+          <Col md={6} lg={4}>
+            <Form.Group>
+              <Form.Label className="text-dark">
+                Project Start Date <span className="required">*</span>
+              </Form.Label>
+              <div
+                className="date-input-container create-project-date"
+                onClick={handleContainerClick}
+                style={{ cursor: "pointer" }}
+              >
+                <Form.Control
+                  ref={dateInputRef}
+                  type="date"
+                  name="projectStartDate"
+                  placeholder="DD/MM/YYYY"
+                  value={formData.projectStartDate}
+                  onChange={handleInputChange}
+                  isInvalid={!!formErrors.projectStartDate}
+                  className="custom-date-input" // Added class for custom styling
+                />
+                <Form.Control.Feedback type="invalid">
+                  {formErrors.projectStartDate}
+                </Form.Control.Feedback>
+                <Calendar className="date-icon" />
+              </div>
+            </Form.Group>
+          </Col>
+          <Col md={6} lg={4}>
+            <Form.Group>
+              <Form.Label className="text-dark">
+                Expected Completion Date
+              </Form.Label>
+              <div
+                className="date-input-container create-project-date"
+                onClick={handleContainerClickCompletionDate}
+                style={{ cursor: "pointer" }}
+              >
+                <Form.Control
+                  ref={completionDateInputRef}
+                  type="date"
+                  className="custom-date-input" // Added class for custom styling
+                  name="expectedCompletionDate"
+                  placeholder="DD/MM/YYYY"
+                  value={formData.expectedCompletionDate}
+                  onChange={handleInputChange}
+                />
+                <Calendar className="date-icon" />
+              </div>
+              {/* <div className="date-input-container">
+                <Form.Control
+                  type="text"
+                  name="expectedCompletionDate"
+                  placeholder="DD/MM/YYYY"
+                  value={formData.expectedCompletionDate}
+                  onChange={handleInputChange}
+                />
+                <Calendar className="date-icon" />
+              </div> */}
+            </Form.Group>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <Form.Group>
+              <Form.Label className="text-dark">Description</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={5}
+                name="description"
+                placeholder="Write a project description"
+                value={formData.description}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+          </Col>
+        </Row>
+      </div>
+    );
+  };
+
+  const renderBudgetFinancialAllocation = () => {
+    return (
+      <div className="form-section">
+        <h2 className="section-title">Budget & Financial Allocation</h2>
+        <Row className="mb-4">
+          <Col md={6}>
+            <Form.Group>
+              <Form.Label className="text-dark fs-26-700">
+                Total Project Budget <span className="required">*</span>
+              </Form.Label>
+              <Form.Control
+                type="text"
+                name="totalBudget"
+                placeholder="Type amount"
+                value={formData.totalBudget}
+                onChange={handleInputChange}
+                isInvalid={!!formErrors.totalBudget}
+              />
+              <Form.Control.Feedback type="invalid">
+                {formErrors.totalBudget}
+              </Form.Control.Feedback>
+            </Form.Group>
+          </Col>
+          <Col md={6}>
+            <Form.Group>
+              <Form.Label className="text-dark fs-26-700">Send To</Form.Label>
+              <Form.Select
+                name="sendTo"
+                value={formData.sendTo}
+                onChange={handleInputChange}
+              >
+                <option value="">Select Team</option>
+                <option value="finance">Finance Team</option>
+                <option value="management">Management Team</option>
+                <option value="operations">Operations Team</option>
+              </Form.Select>
+            </Form.Group>
+          </Col>
+        </Row>
+        <div className="budget-breakdown">
+          <h3 className="text-dark-gray fs-22-700 mb-0">Budget Breakdown</h3>
+          <table
+            bordered
+            responsive
+            className="mt-3 tbl tbl-budget-financial w-100"
+          >
+            <thead>
+              <tr>
+                <th className="text-center text-dark fs-18-500">S.No</th>
+                <th className="text-center text-dark fs-18-500">
+                  Expense Category
+                </th>
+                <th className="text-center text-dark fs-18-500">
+                  Estimated Cost (₹)
+                </th>
+                <th className="text-center text-dark fs-18-500">
+                  Approved Budget (₹)
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {formData.budgetBreakdown.map((item) => (
+                <tr key={item.id}>
+                  <td className="text-dark-gray fs-16-500 text-center">
+                    {String(item.id).padStart(2, "0")}
+                  </td>
+                  <td className="text-dark-gray fs-16-500 text-center">
+                    {item.category}
+                  </td>
+                  <td className="text-dark-gray fs-16-500 text-center">
+                    <Form.Control
+                      type="text"
+                      value={item.estimatedCost}
+                      onChange={(e) =>
+                        handleBudgetBreakdownChange(
+                          item.id,
+                          "estimatedCost",
+                          e.target.value
+                        )
+                      }
+                    />
+                  </td>
+                  <td className="text-dark-gray fs-16-500 text-center">
+                    <Form.Control
+                      type="text"
+                      value={item.approvedBudget}
+                      onChange={(e) =>
+                        handleBudgetBreakdownChange(
+                          item.id,
+                          "approvedBudget",
+                          e.target.value
+                        )
+                      }
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="add-column text-end">
+            <Button
+              className="text-primary bg-transparent border-0 fs-16-500 me-0 ms-auto"
+              onClick={handleAddColumn}
+            >
+              + Add Column
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Update the renderProjectTeamStakeholder function
+  const renderProjectTeamStakeholder = () => {
+    return (
+      <div className="form-section">
+        <h2 className="section-title">Project Team & Stakeholder Assignment</h2>
+        <Row className="mb-4">
+          <Col md={6} lg={4}>
+            <MultiSelect field="projectManager" label="Project Manager" />
+          </Col>
+          <Col md={6} lg={4}>
+            <MultiSelect
+              field="assistantProjectManager"
+              label="Assistant Project Manager"
+            />
+          </Col>
+          <Col md={6} lg={4}>
+            <MultiSelect field="leadEngineer" label="Lead Engineer" />
+          </Col>
+        </Row>
+        <Row className="mb-4">
+          <Col md={6} lg={4}>
+            <MultiSelect field="siteSupervisor" label="Site Supervisor" />
+          </Col>
+          <Col md={6} lg={4}>
+            <MultiSelect field="qs" label="QS" />
+          </Col>
+          <Col md={6} lg={4}>
+            <MultiSelect field="assistantQs" label="Assistant QS" />
+          </Col>
+        </Row>
+        <Row className="mb-4">
+          <Col md={6} lg={4}>
+            <MultiSelect field="siteEngineer" label="Site Engineer" />
+          </Col>
+          <Col md={6} lg={4}>
+            <MultiSelect field="engineer" label="Engineer" />
+          </Col>
+          <Col md={6} lg={4}>
+            <MultiSelect field="designer" label="Designer" />
+          </Col>
+        </Row>
+        <Row className="mb-4">
+          <Col md={6} lg={4}>
+            <MultiSelect field="vendors" label="Vendors" />
+          </Col>
+          <Col md={6} lg={4}>
+            <MultiSelect field="subcontractors" label="Subcontractors" />
+          </Col>
+        </Row>
+        <div className="permission-approval">
+          <h3>Permission and Finance Approval</h3>
+          <table bordered responsive className="tbl mt-4 w-100">
+            <thead>
+              <tr>
+                <th className="text-center text-dark fs-18-500">S.No</th>
+                <th className="text-center text-dark fs-18-500">Roles</th>
+                <th className="text-center text-dark fs-18-500">Employee</th>
+                <th className="text-center text-dark fs-18-500">Amount %</th>
+              </tr>
+            </thead>
+            <tbody>
+              {permissionData.map((item) => (
+                <tr key={item.id}>
+                  <td className="text-center text-dark-gray fs-16-500">
+                    {String(item.id).padStart(2, "0")}
+                  </td>
+                  <td className="text-center text-dark-gray fs-16-500">
+                    {item.role}
+                  </td>
+                  <td className="text-center text-dark-gray fs-16-500">
+                    <div className="employee-cell">
+                      <div className="employee-avatar"></div>
+                      <span>{item.employee}</span>
+                    </div>
+                  </td>
+                  <td className="text-center text-dark-gray fs-16-500">
+                    <Form.Control
+                      type="text"
+                      value={item.amount}
+                      onChange={(e) => {
+                        // Handle amount change
+                      }}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  };
+
+  const renderTimelineMilestonePlanning = () => {
+    return (
+      <div className="form-section">
+        <h2 className="section-title">Timeline & Milestone Planning</h2>
+        <table bordered responsive className="tbl mt-4 w-100">
+          <thead>
+            <tr>
+              <th className="text-center text-dark fs-18-500">Milestone</th>
+              <th className="text-center text-dark fs-18-500">Description</th>
+              <th className="text-center text-dark fs-18-500">Start Date</th>
+              <th className="text-center text-dark fs-18-500">End Date</th>
+              <th className="text-center text-dark fs-18-500">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {formData.milestones.map((milestone) => (
+              <tr key={milestone.id}>
+                <td className="text-center text-dark-gray fs-16-500">
+                  {milestone.name}
+                </td>
+                <td className="text-center text-dark-gray fs-16-500">
+                  {milestone.description}
+                </td>
+                <td className="text-center text-dark-gray fs-16-500">
+                  <div className="date-input-container">
+                    <Form.Control
+                      type="date"
+                      placeholder="DD/MM/YYYY"
+                      value={milestone.startDate}
+                      onChange={(e) =>
+                        handleMilestoneChange(
+                          milestone.id,
+                          "startDate",
+                          e.target.value
+                        )
+                      }
+                    />
+                  </div>
+                </td>
+                <td className="text-center text-dark-gray fs-16-500">
+                  <div className="date-input-container">
+                    <Form.Control
+                      type="date"
+                      placeholder="DD/MM/YYYY"
+                      value={milestone.endDate}
+                      onChange={(e) =>
+                        handleMilestoneChange(
+                          milestone.id,
+                          "endDate",
+                          e.target.value
+                        )
+                      }
+                    />
+                  </div>
+                </td>
+                <td className="text-center text-dark-gray fs-16-500">
+                  <Form.Select
+                    className="border-0 text-dark"
+                    value={milestone.status}
+                    onChange={(e) =>
+                      handleMilestoneChange(
+                        milestone.id,
+                        "status",
+                        e.target.value
+                      )
+                    }
+                  >
+                    <option value="Planned">Planned</option>
+                    <option value="InProgress">In Progress</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Delayed">Delayed</option>
+                  </Form.Select>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <div className="add-column">
+          <Button
+            className="text-primary bg-transparent border-0 fs-16-500 me-0 ms-auto"
+            onClick={handleAddColumn}
+          >
+            + Add Column
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  const renderRiskComplianceAssessment = () => {
+    return (
+      <div className="form-section">
+        <h2 className="section-title">Risk & Compliance Assessment</h2>
+        <table bordered responsive className="tbl mt-4 w-100">
+          <thead>
+            <tr>
+              <th className="text-center text-dark fs-18-500">S. No</th>
+              <th className="text-center text-dark fs-18-500">Category</th>
+              <th className="text-center text-dark fs-18-500">Status</th>
+              <th className="text-center text-dark fs-18-500">File</th>
+            </tr>
+          </thead>
+          <tbody>
+            {formData.risks.map((risk) => (
+              <tr key={risk.id}>
+                <td className="text-center text-dark-gray fs-16-500">
+                  {String(risk.id).padStart(2, "0")}
+                </td>
+                <td className="text-center text-dark-gray fs-16-500">
+                  {risk.category}
+                </td>
+                <td className="text-center text-dark-gray fs-16-500">
+                  <div className={`status-badge ${risk.status.toLowerCase()}`}>
+                    {risk.status === "Completed" && (
+                      <span className="status-icon">✅</span>
+                    )}
+                    {risk.status === "Pending" && (
+                      <span className="status-icon"><GoAlertFill  /></span>
+                    )}
+                    
+                  </div>
+                  {risk.status}
+                </td>
+                <td className="text-center text-dark-gray fs-16-500">
+                  <Button type="upload" variant="link" className="upload-btn">
+                    Upload
+                  </Button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <div className="add-column">
+          <Button
+            className="text-primary bg-transparent border-0 fs-16-500 me-0 ms-auto"
+            onClick={handleAddColumn}
+          >
+            + Add Column
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  // Create a separate ProjectSummary component
+
+  const renderFormStep = () => {
+    switch (currentStep) {
+      case 0:
+        return (
+          <div className="step-basic-details">
+            {renderProjectBasicDetails()}
+          </div>
+        );
+      case 1:
+        return renderBudgetFinancialAllocation();
+      case 2:
+        return renderProjectTeamStakeholder();
+      case 3:
+        return renderTimelineMilestonePlanning();
+      case 4:
+        return renderRiskComplianceAssessment();
+      default:
+        return null;
+    }
+  };
+  const dateInputRef = useRef(null);
+  const completionDateInputRef = useRef(null);
+
+  const handleContainerClick = () => {
+    if (dateInputRef.current) {
+      dateInputRef.current.showPicker(); // Opens the date picker
+    }
+  };
+  const handleContainerClickCompletionDate = () => {
+    if (completionDateInputRef.current) {
+      completionDateInputRef.current.showPicker(); // Opens the date picker
+    }
+  };
+  // Update the main render function
+  return (
+    <Fragment>
+      <main className="page-ceo-createproject d-flex">
+        <div className="left-container left-container-100">
+          <div className="container-createproject">
+            {showSummary ? (
+              <ProjectSummary
+                formData={formData}
+                onBackClick={(step) => {
+                  setCurrentStep(step);
+                  setShowSummary(false);
+                }}
+              />
+            ) : (
+              <>
+                {renderProgressBar()}
+                <div className="form-container p-0">
+                  {renderFormStep()}
+                  <div className="form-actions justify-content-between">
+                    {currentStep > 0 && (
+                      <Button
+                        className="border-0 border-radius-2 text-dark-gray fs-24-600 bg-transparent btn btn-primary"
+                        onClick={handleBack}
+                      >
+                        &lt; Back
+                      </Button>
+                    )}
+                    <div className="d-flex">
+                      {currentStep === 1 || currentStep === 2 ? (
+                        <Button className="btn-primary btn fs-14-600 bg-transparent text-primary border-0  border-radius-2">
+                          <svg
+                            className="me-2"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 20 20"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M10 3.33464C9.22645 3.33464 8.48459 3.64193 7.93761 4.18891C7.39062 4.73589 7.08333 5.47775 7.08333 6.2513C7.08333 7.02485 7.39062 7.76672 7.93761 8.3137C8.48459 8.86068 9.22645 9.16797 10 9.16797C10.7735 9.16797 11.5154 8.86068 12.0624 8.3137C12.6094 7.76672 12.9167 7.02485 12.9167 6.2513C12.9167 5.47775 12.6094 4.73589 12.0624 4.18891C11.5154 3.64193 10.7735 3.33464 10 3.33464ZM5.41667 6.2513C5.41667 5.03573 5.89955 3.86994 6.75909 3.0104C7.61864 2.15085 8.78442 1.66797 10 1.66797C11.2156 1.66797 12.3814 2.15085 13.2409 3.0104C14.1004 3.86994 14.5833 5.03573 14.5833 6.2513C14.5833 7.46688 14.1004 8.63267 13.2409 9.49221C12.3814 10.3518 11.2156 10.8346 10 10.8346C8.78442 10.8346 7.61864 10.3518 6.75909 9.49221C5.89955 8.63267 5.41667 7.46688 5.41667 6.2513ZM2.5 15.8346C2.5 14.7296 2.93899 13.6698 3.72039 12.8884C4.50179 12.107 5.5616 11.668 6.66667 11.668H13.3333C14.4384 11.668 15.4982 12.107 16.2796 12.8884C17.061 13.6698 17.5 14.7296 17.5 15.8346V18.3346H2.5V15.8346ZM6.66667 13.3346C6.00363 13.3346 5.36774 13.598 4.8989 14.0669C4.43006 14.5357 4.16667 15.1716 4.16667 15.8346V16.668H15.8333V15.8346C15.8333 15.1716 15.5699 14.5357 15.1011 14.0669C14.6323 13.598 13.9964 13.3346 13.3333 13.3346H6.66667Z"
+                              fill="#FF6F00"
+                            />
+                          </svg>
+                          Send To
+                        </Button>
+                      ) : null}
+                      <Button
+                        className="btn-primary btn fs-14-600 bg-primary border-0 border-radius-2"
+                        onClick={handleNext}
+                      >
+                        {currentStep === 4 ? "Final Review >" : "Next >"}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </main>
+    </Fragment>
+  );
+};
+
+export default CeoCreateProject;

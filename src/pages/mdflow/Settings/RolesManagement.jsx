@@ -304,7 +304,7 @@ const ManageRoles = () => {
           </ul>
 
         </div>
-        <div className="manage__roles__details__container-form">
+        <div className="border-radius-0 manage__roles__details__container-form">
           {rolesList && departmentList && roleType && roleType.length > 0 && departmentType && (
             <Table
               columns={columns}

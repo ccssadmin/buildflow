@@ -26,23 +26,25 @@ const AqsMaterials = () => {
 
     return (
         <Fragment>
-            <main className="page-home d-flex">
+            <main className="page-material d-flex">
                 <div className="container-fluid">
                     <div className="row">
                         {/* Left Panel - Table */}
                         <div className="col-md-7 p-3">  {/* Added padding */}
-                            <div className="d-flex justify-content-between align-items-center mb-3">
+                            <div className="site-selector mb-3">
                                 <select
-                                    className="form-select select-custom"
-                                    style={{ backgroundColor: '#E8E8E8' }}
+                                    className="form-select"
                                     value={selectedSite}
                                     onChange={(e) => setSelectedSite(e.target.value)}
                                 >
                                     {sites.map((site, index) => (
-                                        <option key={index} value={site}>{site}</option>
+                                        <option key={index} value={site}>
+                                            {site}
+                                        </option>
                                     ))}
                                 </select>
                             </div>
+
                             <div>
                                 <table className="tbl">
                                     <thead>

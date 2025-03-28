@@ -24,15 +24,18 @@
 
 
 /* AQS FLOW STYLES */
-@import './components/css/aqsStyles/aqsinventory.css'; 
+@import './components/css/aqsStyles/aqsinventory.css';
 @import './components/css/aqsStyles/aqsboqcreate.css';
 @import './components/css/aqsStyles/aqsboqopen.css';
 @import './components/css/aqsStyles/aqsboqmain.css';
 @import './components/css/aqsStyles/aqsvendordetails.css';
 @import './components/css/aqsStyles/aqsvendorpricedetails.css';
-@import './components/css/aqsStyles/aqsmaterial.css'; 
+@import './components/css/aqsStyles/aqsmaterial.css';
 @import './components/css/aqsStyles/aqsvendor.css';
 @import './components/css/aqsStyles/aqsvendordetails.css';
-@import './components/css/aqsStyles/aqscostestimation.css';
+@import './components/css/aqsStyles/aqsdashboard.css';
 
 
+/*CEO FLOW STYLES */
+@import './components/css/ceoStyles/ceodashboard.css';
+@import './components/css/ceoStyles/ceocreateproject.css'

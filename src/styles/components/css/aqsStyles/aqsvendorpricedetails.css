@@ -1,8 +1,3 @@
-body {
-  font-family: 'Inter', sans-serif;
-  background-color: #f8f9fa;
-  color: #212529;
-}
 
 .breadcrumb-container {
   border-bottom: 1px solid #dee2e6;
@@ -63,7 +58,7 @@ body {
   margin-bottom: 8px;
 }
 
-.form-control-vendor {
+.form-control {
   border: 1px solid #ced4da;
   border-radius: 4px;
   height: 38px;

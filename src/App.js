@@ -9,6 +9,7 @@ import "./styles/index.css";
 const MdLayout = lazy(() => import("./components/layout/user-layout.component"));
 const EngineerLayout = lazy(() => import("./components/layout/engineer-layout.component"));
 const AqsLayout = lazy ( ( ) => import('./components/layout/aqs-layout.component'));
+const CeoLayout = lazy ( ( ) => import('./components/layout/ceo-layout.component'));
 
 /** PAGES */
 const Login = lazy(() => import("./pages/Login/Login"));
@@ -57,6 +58,22 @@ const AqsVendorDetails = lazy ( ( ) => import ('./pages/aqsFlow/Vendors/VendorDe
 const AqsVendorPriceDetails = lazy ( ( ) => import ('./pages/aqsFlow/Vendors/VendorPriceDetails'));
 const AqsSetting = lazy( ( ) => import ('./pages/aqsFlow/Settings/index'));
 
+
+// CEO FLOW
+
+const CeoDashboard = lazy ( () => import ('./pages/ceoFlow/Dashboard/index'));
+const CeoDashboard1 = lazy ( () => import ('./pages/ceoFlow/Dashboard/index1'));
+const CeoProject = lazy ( () => import ('./pages/ceoFlow/Project/index'));
+const CeoProjectDetails = lazy(() => import('./pages/ceoFlow/Project/ProjectDeatils'));
+const CeoCreateProject = lazy(() => import('./pages/ceoFlow/Project/CreateProject'));
+const CeoTicketDetails = lazy ( () => import ('./pages/ceoFlow/KanbanBoard/TicketDetails'));
+const CeoChat = lazy ( () => import ('./pages/ceoFlow/ChatPage/Chat/ChatApp'));
+const KanbanCeo = lazy ( () => import ('./pages/ceoFlow/KanbanBoard/index'));
+const CeoResources = lazy ( () => import ('./pages/ceoFlow/Resources/index'));
+const CeoFinance = lazy ( () => import ('./pages/ceoFlow/Finance/index'));
+const CeoDepartment = lazy ( () => import ('./pages/ceoFlow/Departments/index'));
+const CeoReport = lazy ( () => import ('./pages/ceoFlow/Reports/index'));
+const CeoSettings = lazy ( () => import ('./pages/ceoFlow/Settings/index'));
 // Not Found
 const NotFound = lazy(() => import("./pages/mdflow/NotFound/NotFound"));
 
@@ -80,6 +97,10 @@ const App = () => {
     AQS : {
       default : "/aqs/aqsdashboard",
       layout : AqsLayout,
+    },
+    CEO : {
+      default : "/ceo/dashboard",
+      layout : CeoLayout,
     }
   };
 
@@ -241,6 +262,29 @@ const App = () => {
           <Route path="aqssetting" element={ <AqsSetting />} />
           </Route>
 
+
+        {/* CEORoutes */}
+
+        <Route
+          path="/ceo"
+          element={<ProtectedRoute allowedRole="CEO"><CeoLayout onLogout={handleLogout} /></ProtectedRoute>}
+        >
+          <Route path="dashboard" element={ <CeoDashboard />} />
+          <Route path="dashboard1" element={ <CeoDashboard1 />} />
+          <Route path="project" element={<CeoProject />} />
+          <Route path="projectdetails" element={<CeoProjectDetails />} />
+          <Route path="createproject" element={<CeoCreateProject />} />
+          <Route path="approvals" element={<KanbanCeo />} />
+          <Route path="ticketdetails/:ticketId" element={<CeoTicketDetails />} />
+          <Route path="chats" element={<CeoChat />} />
+          <Route path="finance" element={<CeoFinance />} />
+          <Route path="resources" element={<CeoResources />} />
+          <Route path="departments" element={<CeoDepartment />} />
+          <Route path="reports" element={<CeoReport />} />
+          <Route path="settings" element={<CeoSettings />} />
+
+        </Route>
+
         {/* Catch all redirect */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
@@ -248,4 +292,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default App;

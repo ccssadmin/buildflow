@@ -1,6 +1,6 @@
 .kanban-container {
-  width: auto;
-  height: auto;
+  width: 100%;
+  height: 90vh;
   padding: 20px;
   overflow-y: auto;
 }
