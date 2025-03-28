@@ -1,10 +1,25 @@
 import React, { useState } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { useNavigate } from 'react-router-dom';
+
 
 const AqsCostEstimation = () => {
   const [selectedSite, setSelectedSite] = useState('MRM Site');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  // Sample data to match the image
+  const navigate = useNavigate();
+
+  const sites = ['MRM Site', 'Second Site', 'Third Site'];
+
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const selectSite = (site) => {
+    setSelectedSite(site);
+    setIsDropdownOpen(false);
+  };
+
+  // Sample data matching exactly what's in the image
   const blocks = [
     {
       id: 'CL00024',
@@ -13,7 +28,7 @@ const AqsCostEstimation = () => {
       date: '14/05/2024',
       status: 'Inactive',
       approvedBy: 'Quality Surveyor',
-      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.'
+      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.'
     },
     {
       id: 'CL00024',
@@ -47,7 +62,6 @@ const AqsCostEstimation = () => {
       name: 'E block',
       time: '02:54 pm',
       date: '14/05/2024',
-      status: '',
       approvedBy: 'Quality Surveyor',
       description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.'
     },
@@ -56,7 +70,6 @@ const AqsCostEstimation = () => {
       name: 'C Block',
       time: '02:54 pm',
       date: '14/05/2024',
-      status: '',
       approvedBy: 'Quality Surveyor',
       description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.'
     },
@@ -65,7 +78,6 @@ const AqsCostEstimation = () => {
       name: 'D block',
       time: '02:54 pm',
       date: '14/05/2024',
-      status: '',
       approvedBy: 'Quality Surveyor',
       description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.'
     },
@@ -74,7 +86,6 @@ const AqsCostEstimation = () => {
       name: 'D block',
       time: '02:54 pm',
       date: '14/05/2024',
-      status: '',
       approvedBy: 'Quality Surveyor',
       description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.'
     }
@@ -82,67 +93,74 @@ const AqsCostEstimation = () => {
 
   return (
     <div className="container-fluid p-3">
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <div className="dropdown">
-          <button 
-            className="btn btn-light dropdown-toggle text-start" 
-            type="button" 
-            id="siteDropdown" 
-            data-bs-toggle="dropdown" 
-            aria-expanded="false"
-            style={{ backgroundColor: '#f2f2f2', width: '250px', textAlign: 'left' }}
-          >
-            {selectedSite}
-          </button>
-          <ul className="dropdown-menu" aria-labelledby="siteDropdown">
-            <li><a className="dropdown-item" href="#" onClick={() => setSelectedSite('MRM Site')}>MRM Site</a></li>
-            <li><a className="dropdown-item" href="#" onClick={() => setSelectedSite('Other Site')}>Other Site</a></li>
-          </ul>
+      <div className="row justify-content-between align-items-center mb-3">
+        <div className="col-auto">
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <select
+              className="form-select select-custom"
+              style={{ backgroundColor: '#E8E8E8' }}
+              value={selectedSite}
+              onChange={(e) => setSelectedSite(e.target.value)}
+            >
+              {sites.map((site, index) => (
+                <option key={index} value={site}>{site}</option>
+              ))}
+            </select>
+          </div>
         </div>
-        <div className="d-flex">
-          <button className="btn btn-light me-2" style={{ backgroundColor: '#f2f2f2' }}>
-            <i className="bi bi-funnel"></i> Sort By
+
+        <div className="col-auto d-flex align-items-center">
+          <button className="sort-button me-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="currentColor"
+              className="bi bi-filter-left"
+              viewBox="0 0 16 16"
+            >
+              <path d="M2 2.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm2 4a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm2 4a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5z" />
+            </svg>
+            <span className="ms-1">Sort By</span>
           </button>
-          <button className="btn text-white" style={{ backgroundColor: '#FF7A00' }}>
-            <i className="bi bi-plus"></i> Create
+
+          <button
+            onClick={() => navigate('/aqs/aqscostestimationcreate')}
+            className="create-button">
+            + Create
           </button>
         </div>
       </div>
 
-      <div className="row g-3">
+      <div className="row g-3 ">
         {blocks.map((block, index) => (
-          <div className="col-md-6" key={index}>
-            <div className="card border-0 shadow-sm mb-2">
-              <div className="card-body">
-                <div className="d-flex justify-content-between align-items-center mb-2">
-                  <div>
-                    <small className="text-muted">ID - {block.id}</small>
-                  </div>
-                  <div>
-                    <small className="text-muted">{block.time} • {block.date}</small>
-                  </div>
-                </div>
-                
-                <div className="d-flex justify-content-between align-items-center mb-2">
-                  <h5 className="card-title mb-0">{block.name}</h5>
-                  {block.status && (
-                    <span className="badge bg-secondary text-white" style={{ fontSize: '0.7rem', backgroundColor: '#6c757d' }}>
-                      {block.status}
-                    </span>
-                  )}
-                </div>
-                
-                <div className="mb-2">
-                  <small className="text-muted">Approved by</small>
-                  <span className="badge ms-2 text-white" style={{ backgroundColor: '#4361EE', fontSize: '0.8rem' }}>
-                    {block.approvedBy}
-                  </span>
-                </div>
-                
-                <p className="card-text" style={{ fontSize: '0.8rem', color: '#6c757d' }}>
-                  {block.description}
-                </p>
+          <div
+            className="col-md-6"
+            key={index}
+            onClick={() => navigate('/aqs/aqscostestimationopen')}
+            style={{ cursor: 'pointer' }}
+          >
+            <div className="block-card">
+              <div className="card-header-info">
+                <div className="id-text">ID - {block.id}</div>
+                <div className="time-text">{block.time} • {block.date}</div>
               </div>
+
+              <div className="card-title-row justify-content-start">
+                <h5 className="block-name">{block.name}</h5>
+                {block.status && (
+                  <span className="inactive-badge">{block.status}</span>
+                )}
+              </div>
+
+              <div className="approval-row">
+                <span className="approval-text">Approved by</span>
+                <span className="surveyor-badge">{block.approvedBy}</span>
+              </div>
+
+              <p className="description-text">
+                {block.description}
+              </p>
             </div>
           </div>
         ))}

@@ -70,8 +70,8 @@
 .btn-add-column {
   background-color: transparent;
   border: none;
-  color: #FF6F00;
-  font-weight: bold;
+  color: #FF6F00 !important;
+  font-weight: bold !important;
   padding: 0;
 }
 
@@ -94,11 +94,11 @@
 
 
 .btn-cancel {
-  background-color: #6c757d;
-  color: white;
+  background-color: white !important;
+  color: black;
 }
 
 .btn-submit {
-  background-color: #28a745;
-  color: white;
+  background-color:#FF6F00 !important;
+  color: white !important;
 }

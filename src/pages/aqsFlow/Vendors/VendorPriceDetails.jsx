@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-
+import { useNavigate } from 'react-router-dom';
 
 const AqsVendorPriceDetails = () => {
+  const navigate = useNavigate();
   const [vendorData, setVendorData] = useState({
     vendorName: 'SS Enterprises',
     vendorId: 'VEND-00052',
@@ -49,23 +50,26 @@ const AqsVendorPriceDetails = () => {
   };
 
   return (
-    <div className="page-vendor container-fluid px-0">
-     <div className="breadcrumb-nav">
+    <div className="container-fluid px-0">
+      <div className="breadcrumb-nav">
         <span className="text-muted">Vendors</span>
         <span className="mx-2">›</span>
-        <span className="text-muted">Open</span>
+        <span 
+          className="text-muted" 
+          style={{ cursor: 'pointer' }}
+          onClick={() => navigate('/aqs/aqsvendordetails')}>Open</span>
         <span className="mx-2">›</span>
         <span className="text-orange">Price Details</span>
       </div>
       
-      <div className="content-container p-3">
-        <div className="vendor-header d-flex align-items-center mb-4">
+      <div className="p-3">
+        <div className=" mb-4" style={ {display : 'flex', justifyContent : 'flex-start'}}>
           <div className="vendor-logo me-3">
             <div className="logo-circle">
               <span>SS</span>
             </div>
           </div>
-          <h2 className="vendor-title mb-0">SS Enterprises</h2>
+          <h2 className="vendor-title mb-0" style={ { marginTop : 10}}>SS Enterprises</h2>
         </div>
         
         <div className="vendor-form">
@@ -101,7 +105,7 @@ const AqsVendorPriceDetails = () => {
                   onChange={handleInputChange}
                 />
                 <span className="input-group-text dropdown-toggle-icon">
-                  <i className="fa fa-chevron-down"></i>
+                  <i className="bi bi-chevron-down"></i>
                 </span>
               </div>
             </div>
@@ -143,7 +147,7 @@ const AqsVendorPriceDetails = () => {
           <div className="material-section mt-4">
             <h3 className="material-title mb-3">Material Prize Table</h3>
             <div className="table-responsive">
-              <table className="tbl">
+              <table className="table">
                 <thead className="table-light">
                   <tr>
                     <th>S.No</th>
@@ -181,4 +185,3 @@ const AqsVendorPriceDetails = () => {
 };
 
 export default AqsVendorPriceDetails;
-
