@@ -68,16 +68,16 @@ const ProjectMilestoneTable = () => {
                         {milestone.completion > 0 ? (
                         <Link to="/task" 
                             
-                        style={{
-                        color: "blue",
-                        textDecoration: "none",
-                        border: "none",
-                        background: "none",
-                        cursor: "pointer",
-                        }}
-                    >
-                        View &gt;&gt;
-                     </Link>
+                            style={{
+                            color: "blue",
+                            textDecoration: "none",
+                            border: "none",
+                            background: "none",
+                            cursor: "pointer",
+                            }}
+                        >
+                            View &gt;&gt;
+                        </Link>
                         ) : (
                         <span style={{ color: "gray" }}>View &gt;&gt;</span>
                         )}

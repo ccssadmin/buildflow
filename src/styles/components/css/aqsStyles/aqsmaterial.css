@@ -20,18 +20,8 @@
   color: red;
   font-weight: bold;
 }
-/* Increase table width */
-.tbl {
-  width: 600px;
-}
 
-/* Reduce row height */
-.tbl th, .tbl td {
-  padding: 5px; /* Reduce padding for smaller row height */
-  text-align: center;
-  vertical-align: middle;
-  width: auto;
-}
+
 
 /* Style for 0 Meter */
 .zero-required {

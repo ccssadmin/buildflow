@@ -1,0 +1,71 @@
+.ceo-report  .report-container {
+    display: flex;
+    height: 100vh;
+    font-family: Arial, sans-serif;
+  }
+  
+  .ceo-report  .sidebar {
+    width: 20%;
+    background-color: #f9f9f9;
+    border-right: 1px solid #ddd;
+    padding: 16px;
+  }
+  
+  .ceo-report  .filter-list {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .ceo-report  .filter-item {
+    padding: 10px 0;
+    color: #555;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  
+  .ceo-report  .filter-item.active {
+    color: #ff7f50;
+    font-weight: bold;
+  }
+  
+  .ceo-report  .filter-item:hover {
+    color: #000;
+  }
+  
+  .ceo-report  .main-content {
+    flex: 1;
+    padding: 20px;
+    background-color: #fff;
+  }
+  
+  .ceo-report  .report-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .ceo-report  .report-table th,
+  .ceo-report  .report-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  .ceo-report  .report-table th {
+    background-color: #f2f2f2;
+  }
+  
+  .ceo-report  .report-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  .ceo-report  .action {
+    color: #1e90ff;
+    cursor: pointer;
+  }
+  
+  .ceo-report  .no-data {
+    text-align: center;
+    padding: 20px;
+    color: #999;
+  }
+  

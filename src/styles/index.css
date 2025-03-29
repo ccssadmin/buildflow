@@ -11,6 +11,8 @@
 @import './components/css/rolesmanagement.css';
 
 /* // Engineer Flow Styles */
+
+
 @import './components/css/engineerStyles/engineerdashboard.css';
 @import './components/css/engineerStyles/engineermaterial.css';
 @import './components/css/engineerStyles/engineermaterialcreate.css';
@@ -37,4 +39,8 @@
 
 /*CEO FLOW STYLES */
 @import './components/css/ceoStyles/ceodashboard.css';
-@import './components/css/ceoStyles/ceocreateproject.css'
+@import './components/css/ceoStyles/ceocreateproject.css';
+@import './components/css/ceoStyles/civilworkers.css';
+@import './components/css/ceoStyles/reports.css';
+@import './components/css/ceoStyles/resources.css';
+@import './components/css/ceoStyles/ceofinance.css';
