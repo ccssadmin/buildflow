@@ -90,7 +90,7 @@ const FinanceChat = lazy( ( ) => import('./pages/financeFlow/ChatPage/Chat/ChatA
 const FinanceInvoice = lazy( ( ) => import('./pages/financeFlow/Invoices/index'));
 const FinanceInvoiceDetails = lazy( ( ) => import('./pages/financeFlow/Invoices/InvoiceDetails'));
 const FinanceCashFlow = lazy( ( ) => import('./pages/financeFlow/CashFlow/index'));
-const FinanceVendorAndPo = lazy ( ( ) => import ('./pages/financeFlow/VendoAndPo/index'));
+const FinanceVendorAndPo = lazy ( ( ) => import ('./pages/financeFlow/VendorAndPo/index'));
 const FinanceTax = lazy ( ( ) => import ('./pages/financeFlow/Tax/index'));
 const FinanceReport = lazy ( ( ) => import('./pages/financeFlow/Reports/index'));
 const FinanceReportCreate = lazy( ( ) => import('./pages/financeFlow/Reports/ReportCreate'));
@@ -331,7 +331,7 @@ const App = () => {
           <Route path="budgetcreate" element={<FinanceBudgetCreate />} />
           <Route path="budgetdetails" element={<FinanceBudgetDetails />} />
           <Route path="approvals" element={<KanbanFinance />} />
-          <Route path="ticketdetails/:ticketId" element={<FinanceTicketDetails />} />
+          <Route path="financeticketdetails/:ticketId" element={<FinanceTicketDetails />} />
           <Route path="chats" element={<FinanceChat />} />
           <Route path="invoice" element={<FinanceInvoice />} />
           <Route path="invoicedetails" element={<FinanceInvoiceDetails />} />
