@@ -74,7 +74,7 @@ const FinanceKanbanBoard = () => {
     };
 
     const handleTaskClick = (task) => {
-        navigate(`/finance/ticketdetails/${task.title}`, { state: { task } });
+        navigate(`/finance/financeticketdetails/${task.title}`, { state: { task } });
     };
 
     const handleMenuClick = (columnIndex) => {
