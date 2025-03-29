@@ -10,6 +10,7 @@ const MdLayout = lazy(() => import("./components/layout/user-layout.component"))
 const EngineerLayout = lazy(() => import("./components/layout/engineer-layout.component"));
 const AqsLayout = lazy ( ( ) => import('./components/layout/aqs-layout.component'));
 const CeoLayout = lazy ( ( ) => import('./components/layout/ceo-layout.component'));
+const FinanceLayout = lazy ( ( ) => import('./components/layout/finance-layout.component'));
 
 /** PAGES */
 const Login = lazy(() => import("./pages/Login/Login"));
@@ -74,6 +75,12 @@ const CeoFinance = lazy ( () => import ('./pages/ceoFlow/Finance/index'));
 const CeoDepartment = lazy ( () => import ('./pages/ceoFlow/Departments/index'));
 const CeoReport = lazy ( () => import ('./pages/ceoFlow/Reports/index'));
 const CeoSettings = lazy ( () => import ('./pages/ceoFlow/Settings/index'));
+
+
+
+// Finance Flow
+
+const FinanceDashboard = lazy (  ( ) => import('./pages/financeFlow/Dashboard/index'));
 // Not Found
 const NotFound = lazy(() => import("./pages/mdflow/NotFound/NotFound"));
 
@@ -101,6 +108,10 @@ const App = () => {
     CEO : {
       default : "/ceo/dashboard",
       layout : CeoLayout,
+    },
+    Finance : {
+      default : "/finance/dashboard",
+      layout : FinanceLayout,
     }
   };
 
@@ -284,6 +295,18 @@ const App = () => {
           <Route path="reports" element={<CeoReport />} />
           <Route path="settings" element={<CeoSettings />} />
 
+        </Route>
+
+
+        {/* FinanceRoutes */}
+
+
+        <Route
+        path="/finance"
+        element={<ProtectedRoute allowedRole="Finance"><FinanceLayout onLogout={handleLogout}/></ProtectedRoute>}
+        >
+
+          <Route path="dashboard" element={<FinanceDashboard />} />
         </Route>
 
         {/* Catch all redirect */}
