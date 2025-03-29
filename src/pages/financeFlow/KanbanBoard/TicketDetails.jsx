@@ -6,7 +6,7 @@ import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { useNavigate } from 'react-router-dom';
 
-const EngineerTicketDetails = () => {
+const FinanceTicketDetails = () => {
   const [activeTab, setActiveTab] = useState('all');
   const [commentText, setCommentText] = useState('');
   const [showToast, setShowToast] = useState(false);
@@ -998,4 +998,4 @@ const EngineerTicketDetails = () => {
   );
 };
 
-export default EngineerTicketDetails;
+export default FinanceTicketDetails;

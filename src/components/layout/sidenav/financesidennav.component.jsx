@@ -41,7 +41,7 @@ const FinancesideNav = ({ onChange }) => {
               title="Home"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/admin/engineerdashboard" className="link-tag">
+              <NavLink to="/finance/dashboard" className="link-tag">
                 {({ isActive, isPending }) => (
                   <>
                     <img
@@ -61,7 +61,7 @@ const FinancesideNav = ({ onChange }) => {
               title="Team"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/admin/engineerproject" className="link-tag">
+              <NavLink to="/finance/budget" className="link-tag">
                 {({ isActive, isPending }) => (
                   <>
                     <img
@@ -79,7 +79,7 @@ const FinancesideNav = ({ onChange }) => {
               title="Team"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/admin/engineerapprovals" className="link-tag">
+              <NavLink to="/finance/approvals" className="link-tag">
                 {({ isActive, isPending }) => (
                   <>
                     <img
@@ -97,7 +97,7 @@ const FinancesideNav = ({ onChange }) => {
               title="Team"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/admin/engineerchats" className="link-tag">
+              <NavLink to="/finance/chats" className="link-tag">
                 {({ isActive, isPending }) => (
                   <>
                     <img
@@ -115,7 +115,7 @@ const FinancesideNav = ({ onChange }) => {
               title="Team"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/admin/engineermaterial" className="link-tag">
+              <NavLink to="/finance/invoice" className="link-tag">
                 {({ isActive, isPending }) => (
                   <>
                     <img
@@ -133,7 +133,7 @@ const FinancesideNav = ({ onChange }) => {
               title="Team"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/admin/engineertask" className="link-tag">
+              <NavLink to="/finance/cashflow" className="link-tag">
                 {({ isActive, isPending }) => (
                   <>
                     <img
@@ -151,7 +151,7 @@ const FinancesideNav = ({ onChange }) => {
               title="Team"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/admin/engineerreport" className="link-tag">
+              <NavLink to="/finance/vendorandpo" className="link-tag">
                 {({ isActive, isPending }) => (
                   <>
                     <img
@@ -169,7 +169,7 @@ const FinancesideNav = ({ onChange }) => {
               title="Team"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/admin/engineerreport" className="link-tag">
+              <NavLink to="/finance/tax" className="link-tag">
                 {({ isActive, isPending }) => (
                   <>
                     <img
@@ -187,7 +187,7 @@ const FinancesideNav = ({ onChange }) => {
               title="Team"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/admin/engineerreport" className="link-tag">
+              <NavLink to="/finance/report" className="link-tag">
                 {({ isActive, isPending }) => (
                   <>
                     <img
@@ -205,7 +205,7 @@ const FinancesideNav = ({ onChange }) => {
               title="Team"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/admin/engineersetting" className="link-tag">
+              <NavLink to="/finance/settings" className="link-tag">
                 {({ isActive, isPending }) => (
                   <>
                     <img

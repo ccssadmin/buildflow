@@ -11,7 +11,7 @@ const tagColors = {
     Admin: "#FFCFCF",
 };
 
-const EngineerKanbanBoard = () => {
+const FinanceKanbanBoard = () => {
     const navigate = useNavigate();
     const [columns, setColumns] = useState([
         {
@@ -74,7 +74,7 @@ const EngineerKanbanBoard = () => {
     };
 
     const handleTaskClick = (task) => {
-        navigate(`/admin/engineerticketdetails/${task.title}`, { state: { task } });
+        navigate(`/finance/ticketdetails/${task.title}`, { state: { task } });
     };
 
     const handleMenuClick = (columnIndex) => {
@@ -223,4 +223,4 @@ const EngineerKanbanBoard = () => {
     );
 };
 
-export default EngineerKanbanBoard;
+export default FinanceKanbanBoard;

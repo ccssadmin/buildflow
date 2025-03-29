@@ -1,6 +1,6 @@
 import { Fragment } from "react";
 
-export default function FinanceInvoiceDetails () {
+export default function FinanceReportCreate () {
     return (
         <Fragment>
         <main className="page-ceo-department d-flex">

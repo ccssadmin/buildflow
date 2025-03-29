@@ -2,7 +2,7 @@ import {  Tab, Tabs } from 'react-bootstrap';
 import { useState } from 'react';
 import GeneralSettings from '../../mdflow/Settings/General';
 
-export const EngineerSettings = () => {
+export const FinanceSettings = () => {
     const [key, setKey] = useState("general");
     return (
         <main className='container-wrapper page-settings'>
@@ -25,4 +25,4 @@ export const EngineerSettings = () => {
     );
 };
 
-export default EngineerSettings;
+export default FinanceSettings;
