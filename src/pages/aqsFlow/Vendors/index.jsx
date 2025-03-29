@@ -23,7 +23,7 @@ const AqsVendor = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="container mt-4">
+    <div className="page-aqs-vendors container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
         {/* Dropdown */}
         <select

@@ -1,5 +1,7 @@
-import React from "react";
-import { Button, Row, Col, Form } from "react-bootstrap";
+import { Calendar } from "lucide-react";
+import React, { useState } from "react";
+import { Button, Row, Col, Form, Modal } from "react-bootstrap";
+import { profile } from "../../../assets/images";
 
 // Permission and Finance Approval data
 const permissionData = [
@@ -22,6 +24,23 @@ const permissionData = [
   { id: 7, role: "Finance", employee: "Jane Cooper", amount: "" },
 ];
 const ProjectSummary = ({ formData, onBackClick }) => {
+  const [showModal, setShowModal] = useState(false);
+  const [selectedUsers, setSelectedUsers] = useState([]);
+
+  const users = [
+    { id: 1, name: "Jacob Jones", role: "Managing Director" },
+    { id: 2, name: "Robert Fox", role: "Director" },
+    { id: 3, name: "Floyd Miles", role: "Director" },
+    { id: 4, name: "Devon Lane", role: "Finance Head" },
+    { id: 5, name: "Cody Fisher", role: "GM Technology", image: "T" },
+  ];
+
+  const handleCheckboxChange = (id) => {
+    setSelectedUsers((prev) =>
+      prev.includes(id) ? prev.filter((userId) => userId !== id) : [...prev, id]
+    );
+  };
+
   return (
     <div className="project-summary">
       <div className="breadcrumb-container pb-3 d-flex align-items-center">
@@ -65,19 +84,31 @@ const ProjectSummary = ({ formData, onBackClick }) => {
           <Col md={6} lg={4}>
             <div className="summary-field">
               <label>Project Name</label>
-              <Form.Control disabled type="text" placeholder={formData.projectName || "Not provided"} />
+              <Form.Control
+                disabled
+                type="text"
+                placeholder={formData.projectName || "Not provided"}
+              />
             </div>
           </Col>
           <Col md={6} lg={4}>
             <div className="summary-field">
               <label>Location</label>
-              <Form.Control disabled type="text" placeholder={formData.location || "Not provided"} />
+              <Form.Control
+                disabled
+                type="text"
+                placeholder={formData.location || "Not provided"}
+              />
             </div>
           </Col>
           <Col md={6} lg={4}>
             <div className="summary-field">
               <label>Project Type</label>
-              <Form.Control disabled type="text" placeholder={formData.projectType || "Not provided"} />
+              <Form.Control
+                disabled
+                type="text"
+                placeholder={formData.projectType || "Not provided"}
+              />
             </div>
           </Col>
         </Row>
@@ -85,19 +116,32 @@ const ProjectSummary = ({ formData, onBackClick }) => {
           <Col md={6} lg={4}>
             <div className="summary-field">
               <label>Project Sector</label>
-              <Form.Control disabled type="text" placeholder={formData.projectSector || "Not provided"} />
+              <Form.Control
+                disabled
+                type="text"
+                placeholder={formData.projectSector || "Not provided"}
+              />
             </div>
           </Col>
           <Col md={6} lg={4}>
             <div className="summary-field">
               <label>Project Start Date</label>
-              <Form.Control disabled type="text" placeholder={formData.projectStartDate || "Not provided"} />
+              <Form.Control
+                disabled
+                type="text"
+                placeholder={formData.projectStartDate || "Not provided"}
+              />
             </div>
           </Col>
           <Col md={6} lg={4}>
-            <div className="summary-field">
+            <div className="summary-field position-relative ">
               <label>Expected Completion Date</label>
-              <Form.Control disabled type="text" placeholder={formData.expectedCompletionDate || "Not provided"} />
+              <Form.Control
+                disabled
+                type="text"
+                placeholder={formData.expectedCompletionDate || "Not provided"}
+              />
+              <Calendar className="date-icon" />
             </div>
           </Col>
         </Row>
@@ -105,7 +149,11 @@ const ProjectSummary = ({ formData, onBackClick }) => {
           <Col>
             <div className="summary-field">
               <label>Description</label>
-              <Form.Control disabled type="text" placeholder={formData.description || "Not provided"} />
+              <Form.Control
+                disabled
+                type="text"
+                placeholder={formData.description || "Not provided"}
+              />
             </div>
           </Col>
         </Row>
@@ -128,13 +176,21 @@ const ProjectSummary = ({ formData, onBackClick }) => {
               <label className="text-dark fs-26-700">
                 Total Project Budget
               </label>
-              <p>₹ {formData.totalBudget || "Not provided"}</p>
+              <Form.Control
+                disabled
+                type="text"
+                placeholder={`(₹) ${formData.totalBudget || "Not provided"}`}
+              />
             </div>
           </Col>
           <Col md={6}>
             <div className="summary-field">
-              <label>Send To</label>
-              <p>{formData.sendTo || "Not provided"}</p>
+              <label className="text-dark fs-26-700">Send To</label>
+              <Form.Control
+                disabled
+                type="text"
+                placeholder={formData.sendTo || "Not provided"}
+              />
             </div>
           </Col>
         </Row>
@@ -192,11 +248,15 @@ const ProjectSummary = ({ formData, onBackClick }) => {
           <Col md={6} lg={4}>
             <div className="summary-field">
               <label>Project Manager</label>
-              <div className="summary-multi-select">
+              <div className="summary-multi-selectn ">
                 {formData.projectManager.length > 0 ? (
                   formData.projectManager.map((item) => (
-                    <div key={item.id} className="summary-tag">
-                      {item.name}
+                    <div key={item.id} className="summary-tag width-100">
+                      <Form.Control
+                        disabled
+                        type="text"
+                        placeholder={item.name || "Not assigned"}
+                      />
                     </div>
                   ))
                 ) : (
@@ -211,8 +271,13 @@ const ProjectSummary = ({ formData, onBackClick }) => {
               <div className="summary-multi-select">
                 {formData.assistantProjectManager.length > 0 ? (
                   formData.assistantProjectManager.map((item) => (
-                    <div key={item.id} className="summary-tag">
-                      {item.name}
+                    <div key={item.id} className="summary-tag width-100">
+                      <Form.Control
+                        disabled
+                        className=" width-100"
+                        type="text"
+                        placeholder={item.name || "Not assigned"}
+                      />
                     </div>
                   ))
                 ) : (
@@ -227,8 +292,12 @@ const ProjectSummary = ({ formData, onBackClick }) => {
               <div className="summary-multi-select">
                 {formData.leadEngineer.length > 0 ? (
                   formData.leadEngineer.map((item) => (
-                    <div key={item.id} className="summary-tag">
-                      {item.name}
+                    <div key={item.id} className="summary-tag width-100">
+                      <Form.Control
+                        disabled
+                        type="text"
+                        placeholder={item.name || "Not assigned"}
+                      />
                     </div>
                   ))
                 ) : (
@@ -346,13 +415,13 @@ const ProjectSummary = ({ formData, onBackClick }) => {
           <tbody>
             {formData.risks.map((risk) => (
               <tr key={risk.id}>
-                <td className="text-center text-dark-gray fs-16-500">
+                <td className="text-center text-dary fs-16-500">
                   {String(risk.id).padStart(2, "0")}
                 </td>
-                <td className="text-center text-dark-gray fs-16-500">
+                <td className="text-center text-dark fs-16-500">
                   {risk.category}
                 </td>
-                <td className="text-center text-dark-gray fs-16-500">
+                <td className="text-center text-dark fs-16-500">
                   <div className={`status-badge ${risk.status.toLowerCase()}`}>
                     {risk.status === "Completed" && (
                       <span className="status-icon">✓</span>
@@ -379,11 +448,56 @@ const ProjectSummary = ({ formData, onBackClick }) => {
       </div>
 
       <div className="form-actions text-center mt-4">
-        <Button className="save-draft-btn">Save as Draft</Button>
-        <Button to="ceo/approvals" variant="primary" className="submit-btn">
+        <Button
+          variant="primary"
+          className="submit-btn"
+          onClick={() => setShowModal(true)}
+        >
           Submit for Approval
         </Button>
       </div>
+
+      {/* Modal popup  */}
+
+      <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+  <Modal.Body>
+    {users.map((user) => (
+      <div key={user.id} className="d-flex align-items-center mb-3">
+        <Form.Check
+          type="checkbox"
+          className="me-3"
+          checked={selectedUsers.includes(user.id)}
+          onChange={() => handleCheckboxChange(user.id)}
+        />
+        <img
+          src={profile}
+          alt={`${user.name}'s profile`}
+          className="rounded-circle me-3"
+          style={{ width: "50px", height: "50px", objectFit: "cover" }}
+        />
+        <p className="mb-0 fs-22-700 text-dark">
+          {user.name}
+          <span className="d-block fs-14-400 text-dark-grey">{user.role}</span>
+        </p>
+      </div>
+    ))}
+  </Modal.Body>
+  <Modal.Footer className="justify-content-center">
+    <Button
+      className={`d-flex justify-content-center ${
+        selectedUsers.length > 0 ? "bg-primary" : "bg-grey"
+      }`}
+      onClick={() => {
+        console.log("Selected Users:", selectedUsers);
+        setShowModal(false);
+      }}
+      disabled={selectedUsers.length === 0} // Disable button if no users are selected
+    >
+      Submit
+    </Button>
+  </Modal.Footer>
+</Modal>
+
     </div>
   );
 };
