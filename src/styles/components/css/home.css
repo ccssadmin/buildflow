@@ -60,7 +60,7 @@ span.pending-approvel-count {
     height: 16px;
 }
 .project-dept {
-    /* background-color: #FF5151 !important; */
+    background-color: #FF5151 !important;
     padding: 5px 8px;
     display: flex;
     align-items: center;

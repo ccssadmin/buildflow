@@ -43,7 +43,7 @@ const BOQDashboard = () => {
   const sites = ["MRM Site", "ABC Site", "XYZ Site"];
 
   return (
-    <div className="container">
+    <div className="page-boq container">
       {/* Navbar */}
       <div className="navbar">
         <select value={selectedSite} onChange={(e) => setSelectedSite(e.target.value)}>

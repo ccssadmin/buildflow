@@ -361,67 +361,71 @@ const CeoCreateProject = () => {
 
   // Create a custom multi-select component
   const MultiSelect = ({ field, label, required = false }) => {
-    return (
-      <Form.Group>
-        <Form.Label className="text-dark">
-          {label} {required && <span className="required">*</span>}
-        </Form.Label>
-        <div className="multi-select-container">
-          <div className="selected-items">
-            {formData[field].map((item) => (
-              <div key={item.id} className="selected-item">
-                <span>{item.name}</span>
-                <button
-                  type="button"
-                  className="remove-btn"
-                  onClick={() => handleRemoveItem(field, item.id)}
-                >
-                  ×
-                </button>
-              </div>
-            ))}
-          </div>
-          <div className="search-container">
-            <Form.Control
-              type="text"
-              placeholder="Search..."
-              value={searchFilters[field]}
-              onChange={(e) => handleSearchFilterChange(e, field)}
-              onClick={() => toggleDropdown(field)}
-            />
-            {dropdownVisible[field] && (
-              <div className="dropdown-menu show">
-                {getFilteredItems(field).length > 0 ? (
-                  getFilteredItems(field).map((item) => (
-                    <div
-                      key={item.id}
-                      className={`dropdown-item ${
-                        formData[field].some(
-                          (selected) => selected.id === item.id
-                        )
-                          ? "selected"
-                          : ""
-                      }`}
-                      onClick={() => handleSelectItem(field, item)}
-                    >
-                      {item.name}
-                      {formData[field].some(
-                        (selected) => selected.id === item.id
-                      ) && <span className="check-mark">✓</span>}
-                    </div>
-                  ))
-                ) : (
-                  <div className="dropdown-item no-results">
-                    No results found
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+  return (
+    <Form.Group>
+      <Form.Label className="text-dark">
+        {label} {required && <span className="required">*</span>}
+      </Form.Label>
+      <div className="multi-select-container">
+        <div className="selected-items">
+          {formData[field].map((item) => (
+            <div key={item.id} className="selected-item">
+              <span>{item.name}</span>
+              <button
+                type="button"
+                className="remove-btn"
+                onClick={() => handleRemoveItem(field, item.id)}
+              >
+                ×
+              </button>
+            </div>
+          ))}
         </div>
-      </Form.Group>
-    );
-  };
+        <div className="search-container">
+          <Form.Control
+            type="text"
+            placeholder="Search..."
+            value={searchFilters[field] || ""}
+            onChange={(e) => handleSearchFilterChange(e, field)}
+            onClick={() => toggleDropdown(field)}
+          />
+          {dropdownVisible[field] && (
+            <div className="dropdown-menu show">
+              {getFilteredItems(field).length > 0 ? (
+                getFilteredItems(field).map((item) => (
+                  <div
+                    key={item.id}
+                    className={`dropdown-item ${
+                      formData[field].some(
+                        (selected) => selected.id === item.id
+                      )
+                        ? "selected"
+                        : ""
+                    }`}
+                    onClick={() => {
+                      handleSelectItem(field, item);
+                      toggleDropdown(field, false); // Auto-close dropdown
+                    }}
+                  >
+                    {item.name}
+                    {formData[field].some(
+                      (selected) => selected.id === item.id
+                    ) && <span className="check-mark">✓</span>}
+                  </div>
+                ))
+              ) : (
+                <div className="dropdown-item no-results">
+                  No results found
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </Form.Group>
+  );
+};
+
 
   const [currentStep, setCurrentStep] = useState(0);
   const [formErrors, setFormErrors] = useState({});
@@ -486,9 +490,21 @@ const CeoCreateProject = () => {
   };
 
   const handleAddColumn = () => {
-    // Function to add a new column to tables
-    alert("Add column functionality will be implemented here");
+    // Add a new column with an empty category field
+    const newColumn = {
+      id: formData.budgetBreakdown.length + 1, // Increment ID
+      category: "", // Set empty category for input
+      estimatedCost: "", // Default estimated cost
+      approvedBudget: "", // Default approved budget
+    };
+  
+    // Update state with new column
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      budgetBreakdown: [...prevFormData.budgetBreakdown, newColumn],
+    }));
   };
+  
 
   const renderProgressBar = () => {
     return (
@@ -666,6 +682,7 @@ const CeoCreateProject = () => {
                 <Form.Control.Feedback type="invalid">
                   {formErrors.projectStartDate}
                 </Form.Control.Feedback>
+                
                 <Calendar className="date-icon" />
               </div>
             </Form.Group>
@@ -790,7 +807,19 @@ const CeoCreateProject = () => {
                     {String(item.id).padStart(2, "0")}
                   </td>
                   <td className="text-dark-gray fs-16-500 text-center">
-                    {item.category}
+                    <Form.Control
+                      type="text"
+                      placeholder="Enter category"
+                      value={item.category}
+                      maxLength={20} // Limit to 20 characters
+                      onChange={(e) =>
+                        handleBudgetBreakdownChange(
+                          item.id,
+                          "category",
+                          e.target.value
+                        )
+                      }
+                    />
                   </td>
                   <td className="text-dark-gray fs-16-500 text-center">
                     <Form.Control
@@ -834,7 +863,11 @@ const CeoCreateProject = () => {
       </div>
     );
   };
+  
 
+
+
+  
   // Update the renderProjectTeamStakeholder function
   const renderProjectTeamStakeholder = () => {
     return (

@@ -74,8 +74,9 @@ const CeoFinance = lazy ( () => import ('./pages/ceoFlow/Finance/index'));
 const CeoDepartment = lazy ( () => import ('./pages/ceoFlow/Departments/index'));
 const CeoReport = lazy ( () => import ('./pages/ceoFlow/Reports/index'));
 const CeoSettings = lazy ( () => import ('./pages/ceoFlow/Settings/index'));
+
 // Not Found
-const NotFound = lazy(() => import("./pages/mdflow/NotFound/NotFound"));
+const NotFound = lazy(() => import("./pages/ceoFlow/NotFound/NotFound"));
 
 const App = () => {
   const [role, setRole] = useState(null);
@@ -211,8 +212,10 @@ const App = () => {
           <Route path="ticket/:ticketId" element={<TicketDetails />} />
           <Route path="projects" element={<Projects />} />
           <Route path="projectdetails" element={<ProjectDetails />} />
-          <Route path="chat" element={<ChatApp />} />
+          <Route path="task" element={<EngineerTask />} />
+          <Route path="chat" element={<ChatApp />} />6
           <Route path="settings" element={<Settings />} />
+          
           <Route path="*" element={<NotFound />} />
         </Route>
 
@@ -279,10 +282,10 @@ const App = () => {
           <Route path="chats" element={<CeoChat />} />
           <Route path="finance" element={<CeoFinance />} />
           <Route path="resources" element={<CeoResources />} />
-          <Route path="departments" element={<CeoDepartment />} />
+          <Route path="ceodepartments" element={<CeoDepartment />} />
           <Route path="reports" element={<CeoReport />} />
           <Route path="settings" element={<CeoSettings />} />
-
+          
         </Route>
 
         {/* Catch all redirect */}

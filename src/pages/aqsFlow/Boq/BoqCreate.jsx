@@ -31,7 +31,7 @@ const BoqCreate = () => {
   };
 
   return (
-    <div className="container boq-form">
+    <div className="container page-boq-create boq-form">
       <div style={{ paddingTop: '20px', paddingBottom: '20px', borderBottom: '1px solid #ddd', marginBottom: '20px' }}>
         <h2 style={{ margin: 0, fontSize: '16px', color: '#333' }}>
             <span 

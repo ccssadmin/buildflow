@@ -708,7 +708,7 @@ const EngineerTicketDetails = () => {
 
             {/* Assign To */}
             <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
-              <span className="text-muted" >Assign To</span>
+              <span className="text-muted">Assign To</span>
               <div className="d-flex align-items-center position-relative">
                 <Button
                   variant="link"

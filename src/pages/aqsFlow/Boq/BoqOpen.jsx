@@ -18,7 +18,7 @@ const BoqOpen = () => {
     ];
 
     return (
-        <div className="container mt-4">
+        <div className="page-boq-open container mt-4">
         <div style={{ paddingTop: '20px', paddingBottom: '20px', borderBottom: '1px solid #ddd', marginBottom: '20px' }}>
         <h2 style={{ margin: 0, fontSize: '16px', color: '#333' }}>
             <span 

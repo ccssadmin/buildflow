@@ -1,16 +1,6 @@
-/* Main Container */
-.container {
-    width: 100%;
-    max-width: 1220px;
-    margin: auto;
-    padding: 20px;
-    font-family: Arial, sans-serif;
-    background: #fff;
-    
-}
 
 /* Navbar */
-.navbar {
+.page-boq .navbar {
     width: 100%;
     height: 52px;
     display: flex;
@@ -23,7 +13,7 @@
 }
 
 /* MRM Site Dropdown */
-.navbar select {
+.page-boq .navbar select {
     width: 300px;
     height: 40px;
     border-radius: 4px;
@@ -38,7 +28,7 @@
 }
 
 /* Actions */
-.actions {
+.page-boq .actions {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -56,13 +46,13 @@
     gap: 4pxs;
 }
 
-.sort-button {
+.page-boq .sort-button {
     width: 137px;
     height: 46px;
     border: 1px solid #CCCCCC;
     background: #D0D0D0;
 }
-.date_Picker{
+.page-boq .date_Picker{
     font-family: DM Sans;
     font-size: 20px;
     font-weight: 500;
@@ -70,7 +60,7 @@
 }
 
 
-.calendar-icon {
+.page-boq .calendar-icon {
     font-size: 20px; /* Adjust the size if needed */
     color: #606060;
     vertical-align: middle; /* Keeps it aligned with text */
@@ -78,11 +68,11 @@
     transition: transform 0.2s ease-in-out;
 }
 
-.calendar-icon:hover {
+.page-boq .calendar-icon:hover {
     transform: scale(1.1); /* Slight hover effect */
 }
 
-.create-boq-btn {
+.page-boq .create-boq-btn {
     width: 160px;
     height: 46px;
     background: #FF6F00;
@@ -91,7 +81,7 @@
 }
 
 /* Filters Section */
-.filters {
+.page-boq .filters {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -106,18 +96,18 @@
 
 }
 
-.filters span + div {
+.page-boq .filters span + div {
     position: absolute;
     right: 0px;
     top: 50px;
 }
 
-.filters {
+.page-boq .filters {
     position: relative;
 }
 
 /* Date Picker */
-.date-picker-container {
+.page-boq .date-picker-container {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -126,7 +116,7 @@
     font-size: 20px;
 }
 
-.pick-a-date-text {
+.page-boq .pick-a-date-text {
     font-size: 20px;
     font-weight: 500;
     font-size: 20px;
@@ -135,7 +125,7 @@
 }
 
 /* BOQ Grid - Ensuring Proper Alignment */
-.boq-grid {
+.page-boq .boq-grid {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
@@ -143,7 +133,7 @@
 }
 
 /* BOQ Cards */
-.boq-card {
+.page-boq .boq-card {
     background: #FFFFFF;
     padding: 20px;
     border-radius: 10px;
@@ -157,7 +147,7 @@
 }
 
 /* BOQ Card Metadata */
-.boq-meta {
+.page-boq .boq-meta {
     display: flex;
     justify-content: space-between; /* Ensures date & time stay aligned */
     align-items: center;
@@ -167,14 +157,14 @@
     font-weight: 400;
     font-family: DM Sans;
 }
-.date{
+.page-boq .date{
     margin-left: 30px;
     font-size: 10px;
     color: #333333;
 }
 
 
-.boq-title {
+.page-boq .boq-title {
     font-size: 22px;
     color: #333333;
     font-family: DM Sans;
@@ -182,7 +172,7 @@
     font-weight: bold;
     margin: 10px 0;
 }
-.boq-content{
+.page-boq .boq-content{
     font-size: 10px;
     color: #333333;
     font-family: DM Sans;
@@ -190,7 +180,7 @@
 }
 
 /* Role Badges */
-.badge {
+.page-boq .badge {
     padding: 5px 10px !important;
     border-radius: 5px;
     font-size: 10px;
@@ -198,16 +188,16 @@
     gap:10px;
 }
 
-.badge-red {
+.page-boq .badge-red {
     width: 37px;
     height: 20px;
     background: #FF1313;
     border-radius: 4px;
     color: #FFFFFF;
-    justify-content: center;
+    justify-content: center !important;
 }
 
-.badge-blue {
+.page-boq .badge-blue {
     height: 20px;
     width: 105px;
     background: #132BFF;
@@ -216,34 +206,34 @@
 
 /* Responsive Design */
 @media (max-width: 1024px) {
-    .boq-grid {
+    .page-boq .boq-grid {
         flex-direction: column;
         align-items: center;
     }
 
-    .boq-card {
+    .page-boq .boq-card {
         width: 90%;
         max-width: 500px;
     }
 }
 
 @media (max-width: 768px) {
-    .filters {
+    .page-boq .filters {
         flex-direction: column;
         align-items: flex-start;
         gap: 10px;
     }
     
-    .actions {
+    .page-boq .actions {
         flex-direction: column;
         width: 100%;
     }
 
-    .boq-card {
+    .page-boq .boq-card {
         width: 100%;
     }
 
-    .navbar select {
+    .page-boq .navbar select {
         width: 100%;
     }
 }

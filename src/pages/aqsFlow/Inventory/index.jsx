@@ -103,7 +103,7 @@ const AqsInventory = () => {
   ];
 
   return (
-    <div className="inventory-container">
+    <div className="page-aqs-inventory inventory-container">
       {/* MRM Site Dropdown */}
       <div className="site-header">
         <div className="site-dropdown-container">
