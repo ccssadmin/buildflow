@@ -21,7 +21,7 @@ export default function Report() {
       : reports.filter((report) => report.type === selectedFilter);
 
   return (
-    <div className="report-container">
+    <div className="ceo-report report-container">
       {/* Sidebar */}
       <aside className="sidebar">
         <ul className="filter-list">
