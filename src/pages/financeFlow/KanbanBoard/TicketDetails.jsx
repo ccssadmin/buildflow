@@ -792,6 +792,14 @@ const FinanceTicketDetails = () => {
               </div>
             </div>
 
+            <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
+              <span className="text-muted">Query</span>
+              <div className="d-flex align-items-center">
+                <button className=" text-text-dark-gray px-2 py-1 " style={{  width: '80px', border:'none'}}>Cancel</button>
+                <button className=" text-white px-2 py-1 rounded" style={{ backgroundColor: '#30A335', width: '100px', border:'none'}}>Accept</button>
+              </div>
+            </div>
+
             {/* Move To */}
             <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
               <span className="text-muted">Move To</span>
@@ -832,7 +840,7 @@ const FinanceTicketDetails = () => {
               {/* <div className="d-flex align-items-center">
                 <span className="bg-success text-white px-2 py-1 rounded">MD</span>
               </div> */}
-              <div className="d-flex align-items-center">
+              <div className="d-flex align-items-center" style={{ marginRight : '5px'}}>
                 <div className="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center" style={{ width: '24px', height: '24px', fontSize: '12px', marginLeft: '140px' }}>RK</div>
               </div>
               <span className="text-muted">Site Engineer</span>
