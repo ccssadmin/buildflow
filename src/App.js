@@ -10,6 +10,7 @@ const MdLayout = lazy(() => import("./components/layout/user-layout.component"))
 const EngineerLayout = lazy(() => import("./components/layout/engineer-layout.component"));
 const AqsLayout = lazy ( ( ) => import('./components/layout/aqs-layout.component'));
 const CeoLayout = lazy ( ( ) => import('./components/layout/ceo-layout.component'));
+const FinanceLayout = lazy ( ( ) => import('./components/layout/finance-layout.component'));
 
 /** PAGES */
 const Login = lazy(() => import("./pages/Login/Login"));
@@ -75,6 +76,30 @@ const CeoDepartment = lazy ( () => import ('./pages/ceoFlow/Departments/index'))
 const CeoReport = lazy ( () => import ('./pages/ceoFlow/Reports/index'));
 const CeoSettings = lazy ( () => import ('./pages/ceoFlow/Settings/index'));
 
+
+
+// Finance Flow
+
+const FinanceDashboard = lazy (  ( ) => import('./pages/financeFlow/Dashboard/index'));
+const FinanceBudget = lazy ( ( ) => import('./pages/financeFlow/Budget/index'));
+const FinanceBudgetCreate = lazy( ( ) => import('./pages/financeFlow/Budget/BudgetCreate'));
+const FinanceBudgetDetails = lazy( ( ) => import('./pages/financeFlow/Budget/BudgetDetails'));
+const KanbanFinance = lazy ( () => import ('./pages/financeFlow/KanbanBoard/index'));
+const FinanceTicketDetails = lazy ( ( ) => import('./pages/financeFlow/KanbanBoard/TicketDetails'));
+const FinanceChat = lazy( ( ) => import('./pages/financeFlow/ChatPage/Chat/ChatApp'));
+const FinanceInvoice = lazy( ( ) => import('./pages/financeFlow/Invoices/index'));
+const FinanceInvoiceDetails = lazy( ( ) => import('./pages/financeFlow/Invoices/InvoiceDetails'));
+const FinanceCashFlow = lazy( ( ) => import('./pages/financeFlow/CashFlow/index'));
+const FinanceVendorAndPo = lazy ( ( ) => import ('./pages/financeFlow/VendoAndPo/index'));
+const FinanceTax = lazy ( ( ) => import ('./pages/financeFlow/Tax/index'));
+const FinanceReport = lazy ( ( ) => import('./pages/financeFlow/Reports/index'));
+const FinanceReportCreate = lazy( ( ) => import('./pages/financeFlow/Reports/ReportCreate'));
+const FinanceSettings = lazy( ( ) => import ('./pages/financeFlow/Settings/index'));
+
+
+
+
+
 // Not Found
 const NotFound = lazy(() => import("./pages/ceoFlow/NotFound/NotFound"));
 
@@ -102,6 +127,10 @@ const App = () => {
     CEO : {
       default : "/ceo/dashboard",
       layout : CeoLayout,
+    },
+    Finance : {
+      default : "/finance/dashboard",
+      layout : FinanceLayout,
     }
   };
 
@@ -286,6 +315,34 @@ const App = () => {
           <Route path="reports" element={<CeoReport />} />
           <Route path="settings" element={<CeoSettings />} />
           
+        </Route>
+
+
+        {/* FinanceRoutes */}
+
+
+        <Route
+        path="/finance"
+        element={<ProtectedRoute allowedRole="Finance"><FinanceLayout onLogout={handleLogout}/></ProtectedRoute>}
+        >
+
+          <Route path="dashboard" element={<FinanceDashboard />} />
+          <Route path="budget" element={<FinanceBudget />} />
+          <Route path="budgetcreate" element={<FinanceBudgetCreate />} />
+          <Route path="budgetdetails" element={<FinanceBudgetDetails />} />
+          <Route path="approvals" element={<KanbanFinance />} />
+          <Route path="ticketdetails/:ticketId" element={<FinanceTicketDetails />} />
+          <Route path="chats" element={<FinanceChat />} />
+          <Route path="invoice" element={<FinanceInvoice />} />
+          <Route path="invoicedetails" element={<FinanceInvoiceDetails />} />
+          <Route path="cashflow" element={<FinanceCashFlow />} />
+          <Route path="vendorandpo" element={<FinanceVendorAndPo />} />
+          <Route path="tax" element={<FinanceTax />} />
+          <Route path="report" element={<FinanceReport />} />
+          <Route path="reportcreate" element={<FinanceReportCreate />} />
+          <Route path="settings" element={<FinanceSettings />} />
+
+
         </Route>
 
         {/* Catch all redirect */}
