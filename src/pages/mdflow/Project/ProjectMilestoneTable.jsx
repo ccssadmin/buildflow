@@ -1,5 +1,4 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import * as XLSX from "xlsx";
 
 const milestones = [
@@ -66,18 +65,18 @@ const ProjectMilestoneTable = () => {
                     <td className="text-center">{milestone.completion}%</td>
                     <td className="text-center">
                         {milestone.completion > 0 ? (
-                        <Link to="/task" 
-                            
-                        style={{
-                        color: "blue",
-                        textDecoration: "none",
-                        border: "none",
-                        background: "none",
-                        cursor: "pointer",
-                        }}
-                    >
-                        View &gt;&gt;
-                     </Link>
+                        <button
+                            onClick={() => exportToExcel(milestone)}
+                            style={{
+                            color: "blue",
+                            textDecoration: "none",
+                            border: "none",
+                            background: "none",
+                            cursor: "pointer",
+                            }}
+                        >
+                            View &gt;&gt;
+                        </button>
                         ) : (
                         <span style={{ color: "gray" }}>View &gt;&gt;</span>
                         )}

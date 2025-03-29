@@ -211,7 +211,6 @@ const App = () => {
           <Route path="ticket/:ticketId" element={<TicketDetails />} />
           <Route path="projects" element={<Projects />} />
           <Route path="projectdetails" element={<ProjectDetails />} />
-          <Route path="task" element={<EngineerTask />} />
           <Route path="chat" element={<ChatApp />} />
           <Route path="settings" element={<Settings />} />
           <Route path="*" element={<NotFound />} />
