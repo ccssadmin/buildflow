@@ -235,7 +235,7 @@ ul#notification_tab li:first-child button {
     background-color: white;
   }
   
-  .card-header {
+  .notification-card .card-header {
     display: flex;
     justify-content: space-between;
     padding: 1.25rem 1.25rem 0.5rem 1.25rem;

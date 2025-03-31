@@ -2,6 +2,7 @@ import { Calendar } from "lucide-react";
 import React, { useState } from "react";
 import { Button, Row, Col, Form, Modal } from "react-bootstrap";
 import { profile } from "../../../assets/images";
+import { Link, Navigate } from "react-router-dom";
 
 // Permission and Finance Approval data
 const permissionData = [
@@ -126,22 +127,29 @@ const ProjectSummary = ({ formData, onBackClick }) => {
           <Col md={6} lg={4}>
             <div className="summary-field">
               <label>Project Start Date</label>
-              <Form.Control
-                disabled
-                type="text"
-                placeholder={formData.projectStartDate || "Not provided"}
-              />
+              <div className="position-relative w-100">
+                <Form.Control
+                  disabled
+                  type="text"
+                  placeholder={formData.projectStartDate || "Not provided"}
+                />
+                <Calendar className="date-icon" />
+              </div>
             </div>
           </Col>
           <Col md={6} lg={4}>
             <div className="summary-field position-relative ">
               <label>Expected Completion Date</label>
-              <Form.Control
-                disabled
-                type="text"
-                placeholder={formData.expectedCompletionDate || "Not provided"}
-              />
-              <Calendar className="date-icon" />
+              <div className="position-relative w-100">
+                <Form.Control
+                  disabled
+                  type="text"
+                  placeholder={
+                    formData.expectedCompletionDate || "Not provided"
+                  }
+                />
+                <Calendar className="date-icon" />
+              </div>
             </div>
           </Col>
         </Row>
@@ -459,45 +467,48 @@ const ProjectSummary = ({ formData, onBackClick }) => {
 
       {/* Modal popup  */}
 
-      <Modal show={showModal} onHide={() => setShowModal(false)} centered>
-  <Modal.Body>
-    {users.map((user) => (
-      <div key={user.id} className="d-flex align-items-center mb-3">
-        <Form.Check
-          type="checkbox"
-          className="me-3"
-          checked={selectedUsers.includes(user.id)}
-          onChange={() => handleCheckboxChange(user.id)}
-        />
-        <img
-          src={profile}
-          alt={`${user.name}'s profile`}
-          className="rounded-circle me-3"
-          style={{ width: "50px", height: "50px", objectFit: "cover" }}
-        />
-        <p className="mb-0 fs-22-700 text-dark">
-          {user.name}
-          <span className="d-block fs-14-400 text-dark-grey">{user.role}</span>
-        </p>
-      </div>
-    ))}
-  </Modal.Body>
-  <Modal.Footer className="justify-content-center">
-    <Button
-      className={`d-flex justify-content-center ${
-        selectedUsers.length > 0 ? "bg-primary" : "bg-grey"
-      }`}
-      onClick={() => {
-        console.log("Selected Users:", selectedUsers);
-        setShowModal(false);
-      }}
-      disabled={selectedUsers.length === 0} // Disable button if no users are selected
-    >
-      Submit
-    </Button>
-  </Modal.Footer>
-</Modal>
-
+      <Modal show={showModal} className="model-approvel-send" onHide={() => setShowModal(false)} centered>
+        <Modal.Body >
+          {users.map((user) => (
+            <div key={user.id} className="d-flex align-items-center mb-3">
+              <Form.Check
+                type="checkbox"
+                className="me-3"
+                checked={selectedUsers.includes(user.id)}
+                onChange={() => handleCheckboxChange(user.id)}
+              />
+              <img
+                src={profile}
+                alt={`${user.name}'s profile`}
+                className="rounded-circle me-3"
+                style={{ width: "50px", height: "50px", objectFit: "cover" }}
+              />
+              <p className="mb-0 fs-22-700 text-dark">
+                {user.name}
+                <span className="d-block fs-14-400 text-dark-grey">
+                  {user.role}
+                </span>
+              </p>
+            </div>
+          ))}
+        </Modal.Body>
+        <Modal.Footer className="justify-content-center">
+          <Link to='/ceo/ticketdetails/Project%20Planning'
+            className={`d-flex justify-content-center ${
+              selectedUsers.length > 0 ? "btn-allow" : "btn-not-allow"
+            }`}
+            onClick={() => {
+              console.log("Selected Users:", selectedUsers);
+              setShowModal(false);
+      
+              
+            }}
+            disabled={selectedUsers.length === 0} // Disable button if no users are selected
+          >
+            Submit
+          </Link>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
