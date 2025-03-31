@@ -4,7 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import pdfImage from "../../../assets/images/pdf.png";  // 
 import excelImage from "../../../assets/images/xlsx.jpg"; // Excel preview
 
-const DocumentView = () => {
+const DocumentsReport = ({onBack}) => {
   
   const defaultFiles = [
     {
@@ -21,24 +21,28 @@ const DocumentView = () => {
   const location = useLocation(); // Get current page route
   return (
     <div className="document-container">
-             <nav className="text-sm text-gray-500 flex items-center">
-      {/* Documents Link */}
-      <Link
-        to="/documents"
-        className={`mr-1 ${location.pathname === "/documents" ? " font-medium" : ""}`}
-      >
-        Documents
-      </Link>
-      <ChevronRight size={14} className="text-gray-400 mx-1" />
-
-      {/* Reports Link */}
-      <Link
-        to="/reports"
-        className={` ${location.pathname === "/reports" ? "font-medium" : ""}`}
-      >
-        Reports
-      </Link>
-    </nav>
+             <div className="border-0 breadcrumb-container pt-3 pb-4 d-flex align-items-center">
+          <span
+            className="breadcrumb-item fs-16-500 text-dark-gray"
+            style={{ cursor: "pointer" }}
+            onClick={onBack}
+          >
+            Documents
+          </span>
+          <svg
+            className="mx-2"
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="M6 4.5L9.5 8L6 11.5" stroke="#606060"></path>
+          </svg>
+          <span className="breadcrumb-item fs-16-500 text-primary">
+            Reports
+          </span>
+        </div>
 
       <div className="document-card">
         {/* Report Header */}
@@ -189,4 +193,4 @@ const DocumentView = () => {
   );
 };
 
-export default DocumentView;
+export default DocumentsReport;

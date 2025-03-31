@@ -501,6 +501,28 @@
 .step-basic-details + .form-actions {
     justify-content: end !important;
 }
+.page-ceo-createproject .summary-field input {
+    cursor: not-allowed;
+}
+.model-approvel-send .btn-allow, .model-approvel-send .btn-not-allow {
+    width: 140px;
+    height: 40px;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 600;
+    border: 0px;
+    border-radius: 2px;
+}
+.model-approvel-send .btn-allow {
+    background-color: var(--primary-color);
+    color: #ffffff;
+    cursor: pointer;
+}
+.model-approvel-send .btn-not-allow {
+    cursor: not-allowed !important;
+    background-color: #BBBBBB !important;
+    color: #8E8E8E !important;
+}
 /* Responsive Styles */
 @media (max-width: 768px) {
     .page-ceo-createproject .progress-steps {
