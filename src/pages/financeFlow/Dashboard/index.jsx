@@ -144,13 +144,13 @@ function FinanceDashboard () {
         <div className="col-md-6">
           <div className="card shadow-sm h-100">
             <div className="card-body">
-              <div className="d-flex justify-content-between align-items-center mb-3">
+              <div className="d-flex align-items-center mb-3">
                 <h6 className="card-title text-muted m-0">Projects Alert</h6>
-                <span className="badge bg-warning text-dark">4</span>
+                <span className="badge text-dark" style={{backgroundColor:'#C65600',marginLeft:'2px'}}>4</span>
               </div>
               <div className="table-responsive" style={{ maxHeight: '250px' }}>
-                <table className="table table-sm">
-                  <thead className="bg-light">
+                <table className="tbl table-sm">
+                  <thead className="bg-dark-gray" style={{backgroundColor:'#DEDEDE'}}>
                     <tr>
                       <th>Project</th>
                       <th>Status</th>
@@ -185,12 +185,12 @@ function FinanceDashboard () {
         <div className="col-md-6">
           <div className="card shadow-sm">
             <div className="card-body">
-              <div className="d-flex justify-content-between align-items-center mb-3">
+              <div className="d-flex align-items-center mb-3">
                 <h6 className="card-title text-muted m-0">Pending Invoice</h6>
-                <span className="badge bg-danger">3</span>
+                <span className="badge " style={{backgroundColor:'#C65600',marginLeft:'2px'}}>3</span>
               </div>
               <div className="table-responsive">
-                <table className="table table-sm">
+                <table className="tbl table-sm">
                   <thead className="bg-light">
                     <tr>
                       <th>Invoice ID</th>
