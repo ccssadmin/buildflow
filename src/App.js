@@ -4,7 +4,6 @@ import Spinner from "./components/spinner/spinner.component";
 
 import "./styles/index.scss";
 import "./styles/index.css";
-import Ceodepartments from "./pages/ceoFlow/Departments/index";
 
 /** LAYOUTS */
 const MdLayout = lazy(() => import("./components/layout/user-layout.component"));
@@ -73,8 +72,9 @@ const CeoChat = lazy ( () => import ('./pages/ceoFlow/ChatPage/Chat/ChatApp'));
 const KanbanCeo = lazy ( () => import ('./pages/ceoFlow/KanbanBoard/index'));
 const CeoResources = lazy ( () => import ('./pages/ceoFlow/Resources/index'));
 const CeoFinance = lazy ( () => import ('./pages/ceoFlow/Finance/index'));
-const CeoDepartments = lazy ( () => import ('./pages/ceoFlow/Departments/index'));
+const Ceodepartments = lazy ( () => import ('./pages/ceoFlow/Departments/index'));
 const CeoReport = lazy ( () => import ('./pages/ceoFlow/Reports/index'));
+const CeoReportView = lazy ( () => import ('./pages/ceoFlow/Reports/ViewReport'));
 const CeoSettings = lazy ( () => import ('./pages/ceoFlow/Settings/index'));
 
 
@@ -314,6 +314,7 @@ const App = () => {
           <Route path="resources" element={<CeoResources />} />
           <Route path="departments" element={<Ceodepartments />} />
           <Route path="reports" element={<CeoReport />} />
+          <Route path="reportview" element={<CeoReportView />} />
           <Route path="settings" element={<CeoSettings />} />
         </Route>
 

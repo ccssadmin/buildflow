@@ -1,4 +1,5 @@
 import { Fragment, useState } from "react";
+import { Link } from "react-router-dom";
 const reports = [
   {
     id: "RP-0021",
@@ -68,8 +69,8 @@ const Report = () => {
     <Fragment>
       <main className="ceo-report report-container d-flex">
         <div className="left-container left-container-100">
-          <div className="row h-100">
-            <aside className="sidebar col-sm-3">
+          <div className="row min-height-100vh h-100">
+            <aside className="sidebar">
               <h4 className="fs-20-500 text-dark d-flex">
                 <svg className="me-2"
                   width="24"
@@ -163,7 +164,7 @@ const Report = () => {
                 </li>
               </ul>
             </aside>
-            <div className="ceo-report-container col-sm-9">
+            <div className="ceo-report-container">
               <table className="tbl report-table">
                 <thead>
                   <tr>
@@ -183,7 +184,7 @@ const Report = () => {
                         <td>{report.type}</td>
                         <td>{report.reportedBy}</td>
                         <td className="action text-bright-royal-blue text-decoration-underline">
-                          {report.action}
+                          <Link to="/ceo/reportview">{report.action}</Link>
                         </td>
                       </tr>
                     ))
@@ -199,7 +200,6 @@ const Report = () => {
             </div>
           </div>
         </div>
-        {/* <div className="right-container">Hello</div> */}
       </main>
           {" "}
     </Fragment>

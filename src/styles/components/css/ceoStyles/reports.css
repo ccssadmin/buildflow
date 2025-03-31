@@ -36,6 +36,7 @@
   .ceo-report .left-container {
     padding-top: 0px !important;
     padding-left: 0px !important;
+    padding-right: 10px !important;
 }
 main.ceo-report.report-container.d-flex {
   padding: 0px 20px 20px 20px;
@@ -107,3 +108,47 @@ main.ceo-report.report-container.d-flex {
     color: #999;
   }
   
+  .ceo-report .min-height-100vh {
+    min-height: 100vh;
+  } 
+
+  /* Finance Report */
+  .page-finance-report .btn-create-report {
+    width: 140px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    background-color: var(--primary-color);
+    margin: 0px 0px 0px auto;
+    border-radius: 2px;
+    border: 0px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .page-finance-report form label {
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--dark-color);
+  }
+  .page-finance-report form select.form-select,   .page-finance-report form input.form-control {
+    border: 1px solid #C1C1C1;
+    background: #ffffff !important;
+    height: 48px;
+    color: var(--dark-color);
+    font-size: 16px;
+    font-weight: 500;
+}
+.page-finance-report form select.form-select::placeholder, .page-finance-report form input.form-control::placeholder {
+  color: #BBBBBB !important;
+}
+.page-finance-report .report-btn {
+  width: 180px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 600;
+}

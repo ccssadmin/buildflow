@@ -218,12 +218,22 @@
   border-collapse: collapse;
 }
 
-.page-ceo-finance .document-th, .document-td {
+.page-ceo-finance .document-th {
   border: 1px solid #ddd;
   padding: 8px;
   text-align: center;
+  color: #333333;
+  font-weight: 500;
+  font-size: 16px;
 }
-
+.page-ceo-finance .document-td {
+  font-weight: 500;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+  color: var(--dark-gray-color);
+}
 .page-ceo-finance .document-th {
   Color: #333333;
   text-align: center;
@@ -270,7 +280,8 @@
 }
 
 .page-ceo-finance .file-attachment {
-  font-family: Arial, sans-serif;
+  
+  padding: 0px 20px 20px;
 }
 
 .page-ceo-finance .file-title {
@@ -330,10 +341,12 @@
   width: 220px;
   height: 46px;
   border-radius: 2px;
-  gap: 10px;
-  margin-left: 900px;
-
-
+  display: flex;
+  align-items: center;
+  color: #ffffff;
+  justify-content: center;
+  margin-left: auto;
+  margin-right: 0px;
   background-color: var(--primary-color);
 
 }
