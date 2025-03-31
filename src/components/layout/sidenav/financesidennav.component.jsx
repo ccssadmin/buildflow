@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import * as menu from "../../../assets/images";
 import useAuth from "../../../hooks/useAuth";
 import PopupModal from "../../common/PopupModal";
@@ -22,7 +22,20 @@ const FinancesideNav = ({ onChange }) => {
   const closeModal = () => {
     setContactUsForm(false);
   };
-
+  const location = useLocation();
+  const isApprovelActive =
+    location.pathname === "/finance/approvals" ||
+    location.pathname.startsWith("/finance/financeticketdetails");
+  const isReportActive =
+    location.pathname === "/finance/report" ||
+    location.pathname.startsWith("/finance/reportcreate");
+  const isInvoiceDetailsActive =
+    location.pathname === "/finance/invoice" ||
+    location.pathname.startsWith("/finance/invoicedetails");
+  const isBudgetDetailsActive =
+    location.pathname === "/finance/budget" ||
+    location.pathname === "/finance/budgetcreate" ||
+    location.pathname.startsWith("/finance/budgetdetails");
   return (
     <>
       <div className="sidenav-content">
@@ -38,7 +51,7 @@ const FinancesideNav = ({ onChange }) => {
            
             <h5
               className="sidenav-content__headings-lists--title"
-              title="Home"
+              title="Dashboard"
               disabled={auth?.details?.roleName == null ? true : false}
             >
               <NavLink to="/finance/dashboard" className="link-tag">
@@ -49,7 +62,7 @@ const FinancesideNav = ({ onChange }) => {
                       alt={"Kanban"}
                     />                    
                     <span>Dashboard</span>
-                    {collaps && "Kanban"}
+                    {collaps && "Dashboard"}
                   </>
                   
                 )}
@@ -58,10 +71,10 @@ const FinancesideNav = ({ onChange }) => {
             {/* TEAM */}
             <h5
               className="sidenav-content__headings-lists--title"
-              title="Team"
+              title="Budget"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/finance/budget" className="link-tag">
+              <NavLink to="/finance/budget" className={`link-tag ${isBudgetDetailsActive ? "active" : ""}`}>
                 {({ isActive, isPending }) => (
                   <>
                     <img
@@ -69,17 +82,17 @@ const FinancesideNav = ({ onChange }) => {
                       alt={"Projects"}
                     />
                     <span>Budget</span>
-                    {collaps && "Projects"}
+                    {collaps && "Budget"}
                   </>
                 )}
               </NavLink>
             </h5>
             <h5
               className="sidenav-content__headings-lists--title"
-              title="Team"
+              title="Approvals"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/finance/approvals" className="link-tag">
+              <NavLink to="/finance/approvals" className={`link-tag ${isApprovelActive ? "active" : ""}`}>
                 {({ isActive, isPending }) => (
                   <>
                     <img
@@ -87,14 +100,14 @@ const FinancesideNav = ({ onChange }) => {
                       alt={"Approval"}
                     />
                     <span>Approvals</span>
-                    {collaps && "Team"}
+                    {collaps && "Approvals"}
                   </>
                 )}
               </NavLink>
             </h5>
             <h5
               className="sidenav-content__headings-lists--title"
-              title="Team"
+              title="Chats"
               disabled={auth?.details?.roleName == null ? true : false}
             >
               <NavLink to="/finance/chats" className="link-tag">
@@ -105,17 +118,17 @@ const FinancesideNav = ({ onChange }) => {
                       alt={"Chat"} className="d-block"
                     />
                     <span>Chats</span>
-                    {collaps && "Team"}
+                    {collaps && "Chats"}
                   </>
                 )}
               </NavLink>
             </h5>
             <h5
               className="sidenav-content__headings-lists--title"
-              title="Team"
+              title="Invoices"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/finance/invoice" className="link-tag">
+              <NavLink to="/finance/invoice" className={`link-tag ${isInvoiceDetailsActive ? "active" : ""}`}>
                 {({ isActive, isPending }) => (
                   <>
                     <img
@@ -123,14 +136,14 @@ const FinancesideNav = ({ onChange }) => {
                       alt={"Material"} className="d-block"
                     />
                     <span>Invoices</span>
-                    {collaps && "Team"}
+                    {collaps && "Invoices"}
                   </>
                 )}
               </NavLink>
             </h5>
   <h5
               className="sidenav-content__headings-lists--title"
-              title="Team"
+              title="Cash Flow"
               disabled={auth?.details?.roleName == null ? true : false}
             >
               <NavLink to="/finance/cashflow" className="link-tag">
@@ -141,14 +154,14 @@ const FinancesideNav = ({ onChange }) => {
                       alt={"CashFlow"} className="d-block"
                     />
                     <span>Cash Flow</span>
-                    {collaps && "Team"}
+                    {collaps && "Cash Flow"}
                   </>
                 )}
               </NavLink>
             </h5>
             <h5
               className="sidenav-content__headings-lists--title"
-              title="Team"
+              title="Vendor & PO"
               disabled={auth?.details?.roleName == null ? true : false}
             >
               <NavLink to="/finance/vendorandpo" className="link-tag">
@@ -159,14 +172,14 @@ const FinancesideNav = ({ onChange }) => {
                       alt={"Vendor"} className="d-block"
                     />
                     <span>Vendor & PO</span>
-                    {collaps && "Team"}
+                    {collaps && "Vendor & PO"}
                   </>
                 )}
               </NavLink>
             </h5>
             <h5
               className="sidenav-content__headings-lists--title"
-              title="Team"
+              title="Tax"
               disabled={auth?.details?.roleName == null ? true : false}
             >
               <NavLink to="/finance/tax" className="link-tag">
@@ -177,17 +190,17 @@ const FinancesideNav = ({ onChange }) => {
                       alt={"Report"} className="d-block"
                     />
                     <span>Tax</span>
-                    {collaps && "Team"}
+                    {collaps && "Tax"}
                   </>
                 )}
               </NavLink>
             </h5>
             <h5
               className="sidenav-content__headings-lists--title"
-              title="Team"
+              title="Report"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/finance/report" className="link-tag">
+              <NavLink to="/finance/report" className={`link-tag ${isReportActive ? "active" : ""}`}>
                 {({ isActive, isPending }) => (
                   <>
                     <img
@@ -195,14 +208,14 @@ const FinancesideNav = ({ onChange }) => {
                       alt={"Report"} className="d-block"
                     />
                     <span>Report</span>
-                    {collaps && "Team"}
+                    {collaps && "Report"}
                   </>
                 )}
               </NavLink>
             </h5>
             <h5
               className="sidenav-content__headings-lists--title"
-              title="Team"
+              title="Settings"
               disabled={auth?.details?.roleName == null ? true : false}
             >
               <NavLink to="/finance/settings" className="link-tag">

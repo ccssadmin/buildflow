@@ -57,8 +57,34 @@ const CivilWorkers = () => {
         isReassigning ? (
           <div className="reassignment-form">
             <div class="border-0 breadcrumb-container pt-3 pb-4 d-flex align-items-center">
-              <span class="breadcrumb-item fs-16-500 text-dark-gray">
-                Manpower
+              <span class="breadcrumb-item fs-16-500 text-dark-gray" onClick={handleBack}>
+                Man Power
+              </span>
+              <svg
+                class="mx-2"
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M6 4.5L9.5 8L6 11.5" stroke="#606060"></path>
+              </svg>
+              <span onClick={handleBack} class="breadcrumb-item fs-16-50 0 text-dark-gray">
+                Civil Workers
+              </span>
+              <svg
+                class="mx-2"
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M6 4.5L9.5 8L6 11.5" stroke="#606060"></path>
+              </svg>
+              <span onClick={handleBack} class="breadcrumb-item fs-16-50 0 text-dark-gray">
+                Employee Details
               </span>
               <svg
                 class="mx-2"
@@ -71,39 +97,40 @@ const CivilWorkers = () => {
                 <path d="M6 4.5L9.5 8L6 11.5" stroke="#606060"></path>
               </svg>
               <span class="breadcrumb-item fs-16-50 0 text-primary">
-                Civil Workers
+              Edit Details
               </span>
             </div>
-            <h2 className="fs-24-700 text-dark mb-4">Reassign Employee</h2>
-            <form>
-              <div className="form-group">
+            <h2 className="fs-24-700 text-dark mb-4">Employee Details</h2>
+            <div className="">
+              <img src={profile} alt="Employee" className="profile-picture border-radius-50 mb-4"/>
+            </div>
+            <form className="row">
+              <div className="form-group col-sm-12 col-md-6 col-lg-4">
                 <label>Employee ID:</label>
                 <input type="text" value={selectedWorker.id} disabled />
               </div>
-              <div className="form-group">
-                <label>Employee Name:</label>
+              <div className="form-group col-sm-12 col-md-6 col-lg-4">
+                <label>Name:</label>
                 <input type="text" value={selectedWorker.name} disabled />
               </div>
-              <div className="form-group">
-                <label>Level:</label>
-                <input type="text" value={selectedWorker.level} disabled />
-              </div>
-              <div className="form-group">
+              
+              <div className="form-group col-sm-12 col-md-6 col-lg-4">
                 <label>Role:</label>
                 <input type="text" value={selectedWorker.role} disabled />
               </div>
-              <div className="form-group">
+              <div className="form-group col-sm-12 col-md-6 col-lg-4">
+                <label>Level:</label>
+                <input type="text" value={selectedWorker.level} disabled />
+              </div>
+              <div className="form-group col-sm-12 col-md-6 col-lg-4">
                 <label>Status:</label>
                 <input type="text" value={selectedWorker.status} disabled />
               </div>
-              <div className="form-group">
+              <div className="form-group col-sm-12 col-md-6 col-lg-4">
                 <label>Current Project:</label>
                 <input type="text" value={selectedWorker.project} disabled />
               </div>
-              <div className="form-group">
-                <label>New Project:</label>
-                <input type="text" placeholder="Enter new project name" />
-              </div>
+              <div className="col-sm-12">
               <button
                 type="button"
                 className="save-button"
@@ -111,13 +138,7 @@ const CivilWorkers = () => {
               >
                 Save
               </button>
-              <button
-                type="button"
-                className="back-button"
-                onClick={handleBack}
-              >
-                Back
-              </button>
+              </div>
             </form>
           </div>
         ) : (

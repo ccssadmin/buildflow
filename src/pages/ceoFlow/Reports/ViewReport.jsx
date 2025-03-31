@@ -4,7 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import pdfImage from "../../../assets/images/pdf.png"; //
 import excelImage from "../../../assets/images/xlsx.jpg"; // Excel preview
 
-const DocumentsReport = ({ onBack }) => {
+const CeoReportView = () => {
   const defaultFiles = [
     {
       name: "Requirement Material.xlsx",
@@ -19,17 +19,11 @@ const DocumentsReport = ({ onBack }) => {
   ];
   const location = useLocation(); // Get current page route
   return (
-    <div className="page-ceo-finance document-container">
-      <div className="border-0 breadcrumb-container pt-1 pb-4 d-flex align-items-center">
-        <span
-          className="breadcrumb-item fs-16-500 text-dark-gray"
-          style={{ cursor: "pointer" }}
-          onClick={onBack}
-        >
-          Documents
-        </span>
+    <div className="page-ceo-finance document-container  p-0">
+      <div class="border-0 breadcrumb-container pe-4 ps-4 pt-3 pb-2 d-flex align-items-center">
+        <Link to="/ceo/reports" class="breadcrumb-item text-decoration-none fs-16-500 text-dark-gray">Report</Link>
         <svg
-          className="mx-2"
+          class="mx-2"
           width="16"
           height="16"
           viewBox="0 0 16 16"
@@ -38,10 +32,12 @@ const DocumentsReport = ({ onBack }) => {
         >
           <path d="M6 4.5L9.5 8L6 11.5" stroke="#606060"></path>
         </svg>
-        <span className="breadcrumb-item fs-16-500 text-primary">Reports</span>
+        <span class="breadcrumb-item fs-16-50 0 text-primary">
+        Open
+        </span>
       </div>
 
-      <div className="document-card p-0">
+      <div className="document-card">
         {/* Report Header */}
         <div className="document-header">
           <div className="document-field">
@@ -188,26 +184,27 @@ const DocumentsReport = ({ onBack }) => {
             </table>
           </div>
         ))}
-        <div className="file-attachment">
-          <h3 className="file-title">Attached File</h3>
-          <div className="file-list">
-            {defaultFiles.map((file, index) => (
-              <div key={index} className="file-item">
-                <a href="https://example.com/path-to-file.pdf" download>
-                  <img
-                    src={file.type === "excel" ? excelImage : pdfImage}
-                    alt="File Preview"
-                    className="file-preview"
-                  />{" "}
-                </a>
-              </div>
-            ))}
-          </div>
-          <button className="file-button">Valid</button>
+      </div>
+
+      <div className="file-attachment">
+        <h3 className="file-title">Attached File</h3>
+        <div className="file-list">
+          {defaultFiles.map((file, index) => (
+            <div key={index} className="file-item">
+              <a href="https://example.com/path-to-file.pdf" download>
+                <img
+                  src={file.type === "excel" ? excelImage : pdfImage}
+                  alt="File Preview"
+                  className="file-preview"
+                />{" "}
+              </a>
+            </div>
+          ))}
         </div>
+        <button className="file-button">Valid</button>
       </div>
     </div>
   );
 };
 
-export default DocumentsReport;
+export default CeoReportView;

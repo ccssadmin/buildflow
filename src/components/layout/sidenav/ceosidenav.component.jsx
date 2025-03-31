@@ -38,6 +38,9 @@ const CeoSidenav = ({ onChange }) => {
   const isApprovelActive =
     location.pathname === "/ceo/approvals" ||
     location.pathname.startsWith("/ceo/ticketdetails");
+  const isReportviewlActive =
+    location.pathname === "/ceo/report" ||
+    location.pathname.startsWith("/ceo/reportview");
   return (
     <>
       <div className="sidenav-content">
@@ -68,7 +71,7 @@ const CeoSidenav = ({ onChange }) => {
             </h5>
             <h5
               className="sidenav-content__headings-lists--title"
-              title="Team"
+              title="Projects"
               disabled={auth?.details?.roleName == null ? true : false}
             >
               <NavLink
@@ -87,7 +90,7 @@ const CeoSidenav = ({ onChange }) => {
             {/* TEAM */}
             <h5
               className="sidenav-content__headings-lists--title"
-              title="Team"
+              title="Approvals"
               disabled={auth?.details?.roleName == null ? true : false}
             >
               <NavLink
@@ -105,7 +108,7 @@ const CeoSidenav = ({ onChange }) => {
             </h5>
             <h5
               className="sidenav-content__headings-lists--title"
-              title="Team"
+              title="Chats"
               disabled={auth?.details?.roleName == null ? true : false}
             >
               <NavLink to="/ceo/chats" className="link-tag">
@@ -113,14 +116,14 @@ const CeoSidenav = ({ onChange }) => {
                   <>
                     <img src={IconChat} alt={"Approval"} />
                     <span>Chats</span>
-                    {collaps && "Team"}
+                    {collaps && "Chats"}
                   </>
                 )}
               </NavLink>
             </h5>
             <h5
               className="sidenav-content__headings-lists--title"
-              title="Team"
+              title="Finance"
               disabled={auth?.details?.roleName == null ? true : false}
             >
               <NavLink to="/ceo/finance" className="link-tag">
@@ -128,14 +131,14 @@ const CeoSidenav = ({ onChange }) => {
                   <>
                     <img src={IconFinance} alt={"Chat"} className="d-block" />
                     <span>Finance</span>
-                    {collaps && "Team"}
+                    {collaps && "Finance"}
                   </>
                 )}
               </NavLink>
             </h5>
             <h5
               className="sidenav-content__headings-lists--title"
-              title="Team"
+              title="Resources"
               disabled={auth?.details?.roleName == null ? true : false}
             >
               <NavLink to="/ceo/resources" className="link-tag">
@@ -143,14 +146,14 @@ const CeoSidenav = ({ onChange }) => {
                   <>
                     <img src={IconResources} alt={"Chat"} className="d-block" />
                     <span>Resources</span>
-                    {collaps && "Team"}
+                    {collaps && "Resources"}
                   </>
                 )}
               </NavLink>
             </h5>
             <h5
               className="sidenav-content__headings-lists--title"
-              title="Team"
+              title="Departments"
               disabled={auth?.details?.roleName == null ? true : false}
             >
               <NavLink to="/ceo/departments" className="link-tag">
@@ -158,29 +161,29 @@ const CeoSidenav = ({ onChange }) => {
                   <>
                     <img src={IconDepartments} alt={"Chat"} className="d-block" />
                     <span>Departments</span>
-                    {collaps && "Team"}
+                    {collaps && "Departments"}
                   </>
                 )}
               </NavLink>
             </h5>
             <h5
               className="sidenav-content__headings-lists--title"
-              title="Team"
+              title="Reports"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/ceo/reports" className="link-tag">
+              <NavLink to="/ceo/reports" className={`link-tag ${isReportviewlActive ? "active" : ""}`}>
                 {({ isActive, isPending }) => (
                   <>
                     <img src={menu.IconReports} alt={"Chat"} className="d-block" />
                     <span>Reports</span>
-                    {collaps && "Team"}
+                    {collaps && "Reports"}
                   </>
                 )}
               </NavLink>
             </h5>
             <h5
               className="sidenav-content__headings-lists--title"
-              title="Team"
+              title="Settings"
               disabled={auth?.details?.roleName == null ? true : false}
             >
               <NavLink to="/ceo/settings" className="link-tag">
@@ -188,7 +191,7 @@ const CeoSidenav = ({ onChange }) => {
                   <>
                     <img src={IconSettings} alt={"Chat"} className="d-block" />
                     <span>Settings</span>
-                    {collaps && "Team"}
+                    {collaps && "Settings"}
                   </>
                 )}
               </NavLink>
