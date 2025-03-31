@@ -33,7 +33,7 @@ export default function CashflowForecast() {
                             <div className="overflow-x-auto">
                                 <table className="min-w-full border-collapse">
                                     <thead>
-                                        <tr className="bg-gray-100" style={{backgroundColor:'#EBEBEB'}}>
+                                        <tr className="bg-gray-100" style={{backgroundColor:'#DEDEDE'}}>
                                             <th className="border border-gray-300 px-4 py-2 text-left">Month</th>
                                             <th className="border border-gray-300 px-4 py-2 text-left">Expected Inflow</th>
                                             <th className="border border-gray-300 px-4 py-2 text-left">Expected Outflow</th>

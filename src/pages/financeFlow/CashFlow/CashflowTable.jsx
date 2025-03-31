@@ -14,7 +14,7 @@ export default function CashflowTable() {
                             <div className="overflow-x-auto">
                                 <table className="min-w-full border-collapse">
                                     <thead>
-                                        <tr className="bg-gray-100" style={{backgroundColor:'#EBEBEB'}}>
+                                        <tr className="bg-gray-100" style={{backgroundColor:'#DEDEDE'}}>
                                             <th className="border border-gray-300 px-4 py-2 text-left">Date</th>
                                             <th className="border border-gray-300 px-4 py-2 text-left">Project</th>
                                             <th className="border border-gray-300 px-4 py-2 text-left">Type</th>

@@ -462,8 +462,8 @@ const FinanceCashFlow = () => {
                                                     <table className="summary-table" >
                                                         <thead >
                                                             <tr>
-                                                                <th style={{ backgroundColor: '#EBEBEB' }}>Card</th>
-                                                                <th style={{ backgroundColor: '#EBEBEB' }}>Description & Value</th>
+                                                                <th style={{ backgroundColor: '#DEDEDE' }}>Card</th>
+                                                                <th style={{ backgroundColor: '#DEDEDE' }}>Description & Value</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
