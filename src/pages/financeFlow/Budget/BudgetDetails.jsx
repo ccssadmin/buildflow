@@ -1,6 +1,11 @@
 import { Fragment } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function FinanceBudgetDetails() {
+
+    const navigation = useNavigate();
+
+
     return (
         <Fragment>
             <main className="page-ceo-department d-flex">
@@ -9,6 +14,7 @@ export default function FinanceBudgetDetails() {
                 <div style={{ paddingTop: '5px', paddingBottom: '5px', borderBottom: '1px solid #ddd', marginBottom: '20px' }}>
              <h2 style={{ margin: 0, fontSize: '16px', color: '#333' }}>
                <span 
+               onClick={ () => navigation('/finance/budget')}
                style={ { cursor : 'pointer'}}
                >Budget Screen</span>
                &gt; <span style={{ color: '#FF6F00' }}>Budget Detailed</span>
