@@ -796,7 +796,7 @@ const FinanceTicketDetails = () => {
               <span className="text-muted">Query</span>
               <div className="d-flex align-items-center">
                 <button className=" text-text-dark-gray px-2 py-1 " style={{  width: '80px', border:'none'}}>Cancel</button>
-                <button className=" text-white px-2 py-1 rounded" style={{ backgroundColor: '#30A335', width: '100px', border:'none'}}>Accept</button>
+                <button className=" text-white px-2 py-1 rounded" style={{ backgroundColor: '#FF6F00', width: '100px', border:'none'}}>Accept</button>
               </div>
             </div>
 
