@@ -206,7 +206,7 @@ function FinanceDashboard () {
                         <td>{invoice.project}</td>
                         <td>{renderLevelTag(invoice.level)}</td>
                         <td>
-                          <a href="#" className="text-primary">
+                          <a href="/finance/invoice" style={{ color : 'blue'}}>
                             {invoice.action}
                           </a>
                         </td>

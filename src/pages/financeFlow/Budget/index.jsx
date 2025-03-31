@@ -1,6 +1,11 @@
 import { Fragment } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function FinanceBudget() {
+
+  const navigation = useNavigate();
+
+
   const tableStyle = {
     width: '100%',
     borderCollapse: 'collapse',
@@ -31,8 +36,7 @@ export default function FinanceBudget() {
   };
 
   const handleCreate = () => {
-    console.log('Create button clicked');
-    // Add your create logic here
+    navigation('/finance/budgetcreate')
   };
 
   return (
@@ -103,7 +107,7 @@ export default function FinanceBudget() {
                       <td style={thTdStyle}>{row.variance}</td>
                       <td style={thTdStyle}>{row.status}</td>
                       <td style={thTdStyle}>
-                        <a href="#" style={{ color: 'blue', textDecoration: 'none' }}>{row.action}</a>
+                        <a href="/finance/budgetdetails" style={{ color: 'blue', textDecoration: 'none' }}>{row.action}</a>
                       </td>
                     </tr>
                   ))}
