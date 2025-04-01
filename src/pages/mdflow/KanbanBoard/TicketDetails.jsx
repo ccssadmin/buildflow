@@ -5,6 +5,7 @@ import { BsPaperclip, BsImage, BsLink, BsCalendar, BsPencil, BsChevronDown, BsX 
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { useNavigate } from 'react-router-dom';
+import { AiOutlineUser } from 'react-icons/ai';
 
 const EngineerTicketDetails = () => {
   const [activeTab, setActiveTab] = useState('all');
@@ -712,14 +713,14 @@ const EngineerTicketDetails = () => {
               <div className="d-flex align-items-center position-relative">
                 <Button
                   variant="link"
-                  className="p-0 d-flex align-items-center"
-                  style={{ color: '#FF6F00' }}
+                  className="p-0 d-flex align-items-center border-no-underline"
+                  style={{ color: '#FF6F00', textDecoration:'none' }}
                   onClick={() => setShowAssignSelector(!showAssignSelector)}
                 >
                   <span style={{ color: '#FF6F00' }}>
                     {currentAssignee ? currentAssignee.name : 'Assign To'}
                   </span>
-                  <BsChevronDown className="ms-1" />
+                  <AiOutlineUser className="ms-1" style={{ fill: '#FF6F00' }} />
                 </Button>
 
 
@@ -801,12 +802,12 @@ const EngineerTicketDetails = () => {
               <div className="d-flex align-items-center position-relative">
                 <Button
                   variant="link"
-                  className="p-0 d-flex align-items-center"
-                  style={{ color: '#FF6F00' }}
+                  className="p-0 d-flex align-items-center border-no-underline"
+                  style={{ color: '#FF6F00', textDecoration:'none' }}
                   onClick={() => setShowDepartmentSelector(!showDepartmentSelector)}
                 >
                   <span style={{ color: '#FF6F00' }}>{currentDepartment ? currentDepartment.name : 'Move To'}</span>
-                  <BsChevronDown className="ms-1" />
+                  <AiOutlineUser className="ms-1" style={{ fill: '#FF6F00' }} />
                 </Button>
 
                 {showDepartmentSelector && (
@@ -921,12 +922,12 @@ const EngineerTicketDetails = () => {
               <div className="d-flex align-items-center position-relative">
                 <Button
                   variant="link"
-                  className="p-0 d-flex align-items-center"
-                  style={{ color: '#FF6F00' }}
+                  className="p-0 d-flex align-items-center border-no-underline"
+                  style={{ color: '#FF6F00',textDecoration:'none' }}
                   onClick={() => setShowParticipantSelector(!showParticipantSelector)}
                 >
                   <span style={{ color: '#FF6F00' }}>Add</span>
-                  <BsChevronDown className="ms-1" />
+                 <AiOutlineUser className="ms-1" style={{ fill: '#FF6F00' }} />
                 </Button>
 
                 {showParticipantSelector && (

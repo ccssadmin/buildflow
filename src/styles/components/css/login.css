@@ -1,12 +1,17 @@
 .main-login {
     background-image: url(../../../assets/images/login/loginbg.png);
-    height: 100vh;
+    height: 100%;
     width: 100%;
     background-size: cover;
+    position: fixed; /* Changed to fixed positioning */
+    top: 0;
+    left: 0;
+    overflow: hidden; /* This ensures no scrolling occurs */
 }
+
 .login-form-container {
     width: 600px;
-    height: 600px;
+    height: 550px;
     overflow: hidden;
     background: #ffffff;
     border-radius: 40px;
@@ -14,20 +19,20 @@
     align-items: center;
     justify-content: center;
 }
+
 .login-form {
     max-width: 80%;
     margin: 0px auto;
     display: flex;
     align-items: center;
     justify-content: end;
-    height: 100vh;
+    height: auto;
 }
 
 .login-form-container-button {
     width: 340px;
     height: 428px;
     text-align: center;
-    
 }
 
 .login-form-container-button input {
@@ -37,22 +42,26 @@
     padding-left: 10px;
     border-radius: 4px;
 }
+
 .login-form-container-button input:focus-visible {
     box-shadow: unset;
     outline: unset;
 }
+
 .user-row {
     margin-bottom: 40px;
     position: relative;
     border-color: #BBBBBB;
 }
+
 .forgot-password {
     text-align: right;
     margin-top: 1px;
     font-size: 12px;
     color: #0080FF;
-  }
-  .user-row label {
+}
+
+.user-row label {
     position: absolute;
     background-color: #ffffff;
     padding: 0px 5px;
@@ -62,8 +71,9 @@
     color: #606060;
     font-weight: 500;
 }
-.errorMsg{
-    position:absolute;
+
+.errorMsg {
+    position: absolute;
     color: red;
     font-size: 12px;
 }
@@ -83,6 +93,7 @@
     border-top: 1px solid #E3E3E3;
     padding-top: 30px;
 }
+
 .google a {
     width: 100%;
     background-color: #E3E3E3;

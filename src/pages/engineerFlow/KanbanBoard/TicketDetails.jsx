@@ -5,6 +5,7 @@ import { BsPaperclip, BsImage, BsLink, BsCalendar, BsPencil, BsChevronDown, BsX 
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { useNavigate } from 'react-router-dom';
+import { AiOutlineUser } from "react-icons/ai";
 
 const EngineerTicketDetails = () => {
   const [activeTab, setActiveTab] = useState('all');
@@ -564,7 +565,7 @@ const EngineerTicketDetails = () => {
               <div className="mt-4">
                 <div className="d-flex justify-content-between align-items-center mb-3">
                   <h6 className="mb-0">Attached Files</h6>
-                  <Button variant="warning" style={{backgroundColor:'#FF6F00'}} size="sm" className="text-white" onClick={() => fileInputRef.current.click()}>
+                  <Button variant="warning" style={{ backgroundColor: '#FF6F00' }} size="sm" className="text-white" onClick={() => fileInputRef.current.click()}>
                     Upload File
                   </Button>
                 </div>
@@ -573,7 +574,7 @@ const EngineerTicketDetails = () => {
                   <div className="text-center py-5 text-muted">
                     <BsPaperclip size={32} />
                     <p className="mt-2">No files attached yet</p>
-                    <Button variant="outline-warning" style={{backgroundColor:'#FF6F00',color:'white'}} size="sm" onClick={() => fileInputRef.current.click()}>
+                    <Button variant="outline-warning" style={{ backgroundColor: '#FF6F00', color: 'white' }} size="sm" onClick={() => fileInputRef.current.click()}>
                       Upload File
                     </Button>
                   </div>
@@ -597,7 +598,7 @@ const EngineerTicketDetails = () => {
 
                 <div className="d-flex justify-content-between align-items-center mt-4 mb-3">
                   <h6 className="mb-0">Attached Images</h6>
-                  <Button variant="warning" style={{backgroundColor:'#FF6F00'}} size="sm" className="text-white" onClick={() => imageInputRef.current.click()}>
+                  <Button variant="warning" style={{ backgroundColor: '#FF6F00' }} size="sm" className="text-white" onClick={() => imageInputRef.current.click()}>
                     Upload Image
                   </Button>
                 </div>
@@ -606,7 +607,7 @@ const EngineerTicketDetails = () => {
                   <div className="text-center py-5 text-muted">
                     <BsImage size={32} />
                     <p className="mt-2">No images attached yet</p>
-                    <Button variant="outline-warning" style={{backgroundColor:'#FF6F00',color:'white'}} size="sm" onClick={() => imageInputRef.current.click()}>
+                    <Button variant="outline-warning" style={{ backgroundColor: '#FF6F00', color: 'white' }} size="sm" onClick={() => imageInputRef.current.click()}>
                       Upload Image
                     </Button>
                   </div>
@@ -712,12 +713,14 @@ const EngineerTicketDetails = () => {
               <div className="d-flex align-items-center position-relative">
                 <Button
                   variant="link"
-                  className="p-0 d-flex align-items-center"
-                  style={{color:'#FF6F00'}}
+                  className="p-0 d-flex align-items-center button-no-underline"
+                  style={{ color: '#FF6F00', textDecoration: 'none' }}
                   onClick={() => setShowAssignSelector(!showAssignSelector)}
                 >
-                  <span>{currentAssignee ? currentAssignee.name : 'Assign To'}</span>
-                  <BsChevronDown className="ms-1" />
+                  <span style={{ color: '#FF6F00' }}>
+                    {currentAssignee ? currentAssignee.name : 'Assign To'}
+                  </span>
+                  <AiOutlineUser className="ms-1" style={{ fill: '#FF6F00' }} />
                 </Button>
 
                 {showAssignSelector && (
@@ -798,12 +801,12 @@ const EngineerTicketDetails = () => {
               <div className="d-flex align-items-center position-relative">
                 <Button
                   variant="link"
-                  className="p-0 d-flex align-items-center"
-                  style={{color:'#FF6F00'}}
+                  className="p-0 d-flex align-items-center button-no-underline"
+                  style={{ color: '#FF6F00', textDecoration: 'none' }}
                   onClick={() => setShowDepartmentSelector(!showDepartmentSelector)}
                 >
-                  <span>{currentDepartment ? currentDepartment.name : 'Move To'}</span>
-                  <BsChevronDown className="ms-1" />
+                  <span style={{ color: '#FF6F00' }}>{currentDepartment ? currentDepartment.name : 'Move To'}</span>
+                <AiOutlineUser className="ms-1" style={{ fill: '#FF6F00' }} />
                 </Button>
 
                 {showDepartmentSelector && (
@@ -930,12 +933,12 @@ const EngineerTicketDetails = () => {
               <div className="d-flex align-items-center position-relative">
                 <Button
                   variant="link"
-                  className="p-0 d-flex align-items-center"
-                  style={{color:'#FF6F00'}}
+                  className="p-0 d-flex align-items-center border-no-underline"
+                  style={{ color: '#FF6F00',textDecoration:'none' }}
                   onClick={() => setShowParticipantSelector(!showParticipantSelector)}
                 >
-                  <span>Add</span>
-                  <BsChevronDown className="ms-1" />
+                  <span style={{ color: '#FF6F00' }}>Add</span>
+                  <AiOutlineUser className="ms-1" style={{ fill: '#FF6F00' }} />
                 </Button>
 
                 {showParticipantSelector && (
@@ -985,7 +988,7 @@ const EngineerTicketDetails = () => {
               <Button
                 variant="warning"
                 className="text-white px-4"
-                style={{backgroundColor:'#FF6F00'}}
+                style={{ backgroundColor: '#FF6F00' }}
                 onClick={handleSave}
               >
                 Save
