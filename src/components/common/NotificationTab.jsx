@@ -419,36 +419,44 @@ const Notification = () => {
       </div>
       
       
-      {/* Notification Cards */}
-      <div className="notifications-list">
-        {filteredNotifications.map((notification) => (
-          <Card key={notification.id} className="mb-3 border rounded-4">
-              <div className="card-pending-approvel">
-                    <div className="card-pending-approvel-header d-flex justify-content-between align-items-start">
-                      <div className="card-pending-approvel-project-title">
-                        <h4 className="title-3">{notification.title}</h4>
-                        <span className="project-dept">{notification.department}</span>
-                      </div>
-                      <div className="card-pending-approvel-project-user">
-                        <p className="text-dark">{notification.date} • {notification.time}</p>
-                        
-                        <h6 className="mb-0 ms-1  d-flex justify-content-between align-items-center"><img src={profile} alt="" className="me-1" />{notification.sender}</h6>
-                      </div>
-                    </div>
-                    <div className="card-pending-approvel-content border-bottom-0">
-                      <h6 className="title-4 my-2">{notification.subtitle}</h6>
-                      <p>{notification.description}</p>
-                    </div>
-                    <div className="d-flex div-prioritize">
-                      <Badge text={notification.priority.includes('High') ? 'high' : notification.priority.includes('Low') ? 'low' : 'medium'}  className="me-2 py-2 px-3 badge-prioritize">
-                        {notification.priority}
-                      </Badge>
-                      <Badge  className="py-2 px-3 badge-fileattachment">{notification.attachment}</Badge>
-                    </div>
-                  </div>
-          </Card>
-        ))}
-        {/* No Notifications Message */}
+     {/* Notification Cards */}
+<div className="notifications-list">
+  {filteredNotifications.map((notification) => {
+    // Create department class
+    const deptClass = `dept-${notification.department.toLowerCase().replace(/\s+/g, '')}`;
+    
+    return (
+      <Card key={notification.id} className="mb-3 border rounded-4">
+        <div className="card-pending-approvel">
+          <div className="card-pending-approvel-header d-flex justify-content-between align-items-start">
+            <div className="card-pending-approvel-project-title">
+              <h4 className="title-3">{notification.title}</h4>
+              <span className={`project-dept ${deptClass}`}>{notification.department}</span>
+            </div>
+            <div className="card-pending-approvel-project-user">
+              <p className="text-dark">{notification.date} • {notification.time}</p>
+              <h6 className="mb-0 ms-1 d-flex justify-content-between align-items-center">
+                <img src={profile} alt="" className="me-1" />{notification.sender}
+              </h6>
+            </div>
+          </div>
+          <div className="card-pending-approvel-content border-bottom-0">
+            <h6 className="title-4 my-2">{notification.subtitle}</h6>
+            <p>{notification.description}</p>
+          </div>
+          <div className="d-flex div-prioritize">
+            <Badge text={notification.priority.includes('High') ? 'high' : notification.priority.includes('Low') ? 'low' : 'medium'} className="me-2 py-2 px-3 badge-prioritize">
+              {notification.priority}
+            </Badge>
+            <Badge className="py-2 px-3 badge-fileattachment">{notification.attachment}</Badge>
+          </div>
+        </div>
+      </Card>
+    );
+  })}
+
+
+  {/* No Notifications Message */}
       {filteredNotifications.length === 0 && (
         <Alert variant="light" className="text-center py-5">
           <div className="mb-3">

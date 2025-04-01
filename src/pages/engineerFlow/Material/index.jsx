@@ -1,11 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import { Table, Dropdown, Button } from "react-bootstrap";
 import { RiArrowDropDownLine } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 
 const Material = () => {
+  const [selectedSite, setSelectedSite] = useState('MRM Site');
 
-    const navigate = useNavigate();
+  const sites = ['MRM Site', 'ABC Site', 'XYZ Site'];
+
+  const navigate = useNavigate();
 
 
   const materials = [
@@ -55,19 +58,20 @@ const Material = () => {
   return (
     <div className="container mt-4">
       <div className="header-section">
-      <div className="site-dropdown-container" style={{marginLeft:'15px'}}>
+        <div className="site-dropdown-container" style={{ marginLeft: '15px' }}>
           <select
-            className="site-dropdown"
-            // value={selectedSite}
-            // onChange={handleSiteChange}
+            className="form-select select-custom"
+            style={{ backgroundColor: '#E8E8E8' }}
+            value={selectedSite}
+            onChange={(e) => setSelectedSite(e.target.value)}
           >
-            <option>MRM Site</option>
-            <option>ABC Construction</option>
-            <option>XYZ Builders</option>
+            {sites.map((site, index) => (
+              <option key={index} value={site}>{site}</option>
+            ))}
           </select>
         </div>
         <Button className="create-button"
-        onClick={ () => navigate('/admin/engineermaterialcreate')}
+          onClick={() => navigate('/admin/engineermaterialcreate')}
         >Create</Button>
       </div>
 
@@ -95,7 +99,7 @@ const Material = () => {
                 <td>{getStatusBadge(material.status)}</td>
                 <td>
                   <a href="#" className={material.action === "View" ? "text-primary" : "text-success"}
-                  onClick={ () => navigate('/admin/engineermaterialview')}
+                    onClick={() => navigate('/admin/engineermaterialview')}
                   >
                     {material.action}
                   </a>

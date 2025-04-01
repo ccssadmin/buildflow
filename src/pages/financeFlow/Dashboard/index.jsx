@@ -146,7 +146,7 @@ function FinanceDashboard () {
             <div className="card-body">
               <div className="d-flex align-items-center mb-3">
                 <h6 className="card-title text-muted m-0">Projects Alert</h6>
-                <span className="badge text-dark" style={{backgroundColor:'#C65600',marginLeft:'2px'}}>4</span>
+                <span className="badge" style={{backgroundColor:'#C65600',marginLeft:'2px'}}>4</span>
               </div>
               <div className="table-responsive" style={{ maxHeight: '250px' }}>
                 <table className="tbl table-sm">

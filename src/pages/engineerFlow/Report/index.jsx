@@ -1,13 +1,16 @@
 
-import React from "react";
+import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useNavigate } from "react-router-dom";
 
 
 
-function Report  ()  {
+function Report() {
+  const [selectedSite, setSelectedSite] = useState('MRM Site');
 
-    const navigate = useNavigate();
+  const sites = ['MRM Site', 'ABC Site', 'XYZ Site'];
+
+  const navigate = useNavigate();
 
 
   const reports = Array.from({ length: 13 }, (_, index) => ({
@@ -17,21 +20,28 @@ function Report  ()  {
     date: "14-03-2025",
     time: "06:00 pm",
     reportedBy: "Darrell",
-    avatar: "https://via.placeholder.com/24", 
+    avatar: "https://via.placeholder.com/24",
   }));
 
   return (
     <div className="reports-container">
       {/* Header Section */}
       <div className="reports-header">
-        <select className="form-select">
-          <option>MRM Site</option>
+        <select
+          className="form-select select-custom"
+          style={{ backgroundColor: '#E8E8E8' }}
+          value={selectedSite}
+          onChange={(e) => setSelectedSite(e.target.value)}
+        >
+          {sites.map((site, index) => (
+            <option key={index} value={site}>{site}</option>
+          ))}
         </select>
         <button className="create-btn"
-        style={{}}
-        onClick={() => navigate('/admin/engineerreportcreate')}
+          style={{}}
+          onClick={() => navigate('/admin/engineerreportcreate')}
         >
-            Create
+          Create
         </button>
       </div>
 
@@ -62,7 +72,7 @@ function Report  ()  {
                   {report.reportedBy}
                 </td>
                 <td
-                onClick={ () => navigate('/admin/engineerreportview')}
+                  onClick={() => navigate('/admin/engineerreportview')}
                 >
                   <a href=" " className="view-link">View</a>
                 </td>
