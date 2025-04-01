@@ -1,6 +1,6 @@
 import {  Tab, Tabs } from 'react-bootstrap';
 import { useState } from 'react';
-import GeneralSettings from '../../mdflow/Settings/General';
+import GeneralSettings from '../../aqsFlow/Settings/General';
 
 export const AqsSettings = () => {
     const [key, setKey] = useState("general");
