@@ -564,7 +564,7 @@ const EngineerTicketDetails = () => {
               <div className="mt-4">
                 <div className="d-flex justify-content-between align-items-center mb-3">
                   <h6 className="mb-0">Attached Files</h6>
-                  <Button variant="warning" style={{backgroundColor:'#FF6F00'}} size="sm" className="text-white" onClick={() => fileInputRef.current.click()}>
+                  <Button variant="warning" style={{ backgroundColor: '#FF6F00' }} size="sm" className="text-white" onClick={() => fileInputRef.current.click()}>
                     Upload File
                   </Button>
                 </div>
@@ -573,7 +573,7 @@ const EngineerTicketDetails = () => {
                   <div className="text-center py-5 text-muted">
                     <BsPaperclip size={32} />
                     <p className="mt-2">No files attached yet</p>
-                    <Button variant="outline-warning" style={{backgroundColor:'#FF6F00',color:'white'}} size="sm" onClick={() => fileInputRef.current.click()}>
+                    <Button variant="outline-warning" style={{ backgroundColor: '#FF6F00', color: 'white' }} size="sm" onClick={() => fileInputRef.current.click()}>
                       Upload File
                     </Button>
                   </div>
@@ -597,7 +597,7 @@ const EngineerTicketDetails = () => {
 
                 <div className="d-flex justify-content-between align-items-center mt-4 mb-3">
                   <h6 className="mb-0">Attached Images</h6>
-                  <Button variant="warning" style={{backgroundColor:'#FF6F00'}} size="sm" className="text-white" onClick={() => imageInputRef.current.click()}>
+                  <Button variant="warning" style={{ backgroundColor: '#FF6F00' }} size="sm" className="text-white" onClick={() => imageInputRef.current.click()}>
                     Upload Image
                   </Button>
                 </div>
@@ -606,7 +606,7 @@ const EngineerTicketDetails = () => {
                   <div className="text-center py-5 text-muted">
                     <BsImage size={32} />
                     <p className="mt-2">No images attached yet</p>
-                    <Button variant="outline-warning" style={{backgroundColor:'#FF6F00',color:'white'}} size="sm" onClick={() => imageInputRef.current.click()}>
+                    <Button variant="outline-warning" style={{ backgroundColor: '#FF6F00', color: 'white' }} size="sm" onClick={() => imageInputRef.current.click()}>
                       Upload Image
                     </Button>
                   </div>
@@ -713,12 +713,15 @@ const EngineerTicketDetails = () => {
                 <Button
                   variant="link"
                   className="p-0 d-flex align-items-center"
-                  style={{color:'#FF6F00'}}
+                  style={{ color: '#FF6F00' }}
                   onClick={() => setShowAssignSelector(!showAssignSelector)}
                 >
-                  <span>{currentAssignee ? currentAssignee.name : 'Assign To'}</span>
+                  <span style={{ color: '#FF6F00' }}>
+                    {currentAssignee ? currentAssignee.name : 'Assign To'}
+                  </span>
                   <BsChevronDown className="ms-1" />
                 </Button>
+
 
                 {showAssignSelector && (
                   <div className="position-absolute end-0 top-100 bg-white shadow border rounded mt-1" style={{ zIndex: 1000, minWidth: '200px' }}>
@@ -799,10 +802,10 @@ const EngineerTicketDetails = () => {
                 <Button
                   variant="link"
                   className="p-0 d-flex align-items-center"
-                  style={{color:'#FF6F00'}}
+                  style={{ color: '#FF6F00' }}
                   onClick={() => setShowDepartmentSelector(!showDepartmentSelector)}
                 >
-                  <span>{currentDepartment ? currentDepartment.name : 'Move To'}</span>
+                  <span style={{ color: '#FF6F00' }}>{currentDepartment ? currentDepartment.name : 'Move To'}</span>
                   <BsChevronDown className="ms-1" />
                 </Button>
 
@@ -919,10 +922,10 @@ const EngineerTicketDetails = () => {
                 <Button
                   variant="link"
                   className="p-0 d-flex align-items-center"
-                  style={{color:'#FF6F00'}}
+                  style={{ color: '#FF6F00' }}
                   onClick={() => setShowParticipantSelector(!showParticipantSelector)}
                 >
-                  <span>Add</span>
+                  <span style={{ color: '#FF6F00' }}>Add</span>
                   <BsChevronDown className="ms-1" />
                 </Button>
 
@@ -973,7 +976,7 @@ const EngineerTicketDetails = () => {
               <Button
                 variant="warning"
                 className="text-white px-4"
-                style={{backgroundColor:'#FF6F00'}}
+                style={{ backgroundColor: '#FF6F00' }}
                 onClick={handleSave}
               >
                 Save

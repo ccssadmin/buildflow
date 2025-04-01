@@ -59,8 +59,9 @@ span.pending-approvel-count {
 .card-pending-approvel-project-user img {
     height: 16px;
 }
+/* Department-specific colors */
 .project-dept {
-    background-color: #FF5151 !important;
+    background-color: #FF5151 !important; /* Default color */
     padding: 5px 8px;
     display: flex;
     align-items: center;
@@ -70,7 +71,37 @@ span.pending-approvel-count {
     border-radius: 4px !important;
     color: #fff;  
     width: fit-content; 
-}
+  }
+  
+  /* Finance department */
+  .dept-finance {
+    background-color: #FF4040 !important; /* Red */
+  }
+  
+  /* Purchase Team department */
+  .dept-purchaseteam {
+    background-color: #4086FF !important; /* Blue */
+  }
+  
+  /* HR department */
+  .dept-hr {
+    background-color: #00C853 !important; /* Green */
+  }
+  
+  /* IT department */
+  .dept-it {
+    background-color: #6200EA !important; /* Purple */
+  }
+  
+  /* Marketing department */
+  .dept-marketing {
+    background-color: #FF9100 !important; /* Orange */
+  }
+  
+  /* Operations department */
+  .dept-operations {
+    background-color: #00B8D4 !important; /* Teal */
+  }
 /* Add to your CSS file */
 /* .dept-finance {
     background-color: #FF4040; 
