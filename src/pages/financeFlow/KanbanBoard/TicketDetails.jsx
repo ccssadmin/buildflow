@@ -5,6 +5,7 @@ import { BsPaperclip, BsImage, BsLink, BsCalendar, BsPencil, BsChevronDown, BsX 
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { useNavigate } from 'react-router-dom';
+import { AiOutlineUser } from 'react-icons/ai';
 
 const FinanceTicketDetails = () => {
   const [activeTab, setActiveTab] = useState('all');
@@ -712,12 +713,12 @@ const FinanceTicketDetails = () => {
               <div className="d-flex align-items-center position-relative">
                 <Button
                   variant="link"
-                  className="p-0 d-flex align-items-center"
-                  style={{color:'#FF6F00'}}
+                  className="p-0 d-flex align-items-center border-no-underline"
+                  style={{color:'#FF6F00',textDecoration:'none'}}
                   onClick={() => setShowAssignSelector(!showAssignSelector)}
                 >
-                  <span>{currentAssignee ? currentAssignee.name : 'Assign To'}</span>
-                  <BsChevronDown className="ms-1" />
+                  <span style={{color:'#FF6F00'}}>{currentAssignee ? currentAssignee.name : 'Assign To'}</span>
+                  <AiOutlineUser className="ms-1" style={{ fill: '#FF6F00' }} />
                 </Button>
 
                 {showAssignSelector && (
@@ -792,26 +793,18 @@ const FinanceTicketDetails = () => {
               </div>
             </div>
 
-            <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
-              <span className="text-muted">Query</span>
-              <div className="d-flex align-items-center">
-                <button className=" text-text-dark-gray px-2 py-1 " style={{  width: '80px', border:'none'}}>Cancel</button>
-                <button className=" text-white px-2 py-1 rounded" style={{ backgroundColor: '#FF6F00', width: '100px', border:'none'}}>Accept</button>
-              </div>
-            </div>
-
             {/* Move To */}
             <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
               <span className="text-muted">Move To</span>
               <div className="d-flex align-items-center position-relative">
                 <Button
                   variant="link"
-                  className="p-0 d-flex align-items-center"
-                  style={{color:'#FF6F00'}}
+                  className="p-0 d-flex align-items-center border-no-underline"
+                  style={{color:'#FF6F00',textDecoration:'none'}}
                   onClick={() => setShowDepartmentSelector(!showDepartmentSelector)}
                 >
-                  <span>{currentDepartment ? currentDepartment.name : 'Move To'}</span>
-                  <BsChevronDown className="ms-1" />
+                  <span style={{color:'#FF6F00'}}>{currentDepartment ? currentDepartment.name : 'Move To'}</span>
+                 <AiOutlineUser className="ms-1" style={{ fill: '#FF6F00' }} />
                 </Button>
 
                 {showDepartmentSelector && (
@@ -938,12 +931,12 @@ const FinanceTicketDetails = () => {
               <div className="d-flex align-items-center position-relative">
                 <Button
                   variant="link"
-                  className="p-0 d-flex align-items-center"
-                  style={{color:'#FF6F00'}}
+                  className="p-0 d-flex align-items-center border-no-underline"
+                  style={{color:'#FF6F00',textDecoration:'none'}}
                   onClick={() => setShowParticipantSelector(!showParticipantSelector)}
                 >
-                  <span>Add</span>
-                  <BsChevronDown className="ms-1" />
+                  <span style={{color:'#FF6F00'}}>Add</span>
+                  <AiOutlineUser className="ms-1" style={{ fill: '#FF6F00' }} />
                 </Button>
 
                 {showParticipantSelector && (

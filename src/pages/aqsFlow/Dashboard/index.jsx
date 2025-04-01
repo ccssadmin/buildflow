@@ -263,23 +263,23 @@ const AqsDashboard = ({ progress = 50, maxValue = 100 }) => {
                 <div className="row">
                     <div className="col-sm-12 col-md-6 col-lg-3 col-xl-3">
                     <div className="card-conatiner">                
-                        <h2><span className="text-gray">Total Projects</span>420</h2>
+                        <h2><span className="text-dark-gray">Total Projects</span>420</h2>
                     </div>
                     </div>
                     <div className="col-sm-12 col-md-6 col-lg-3 col-xl-3">
                     <div className="card-conatiner">
-                        <h2><span className="text-gray">Active Projects</span>112</h2>
+                        <h2><span className="text-dark-gray">Active Projects</span>112</h2>
                     </div>
                     </div>
                     <div className="col-sm-12 col-md-6 col-lg-3 col-xl-3">
                     <div className="card-conatiner">
-                        <h2><span className="text-gray">Biding Projects</span>24</h2>
+                        <h2><span className="text-dark-gray">Biding Projects</span>24</h2>
                     </div>
                     </div>
                     <div className="col-sm-12 col-md-6 col-lg-3 col-xl-3">
                     <div className="card-conatiner">
                         <div>
-                        <h2><span className="text-gray">Pending Approvals</span>12</h2>
+                        <h2><span className="text-dark-gray">Pending Approvals</span>12</h2>
                         </div>
                     </div>
                     </div>
