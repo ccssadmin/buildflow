@@ -1,6 +1,6 @@
 import {  Tab, Tabs } from 'react-bootstrap';
 import { useState } from 'react';
-import GeneralSettings from '../../mdflow/Settings/General';
+import GeneralSettings from '../../financeFlow/Settings/General';
 
 export const FinanceSettings = () => {
     const [key, setKey] = useState("general");
