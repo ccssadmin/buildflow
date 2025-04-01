@@ -50,19 +50,19 @@ export const GeneralSettings = () => {
     return (
         <>
         <div className="profile-details">
-            <h2 className="">Admin Profile</h2>
+            <h2 className="">Profile Details</h2>
             <div className="d-flex align-items-center mb-4">
                 <img src={profile} alt="profile" className="img-profile" />
                 <div className="">
-                    <h4 className="mb-1">CEO</h4>
-                    <p className="">Cheif Executive Officer</p>
+                    <h4 className="mb-1">Finance</h4>
+                    <p className="">Finance</p>
                 </div>
             </div>
             <div className="d-flex align-items-center">                
                 <svg width="22" height="18" viewBox="0 0 22 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M4 4.06L10.87 9.95C10.94 10.01 11.06 10.01 11.13 9.95L18 4.06M2.2 1H19.8C20.46 1 21 1.54 21 2.2V14.6C21 15.92 19.92 17 18.6 17H3.4C2.08 17 1 15.92 1 14.6V2.2C1 1.54 1.54 1 2.2 1Z" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-                <h6 className="title-3 mb-0 ms-2">ceo@construction.com</h6>
+                <h6 className="title-3 mb-0 ms-2">finance@construction.com</h6>
             </div>
             <div className="d-flex align-items-center mt-4">
                 <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
