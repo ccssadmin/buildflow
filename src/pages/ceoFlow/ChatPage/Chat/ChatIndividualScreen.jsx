@@ -22,7 +22,7 @@ const ChatIndividualScreen = ({ selectedChat }) => {
   const sendMessage = () => {
     if (newMessage.trim()) {
       setChatMessages([
-        ...chatMessages, 
+        ...chatMessages,
         { id: chatMessages.length + 1, sender: "me", text: newMessage, time: getCurrentTime() }
       ]);
       setNewMessage("");
@@ -50,15 +50,14 @@ const ChatIndividualScreen = ({ selectedChat }) => {
       {/* Messages */}
       <div className="chat-messages flex-grow-1 p-3 overflow-auto">
         {chatMessages.map((msg) => (
-          <div 
-            key={msg.id} 
+          <div
+            key={msg.id}
             className={`mb-3 ${msg.sender === "me" ? "text-end" : ""}`}
           >
-            <div 
-              className={`chat-bubble p-2 d-inline-block rounded ${
-                msg.sender === "me" ? "bg-primary text-white ms-auto" : "bg-light me-auto"
-              }`}
-              style={{ maxWidth: "80%" }}
+            <div
+              className={`chat-bubble p-2 d-inline-block rounded ${msg.sender === "me" ? "text-white ms-auto" : "bg-light me-auto"
+                }`}
+              style={{ maxWidth: "80%", backgroundColor: msg.sender === "me" ? "#FF6F00" : "white" }}
             >
               {msg.text}
               <div className="text-end">
@@ -67,26 +66,27 @@ const ChatIndividualScreen = ({ selectedChat }) => {
                 </small>
               </div>
             </div>
+
           </div>
         ))}
-      </div>
-
-      {/* Chat Input */}
-      <div className="chat-input p-3 d-flex align-items-center border-top">
-        <BsEmojiSmile className="icon me-2" style={{ cursor: "pointer" }} />
-        <FiPaperclip className="icon me-2" style={{ cursor: "pointer" }} />
-        <BsPlus className="icon me-2" style={{ cursor: "pointer" }} />
-        <input 
-          type="text" 
-          className="form-control me-2" 
-          placeholder="Type a message..." 
-          value={newMessage} 
-          onChange={(e) => setNewMessage(e.target.value)} 
-          onKeyDown={(e) => e.key === "Enter" && sendMessage()} 
-        />
-        <FiSend className="icon send-icon" style={{ color: "#FF6F00", cursor: "pointer" }} onClick={sendMessage} />
-      </div>
     </div>
+
+      {/* Chat Input */ }
+  <div className="chat-input p-3 d-flex align-items-center border-top">
+    <BsEmojiSmile className="icon me-2" style={{ cursor: "pointer" }} />
+    <FiPaperclip className="icon me-2" style={{ cursor: "pointer" }} />
+    <BsPlus className="icon me-2" style={{ cursor: "pointer" }} />
+    <input
+      type="text"
+      className="form-control me-2"
+      placeholder="Type a message..."
+      value={newMessage}
+      onChange={(e) => setNewMessage(e.target.value)}
+      onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+    />
+    <FiSend className="icon send-icon" style={{ color: "#FF6F00", cursor: "pointer" }} onClick={sendMessage} />
+  </div>
+    </div >
   );
 };
 

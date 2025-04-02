@@ -36,7 +36,7 @@ const ProjectPerformanceChart = () => {
         data: [44, 69, 38, 79, 36, 80, 70],
         backgroundColor: "#5687F2",
         borderRadius: 0,
-        barThickness: 30, // Bar thickness similar to image
+        barThickness: 22, // Bar thickness similar to image
       },
     ],
   };
@@ -54,8 +54,8 @@ const ProjectPerformanceChart = () => {
           color: "#E0E0E0", // Light gray vertical lines
           drawTicks: false, // Hide tick marks
         },
-        ticks: { color: "#333", font: { size: 12 }, padding: 10 },
-        border: { display: false }, // Hide X-axis border
+        ticks: { color: "#333", font: { size: 12 }, padding: 2 },
+        // border: { display: false }, // Hide X-axis border
       },
       y: {
         beginAtZero: true,
@@ -75,8 +75,8 @@ const ProjectPerformanceChart = () => {
   
   return (
     <>
-      <h2 className="title-2 d-block mb-2">Project Performance</h2>
-      <Card className="border-0 shadow-sm">
+      <Card className="" style={{ height : '255px'}}>
+      <h2 className="title-2" style={{ marginLeft : '15px' , marginTop : '23px' , marginBottom: ' 3px'}}>Project Performance</h2>
         <Card.Body>
           <Bar data={data} options={options} plugins={[barLabelPlugin]} />
         </Card.Body>

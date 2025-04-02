@@ -139,7 +139,7 @@ const Home = () => {
               </div>
               <div className="row mt-4">
                 <div className="col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                  <div className="card-chart-conatiner">                    
+                  <div className="">                    
                     <ProjectPerformanceChart />
                   </div>
                 </div>

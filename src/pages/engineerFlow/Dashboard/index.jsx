@@ -1,6 +1,6 @@
 import React, { Fragment } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { profile , constructions_img } from '../../../assets/images';
+import { profile, constructions_img } from '../../../assets/images';
 import Notification from "../../../components/common/NotificationTab";
 export const roleCheck = { role: "admin" };
 
@@ -283,9 +283,9 @@ const EngineerDashboard = ({ progress = 50, maxValue = 100 }) => {
                 </div>
                 <div className="d-flex justify-content-between mt-4">
                   <Link className="requests-count fs-16-500 h40px6">12 Requests Pending</Link>
-                  <Link 
-                  className="view-project fs-16-500 text-decoration-none text-bright-shade-blue" 
-                  to="/admin/engineerproject"  
+                  <Link
+                    className="view-project fs-16-500 text-decoration-none text-bright-shade-blue"
+                    to="/admin/engineerproject"
                   >View Project</Link>
                 </div>
               </div>
@@ -294,45 +294,44 @@ const EngineerDashboard = ({ progress = 50, maxValue = 100 }) => {
           <div className="row">
             <div className="col-sm-12 col-md-12 col-lg-12">
               <h4 className="fs-22-700 mt-1 mb-4">Material Stock Alerts </h4>
-                <div className="material-stock tbl-conatiner-material-stock">
+              <div className="material-stock tbl-conatiner-material-stock">
                 <table className="tbl table-bordered mb-0">
                   <thead>
-                  <tr>
+                    <tr>
                       <th className="fs-16-500">Material List</th>
                       <th className="fs-16-500">In Stock Quantity</th>
                       <th className="fs-16-500">Required Quantity</th>
                       <th className="fs-16-500">Status</th>
                       <th className="fs-16-500">Actions</th>
-                  </tr>
+                    </tr>
                   </thead>
                   <tbody>
-                  {materials.map((material, index) => (
+                    {materials.map((material, index) => (
                       <tr key={index}>
-                          <td className="text-center fs-16-500">{material.material_list}</td>
-                          <td className="text-left fs-16-500">{material.in_stock_quantity}</td>
-                          <td className="text-center fs-16-500 text-crimson-red">{material.required_quantity}</td>
-                          <td className={`text-center fs-16-500 ${
-                            material.status === "Urgent" ? "text-crimson-red" :
-                            material.status === "Delay" ? "text-golden-yellow" :
+                        <td className="text-center fs-16-500">{material.material_list}</td>
+                        <td className="text-left fs-16-500">{material.in_stock_quantity}</td>
+                        <td className="text-center fs-16-500 text-crimson-red">{material.required_quantity}</td>
+                        <td className={`text-center fs-16-500 ${material.status === "Urgent" ? "text-crimson-red" :
+                          material.status === "Delay" ? "text-golden-yellow" :
                             material.status === "Completed" ? "text-success" :
-                            material.status === "On Hold" ? "text-info" :
-                            "text-secondary" // default class
+                              material.status === "On Hold" ? "text-info" :
+                                "text-secondary" // default class
                           }`}>
-                            {material.status}
-                          </td>
-                          <td className="text-center">
-                            <button 
+                          {material.status}
+                        </td>
+                        <td className="text-center">
+                          <button
                             className="fs-16-500 text-bright-royal-blue text-decoration-underline bg-light border-0 lh-lg"
-                            onClick={ () => navigate('/admin/engineermaterialcreate')}
-                            >
-                                Create
-                            </button>
-                          </td>
+                            onClick={() => navigate('/admin/engineermaterialcreate')}
+                          >
+                            Create
+                          </button>
+                        </td>
                       </tr>
-                  ))}
+                    ))}
                   </tbody>
-              </table>
-                </div>
+                </table>
+              </div>
             </div>
           </div>
           <div className="row mt-4">
@@ -370,15 +369,17 @@ const EngineerDashboard = ({ progress = 50, maxValue = 100 }) => {
                           <span className="fs-16-500 text-crimson-red">{delay.delayDays}</span>
                         </h5>
                       </div>
-                      <div className="work-delays-body d-flex">
+                      <div className="work-delays-body">
                         <div className="start-date">
                           <span className="fs-10-400">Start Date</span>
                           <h6 className="fs-16-500">{delay.startDate}</h6>
                         </div>
+                        <div className="date-divider"></div>
                         <div className="planned-date">
                           <span className="fs-10-400">Planned Date</span>
                           <h6 className="fs-16-500">{delay.plannedDate}</h6>
                         </div>
+                        <div className="date-divider"></div>
                         <div className="completed-date">
                           <span className="fs-10-400">Completed Date</span>
                           <h6 className="fs-16-500">{delay.completedDate}</h6>
@@ -417,7 +418,7 @@ const EngineerDashboard = ({ progress = 50, maxValue = 100 }) => {
                   ))}
                 </div>
               </div>
-            </div>            
+            </div>
           </div>
         </div>
         <div className="right-container">

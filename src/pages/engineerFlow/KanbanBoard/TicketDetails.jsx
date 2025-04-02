@@ -381,52 +381,43 @@ const EngineerTicketDetails = () => {
                     </div>
                   )}
 
-                  <div className="position-absolute bottom-0 end-0 p-2 d-flex align-items-center">
-                    <Button
-                      variant="link"
-                      className="text-muted p-1"
-                      onClick={() => { }}
-                    >
-                      <BsLink />
-                    </Button>
-                    <Button
-                      variant="link"
-                      className="text-muted p-1"
-                      onClick={() => imageInputRef.current.click()}
-                    >
-                      <BsImage />
-                      <input
-                        type="file"
-                        ref={imageInputRef}
-                        onChange={handleImageAttachment}
-                        accept="image/*"
-                        multiple
-                        style={{ display: 'none' }}
-                      />
-                    </Button>
-                    <Button
-                      variant="link"
-                      className="text-muted p-1"
-                      onClick={() => fileInputRef.current.click()}
-                    >
-                      <BsPaperclip />
-                      <input
-                        type="file"
-                        ref={fileInputRef}
-                        onChange={handleFileAttachment}
-                        multiple
-                        style={{ display: 'none' }}
-                      />
-                    </Button>
+                  <div className="position-absolute bottom-0 end-0 p-2 d-flex align-items-center w-100">
+                    <div className="d-flex align-items-center me-auto">
+                      <Button variant="link" className="text-muted p-1" onClick={() => { }}>
+                        <BsLink />
+                      </Button>
+                      <Button variant="link" className="text-muted p-1" onClick={() => imageInputRef.current.click()}>
+                        <BsImage />
+                        <input
+                          type="file"
+                          ref={imageInputRef}
+                          onChange={handleImageAttachment}
+                          accept="image/*"
+                          multiple
+                          style={{ display: 'none' }}
+                        />
+                      </Button>
+                      <Button variant="link" className="text-muted p-1" onClick={() => fileInputRef.current.click()}>
+                        <BsPaperclip />
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          onChange={handleFileAttachment}
+                          multiple
+                          style={{ display: 'none' }}
+                        />
+                      </Button>
+                    </div>
                     <Button
                       variant="warning"
-                      className="text-white px-3 py-1 ms-2"
+                      className="text-white px-3 py-1 ms-auto"
                       style={{ backgroundColor: "#FF6F00" }}
                       onClick={handleSendComment}
                     >
                       Send
                     </Button>
                   </div>
+
                 </Form>
               </div>
             </div>
@@ -700,7 +691,7 @@ const EngineerTicketDetails = () => {
         <Col md={4} className="ticket-sidebar" style={{ height: 'calc(100vh - 130px)', overflowY: 'auto', position: 'sticky', top: '0', marginTop: '-100px', }}>
           <div className="p-3" style={{ borderLeft: '1px solid #FF6F0080', borderTopLeftRadius: '20px', }}>
             {/* Ticket Owner */}
-            <div className="mb-3 d-flex justify-content-between align-items-center">
+            <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
               <span className="text-muted">Ticket Owner</span>
               <div className="d-flex align-items-center">
                 <div className="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center" style={{ width: '24px', height: '24px', fontSize: '12px' }}>RK</div>
@@ -806,7 +797,7 @@ const EngineerTicketDetails = () => {
                   onClick={() => setShowDepartmentSelector(!showDepartmentSelector)}
                 >
                   <span style={{ color: '#FF6F00' }}>{currentDepartment ? currentDepartment.name : 'Move To'}</span>
-                <AiOutlineUser className="ms-1" style={{ fill: '#FF6F00' }} />
+                  <AiOutlineUser className="ms-1" style={{ fill: '#FF6F00' }} />
                 </Button>
 
                 {showDepartmentSelector && (
@@ -934,7 +925,7 @@ const EngineerTicketDetails = () => {
                 <Button
                   variant="link"
                   className="p-0 d-flex align-items-center border-no-underline"
-                  style={{ color: '#FF6F00',textDecoration:'none' }}
+                  style={{ color: '#FF6F00', textDecoration: 'none' }}
                   onClick={() => setShowParticipantSelector(!showParticipantSelector)}
                 >
                   <span style={{ color: '#FF6F00' }}>Add</span>

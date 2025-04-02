@@ -431,7 +431,7 @@ const Notification = () => {
           <div className="card-pending-approvel-header d-flex justify-content-between align-items-start">
             <div className="card-pending-approvel-project-title">
             <span className={`project-dept ${deptClass}`}>{notification.department}</span>
-              <h4 className="title-3" style={{marginTop:'6lpx'}}>{notification.title}</h4>
+              <h4 className="title-3" style={{marginTop:'6px'}}>{notification.title}</h4>
             </div>
             <div className="card-pending-approvel-project-user">
               <p className="text-dark">{notification.date} • {notification.time}</p>
