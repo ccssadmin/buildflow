@@ -106,7 +106,7 @@ return (
                 <div className="col-sm-6 col-md-6 col-lg-6 col-xl-6 pe-0">
                     <div className="text-end btn-remove-add-group d-flex justify-content-end">
                         <button className="btn fs-16-500 text-dark-gray-color me-5"><img src={x_mark} alt="" />  Remove</button>
-                        <button className="btn btn-primary bg-primary text-light border-0 border-radius-2 fs-14-600 me-0" >Add Task</button>
+                        <button className="btn btn-primary text-light border-0 border-radius-2 fs-14-600 me-0" style={{backgroundColor:'#FF6F00'}} >Add Task</button>
                     </div>
                 </div>
             </div>

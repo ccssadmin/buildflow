@@ -65,8 +65,7 @@ const ChatIndividualScreen = ({ selectedChat }) => {
                   {msg.time}
                 </small>
               </div>
-            </div>
-
+          </div>
           </div>
         ))}
     </div>

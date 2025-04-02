@@ -23,7 +23,7 @@
 }
 
 .custom-list-item:hover{
-    color: #FF6F00;
+    color: #FF6F00 !important;
 }
 
 .custom-list-item.active {

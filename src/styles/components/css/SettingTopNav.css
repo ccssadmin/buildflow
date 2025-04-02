@@ -20,12 +20,12 @@ h1{
 
 .custom-tab.active{
     color: #FF6F00 !important;
-    border-bottom: 3px solid #FF6F00;
+    border-bottom: 3px solid #FF6F00 !important;
     padding-bottom: 10px;
 }
 
 
 .custom-tab:hover {
-    color: #FF6F00;
+    color: #FF6F00 !important;
 }
 
