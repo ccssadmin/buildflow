@@ -5,6 +5,7 @@ import { BsPaperclip, BsImage, BsLink, BsCalendar, BsPencil, BsChevronDown, BsX 
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { useNavigate } from 'react-router-dom';
+import { AiOutlineUser } from 'react-icons/ai';
 
 const FinanceTicketDetails = () => {
   const [activeTab, setActiveTab] = useState('all');
@@ -380,52 +381,43 @@ const FinanceTicketDetails = () => {
                     </div>
                   )}
 
-                  <div className="position-absolute bottom-0 end-0 p-2 d-flex align-items-center">
-                    <Button
-                      variant="link"
-                      className="text-muted p-1"
-                      onClick={() => { }}
-                    >
-                      <BsLink />
-                    </Button>
-                    <Button
-                      variant="link"
-                      className="text-muted p-1"
-                      onClick={() => imageInputRef.current.click()}
-                    >
-                      <BsImage />
-                      <input
-                        type="file"
-                        ref={imageInputRef}
-                        onChange={handleImageAttachment}
-                        accept="image/*"
-                        multiple
-                        style={{ display: 'none' }}
-                      />
-                    </Button>
-                    <Button
-                      variant="link"
-                      className="text-muted p-1"
-                      onClick={() => fileInputRef.current.click()}
-                    >
-                      <BsPaperclip />
-                      <input
-                        type="file"
-                        ref={fileInputRef}
-                        onChange={handleFileAttachment}
-                        multiple
-                        style={{ display: 'none' }}
-                      />
-                    </Button>
+                  <div className="position-absolute bottom-0 end-0 p-2 d-flex align-items-center w-100">
+                    <div className="d-flex align-items-center me-auto">
+                      <Button variant="link" className="text-muted p-1" onClick={() => { }}>
+                        <BsLink />
+                      </Button>
+                      <Button variant="link" className="text-muted p-1" onClick={() => imageInputRef.current.click()}>
+                        <BsImage />
+                        <input
+                          type="file"
+                          ref={imageInputRef}
+                          onChange={handleImageAttachment}
+                          accept="image/*"
+                          multiple
+                          style={{ display: 'none' }}
+                        />
+                      </Button>
+                      <Button variant="link" className="text-muted p-1" onClick={() => fileInputRef.current.click()}>
+                        <BsPaperclip />
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          onChange={handleFileAttachment}
+                          multiple
+                          style={{ display: 'none' }}
+                        />
+                      </Button>
+                    </div>
                     <Button
                       variant="warning"
-                      className="text-white px-3 py-1 ms-2"
+                      className="text-white px-3 py-1 ms-auto"
                       style={{ backgroundColor: "#FF6F00" }}
                       onClick={handleSendComment}
                     >
                       Send
                     </Button>
                   </div>
+
                 </Form>
               </div>
             </div>
@@ -564,7 +556,7 @@ const FinanceTicketDetails = () => {
               <div className="mt-4">
                 <div className="d-flex justify-content-between align-items-center mb-3">
                   <h6 className="mb-0">Attached Files</h6>
-                  <Button variant="warning" style={{backgroundColor:'#FF6F00'}} size="sm" className="text-white" onClick={() => fileInputRef.current.click()}>
+                  <Button variant="warning" style={{ backgroundColor: '#FF6F00' }} size="sm" className="text-white" onClick={() => fileInputRef.current.click()}>
                     Upload File
                   </Button>
                 </div>
@@ -573,7 +565,7 @@ const FinanceTicketDetails = () => {
                   <div className="text-center py-5 text-muted">
                     <BsPaperclip size={32} />
                     <p className="mt-2">No files attached yet</p>
-                    <Button variant="outline-warning" style={{backgroundColor:'#FF6F00',color:'white'}} size="sm" onClick={() => fileInputRef.current.click()}>
+                    <Button variant="outline-warning" style={{ backgroundColor: '#FF6F00', color: 'white' }} size="sm" onClick={() => fileInputRef.current.click()}>
                       Upload File
                     </Button>
                   </div>
@@ -597,7 +589,7 @@ const FinanceTicketDetails = () => {
 
                 <div className="d-flex justify-content-between align-items-center mt-4 mb-3">
                   <h6 className="mb-0">Attached Images</h6>
-                  <Button variant="warning" style={{backgroundColor:'#FF6F00'}} size="sm" className="text-white" onClick={() => imageInputRef.current.click()}>
+                  <Button variant="warning" style={{ backgroundColor: '#FF6F00' }} size="sm" className="text-white" onClick={() => imageInputRef.current.click()}>
                     Upload Image
                   </Button>
                 </div>
@@ -606,7 +598,7 @@ const FinanceTicketDetails = () => {
                   <div className="text-center py-5 text-muted">
                     <BsImage size={32} />
                     <p className="mt-2">No images attached yet</p>
-                    <Button variant="outline-warning" style={{backgroundColor:'#FF6F00',color:'white'}} size="sm" onClick={() => imageInputRef.current.click()}>
+                    <Button variant="outline-warning" style={{ backgroundColor: '#FF6F00', color: 'white' }} size="sm" onClick={() => imageInputRef.current.click()}>
                       Upload Image
                     </Button>
                   </div>
@@ -699,7 +691,7 @@ const FinanceTicketDetails = () => {
         <Col md={4} className="ticket-sidebar" style={{ height: 'calc(100vh - 130px)', overflowY: 'auto', position: 'sticky', top: '0', marginTop: '-100px', }}>
           <div className="p-3" style={{ borderLeft: '1px solid #FF6F0080', borderTopLeftRadius: '20px', }}>
             {/* Ticket Owner */}
-            <div className="mb-3 d-flex justify-content-between align-items-center">
+            <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
               <span className="text-muted">Ticket Owner</span>
               <div className="d-flex align-items-center">
                 <div className="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center" style={{ width: '24px', height: '24px', fontSize: '12px' }}>RK</div>
@@ -712,12 +704,12 @@ const FinanceTicketDetails = () => {
               <div className="d-flex align-items-center position-relative">
                 <Button
                   variant="link"
-                  className="p-0 d-flex align-items-center"
-                  style={{color:'#FF6F00'}}
+                  className="p-0 d-flex align-items-center border-no-underline"
+                  style={{ color: '#FF6F00', textDecoration: 'none' }}
                   onClick={() => setShowAssignSelector(!showAssignSelector)}
                 >
-                  <span>{currentAssignee ? currentAssignee.name : 'Assign To'}</span>
-                  <BsChevronDown className="ms-1" />
+                  <span style={{ color: '#FF6F00' }}>{currentAssignee ? currentAssignee.name : 'Assign To'}</span>
+                  <AiOutlineUser className="ms-1" style={{ fill: '#FF6F00' }} />
                 </Button>
 
                 {showAssignSelector && (
@@ -792,26 +784,18 @@ const FinanceTicketDetails = () => {
               </div>
             </div>
 
-            <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
-              <span className="text-muted">Query</span>
-              <div className="d-flex align-items-center">
-                <button className=" text-text-dark-gray px-2 py-1 " style={{  width: '80px', border:'none'}}>Cancel</button>
-                <button className=" text-white px-2 py-1 rounded" style={{ backgroundColor: '#FF6F00', width: '100px', border:'none'}}>Accept</button>
-              </div>
-            </div>
-
             {/* Move To */}
             <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
               <span className="text-muted">Move To</span>
               <div className="d-flex align-items-center position-relative">
                 <Button
                   variant="link"
-                  className="p-0 d-flex align-items-center"
-                  style={{color:'#FF6F00'}}
+                  className="p-0 d-flex align-items-center border-no-underline"
+                  style={{ color: '#FF6F00', textDecoration: 'none' }}
                   onClick={() => setShowDepartmentSelector(!showDepartmentSelector)}
                 >
-                  <span>{currentDepartment ? currentDepartment.name : 'Move To'}</span>
-                  <BsChevronDown className="ms-1" />
+                  <span style={{ color: '#FF6F00' }}>{currentDepartment ? currentDepartment.name : 'Move To'}</span>
+                  <AiOutlineUser className="ms-1" style={{ fill: '#FF6F00' }} />
                 </Button>
 
                 {showDepartmentSelector && (
@@ -840,7 +824,7 @@ const FinanceTicketDetails = () => {
               {/* <div className="d-flex align-items-center">
                 <span className="bg-success text-white px-2 py-1 rounded">MD</span>
               </div> */}
-              <div className="d-flex align-items-center" style={{ marginRight : '5px'}}>
+              <div className="d-flex align-items-center" style={{ marginRight: '5px' }}>
                 <div className="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center" style={{ width: '24px', height: '24px', fontSize: '12px', marginLeft: '140px' }}>RK</div>
               </div>
               <span className="text-muted">Site Engineer</span>
@@ -938,12 +922,12 @@ const FinanceTicketDetails = () => {
               <div className="d-flex align-items-center position-relative">
                 <Button
                   variant="link"
-                  className="p-0 d-flex align-items-center"
-                  style={{color:'#FF6F00'}}
+                  className="p-0 d-flex align-items-center border-no-underline"
+                  style={{ color: '#FF6F00', textDecoration: 'none' }}
                   onClick={() => setShowParticipantSelector(!showParticipantSelector)}
                 >
-                  <span>Add</span>
-                  <BsChevronDown className="ms-1" />
+                  <span style={{ color: '#FF6F00' }}>Add</span>
+                  <AiOutlineUser className="ms-1" style={{ fill: '#FF6F00' }} />
                 </Button>
 
                 {showParticipantSelector && (
@@ -993,7 +977,7 @@ const FinanceTicketDetails = () => {
               <Button
                 variant="warning"
                 className="text-white px-4"
-                style={{backgroundColor:'#FF6F00'}}
+                style={{ backgroundColor: '#FF6F00' }}
                 onClick={handleSave}
               >
                 Save

@@ -1,68 +1,107 @@
-.page-engineer-dashboard .card-site-conatiner {
+/* Work Delays Component Styles */
+:root {
+    --gray-color: #e0e0e0;
+    --primary-color: #0d6efd;
+  }
+  
+  .pending-approvel-conatiner.task-conatiner {
     border: 1px solid var(--gray-color);
     border-radius: 10px;
     padding: 24px;
     width: 100%;
-}
-.page-engineer-dashboard  .proprietor-img {
-    width: 30px;
-    height: 30px;
-}
-
-.tbl-conatiner-material-stock .tbl {
-    width: 100%;
-}
-.tbl-conatiner-material-stock .tbl th, .tbl-conatiner-material-stock .tbl td {
-    border: 1px solid #C3C3C3;
-    padding: 10px;
-    vertical-align: middle;
-    text-align: center;
-}
-.tbl-conatiner-material-stock .tbl th {
-    background-color: #DEDEDE !important;
-    font-size: 16px;
-    color: #333333;
-    font-weight: 500;
-}
-.tbl-conatiner-material-stock .tbl td {
-    background-color: #ffffff;
-    font-size: 14px;
-    color: #606060;
-    font-weight: 400;
-}
-.tbl-conatiner-material-stock .tbl h4 {
-    font-size: 24px;
-    font-weight: 700;
-    margin-bottom: 24px;
-}
-.task-conatiner .task-content {
+  }
+  
+  .task-conatiner .task-content {
     overflow-y: scroll;
     max-height: 306px;
-}
-main .task-conatiner::-webkit-scrollbar {
+  }
+  
+  .task-content.scrollbar-none {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  
+  .task-content.scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .card-pending-approvel {
+    background-color: #fff;
+    border-radius: 8px;
+    margin-bottom: 16px;
+  }
+  
+  .work-delays-header {
+    padding: 16px 16px 0 16px;
+  }
+  
+  .fs-18-500 {
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 0;
+  }
+  
+  .mb-0 {
+    margin-bottom: 0;
+  }
+  
+  .fs-16-500 {
+    font-size: 16px;
+    font-weight: 500;
+  }
+  
+  .text-crimson-red {
+    color: #dc3545;
+  }
+  
+  .work-delays-body {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #C6C6C6;
+    padding: 16px 0;
+    margin: 0 16px;
+  }
+  
+  /* The date divider line */
+  .date-divider {
+    width: 1px;
+    height: 40px;
+    background-color: #C6C6C6;
+    margin: 0 10px;
+  }
+  
+  .work-delays-body .start-date,
+  .work-delays-body .planned-date,
+  .work-delays-body .completed-date {
+    flex: 1;
+    padding: 0;
+  }
+  
+  .fs-10-400 {
+    font-size: 10px;
+    font-weight: 400;
+    color: #6c757d;
+    display: block;
+    margin-bottom: 4px;
+  }
+  
+  .fs-16-500 {
+    font-size: 16px;
+    font-weight: 500;
+    margin: 0;
+  }
+  
+  main .task-conatiner::-webkit-scrollbar {
     width: 0px;
     height: 10px;
     background-color: #b6b6b6;
-}
-main .task-conatiner::-webkit-scrollbar-thumb {
+  }
+  
+  main .task-conatiner::-webkit-scrollbar-thumb {
     border-radius: 10px;
     background-color: var(--primary-color);
-}
-.work-delays-body div {
-    width: 33.33%;
-}
-.work-delays-body {
-    border-bottom: 1px solid #C6C6C6;
-    padding: 16px 0px;
-}
-.layout-large-sidenav-container main.page-engineer-project .left-container {
-    width: 100%;
-}
-.pending-max-height-large {
-    max-height: 648px;
-    overflow-y: scroll;
-}
-.tbl-engineer-project-details-milestone .fs-20-500 {
-    font-size: 20px;
-    font-weight: 500px;
-}
+  }
+  
+  .mb-4 {
+    margin-bottom: 1rem;
+  }
