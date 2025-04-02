@@ -10,8 +10,8 @@
     --text-dark : #333333;
     --crimson-red : #D00416;
     --golden-yellow : #F1C300;
-    --bright-royal-blue : #0456D0;
-    --bright-shade-blue : #0077FF;
+    /* --bright-royal-blue : #0456D0;
+    --bright-shade-blue : #0077FF; */
     --burnt-orange : #C65600;
     --green : #30A335;
 }
@@ -46,12 +46,12 @@ body .text-primary {
 .text-golden-yellow {
     color: var(--golden-yellow) !important;
 }
-.text-bright-royal-blue {
+/* .text-bright-royal-blue {
     color: var(--bright-royal-blue) !important;
 }
 .text-bright-shade-blue {
     color: var(--bright-shade-blue) !important;
-}
+} */
 .border-color-bright-royal {
     border-color: var(--bright-royal-blue);
 }

@@ -133,7 +133,7 @@ const KanbanBoard = () => {
   };
 
   const handleTaskClick = (task) => {
-    navigate(`/admin/engineerticketdetails/${task.title}`, { state: { task } });
+    navigate(`/ticket/${task.title}`, { state: { task } });
   };
 
   const handleMenuClick = (columnIndex) => {
