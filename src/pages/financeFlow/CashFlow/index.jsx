@@ -459,7 +459,7 @@ const FinanceCashFlow = () => {
                                         <div className="card-col">
                                             <div className="card">
                                                 <div className="card-body p-0">
-                                                    <table className="summary-table" >
+                                                    <table className="tbl summary-table" >
                                                         <thead >
                                                             <tr>
                                                                 <th style={{ backgroundColor: '#DEDEDE' }}>Card</th>

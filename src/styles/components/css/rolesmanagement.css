@@ -137,8 +137,8 @@
 }
 
 .page-rolesmanagement button.submit {
-    background-color: var(--primary-color);
-    border: var(--primary-color);
+    background-color:#FF6F00 !important;
+    border: #FF6F00 !important;
     color: #fff;
     display: flex;
     align-items: center;
