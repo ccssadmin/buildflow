@@ -19,30 +19,30 @@ const MaterialViewScreen = () => {
 
     return (
         <div className="container mt-4">
-             <div style={{ paddingTop: '20px', paddingBottom: '20px', borderBottom: '1px solid #ddd', marginBottom: '20px' }}>
-        <h2 style={{ margin: 0, fontSize: '16px', color: '#333' }}>
-            <span 
-            onClick={() => navigate('/admin/engineermaterial')}
-            style={ { cursor : 'pointer'}}
-            >BOQ
-            </span> &gt; <span style={{ color: '#FF6F00' }}>View BOQ</span>
-        </h2>
-      </div>
-      
-      
+            <div style={{ paddingTop: '20px', paddingBottom: '20px', borderBottom: '1px solid #ddd', marginBottom: '20px' }}>
+                <h2 style={{ margin: 0, fontSize: '16px', color: '#333' }}>
+                    <span
+                        onClick={() => navigate('/admin/engineermaterial')}
+                        style={{ cursor: 'pointer' }}
+                    >BOQ
+                    </span> &gt; <span style={{ color: '#FF6F00' }}>View BOQ</span>
+                </h2>
+            </div>
+
+
             <h3 className="mt-3">New BOQ</h3>
 
             {/* Form Section */}
             <div className="row">
                 <div className="col-md-6">
                     <Form.Group className="mb-3">
-                        <Form.Label>Title <span className="text-danger">*</span></Form.Label>
+                        <Form.Label className="text-black fs-5">Title <span className="text-danger">*</span></Form.Label>
                         <Form.Control type="text" placeholder="BOQ TITLE" />
                     </Form.Group>
                 </div>
                 <div className="col-md-6">
                     <Form.Group className="mb-3">
-                        <Form.Label>Description</Form.Label>
+                        <Form.Label className="text-black fs-5">Description</Form.Label>
                         <Form.Control as="textarea" placeholder="Enter description" rows={1} />
                     </Form.Group>
                 </div>
@@ -51,7 +51,7 @@ const MaterialViewScreen = () => {
             <div className="row">
                 <div className="col-md-6">
                     <Form.Group className="mb-3">
-                        <Form.Label>Vendor</Form.Label>
+                        <Form.Label className="text-black fs-5">Vendor</Form.Label>
                         <Dropdown>
                             <Dropdown.Toggle className="w-100 text-start border-0 custom-dropdown">
                                 <span className="text-danger me-2">⬤</span>
@@ -67,7 +67,7 @@ const MaterialViewScreen = () => {
                 </div>
                 <div className="col-md-6">
                     <Form.Group className="mb-3">
-                        <Form.Label>Send Approve</Form.Label>
+                        <Form.Label className="text-black fs-5">Send Approve</Form.Label>
                         <Dropdown>
                             <Dropdown.Toggle className="w-100 text-start border-0 custom-dropdown">
                                 CEO   <RiArrowDropDownLine />
@@ -87,28 +87,43 @@ const MaterialViewScreen = () => {
                 <Table bordered className="mt-3">
                     <thead className="table-light">
                         <tr>
-                            <th>S. No</th>
-                            <th>Item Name</th>
-                            <th>Unit</th>
-                            <th>Rate ₹</th>
-                            <th>Quantity</th>
-                            <th>Total</th>
+                            <th style={{ textAlign: 'center' }}>S. No</th>
+                            <th style={{ textAlign: 'center' }}>Item Name</th>
+                            <th style={{ textAlign: 'center' }}>Unit</th>
+                            <th style={{ textAlign: 'center' }}>Rate ₹</th>
+                            <th style={{ textAlign: 'center' }}>Quantity</th>
+                            <th style={{ textAlign: 'center' }}>Total</th>
                         </tr>
                     </thead>
                     <tbody>
                         {boqData.map((item, index) => (
                             <tr key={index}>
-                                <td>{item.id}</td>
-                                <td>{item.name}</td>
-                                <td>{item.unit}</td>
-                                <td>{item.rate}</td>
-                                <td>{item.quantity}</td>
-                                <td>{item.total}</td>
+                                <td style={{ textAlign: 'center' }}>{item.id}</td>
+                                <td style={{ textAlign: 'center' }}>{item.name}</td>
+                                <td style={{ textAlign: 'center' }}>{item.unit}</td>
+                                <td style={{ textAlign: 'center' }}>{item.rate}</td>
+                                <td style={{ textAlign: 'center' }}>{item.quantity}</td>
+                                <td style={{ textAlign: 'center' }}>{item.total}</td>
                             </tr>
                         ))}
                     </tbody>
                 </Table>
             </div>
+            {/* Total & Action Buttons Section */}
+            <div className="d-flex justify-content-between align-items-center bg-burnt-orange text-white p-3 rounded-bottom">
+                <div className="text-white">Total</div>
+                <div className="text-white">{boqData.reduce((acc, item) => acc + item.total, 0).toLocaleString()}</div>
+            </div>
+
+            <div className="d-flex justify-content-between align-items-center mt-3">
+                <button className="btn btn-outline-secondary d-flex align-items-center">
+                    📝 Go Approval
+                </button>
+                <button className="btn btn-warning text-white d-flex align-items-center">
+                    ⬇️ Download .xlsx
+                </button>
+            </div>
+
         </div>
     );
 };
