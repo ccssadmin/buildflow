@@ -2,9 +2,9 @@ import React from "react";
 
 // Dummy data for group chats
 const groupChatData = [
-  { id: 1, name: "NRM Site Project", unread: 2, members: ["Albert Flores", "Wade Warren", "Jenny Wilson", "Floyd Miles"] },
-  { id: 2, name: "MAA Site Project", unread: 1, members: ["Dianne Russell", "Cameron Williamson", "Theresa Webb"] },
-  { id: 3, name: "RMN Site Project", unread: 1, members: ["Jacob Jones", "Kristin Watson", "Darlene Robertson"] },
+  { id: 1, name: "NRM Site Project", unread: 2 },
+  { id: 2, name: "MAA Site Project", unread: 1 },
+  { id: 3, name: "RMN Site Project", unread: 1 },
 ];
 
 const GroupChatList = ({ selectedGroup, setSelectedGroup }) => {
@@ -18,18 +18,22 @@ const GroupChatList = ({ selectedGroup, setSelectedGroup }) => {
       {groupChatData.map((group) => (
         <div
           key={group.id}
-          className={`d-flex justify-content-between align-items-center p-2 border-bottom ${
-            selectedGroup && selectedGroup.id === group.id ? "bg-light" : ""
-          }`}
+          className="d-flex justify-content-between align-items-center p-2 border-bottom"
           onClick={() => openGroupChat(group)}
-          style={{ cursor: "pointer" }}
+          style={{
+            cursor: "pointer",
+            backgroundColor:
+              selectedGroup && selectedGroup.id === group.id ? "#FFE0B2" : "transparent",
+          }}
         >
           <div>
             <span>{group.name}</span>
-            <div className="small text-muted">{group.members.slice(0, 2).join(", ")}...</div>
           </div>
           {group.unread > 0 && (
-            <span className="badge" style={{ backgroundColor: "#FF6F00", color: "white" }}>
+            <span
+              className="badge"
+              style={{ backgroundColor: "#FF6F00", color: "white" }}
+            >
               {group.unread}
             </span>
           )}

@@ -45,11 +45,12 @@ const GroupChatScreen = ({ selectedGroup }) => {
         <div className="chat-group-info">
           <h5 className="mb-0">{selectedGroup.name}</h5>
           <small className="text-muted">
-            {selectedGroup.members.slice(0, 3).join(", ")}
-            {selectedGroup.members.length > 3
-              ? ` + ${selectedGroup.members.length - 3} more`
+            {(selectedGroup?.members || []).slice(0, 3).join(", ")}
+            {(selectedGroup?.members || []).length > 3
+              ? ` + ${(selectedGroup.members || []).length - 3} more`
               : ""}
           </small>
+
         </div>
         <FaEllipsisV className="menu-icon" style={{ cursor: "pointer" }} />
       </div>
@@ -62,9 +63,8 @@ const GroupChatScreen = ({ selectedGroup }) => {
             className={`mb-3 d-flex ${msg.sender === "Me" ? "justify-content-end" : "justify-content-start"}`}
           >
             <div
-              className={`chat-bubble p-2 d-inline-block rounded ${
-                msg.sender === "Me" ? "sent" : "received"
-              }`}
+              className={`chat-bubble p-2 d-inline-block rounded ${msg.sender === "Me" ? "sent" : "received"
+                }`}
               style={{ maxWidth: "80%" }}
             >
               {msg.sender !== "Me" && <small className="text-muted">{msg.sender}</small>}
