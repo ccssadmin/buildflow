@@ -1,8 +1,5 @@
 /* Work Delays Component Styles */
-:root {
-    --gray-color: #e0e0e0;
-    --primary-color: #0d6efd;
-  }
+
   
   .pending-approvel-conatiner.task-conatiner {
     border: 1px solid var(--gray-color);
