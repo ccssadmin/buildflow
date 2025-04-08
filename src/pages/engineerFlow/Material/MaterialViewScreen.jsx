@@ -2,6 +2,9 @@ import React from "react";
 import { Form, Table, Dropdown } from "react-bootstrap";
 import { RiArrowDropDownLine } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faClipboardCheck } from '@fortawesome/free-solid-svg-icons';
+import { faDownload } from '@fortawesome/free-solid-svg-icons';
 
 const MaterialViewScreen = () => {
     const navigate = useNavigate();
@@ -110,19 +113,25 @@ const MaterialViewScreen = () => {
                 </Table>
             </div>
             {/* Total & Action Buttons Section */}
-            <div className="d-flex justify-content-between align-items-center bg-burnt-orange text-white p-3 rounded-bottom">
-                <div className="text-white">Total</div>
-                <div className="text-white">{boqData.reduce((acc, item) => acc + item.total, 0).toLocaleString()}</div>
+            <div
+                className="d-flex justify-content-between align-items-center text-white p-3"
+                style={{ backgroundColor: '#ff6600' }} 
+            >
+                <div>Total</div>
+                <div>{boqData.reduce((acc, item) => acc + item.total, 0).toLocaleString()}</div>
             </div>
 
-            <div className="d-flex justify-content-between align-items-center mt-3">
-                <button className="btn btn-outline-secondary d-flex align-items-center">
-                    📝 Go Approval
+            <div className="d-flex justify-content-end align-items-center mt-3 gap-2">
+                <button className="btn text-black d-flex align-items-center" style={{ background: 'transparent', border: 'none' }}>
+                <FontAwesomeIcon icon={faClipboardCheck} className="me-2" color="white" />
+                    Go Approval
                 </button>
-                <button className="btn btn-warning text-white d-flex align-items-center">
-                    ⬇️ Download .xlsx
+                <button className="btn text-white d-flex align-items-center" style={{ backgroundColor: '#ff6600' }}>
+                    <FontAwesomeIcon icon={faDownload} className="me-2" style={{ color: 'white' }} />
+                    Download .xlsx
                 </button>
             </div>
+
 
         </div>
     );
