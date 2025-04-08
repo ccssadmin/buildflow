@@ -54,8 +54,8 @@
 }
 
 .table-bordered th {
-  background-color: #DEDEDE;
-  color: #333333;
+  background-color: #DEDEDE !important;
+  color: #333333 !important;
 }
 
 .table-bordered tr:hover {

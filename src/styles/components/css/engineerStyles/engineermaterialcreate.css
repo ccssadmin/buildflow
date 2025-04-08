@@ -13,7 +13,11 @@
 }
 
 .text-orange {
-  color: #ff6600;
+  color: #ff6600 !important;
+}
+.bg-orange .text-center{
+  background-color: #FF6F00 !important;
+  color:#fff;
 }
 
 .form-title {
