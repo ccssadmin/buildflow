@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Form, Button, Table } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import { classNames } from './../../../utils/customHelpers';
 
 const MaterialCreateScreen = () => {
@@ -114,13 +116,14 @@ const MaterialCreateScreen = () => {
 
         <div className="d-flex flex-column align-items-end mt-3">
           <Button
-            variant="link"
-            className="text-orange add-column-btn p-0 mb-3"
+            variant=""
+            className="text-orange bg-orange add-column-btn p-0 mb-3"
             onClick={handleAddRow}
           >
             + Add Column
           </Button>
           <Button type="submit" className="submit-btn">
+          <FontAwesomeIcon icon={faPaperPlane} className="icon" style={{ color: 'white' }} />
             Submit
           </Button>
         </div>

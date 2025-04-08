@@ -6,6 +6,8 @@ import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { useNavigate } from 'react-router-dom';
 import { AiOutlineUser } from "react-icons/ai";
+import { RiSaveFill } from "react-icons/ri";
+import { BsCalendar3 } from "react-icons/bs";
 
 const EngineerTicketDetails = () => {
   const [activeTab, setActiveTab] = useState('all');
@@ -484,8 +486,8 @@ const EngineerTicketDetails = () => {
                   <div key={comment.id} className="d-flex mb-4">
                     <div className="me-2">
                       <div
-                        className={`rounded-circle bg-${comment.avatarColor} text-white d-flex align-items-center justify-content-center`}
-                        style={{ width: '36px', height: '36px', fontSize: '16px', flexShrink: 0 }}
+                        className={`rounded-circle bg-${comment.avatarColor} text-white d-flex align-items-center justify-content-center}
+                        style={{ width: '36px', height: '36px', fontSize: '16px', flexShrink: 0 }`}
                       >
                         {comment.avatar}
                       </div>
@@ -722,8 +724,8 @@ const EngineerTicketDetails = () => {
                     {availableUsers.map(user => (
                       <div key={user.id} className="p-2 d-flex align-items-center hover-bg-light cursor-pointer" onClick={() => handleAssign(user)}>
                         <div
-                          className={`rounded-circle bg-${user.color} text-white d-flex align-items-center justify-content-center me-2`}
-                          style={{ width: '24px', height: '24px', fontSize: '12px' }}
+                          className={`rounded-circle bg-${user.color} text-white d-flex align-items-center justify-content-center me-2}
+                          style={{ width: '24px', height: '24px', fontSize: '12px' }`}
                         >
                           {user.initials}
                         </div>
@@ -748,7 +750,7 @@ const EngineerTicketDetails = () => {
                   onClick={() => setShowOrderDatePicker(!showOrderDatePicker)}
                 >
                   <span>{orderDate ? orderDate.toLocaleDateString() : 'Edit'}</span>
-                  <BsCalendar className="ms-1" />
+                  <BsCalendar3 className="ms-1" />
                 </Button>
                 {showOrderDatePicker && (
                   <div className="position-absolute end-0 top-100 bg-white shadow border rounded" style={{ zIndex: 1000 }}>
@@ -772,7 +774,7 @@ const EngineerTicketDetails = () => {
                   onClick={() => setShowDueDatePicker(!showDueDatePicker)}
                 >
                   <span>{dueDate ? dueDate.toLocaleDateString() : 'Edit'}</span>
-                  <BsCalendar className="ms-1" />
+                  <BsCalendar3 className="ms-1" />
                 </Button>
                 {showDueDatePicker && (
                   <div className="position-absolute end-0 top-100 bg-white shadow border rounded" style={{ zIndex: 1000 }}>
@@ -822,14 +824,14 @@ const EngineerTicketDetails = () => {
 
             {/* Moveby */}
             <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
-              <span className="text-muted">Move By</span>
+              <span className="text-muted">MoveBy</span>
               {/* <div className="d-flex align-items-center">
                 <span className="bg-success text-white px-2 py-1 rounded">MD</span>
               </div> */}
               <div className="d-flex align-items-center">
                 <div className="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center" style={{ width: '24px', height: '24px', fontSize: '12px', marginLeft: '140px' }}>RK</div>
               </div>
-              <span className="text-muted">Site Engineer</span>
+              <span className="text-muted ">Site Engineer</span>
             </div>
 
             {/* Approved */}
@@ -850,7 +852,7 @@ const EngineerTicketDetails = () => {
                   onClick={() => setShowLabelSelector(!showLabelSelector)}
                 >
                   <span>Edit</span>
-                  <BsPencil className="ms-1" size={12} />
+                  {/* <BsPencil className="ms-1" size={12} /> */}
                 </Button>
 
                 {showLabelSelector && (
@@ -945,8 +947,8 @@ const EngineerTicketDetails = () => {
                         style={{ cursor: 'pointer' }}
                       >
                         <div
-                          className={`rounded-circle bg-${person.color} text-white d-flex align-items-center justify-content-center me-2`}
-                          style={{ width: '24px', height: '24px', fontSize: '12px' }}
+                          className={`rounded-circle bg-${person.color} text-white d-flex align-items-center justify-content-center me-2}
+                          style={{ width: '24px', height: '24px', fontSize: '12px' }`}
                         >
                           {person.initials}
                         </div>
@@ -964,8 +966,8 @@ const EngineerTicketDetails = () => {
                 {participants.map(participant => (
                   <div
                     key={participant.id}
-                    className={`rounded-circle bg-${participant.color} text-white d-flex align-items-center justify-content-center me-1 mb-1`}
-                    style={{ width: '30px', height: '30px', fontSize: '12px' }}
+                    className={`rounded-circle bg-${participant.color} text-white d-flex align-items-center justify-content-center me-1 mb-1}
+                    style={{ width: '30px', height: '30px', fontSize: '12px' }`}
                   >
                     {participant.initials}
                   </div>
@@ -974,17 +976,19 @@ const EngineerTicketDetails = () => {
             </div>
 
             {/* Action Buttons */}
-            <div className="d-flex justify-content-between mt-5">
+            <div className="d-flex justify-content-end mt-5">
               <Button variant="light" className="px-4">Cancel</Button>
               <Button
                 variant="warning"
-                className="text-white px-4"
+                className="text-white px-4 ms-2"
                 style={{ backgroundColor: '#FF6F00' }}
                 onClick={handleSave}
               >
+                <RiSaveFill style={{ color: 'white', marginRight: '5px' }} />
                 Save
               </Button>
             </div>
+
           </div>
         </Col>
       </Row>
