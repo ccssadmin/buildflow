@@ -12,7 +12,7 @@ import useAuth from "../../hooks/useAuth";
 import serverErrorIcon from "../../assets/images/icons8-server-error-66.png";
 import EngineersideNav from "./sidenav/engineersidenav.component";
 
-const EngineerLayout = () => {
+const EngineerLayout = ({ onLogout }) => {
   const [collapseNav, setCollapseNav] = useState(false);
   const [{ data }, { setAuth, getUserInfo }] = useAuth();
 
@@ -48,7 +48,7 @@ const EngineerLayout = () => {
 
   return (
     <Fragment>
-      <Header />
+       <Header onLogout={onLogout} />
       <div className={`layout-container layout-large-sidenav-container ${collapseNav ? "" : "left-sidebar"}`}>
         <EngineersideNav onChange={tempChange} />
         <div className="body-content">

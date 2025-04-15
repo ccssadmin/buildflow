@@ -13,7 +13,7 @@ import serverErrorIcon from "../../assets/images/icons8-server-error-66.png";
 import FinancesideNav from "./sidenav/financesidennav.component";
 
 
-const FinanceLayout = () => {
+const FinanceLayout = ({ onLogout }) => {
   const [collapseNav, setCollapseNav] = useState(false);
   const [{ data }, { setAuth, getUserInfo }] = useAuth();
 
@@ -49,7 +49,7 @@ const FinanceLayout = () => {
 
   return (
     <Fragment>
-      <Header />
+       <Header onLogout={onLogout} />
       <div className={`layout-container layout-large-sidenav-container ${collapseNav ? "" : "left-sidebar"}`}>
         <FinancesideNav onChange={tempChange} />
         <div className="body-content">

@@ -2,8 +2,8 @@ export const API = {
   GET_LOGIN: "/api/Login/login",
   LOGOUT: "/api/auth/logout",
   GET_USER_PROFILE: "/v1.0/me",
-  GET_USER_INFO: "/api/Login/userinfo",
-  GET_USER_DETAILS_BY_ID: "/api/Login/userdetail",
+  GET_USER_INFO: "/api/Login/LoginUserDetail",
+ 
 
   /** KANBAN */
   GET_ALL_BOARD: "/api/BoardManagement/boards",
