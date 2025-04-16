@@ -811,7 +811,7 @@ const CeoCreateProject = () => {
                       type="text"
                       placeholder="Enter category"
                       value={item.category}
-                      maxLength={20} // Limit to 20 characters
+                      maxLength={20} 
                       onChange={(e) =>
                         handleBudgetBreakdownChange(
                           item.id,
