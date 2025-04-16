@@ -2,7 +2,11 @@ import { Calendar, ChevronLeft, ChevronRight, Plus, User } from "lucide-react";
 import { useState, Fragment, useRef } from "react";
 import { Form, Button, Table, Row, Col } from "react-bootstrap";
 import ProjectSummary from "./ProjectSummary";
-import { GoAlertFill } from "react-icons/go";
+import ProjectBasicDetails from "./ProjectBasicDetails";
+import BudgetFinancialAllocation from "./BudgetFinancialAllocation";
+import ProjectTeamStakeholder from "./ProjectTeamStakeholder";
+import TimelineMilestonePlanning from "./TimelineMilestonePlanning";
+import RiskComplianceAssessment from "./RiskComplianceAssessment";
 // Form validation schema
 const validateForm = (step, formData) => {
   const errors = {};
@@ -581,527 +585,59 @@ const CeoCreateProject = () => {
 
   const renderProjectBasicDetails = () => {
     return (
-      <div className="form-section">
-        <h2 className="section-title ">Project Basic Details</h2>
-        <Row className="mb-4">
-          <Col md={6} lg={4}>
-            <Form.Group>
-              <Form.Label className="text-dark">
-                Project Name <span className="required">*</span>
-              </Form.Label>
-              <Form.Control
-                type="text"
-                name="projectName"
-                placeholder="Name....."
-                value={formData.projectName}
-                onChange={handleInputChange}
-                isInvalid={!!formErrors.projectName}
-              />
-              <Form.Control.Feedback type="invalid">
-                {formErrors.projectName}
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-          <Col md={6} lg={4}>
-            <Form.Group>
-              <Form.Label className="text-dark">Location</Form.Label>
-              <Form.Control
-                type="text"
-                name="location"
-                placeholder="Search location"
-                value={formData.location}
-                onChange={handleInputChange}
-              />
-            </Form.Group>
-          </Col>
-          <Col md={6} lg={4}>
-            <Form.Group>
-              <Form.Label className="text-dark">
-                Project Type <span className="required">*</span>
-              </Form.Label>
-              <Form.Select
-                name="projectType"
-                value={formData.projectType}
-                onChange={handleInputChange}
-                isInvalid={!!formErrors.projectType}
-              >
-                <option value="">Select</option>
-                <option value="residential">Residential</option>
-                <option value="commercial">Commercial</option>
-                <option value="industrial">Industrial</option>
-                <option value="infrastructure">Infrastructure</option>
-              </Form.Select>
-              <Form.Control.Feedback type="invalid">
-                {formErrors.projectType}
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-        </Row>
-        <Row className="mb-4">
-          <Col md={6} lg={4}>
-            <Form.Group>
-              <Form.Label className="text-dark">
-                Project Sector <span className="required">*</span>
-              </Form.Label>
-              <Form.Select
-                name="projectSector"
-                value={formData.projectSector}
-                onChange={handleInputChange}
-                isInvalid={!!formErrors.projectSector}
-              >
-                <option value="">Select</option>
-                <option value="public">Public</option>
-                <option value="private">Private</option>
-                <option value="government">Government</option>
-              </Form.Select>
-              <Form.Control.Feedback type="invalid">
-                {formErrors.projectSector}
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-          <Col md={6} lg={4}>
-            <Form.Group>
-              <Form.Label className="text-dark">
-                Project Start Date <span className="required">*</span>
-              </Form.Label>
-              <div
-                className="date-input-container create-project-date"
-                onClick={handleContainerClick}
-                style={{ cursor: "pointer" }}
-              >
-                <Form.Control
-                  ref={dateInputRef}
-                  type="date"
-                  name="projectStartDate"
-                  placeholder="DD/MM/YYYY"
-                  value={formData.projectStartDate}
-                  onChange={handleInputChange}
-                  isInvalid={!!formErrors.projectStartDate}
-                  className="custom-date-input" // Added class for custom styling
-                />
-                <Form.Control.Feedback type="invalid">
-                  {formErrors.projectStartDate}
-                </Form.Control.Feedback>
-                
-                <Calendar className="date-icon" />
-              </div>
-            </Form.Group>
-          </Col>
-          <Col md={6} lg={4}>
-            <Form.Group>
-              <Form.Label className="text-dark">
-                Expected Completion Date
-              </Form.Label>
-              <div
-                className="date-input-container create-project-date"
-                onClick={handleContainerClickCompletionDate}
-                style={{ cursor: "pointer" }}
-              >
-                <Form.Control
-                  ref={completionDateInputRef}
-                  type="date"
-                  className="custom-date-input" // Added class for custom styling
-                  name="expectedCompletionDate"
-                  placeholder="DD/MM/YYYY"
-                  value={formData.expectedCompletionDate}
-                  onChange={handleInputChange}
-                />
-                <Calendar className="date-icon" />
-              </div>
-              {/* <div className="date-input-container">
-                <Form.Control
-                  type="text"
-                  name="expectedCompletionDate"
-                  placeholder="DD/MM/YYYY"
-                  value={formData.expectedCompletionDate}
-                  onChange={handleInputChange}
-                />
-                <Calendar className="date-icon" />
-              </div> */}
-            </Form.Group>
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <Form.Group>
-              <Form.Label className="text-dark">Description</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={5}
-                name="description"
-                placeholder="Write a project description"
-                value={formData.description}
-                onChange={handleInputChange}
-              />
-            </Form.Group>
-          </Col>
-        </Row>
-      </div>
+      <ProjectBasicDetails 
+      formData={formData} 
+      setFormData={setFormData} 
+      formErrors={formErrors} 
+    />
     );
   };
 
   const renderBudgetFinancialAllocation = () => {
     return (
-      <div className="form-section">
-        <h2 className="section-title">Budget & Financial Allocation</h2>
-        <Row className="mb-4">
-          <Col md={6}>
-            <Form.Group>
-              <Form.Label className="text-dark fs-26-700">
-                Total Project Budget <span className="required">*</span>
-              </Form.Label>
-              <Form.Control
-                type="text"
-                name="totalBudget"
-                placeholder="Type amount"
-                value={formData.totalBudget}
-                onChange={handleInputChange}
-                isInvalid={!!formErrors.totalBudget}
-              />
-              <Form.Control.Feedback type="invalid">
-                {formErrors.totalBudget}
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group>
-              <Form.Label className="text-dark fs-26-700">Send To</Form.Label>
-              <Form.Select
-                name="sendTo"
-                value={formData.sendTo}
-                onChange={handleInputChange}
-              >
-                <option value="">Select Team</option>
-                <option value="finance">Finance Team</option>
-                <option value="management">Management Team</option>
-                <option value="operations">Operations Team</option>
-              </Form.Select>
-            </Form.Group>
-          </Col>
-        </Row>
-        <div className="budget-breakdown">
-          <h3 className="text-dark-gray fs-22-700 mb-0">Budget Breakdown</h3>
-          <table
-            bordered
-            responsive
-            className="mt-3 tbl tbl-budget-financial w-100"
-          >
-            <thead>
-              <tr>
-                <th className="text-center text-dark fs-18-500">S.No</th>
-                <th className="text-center text-dark fs-18-500">
-                  Expense Category
-                </th>
-                <th className="text-center text-dark fs-18-500">
-                  Estimated Cost (₹)
-                </th>
-                <th className="text-center text-dark fs-18-500">
-                  Approved Budget (₹)
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {formData.budgetBreakdown.map((item) => (
-                <tr key={item.id}>
-                  <td className="text-dark-gray fs-16-500 text-center">
-                    {String(item.id).padStart(2, "0")}
-                  </td>
-                  <td className="text-dark-gray fs-16-500 text-center">
-                    <Form.Control
-                      type="text"
-                      placeholder="Enter category"
-                      value={item.category}
-                      maxLength={20} // Limit to 20 characters
-                      onChange={(e) =>
-                        handleBudgetBreakdownChange(
-                          item.id,
-                          "category",
-                          e.target.value
-                        )
-                      }
-                    />
-                  </td>
-                  <td className="text-dark-gray fs-16-500 text-center">
-                    <Form.Control
-                      type="text"
-                      value={item.estimatedCost}
-                      onChange={(e) =>
-                        handleBudgetBreakdownChange(
-                          item.id,
-                          "estimatedCost",
-                          e.target.value
-                        )
-                      }
-                    />
-                  </td>
-                  <td className="text-dark-gray fs-16-500 text-center">
-                    <Form.Control
-                      type="text"
-                      value={item.approvedBudget}
-                      onChange={(e) =>
-                        handleBudgetBreakdownChange(
-                          item.id,
-                          "approvedBudget",
-                          e.target.value
-                        )
-                      }
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <div className="add-column text-end">
-            <Button
-              className="text-primary bg-transparent border-0 fs-16-500 me-0 ms-auto"
-              onClick={handleAddColumn}
-            >
-              + Add Column
-            </Button>
-          </div>
-        </div>
-      </div>
+      <BudgetFinancialAllocation 
+      formData={formData}
+      handleInputChange={handleInputChange}
+      formErrors={formErrors}
+      handleBudgetBreakdownChange={handleBudgetBreakdownChange}
+      handleAddColumn={handleAddColumn}
+    />
     );
   };
-  
 
-
-
-  
   // Update the renderProjectTeamStakeholder function
   const renderProjectTeamStakeholder = () => {
     return (
-      <div className="form-section">
-        <h2 className="section-title">Project Team & Stakeholder Assignment</h2>
-        <Row className="mb-4">
-          <Col md={6} lg={4}>
-            <MultiSelect field="projectManager" label="Project Manager" />
-          </Col>
-          <Col md={6} lg={4}>
-            <MultiSelect
-              field="assistantProjectManager"
-              label="Assistant Project Manager"
-            />
-          </Col>
-          <Col md={6} lg={4}>
-            <MultiSelect field="leadEngineer" label="Lead Engineer" />
-          </Col>
-        </Row>
-        <Row className="mb-4">
-          <Col md={6} lg={4}>
-            <MultiSelect field="siteSupervisor" label="Site Supervisor" />
-          </Col>
-          <Col md={6} lg={4}>
-            <MultiSelect field="qs" label="QS" />
-          </Col>
-          <Col md={6} lg={4}>
-            <MultiSelect field="assistantQs" label="Assistant QS" />
-          </Col>
-        </Row>
-        <Row className="mb-4">
-          <Col md={6} lg={4}>
-            <MultiSelect field="siteEngineer" label="Site Engineer" />
-          </Col>
-          <Col md={6} lg={4}>
-            <MultiSelect field="engineer" label="Engineer" />
-          </Col>
-          <Col md={6} lg={4}>
-            <MultiSelect field="designer" label="Designer" />
-          </Col>
-        </Row>
-        <Row className="mb-4">
-          <Col md={6} lg={4}>
-            <MultiSelect field="vendors" label="Vendors" />
-          </Col>
-          <Col md={6} lg={4}>
-            <MultiSelect field="subcontractors" label="Subcontractors" />
-          </Col>
-        </Row>
-        <div className="permission-approval">
-          <h3>Permission and Finance Approval</h3>
-          <table bordered responsive className="tbl mt-4 w-100">
-            <thead>
-              <tr>
-                <th className="text-center text-dark fs-18-500">S.No</th>
-                <th className="text-center text-dark fs-18-500">Roles</th>
-                <th className="text-center text-dark fs-18-500">Employee</th>
-                <th className="text-center text-dark fs-18-500">Amount %</th>
-              </tr>
-            </thead>
-            <tbody>
-              {permissionData.map((item) => (
-                <tr key={item.id}>
-                  <td className="text-center text-dark-gray fs-16-500">
-                    {String(item.id).padStart(2, "0")}
-                  </td>
-                  <td className="text-center text-dark-gray fs-16-500">
-                    {item.role}
-                  </td>
-                  <td className="text-center text-dark-gray fs-16-500">
-                    <div className="employee-cell">
-                      <div className="employee-avatar"></div>
-                      <span>{item.employee}</span>
-                    </div>
-                  </td>
-                  <td className="text-center text-dark-gray fs-16-500">
-                    <Form.Control
-                      type="text"
-                      value={item.amount}
-                      onChange={(e) => {
-                        // Handle amount change
-                      }}
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <ProjectTeamStakeholder 
+      formData={formData}
+      searchFilters={searchFilters}
+      dropdownVisible={dropdownVisible}
+      teamMembers={teamMembers}
+      handleSearchFilterChange={handleSearchFilterChange}
+      toggleDropdown={toggleDropdown}
+      handleSelectItem={handleSelectItem}
+      handleRemoveItem={handleRemoveItem}
+      getFilteredItems={getFilteredItems}
+    />
     );
   };
 
   const renderTimelineMilestonePlanning = () => {
     return (
-      <div className="form-section">
-        <h2 className="section-title">Timeline & Milestone Planning</h2>
-        <table bordered responsive className="tbl mt-4 w-100">
-          <thead>
-            <tr>
-              <th className="text-center text-dark fs-18-500">Milestone</th>
-              <th className="text-center text-dark fs-18-500">Description</th>
-              <th className="text-center text-dark fs-18-500">Start Date</th>
-              <th className="text-center text-dark fs-18-500">End Date</th>
-              <th className="text-center text-dark fs-18-500">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {formData.milestones.map((milestone) => (
-              <tr key={milestone.id}>
-                <td className="text-center text-dark-gray fs-16-500">
-                  {milestone.name}
-                </td>
-                <td className="text-center text-dark-gray fs-16-500">
-                  {milestone.description}
-                </td>
-                <td className="text-center text-dark-gray fs-16-500">
-                  <div className="date-input-container">
-                    <Form.Control
-                      type="date"
-                      placeholder="DD/MM/YYYY"
-                      value={milestone.startDate}
-                      onChange={(e) =>
-                        handleMilestoneChange(
-                          milestone.id,
-                          "startDate",
-                          e.target.value
-                        )
-                      }
-                    />
-                  </div>
-                </td>
-                <td className="text-center text-dark-gray fs-16-500">
-                  <div className="date-input-container">
-                    <Form.Control
-                      type="date"
-                      placeholder="DD/MM/YYYY"
-                      value={milestone.endDate}
-                      onChange={(e) =>
-                        handleMilestoneChange(
-                          milestone.id,
-                          "endDate",
-                          e.target.value
-                        )
-                      }
-                    />
-                  </div>
-                </td>
-                <td className="text-center text-dark-gray fs-16-500">
-                  <Form.Select
-                    className="border-0 text-dark"
-                    value={milestone.status}
-                    onChange={(e) =>
-                      handleMilestoneChange(
-                        milestone.id,
-                        "status",
-                        e.target.value
-                      )
-                    }
-                  >
-                    <option value="Planned">Planned</option>
-                    <option value="InProgress">In Progress</option>
-                    <option value="Completed">Completed</option>
-                    <option value="Delayed">Delayed</option>
-                  </Form.Select>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <div className="add-column">
-          <Button
-            className="text-primary bg-transparent border-0 fs-16-500 me-0 ms-auto"
-            onClick={handleAddColumn}
-          >
-            + Add Column
-          </Button>
-        </div>
-      </div>
+      <TimelineMilestonePlanning 
+        formData={formData}
+        handleMilestoneChange={handleMilestoneChange}
+        handleAddColumn={handleAddColumn}
+      />
     );
   };
 
   const renderRiskComplianceAssessment = () => {
     return (
-      <div className="form-section">
-        <h2 className="section-title">Risk & Compliance Assessment</h2>
-        <table bordered responsive className="tbl mt-4 w-100">
-          <thead>
-            <tr>
-              <th className="text-center text-dark fs-18-500">S. No</th>
-              <th className="text-center text-dark fs-18-500">Category</th>
-              <th className="text-center text-dark fs-18-500">Status</th>
-              <th className="text-center text-dark fs-18-500">File</th>
-            </tr>
-          </thead>
-          <tbody>
-            {formData.risks.map((risk) => (
-              <tr key={risk.id}>
-                <td className="text-center text-dark-gray fs-16-500">
-                  {String(risk.id).padStart(2, "0")}
-                </td>
-                <td className="text-center text-dark-gray fs-16-500">
-                  {risk.category}
-                </td>
-                <td className="text-center text-dark-gray fs-16-500">
-                  <div className={`status-badge ${risk.status.toLowerCase()}`}>
-                    {risk.status === "Completed" && (
-                      <span className="status-icon">✅</span>
-                    )}
-                    {risk.status === "Pending" && (
-                      <span className="status-icon"><GoAlertFill  /></span>
-                    )}
-                    
-                  </div>
-                  {risk.status}
-                </td>
-                <td className="text-center text-dark-gray fs-16-500">
-                  <Button type="upload" variant="link" className="upload-btn">
-                    Upload
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <div className="add-column">
-          <Button
-            className="text-primary bg-transparent border-0 fs-16-500 me-0 ms-auto"
-            onClick={handleAddColumn}
-          >
-            + Add Column
-          </Button>
-        </div>
-      </div>
+      <RiskComplianceAssessment 
+      formData={formData}
+      handleAddColumn={handleAddColumn}
+    />
     );
   };
 
@@ -1204,5 +740,4 @@ const CeoCreateProject = () => {
     </Fragment>
   );
 };
-
 export default CeoCreateProject;
