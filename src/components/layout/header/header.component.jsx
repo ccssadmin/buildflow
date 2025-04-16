@@ -28,9 +28,10 @@ import { useBoard } from "../../../hooks/useKanban";
 import { useTranslation } from "react-i18next";
 import { updateDefaultWorkspace } from "../../../services";
 import { showToast } from "../../../store/slice/toast";
-import { clearFilterList} from "../../../store/slice/kanban";
+import { clearFilterList } from "../../../store/slice/kanban";
 
-const Header = () => {  
+
+const Header = ({ onLogout }) => {
   const [
     boardData,
     { getAllBoard, getPeriodicUpdatesBoardInfo, getAgencyBoard },
@@ -44,7 +45,7 @@ const Header = () => {
   const popupRef = useRef(null);
   const workspaceItemRef = useRef(null);
   const location = useLocation();
-  
+
   const userStatus = [
     { id: 1, name: "Available" },
     { id: 2, name: "Busy" },
@@ -203,16 +204,14 @@ const Header = () => {
     setShowNotify(false);
     setShowWPSwitch(false);
   };
-  
+
   /** CLEARS TOKEN & LOGOUT USER */
-  const userLogout = () => {
-    setShowInfo(false);
-    setShowNotify(false);
-    // setAuth("");
-    setAuthToken("");
-    setExpiresOn("");
-    setAuthType("");
-  };
+    const userLogout = () => {
+      setShowInfo(false);
+      setShowNotify(false);
+      onLogout(); 
+    };
+    
 
   /** HANDLE SHOW/HIDE NOTIFICATION ITEM BASED ON USER CLICK */
   const handleNotify = (e) => {
@@ -248,10 +247,10 @@ const Header = () => {
         res.work_space_id === 1
           ? getAllBoard
           : res.work_space_id === 3
-          ? getAgencyBoard
-          : getPeriodicUpdatesBoardInfo;
+            ? getAgencyBoard
+            : getPeriodicUpdatesBoardInfo;
 
-      (res.work_space_id === 2 ? fetchFunction({boardId: defaultBoard.boardId, sortBy: ""}) : fetchFunction(defaultBoard.boardId)).then(() => {
+      (res.work_space_id === 2 ? fetchFunction({ boardId: defaultBoard.boardId, sortBy: "" }) : fetchFunction(defaultBoard.boardId)).then(() => {
         dispatch(setActiveDepartmentPermissionAction(defaultBoard.deptCode));
         dispatch(setActiveBoardAction(defaultBoard.boardId));
         dispatch(setActiveWorkSpaceAction(res.work_space_id));
@@ -306,7 +305,7 @@ const Header = () => {
       setShowWPSwitch(showPopup);
     }
   };
-  
+
   return (
     <>
       <div className="header-content">
@@ -314,7 +313,7 @@ const Header = () => {
           <div className="header-content__logo-title">
             <div className="header-content__logo">
               {/* <img src={appLogo} alt="orion-logo" /> */}
-             {/* <span className="logo-name">Ccss</span> */}
+              {/* <span className="logo-name">Ccss</span> */}
             </div>
 
             <div className="header-content__logo-agent">
@@ -338,63 +337,60 @@ const Header = () => {
             <img src={notification_icon} className="icon-notification" alt="" />
           </div>
           {data?.details?.user_type === null && data?.details?.workspaceDTO?.length > 1 && (
-          <>
-          
-          <div
-            className="workspaceSwitch"
-            id="workspaceSwitch"
-            ref={workspaceItemRef}
-          >
-            <img
-              className="workspaceSwitch-img"
-              src={workspaceSwitch}
-              alt={"Switching Workspace"}
-              onClick={(e) => showWorkspaceSwitch(e)}
-              title="Switching Workspace"
-            />
-            {showWPSwitch && data?.details?.workspaceDTO?.length > 1 && (
-              <div className="workspace-list-popup">
-                <h4 className="workspaceSwitch-heading">Switch Workspace</h4>
-                <ul className="workspace-list">
-                  {data.details?.workspaceDTO?.map((list,i) => {
-                    return (
-                      <li key={i}>
-                        <div
-                          className={`workspace ${
-                            data?.activeWorkSpace == list?.work_space_id
-                              ? "active"
-                              : ""
-                          }`}
-                          onClick={() => handleWorkSpaceChange(list)} // Parent click handler
-                        >
-                          <span className="name">{list.name}</span>
-                          <span
-                            className={`${
-                              (list.is_workspace_default &&
-                                "icon-star-active") ||
-                              "icon-ir-medium"
-                            } `}
-                            title={`${
-                              (list.is_workspace_default &&
-                                "Default workspace") ||
-                              "Mark as default"
-                            } `}
-                            onClick={(e) => {
-                              e.stopPropagation(); // Prevent the parent click event
-                              handleDefaultWorkSpace(list); // Child click handler
-                            }}
-                          ></span>
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
+            <>
+
+              <div
+                className="workspaceSwitch"
+                id="workspaceSwitch"
+                ref={workspaceItemRef}
+              >
+                <img
+                  className="workspaceSwitch-img"
+                  src={workspaceSwitch}
+                  alt={"Switching Workspace"}
+                  onClick={(e) => showWorkspaceSwitch(e)}
+                  title="Switching Workspace"
+                />
+                {showWPSwitch && data?.details?.workspaceDTO?.length > 1 && (
+                  <div className="workspace-list-popup">
+                    <h4 className="workspaceSwitch-heading">Switch Workspace</h4>
+                    <ul className="workspace-list">
+                      {data.details?.workspaceDTO?.map((list, i) => {
+                        return (
+                          <li key={i}>
+                            <div
+                              className={`workspace ${data?.activeWorkSpace == list?.work_space_id
+                                  ? "active"
+                                  : ""
+                                }`}
+                              onClick={() => handleWorkSpaceChange(list)} // Parent click handler
+                            >
+                              <span className="name">{list.name}</span>
+                              <span
+                                className={`${(list.is_workspace_default &&
+                                    "icon-star-active") ||
+                                  "icon-ir-medium"
+                                  } `}
+                                title={`${(list.is_workspace_default &&
+                                    "Default workspace") ||
+                                  "Mark as default"
+                                  } `}
+                                onClick={(e) => {
+                                  e.stopPropagation(); // Prevent the parent click event
+                                  handleDefaultWorkSpace(list); // Child click handler
+                                }}
+                              ></span>
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-          </>
+            </>
           )}
-          
+
           <div className="header-user-info" ref={popupRef}>
             <div className="user-info" onClick={handleMenuItem}>
               {data?.details?.displayName && (
@@ -407,13 +403,12 @@ const Header = () => {
                 ></LogoAvatarShowLetter>
               )}
               <div
-                className={`user-info__details ${
-                  data.details?.displayName ? data.details?.displayName : "none"
-                }`}
+                className={`user-info__details ${data.details?.firstName ? data.details?.displayName : "none"
+                  }`}
               >
                 <p className="user-info__details-name" placeholder="User Name">
-                  {data.details?.displayName
-                    ? data.details?.displayName
+                  {data.details?.firstName
+                    ? data.details?.firstName
                     : "User Name"}
                 </p>
                 <p className="user-info__details-role" placeholder="Role">
@@ -453,15 +448,26 @@ const Header = () => {
                   </NavLink>
                 </div>
                 <div className="user-info__popup-logout">
-                  <NavLink
-                    to="/"
+                  <button
                     className="user-info__popup-logout-btn"
+                    style={{
+                      width: "180px",
+                      height: "48px",
+                      border: "1px solid black",
+                      borderRadius: "4px",
+                      padding: "10px",
+                      gap: "10px",
+                      backgroundColor: "#FF0000",
+                      color: "#FFFFFF",
+                      fontSize: "20px",
+                      fontWeight: "500"
+                    }}
                     onClick={userLogout}
                   >
-                    {" "}
-                    {t("layout.header.logout")}{" "}
-                  </NavLink>
+                    {t("layout.header.logout")}
+                  </button>
                 </div>
+
               </div>
             )}
           </div>

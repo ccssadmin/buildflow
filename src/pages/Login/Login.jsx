@@ -29,7 +29,7 @@ export default function Login({ onLoginSuccess }) {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
-    email: "",
+    email: "",  // Added explicit email field
     phone: "",
     username: "",
     password: "",
@@ -41,6 +41,7 @@ export default function Login({ onLoginSuccess }) {
   const handleLogin = async (e) => {
     e.preventDefault();
     
+    // Check that either username or email is provided along with password
     if (!formData.username || !formData.password) {
       setErrorMsg((prev) => ({
         ...prev,
@@ -52,9 +53,12 @@ export default function Login({ onLoginSuccess }) {
     
     setInProgress(true);
     try {
+      // Send email field as required by the API
+      // Use username value for both username and email fields to ensure compatibility
       const response = await getAuth({
         username: formData.username,
         password: formData.password,
+        Email: formData.username, // This is the key change - providing the Email field expected by the API
       });
   
       if (response?.payload?.token) {
@@ -118,6 +122,7 @@ export default function Login({ onLoginSuccess }) {
           
           const defaultUserData = {
             username: formData.username,
+            email: formData.username, // Store email too
             roleName: "ManagingDirector",
             roleId: "1",
           };
@@ -221,6 +226,16 @@ export default function Login({ onLoginSuccess }) {
     }
   };
 
+  // Update form field to show it as email input
+  const updateUsername = (e) => {
+    const value = e.target.value;
+    setFormData((prev) => ({
+      ...prev,
+      username: value,
+      email: value, // Update both fields to ensure consistency
+    }));
+  };
+
   return (
     <main className="main-login">
       <div className="login-page">
@@ -235,17 +250,13 @@ export default function Login({ onLoginSuccess }) {
                     alt="Agent Board Icon"
                   />
                   <div className="user-row">
-                    <label>{t("login.label.userName")} </label>
+                    <label>{t("Email Id")} </label>
                     <input
                       type="email"
                       value={formData.username}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          username: e.target.value,
-                        }))
-                      }
+                      onChange={updateUsername}
                       onKeyDown={handleKeyDown}
+                      placeholder="Enter your email"
                     />
                     {errorMsg.username && (
                       <p className="errorMsg">{t("login.error.email")}</p>
@@ -264,6 +275,7 @@ export default function Login({ onLoginSuccess }) {
                       }
                       onKeyDown={handleKeyDown}
                       style={{ paddingRight: "40px" , marginBottom :'10px'}}
+                      placeholder="Enter your password"
                     />
                     <span
                       onClick={() => setShowPassword(!showPassword)}
@@ -315,6 +327,6 @@ export default function Login({ onLoginSuccess }) {
           </div>
         </div>
       </div>
-    </main>
-  );
+    </main>
+  );
 }

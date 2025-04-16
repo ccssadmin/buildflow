@@ -117,7 +117,7 @@ const App = () => {
       default: "/home",
       layout: MdLayout,
     },
-    Engineer: {
+    "Site Engineer": {
       default: "/admin/engineerdashboard",
       layout: EngineerLayout,
     },
@@ -155,29 +155,19 @@ const App = () => {
       const storedRole = localStorage.getItem("userRole");
       const storedRoleId = localStorage.getItem("userRoleId");
       const accessToken = localStorage.getItem("accessToken");
-
-      // Only set role if we have an access token
-      if (accessToken && storedRole) {
+  
+      if (accessToken && storedRole && storedRoleId) {
         setRole(storedRole);
-        setRoleId(storedRoleId);
-
-        // Redirect only if on login page or root
-        if (["/", "/login"].includes(location.pathname)) {
-          // Get default path for this role
-          const defaultPath = roleRoutes[storedRole]?.default || "/login";
-          navigate(defaultPath, { replace: true });
-        }
+        setRoleId(Number(storedRoleId));
       } else {
-        // Clear role data if no token
-        setRole(null);
-        setRoleId(null);
+        navigate("/login");
       }
-
       setLoading(false);
     };
-
+  
     checkAuthStatus();
-  }, [navigate, location.pathname]);
+  }, [navigate]);
+  
 
   // Handle successful login
   const handleLoginSuccess = (userData) => {
@@ -199,19 +189,20 @@ const App = () => {
 
   // Handle logout
   const handleLogout = () => {
-    // Clear auth data
+    // Clear all items from localStorage
     localStorage.removeItem("accessToken");
     localStorage.removeItem("userRole");
     localStorage.removeItem("userRoleId");
     localStorage.removeItem("userData");
-
-    // Reset state
+  
+    // Reset the state
     setRole(null);
     setRoleId(null);
-
-    // Redirect to login
+  
+    // Redirect to login page
     navigate("/login", { replace: true });
   };
+  
 
   if (loading) {
     return <Spinner />;
@@ -252,7 +243,7 @@ const App = () => {
         {/* ADMIN ROUTES (Engineering Flow) */}
         <Route
           path="/admin"
-          element={<ProtectedRoute allowedRole="Engineer"><EngineerLayout onLogout={handleLogout} /></ProtectedRoute>}
+          element={<ProtectedRoute allowedRole="Site Engineer"><EngineerLayout onLogout={handleLogout} /></ProtectedRoute>}
         >
           <Route path="engineerdashboard" element={<EngineerDashboard />} />
           <Route path="engineerproject" element={<EngineerProject />} />
