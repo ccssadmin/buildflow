@@ -6,6 +6,8 @@ import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { useNavigate } from 'react-router-dom';
 import { AiOutlineUser } from 'react-icons/ai';
+import { RiSaveFill } from "react-icons/ri";
+import { BsCalendar3 } from "react-icons/bs";
 
 const FinanceTicketDetails = () => {
   const [activeTab, setActiveTab] = useState('all');
@@ -746,7 +748,7 @@ const FinanceTicketDetails = () => {
                   onClick={() => setShowOrderDatePicker(!showOrderDatePicker)}
                 >
                   <span>{orderDate ? orderDate.toLocaleDateString() : 'Edit'}</span>
-                  <BsCalendar className="ms-1" />
+                  <BsCalendar3 className="ms-1" />
                 </Button>
                 {showOrderDatePicker && (
                   <div className="position-absolute end-0 top-100 bg-white shadow border rounded" style={{ zIndex: 1000 }}>
@@ -770,7 +772,7 @@ const FinanceTicketDetails = () => {
                   onClick={() => setShowDueDatePicker(!showDueDatePicker)}
                 >
                   <span>{dueDate ? dueDate.toLocaleDateString() : 'Edit'}</span>
-                  <BsCalendar className="ms-1" />
+                  <BsCalendar3 className="ms-1" />
                 </Button>
                 {showDueDatePicker && (
                   <div className="position-absolute end-0 top-100 bg-white shadow border rounded" style={{ zIndex: 1000 }}>
@@ -972,17 +974,19 @@ const FinanceTicketDetails = () => {
             </div>
 
             {/* Action Buttons */}
-            <div className="d-flex justify-content-between mt-5">
+            <div className="d-flex justify-content-end mt-5">
               <Button variant="light" className="px-4">Cancel</Button>
               <Button
                 variant="warning"
-                className="text-white px-4"
+                className="text-white px-4 ms-2"
                 style={{ backgroundColor: '#FF6F00' }}
                 onClick={handleSave}
               >
+                <RiSaveFill style={{ color: 'white', marginRight: '5px' }} />
                 Save
               </Button>
             </div>
+
           </div>
         </Col>
       </Row>
