@@ -1,8 +1,12 @@
 export const API = {
+  /*Buildflow Login */
   GET_LOGIN: "/api/Login/login",
   LOGOUT: "/api/auth/logout",
   GET_USER_PROFILE: "/v1.0/me",
   GET_USER_INFO: "/api/Login/LoginUserDetail",
+
+  /*Ceo Project */
+  CREATE_CEO_PROJECT:"/api/Project/createProject",
  
 
   /** KANBAN */

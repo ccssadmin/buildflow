@@ -12,9 +12,18 @@ import { objectToQueryString } from "../utils/common";
  *  data: {Record<string, any>}
  * }>}
  */
-
+/*login */
 export const getLogin = (...props) => api.POST(API.GET_LOGIN, ...props);
 export const logout = (...props) => api.POST(API.LOGOUT, ...props);
+
+/** USER PROFILE */
+// export const getUserProfile = (...props) => graphAPI.GET(API.GET_USER_PROFILE, ...props);
+export const getUserInfo = (params) => api.GET(API.GET_USER_INFO, params);
+export const getUserDetailsById = (params) => api.GET(API.GET_USER_DETAILS_BY_ID+'/'+params);
+export const getAllMembers = (params) => api.GET(API.GET_ALL_MEMBERS, params);
+
+/*Ceo Project */
+export const createceoproject = (params) => api.POST(API.CREATE_CEO_PROJECT,params);
 
 /** KANBAN BOARD */
 export const getAllBoard = params => api.GET(API.GET_ALL_BOARD, params);
@@ -117,11 +126,7 @@ export const addCurrency = (params) => api.POST(API.ADD_CURRENCY, params);
 export const updateCurrency = (params) => api.PUT(API.UPDATE_CURRENCY+'/'+params.currency_id, params);
 export const deleteCurrency = (params) => api.DELETE(API.DELETE_CURRENCY+'/'+params.currency_id);
 
-/** USER PROFILE */
-// export const getUserProfile = (...props) => graphAPI.GET(API.GET_USER_PROFILE, ...props);
-export const getUserInfo = (params) => api.GET(API.GET_USER_INFO, params);
-export const getUserDetailsById = (params) => api.GET(API.GET_USER_DETAILS_BY_ID+'/'+params);
-export const getAllMembers = (params) => api.GET(API.GET_ALL_MEMBERS, params);
+
 
 /*** My Team **/
 export const getMyTeamMembers = (params) => api.GET(API.GET_MY_TEAM_MEMBER);
