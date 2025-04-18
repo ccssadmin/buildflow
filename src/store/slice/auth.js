@@ -141,17 +141,17 @@ const authSlice = createSlice({
 
     builder.addCase(logoutAction.pending, (state, action) => {
       state.logout.loading = true;
-      state.activeUser.data = {};
-      // localStorage.removeItem(ACCOUNT_KEY);
+      state.activeUser.data = {};  // clear activeUser when logging out
     });
     builder.addCase(logoutAction.fulfilled, (state, action) => {
-      state.logout.data.loading = false;
-      state.logout.data.error = null;
+      state.logout.loading = false;
+      state.logout.error = null;
     });
     builder.addCase(logoutAction.rejected, (state, action) => {
-      state.logout.data.error = action.error;
-      state.logout.data.loading = false;
+      state.logout.error = action.error;
+      state.logout.loading = false;
     });
+    
 
     /** CURRENT USER INFO */
     builder.addCase(userInfoAction.pending, (state, action) => {

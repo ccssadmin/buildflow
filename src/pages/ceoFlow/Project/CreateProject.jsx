@@ -2,7 +2,11 @@ import { Calendar, ChevronLeft, ChevronRight, Plus, User } from "lucide-react";
 import { useState, Fragment, useRef } from "react";
 import { Form, Button, Table, Row, Col } from "react-bootstrap";
 import ProjectSummary from "./ProjectSummary";
-import { GoAlertFill } from "react-icons/go";
+import ProjectBasicDetails from "./ProjectBasicDetails";
+import BudgetFinancialAllocation from "./BudgetFinancialAllocation";
+import ProjectTeamStakeholder from "./ProjectTeamStakeholder";
+import TimelineMilestonePlanning from "./TimelineMilestonePlanning";
+import RiskComplianceAssessment from "./RiskComplianceAssessment";
 // Form validation schema
 const validateForm = (step, formData) => {
   const errors = {};
@@ -23,6 +27,7 @@ const validateForm = (step, formData) => {
 
 const CeoCreateProject = () => {
   // Update the state to handle multiple selections for dropdowns
+  const [projectCreated, setProjectCreated] = useState(false);
   const [formData, setFormData] = useState({
     // Step 1: Project Basic Details
     projectName: "",
@@ -172,6 +177,21 @@ const CeoCreateProject = () => {
       },
     ],
   });
+
+  const handleProjectCreated = (projectData) => {
+    // Set project created flag to true
+    setProjectCreated(true);
+    
+    // You might want to update other form data with the project data
+    // For example, if the API returns an ID you need for the next steps
+    if (projectData && projectData.id) {
+      setFormData({
+        ...formData,
+        projectId: projectData.id,
+        // Add any other fields you want to update
+      });
+    }
+  };
 
   // Add state for search filters
   const [searchFilters, setSearchFilters] = useState({
@@ -342,9 +362,15 @@ const CeoCreateProject = () => {
 
   // Modify the handleNext function
   const handleNext = () => {
+    // If we're on step 0 and the project is already created, just proceed to the next step
+    if (currentStep === 0 && projectCreated) {
+      setCurrentStep(currentStep + 1);
+      return;
+    }
+    
     const errors = validateForm(currentStep, formData);
     setFormErrors(errors);
-
+  
     if (Object.keys(errors).length === 0) {
       if (currentStep === 4) {
         // If on the last step, show summary
@@ -361,70 +387,69 @@ const CeoCreateProject = () => {
 
   // Create a custom multi-select component
   const MultiSelect = ({ field, label, required = false }) => {
-  return (
-    <Form.Group>
-      <Form.Label className="text-dark">
-        {label} {required && <span className="required">*</span>}
-      </Form.Label>
-      <div className="multi-select-container">
-        <div className="selected-items">
-          {formData[field].map((item) => (
-            <div key={item.id} className="selected-item">
-              <span>{item.name}</span>
-              <button
-                type="button"
-                className="remove-btn"
-                onClick={() => handleRemoveItem(field, item.id)}
-              >
-                ×
-              </button>
-            </div>
-          ))}
-        </div>
-        <div className="search-container">
-          <Form.Control
-            type="text"
-            placeholder="Search..."
-            value={searchFilters[field] || ""}
-            onChange={(e) => handleSearchFilterChange(e, field)}
-            onClick={() => toggleDropdown(field)}
-          />
-          {dropdownVisible[field] && (
-            <div className="dropdown-menu show">
-              {getFilteredItems(field).length > 0 ? (
-                getFilteredItems(field).map((item) => (
-                  <div
-                    key={item.id}
-                    className={`dropdown-item ${
-                      formData[field].some(
+    return (
+      <Form.Group>
+        <Form.Label className="text-dark">
+          {label} {required && <span className="required">*</span>}
+        </Form.Label>
+        <div className="multi-select-container">
+          <div className="selected-items">
+            {formData[field].map((item) => (
+              <div key={item.id} className="selected-item">
+                <span>{item.name}</span>
+                <button
+                  type="button"
+                  className="remove-btn"
+                  onClick={() => handleRemoveItem(field, item.id)}
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+          <div className="search-container">
+            <Form.Control
+              type="text"
+              placeholder="Search..."
+              value={searchFilters[field] || ""}
+              onChange={(e) => handleSearchFilterChange(e, field)}
+              onClick={() => toggleDropdown(field)}
+            />
+            {dropdownVisible[field] && (
+              <div className="dropdown-menu show">
+                {getFilteredItems(field).length > 0 ? (
+                  getFilteredItems(field).map((item) => (
+                    <div
+                      key={item.id}
+                      className={`dropdown-item ${formData[field].some(
                         (selected) => selected.id === item.id
                       )
-                        ? "selected"
-                        : ""
-                    }`}
-                    onClick={() => {
-                      handleSelectItem(field, item);
-                      toggleDropdown(field, false); // Auto-close dropdown
-                    }}
-                  >
-                    {item.name}
-                    {formData[field].some(
-                      (selected) => selected.id === item.id
-                    ) && <span className="check-mark">✓</span>}
+                          ? "selected"
+                          : ""
+                        }`}
+                      onClick={() => {
+                        handleSelectItem(field, item);
+                        toggleDropdown(field, false); // Auto-close dropdown
+                      }}
+                    >
+                      {item.name}
+                      {formData[field].some(
+                        (selected) => selected.id === item.id
+                      ) && <span className="check-mark">✓</span>}
+                    </div>
+                  ))
+                ) : (
+                  <div className="dropdown-item no-results">
+                    No results found
                   </div>
-                ))
-              ) : (
-                <div className="dropdown-item no-results">
-                  No results found
-                </div>
-              )}
-            </div>
-          )}
+                )}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-    </Form.Group>
-  );
-};
+      </Form.Group>
+    );
+  };
 
 
   const [currentStep, setCurrentStep] = useState(0);
@@ -497,14 +522,14 @@ const CeoCreateProject = () => {
       estimatedCost: "", // Default estimated cost
       approvedBudget: "", // Default approved budget
     };
-  
+
     // Update state with new column
     setFormData((prevFormData) => ({
       ...prevFormData,
       budgetBreakdown: [...prevFormData.budgetBreakdown, newColumn],
     }));
   };
-  
+
 
   const renderProgressBar = () => {
     return (
@@ -531,9 +556,8 @@ const CeoCreateProject = () => {
           {steps.map((step, index) => (
             <div key={index} className="step-item">
               <div
-                className={`step-circle ${
-                  index <= currentStep ? "active" : ""
-                }`}
+                className={`step-circle ${index <= currentStep ? "active" : ""
+                  }`}
               >
                 <svg
                   width="15"
@@ -563,9 +587,8 @@ const CeoCreateProject = () => {
                 </svg>
               </div>
               <div
-                className={`step-line ${index < currentStep ? "active" : ""} ${
-                  index === steps.length - 1 ? "hidden" : ""
-                }`}
+                className={`step-line ${index < currentStep ? "active" : ""} ${index === steps.length - 1 ? "hidden" : ""
+                  }`}
               ></div>
               <div
                 className={`step-label ${index <= currentStep ? "active" : ""}`}
@@ -581,162 +604,12 @@ const CeoCreateProject = () => {
 
   const renderProjectBasicDetails = () => {
     return (
-      <div className="form-section">
-        <h2 className="section-title ">Project Basic Details</h2>
-        <Row className="mb-4">
-          <Col md={6} lg={4}>
-            <Form.Group>
-              <Form.Label className="text-dark">
-                Project Name <span className="required">*</span>
-              </Form.Label>
-              <Form.Control
-                type="text"
-                name="projectName"
-                placeholder="Name....."
-                value={formData.projectName}
-                onChange={handleInputChange}
-                isInvalid={!!formErrors.projectName}
-              />
-              <Form.Control.Feedback type="invalid">
-                {formErrors.projectName}
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-          <Col md={6} lg={4}>
-            <Form.Group>
-              <Form.Label className="text-dark">Location</Form.Label>
-              <Form.Control
-                type="text"
-                name="location"
-                placeholder="Search location"
-                value={formData.location}
-                onChange={handleInputChange}
-              />
-            </Form.Group>
-          </Col>
-          <Col md={6} lg={4}>
-            <Form.Group>
-              <Form.Label className="text-dark">
-                Project Type <span className="required">*</span>
-              </Form.Label>
-              <Form.Select
-                name="projectType"
-                value={formData.projectType}
-                onChange={handleInputChange}
-                isInvalid={!!formErrors.projectType}
-              >
-                <option value="">Select</option>
-                <option value="residential">Residential</option>
-                <option value="commercial">Commercial</option>
-                <option value="industrial">Industrial</option>
-                <option value="infrastructure">Infrastructure</option>
-              </Form.Select>
-              <Form.Control.Feedback type="invalid">
-                {formErrors.projectType}
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-        </Row>
-        <Row className="mb-4">
-          <Col md={6} lg={4}>
-            <Form.Group>
-              <Form.Label className="text-dark">
-                Project Sector <span className="required">*</span>
-              </Form.Label>
-              <Form.Select
-                name="projectSector"
-                value={formData.projectSector}
-                onChange={handleInputChange}
-                isInvalid={!!formErrors.projectSector}
-              >
-                <option value="">Select</option>
-                <option value="public">Public</option>
-                <option value="private">Private</option>
-                <option value="government">Government</option>
-              </Form.Select>
-              <Form.Control.Feedback type="invalid">
-                {formErrors.projectSector}
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-          <Col md={6} lg={4}>
-            <Form.Group>
-              <Form.Label className="text-dark">
-                Project Start Date <span className="required">*</span>
-              </Form.Label>
-              <div
-                className="date-input-container create-project-date"
-                onClick={handleContainerClick}
-                style={{ cursor: "pointer" }}
-              >
-                <Form.Control
-                  ref={dateInputRef}
-                  type="date"
-                  name="projectStartDate"
-                  placeholder="DD/MM/YYYY"
-                  value={formData.projectStartDate}
-                  onChange={handleInputChange}
-                  isInvalid={!!formErrors.projectStartDate}
-                  className="custom-date-input" // Added class for custom styling
-                />
-                <Form.Control.Feedback type="invalid">
-                  {formErrors.projectStartDate}
-                </Form.Control.Feedback>
-                
-                <Calendar className="date-icon" />
-              </div>
-            </Form.Group>
-          </Col>
-          <Col md={6} lg={4}>
-            <Form.Group>
-              <Form.Label className="text-dark">
-                Expected Completion Date
-              </Form.Label>
-              <div
-                className="date-input-container create-project-date"
-                onClick={handleContainerClickCompletionDate}
-                style={{ cursor: "pointer" }}
-              >
-                <Form.Control
-                  ref={completionDateInputRef}
-                  type="date"
-                  className="custom-date-input" // Added class for custom styling
-                  name="expectedCompletionDate"
-                  placeholder="DD/MM/YYYY"
-                  value={formData.expectedCompletionDate}
-                  onChange={handleInputChange}
-                />
-                <Calendar className="date-icon" />
-              </div>
-              {/* <div className="date-input-container">
-                <Form.Control
-                  type="text"
-                  name="expectedCompletionDate"
-                  placeholder="DD/MM/YYYY"
-                  value={formData.expectedCompletionDate}
-                  onChange={handleInputChange}
-                />
-                <Calendar className="date-icon" />
-              </div> */}
-            </Form.Group>
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <Form.Group>
-              <Form.Label className="text-dark">Description</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={5}
-                name="description"
-                placeholder="Write a project description"
-                value={formData.description}
-                onChange={handleInputChange}
-              />
-            </Form.Group>
-          </Col>
-        </Row>
-      </div>
+      <ProjectBasicDetails 
+        formData={formData} 
+        setFormData={setFormData} 
+        formErrors={formErrors} 
+        onProjectCreated={handleProjectCreated}
+      />
     );
   };
 
@@ -811,7 +684,7 @@ const CeoCreateProject = () => {
                       type="text"
                       placeholder="Enter category"
                       value={item.category}
-                      maxLength={20} 
+                      maxLength={20} // Limit to 20 characters
                       onChange={(e) =>
                         handleBudgetBreakdownChange(
                           item.id,
@@ -863,245 +736,40 @@ const CeoCreateProject = () => {
       </div>
     );
   };
-  
 
-
-
-  
   // Update the renderProjectTeamStakeholder function
   const renderProjectTeamStakeholder = () => {
     return (
-      <div className="form-section">
-        <h2 className="section-title">Project Team & Stakeholder Assignment</h2>
-        <Row className="mb-4">
-          <Col md={6} lg={4}>
-            <MultiSelect field="projectManager" label="Project Manager" />
-          </Col>
-          <Col md={6} lg={4}>
-            <MultiSelect
-              field="assistantProjectManager"
-              label="Assistant Project Manager"
-            />
-          </Col>
-          <Col md={6} lg={4}>
-            <MultiSelect field="leadEngineer" label="Lead Engineer" />
-          </Col>
-        </Row>
-        <Row className="mb-4">
-          <Col md={6} lg={4}>
-            <MultiSelect field="siteSupervisor" label="Site Supervisor" />
-          </Col>
-          <Col md={6} lg={4}>
-            <MultiSelect field="qs" label="QS" />
-          </Col>
-          <Col md={6} lg={4}>
-            <MultiSelect field="assistantQs" label="Assistant QS" />
-          </Col>
-        </Row>
-        <Row className="mb-4">
-          <Col md={6} lg={4}>
-            <MultiSelect field="siteEngineer" label="Site Engineer" />
-          </Col>
-          <Col md={6} lg={4}>
-            <MultiSelect field="engineer" label="Engineer" />
-          </Col>
-          <Col md={6} lg={4}>
-            <MultiSelect field="designer" label="Designer" />
-          </Col>
-        </Row>
-        <Row className="mb-4">
-          <Col md={6} lg={4}>
-            <MultiSelect field="vendors" label="Vendors" />
-          </Col>
-          <Col md={6} lg={4}>
-            <MultiSelect field="subcontractors" label="Subcontractors" />
-          </Col>
-        </Row>
-        <div className="permission-approval">
-          <h3>Permission and Finance Approval</h3>
-          <table bordered responsive className="tbl mt-4 w-100">
-            <thead>
-              <tr>
-                <th className="text-center text-dark fs-18-500">S.No</th>
-                <th className="text-center text-dark fs-18-500">Roles</th>
-                <th className="text-center text-dark fs-18-500">Employee</th>
-                <th className="text-center text-dark fs-18-500">Amount %</th>
-              </tr>
-            </thead>
-            <tbody>
-              {permissionData.map((item) => (
-                <tr key={item.id}>
-                  <td className="text-center text-dark-gray fs-16-500">
-                    {String(item.id).padStart(2, "0")}
-                  </td>
-                  <td className="text-center text-dark-gray fs-16-500">
-                    {item.role}
-                  </td>
-                  <td className="text-center text-dark-gray fs-16-500">
-                    <div className="employee-cell">
-                      <div className="employee-avatar"></div>
-                      <span>{item.employee}</span>
-                    </div>
-                  </td>
-                  <td className="text-center text-dark-gray fs-16-500">
-                    <Form.Control
-                      type="text"
-                      value={item.amount}
-                      onChange={(e) => {
-                        // Handle amount change
-                      }}
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <ProjectTeamStakeholder
+        formData={formData}
+        searchFilters={searchFilters}
+        dropdownVisible={dropdownVisible}
+        teamMembers={teamMembers}
+        handleSearchFilterChange={handleSearchFilterChange}
+        toggleDropdown={toggleDropdown}
+        handleSelectItem={handleSelectItem}
+        handleRemoveItem={handleRemoveItem}
+        getFilteredItems={getFilteredItems}
+      />
     );
   };
 
   const renderTimelineMilestonePlanning = () => {
     return (
-      <div className="form-section">
-        <h2 className="section-title">Timeline & Milestone Planning</h2>
-        <table bordered responsive className="tbl mt-4 w-100">
-          <thead>
-            <tr>
-              <th className="text-center text-dark fs-18-500">Milestone</th>
-              <th className="text-center text-dark fs-18-500">Description</th>
-              <th className="text-center text-dark fs-18-500">Start Date</th>
-              <th className="text-center text-dark fs-18-500">End Date</th>
-              <th className="text-center text-dark fs-18-500">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {formData.milestones.map((milestone) => (
-              <tr key={milestone.id}>
-                <td className="text-center text-dark-gray fs-16-500">
-                  {milestone.name}
-                </td>
-                <td className="text-center text-dark-gray fs-16-500">
-                  {milestone.description}
-                </td>
-                <td className="text-center text-dark-gray fs-16-500">
-                  <div className="date-input-container">
-                    <Form.Control
-                      type="date"
-                      placeholder="DD/MM/YYYY"
-                      value={milestone.startDate}
-                      onChange={(e) =>
-                        handleMilestoneChange(
-                          milestone.id,
-                          "startDate",
-                          e.target.value
-                        )
-                      }
-                    />
-                  </div>
-                </td>
-                <td className="text-center text-dark-gray fs-16-500">
-                  <div className="date-input-container">
-                    <Form.Control
-                      type="date"
-                      placeholder="DD/MM/YYYY"
-                      value={milestone.endDate}
-                      onChange={(e) =>
-                        handleMilestoneChange(
-                          milestone.id,
-                          "endDate",
-                          e.target.value
-                        )
-                      }
-                    />
-                  </div>
-                </td>
-                <td className="text-center text-dark-gray fs-16-500">
-                  <Form.Select
-                    className="border-0 text-dark"
-                    value={milestone.status}
-                    onChange={(e) =>
-                      handleMilestoneChange(
-                        milestone.id,
-                        "status",
-                        e.target.value
-                      )
-                    }
-                  >
-                    <option value="Planned">Planned</option>
-                    <option value="InProgress">In Progress</option>
-                    <option value="Completed">Completed</option>
-                    <option value="Delayed">Delayed</option>
-                  </Form.Select>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <div className="add-column">
-          <Button
-            className="text-primary bg-transparent border-0 fs-16-500 me-0 ms-auto"
-            onClick={handleAddColumn}
-          >
-            + Add Column
-          </Button>
-        </div>
-      </div>
+      <TimelineMilestonePlanning
+        formData={formData}
+        handleMilestoneChange={handleMilestoneChange}
+        handleAddColumn={handleAddColumn}
+      />
     );
   };
 
   const renderRiskComplianceAssessment = () => {
     return (
-      <div className="form-section">
-        <h2 className="section-title">Risk & Compliance Assessment</h2>
-        <table bordered responsive className="tbl mt-4 w-100">
-          <thead>
-            <tr>
-              <th className="text-center text-dark fs-18-500">S. No</th>
-              <th className="text-center text-dark fs-18-500">Category</th>
-              <th className="text-center text-dark fs-18-500">Status</th>
-              <th className="text-center text-dark fs-18-500">File</th>
-            </tr>
-          </thead>
-          <tbody>
-            {formData.risks.map((risk) => (
-              <tr key={risk.id}>
-                <td className="text-center text-dark-gray fs-16-500">
-                  {String(risk.id).padStart(2, "0")}
-                </td>
-                <td className="text-center text-dark-gray fs-16-500">
-                  {risk.category}
-                </td>
-                <td className="text-center text-dark-gray fs-16-500">
-                  <div className={`status-badge ${risk.status.toLowerCase()}`}>
-                    {risk.status === "Completed" && (
-                      <span className="status-icon">✅</span>
-                    )}
-                    {risk.status === "Pending" && (
-                      <span className="status-icon"><GoAlertFill  /></span>
-                    )}
-                    
-                  </div>
-                  {risk.status}
-                </td>
-                <td className="text-center text-dark-gray fs-16-500">
-                  <Button type="upload" variant="link" className="upload-btn">
-                    Upload
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <div className="add-column">
-          <Button
-            className="text-primary bg-transparent border-0 fs-16-500 me-0 ms-auto"
-            onClick={handleAddColumn}
-          >
-            + Add Column
-          </Button>
-        </div>
-      </div>
+      <RiskComplianceAssessment
+        formData={formData}
+        handleAddColumn={handleAddColumn}
+      />
     );
   };
 
@@ -1170,7 +838,7 @@ const CeoCreateProject = () => {
                     )}
                     <div className="d-flex">
                       {currentStep === 1 || currentStep === 2 ? (
-                        <Button className="btn-primary btn fs-14-600 bg-transparent text-primary border-0  border-radius-2">
+                        <Button className="btn-primary btn fs-14-600 bg-transparent text-primary border-0 border-radius-2">
                           <svg
                             className="me-2"
                             width="20"
@@ -1191,7 +859,8 @@ const CeoCreateProject = () => {
                         className="btn-primary btn fs-14-600 bg-primary border-0 border-radius-2"
                         onClick={handleNext}
                       >
-                        {currentStep === 4 ? "Final Review >" : "Next >"}
+                        {currentStep === 0 && !projectCreated ? "Create & Next >" :
+                          currentStep === 4 ? "Final Review >" : "Next >"}
                       </Button>
                     </div>
                   </div>
@@ -1204,5 +873,4 @@ const CeoCreateProject = () => {
     </Fragment>
   );
 };
-
 export default CeoCreateProject;
