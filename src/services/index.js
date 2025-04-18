@@ -23,6 +23,7 @@ export const getUserDetailsById = (params) => api.GET(API.GET_USER_DETAILS_BY_ID
 export const getAllMembers = (params) => api.GET(API.GET_ALL_MEMBERS, params);
 
 /*Ceo Project */
+export const getProjectTypeSector = (params) => api.GET(API.Get_PROJECTTYPE_SECTOR,params);
 export const createceoproject = (params) => api.POST(API.CREATE_CEO_PROJECT,params);
 
 /** KANBAN BOARD */

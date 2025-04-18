@@ -98,13 +98,9 @@ const Material = () => {
                 <td>{getLevelBadge(material.level)}</td>
                 <td>{getStatusBadge(material.status)}</td>
                 <td>
-<<<<<<< HEAD
-                  <a href="#" className={material.action === "View" ? "" : ""}
-=======
                   <a
                     href="#"
                     style={{ color: material.action === "View" ? "#0456D0" : "#0456D0" }}
->>>>>>> a4ed5694c39044294074f2576e2931769dda7234
                     onClick={() => navigate('/admin/engineermaterialview')}
                   >
                     {material.action}

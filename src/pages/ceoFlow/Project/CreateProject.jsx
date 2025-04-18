@@ -27,6 +27,7 @@ const validateForm = (step, formData) => {
 
 const CeoCreateProject = () => {
   // Update the state to handle multiple selections for dropdowns
+  const [projectCreated, setProjectCreated] = useState(false);
   const [formData, setFormData] = useState({
     // Step 1: Project Basic Details
     projectName: "",
@@ -176,6 +177,21 @@ const CeoCreateProject = () => {
       },
     ],
   });
+
+  const handleProjectCreated = (projectData) => {
+    // Set project created flag to true
+    setProjectCreated(true);
+    
+    // You might want to update other form data with the project data
+    // For example, if the API returns an ID you need for the next steps
+    if (projectData && projectData.id) {
+      setFormData({
+        ...formData,
+        projectId: projectData.id,
+        // Add any other fields you want to update
+      });
+    }
+  };
 
   // Add state for search filters
   const [searchFilters, setSearchFilters] = useState({
@@ -346,9 +362,15 @@ const CeoCreateProject = () => {
 
   // Modify the handleNext function
   const handleNext = () => {
+    // If we're on step 0 and the project is already created, just proceed to the next step
+    if (currentStep === 0 && projectCreated) {
+      setCurrentStep(currentStep + 1);
+      return;
+    }
+    
     const errors = validateForm(currentStep, formData);
     setFormErrors(errors);
-
+  
     if (Object.keys(errors).length === 0) {
       if (currentStep === 4) {
         // If on the last step, show summary
@@ -365,70 +387,69 @@ const CeoCreateProject = () => {
 
   // Create a custom multi-select component
   const MultiSelect = ({ field, label, required = false }) => {
-  return (
-    <Form.Group>
-      <Form.Label className="text-dark">
-        {label} {required && <span className="required">*</span>}
-      </Form.Label>
-      <div className="multi-select-container">
-        <div className="selected-items">
-          {formData[field].map((item) => (
-            <div key={item.id} className="selected-item">
-              <span>{item.name}</span>
-              <button
-                type="button"
-                className="remove-btn"
-                onClick={() => handleRemoveItem(field, item.id)}
-              >
-                ×
-              </button>
-            </div>
-          ))}
-        </div>
-        <div className="search-container">
-          <Form.Control
-            type="text"
-            placeholder="Search..."
-            value={searchFilters[field] || ""}
-            onChange={(e) => handleSearchFilterChange(e, field)}
-            onClick={() => toggleDropdown(field)}
-          />
-          {dropdownVisible[field] && (
-            <div className="dropdown-menu show">
-              {getFilteredItems(field).length > 0 ? (
-                getFilteredItems(field).map((item) => (
-                  <div
-                    key={item.id}
-                    className={`dropdown-item ${
-                      formData[field].some(
+    return (
+      <Form.Group>
+        <Form.Label className="text-dark">
+          {label} {required && <span className="required">*</span>}
+        </Form.Label>
+        <div className="multi-select-container">
+          <div className="selected-items">
+            {formData[field].map((item) => (
+              <div key={item.id} className="selected-item">
+                <span>{item.name}</span>
+                <button
+                  type="button"
+                  className="remove-btn"
+                  onClick={() => handleRemoveItem(field, item.id)}
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+          <div className="search-container">
+            <Form.Control
+              type="text"
+              placeholder="Search..."
+              value={searchFilters[field] || ""}
+              onChange={(e) => handleSearchFilterChange(e, field)}
+              onClick={() => toggleDropdown(field)}
+            />
+            {dropdownVisible[field] && (
+              <div className="dropdown-menu show">
+                {getFilteredItems(field).length > 0 ? (
+                  getFilteredItems(field).map((item) => (
+                    <div
+                      key={item.id}
+                      className={`dropdown-item ${formData[field].some(
                         (selected) => selected.id === item.id
                       )
-                        ? "selected"
-                        : ""
-                    }`}
-                    onClick={() => {
-                      handleSelectItem(field, item);
-                      toggleDropdown(field, false); // Auto-close dropdown
-                    }}
-                  >
-                    {item.name}
-                    {formData[field].some(
-                      (selected) => selected.id === item.id
-                    ) && <span className="check-mark">✓</span>}
+                          ? "selected"
+                          : ""
+                        }`}
+                      onClick={() => {
+                        handleSelectItem(field, item);
+                        toggleDropdown(field, false); // Auto-close dropdown
+                      }}
+                    >
+                      {item.name}
+                      {formData[field].some(
+                        (selected) => selected.id === item.id
+                      ) && <span className="check-mark">✓</span>}
+                    </div>
+                  ))
+                ) : (
+                  <div className="dropdown-item no-results">
+                    No results found
                   </div>
-                ))
-              ) : (
-                <div className="dropdown-item no-results">
-                  No results found
-                </div>
-              )}
-            </div>
-          )}
+                )}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-    </Form.Group>
-  );
-};
+      </Form.Group>
+    );
+  };
 
 
   const [currentStep, setCurrentStep] = useState(0);
@@ -501,14 +522,14 @@ const CeoCreateProject = () => {
       estimatedCost: "", // Default estimated cost
       approvedBudget: "", // Default approved budget
     };
-  
+
     // Update state with new column
     setFormData((prevFormData) => ({
       ...prevFormData,
       budgetBreakdown: [...prevFormData.budgetBreakdown, newColumn],
     }));
   };
-  
+
 
   const renderProgressBar = () => {
     return (
@@ -535,9 +556,8 @@ const CeoCreateProject = () => {
           {steps.map((step, index) => (
             <div key={index} className="step-item">
               <div
-                className={`step-circle ${
-                  index <= currentStep ? "active" : ""
-                }`}
+                className={`step-circle ${index <= currentStep ? "active" : ""
+                  }`}
               >
                 <svg
                   width="15"
@@ -567,9 +587,8 @@ const CeoCreateProject = () => {
                 </svg>
               </div>
               <div
-                className={`step-line ${index < currentStep ? "active" : ""} ${
-                  index === steps.length - 1 ? "hidden" : ""
-                }`}
+                className={`step-line ${index < currentStep ? "active" : ""} ${index === steps.length - 1 ? "hidden" : ""
+                  }`}
               ></div>
               <div
                 className={`step-label ${index <= currentStep ? "active" : ""}`}
@@ -586,45 +605,158 @@ const CeoCreateProject = () => {
   const renderProjectBasicDetails = () => {
     return (
       <ProjectBasicDetails 
-      formData={formData} 
-      setFormData={setFormData} 
-      formErrors={formErrors} 
-    />
+        formData={formData} 
+        setFormData={setFormData} 
+        formErrors={formErrors} 
+        onProjectCreated={handleProjectCreated}
+      />
     );
   };
 
   const renderBudgetFinancialAllocation = () => {
     return (
-      <BudgetFinancialAllocation 
-      formData={formData}
-      handleInputChange={handleInputChange}
-      formErrors={formErrors}
-      handleBudgetBreakdownChange={handleBudgetBreakdownChange}
-      handleAddColumn={handleAddColumn}
-    />
+      <div className="form-section">
+        <h2 className="section-title">Budget & Financial Allocation</h2>
+        <Row className="mb-4">
+          <Col md={6}>
+            <Form.Group>
+              <Form.Label className="text-dark fs-26-700">
+                Total Project Budget <span className="required">*</span>
+              </Form.Label>
+              <Form.Control
+                type="text"
+                name="totalBudget"
+                placeholder="Type amount"
+                value={formData.totalBudget}
+                onChange={handleInputChange}
+                isInvalid={!!formErrors.totalBudget}
+              />
+              <Form.Control.Feedback type="invalid">
+                {formErrors.totalBudget}
+              </Form.Control.Feedback>
+            </Form.Group>
+          </Col>
+          <Col md={6}>
+            <Form.Group>
+              <Form.Label className="text-dark fs-26-700">Send To</Form.Label>
+              <Form.Select
+                name="sendTo"
+                value={formData.sendTo}
+                onChange={handleInputChange}
+              >
+                <option value="">Select Team</option>
+                <option value="finance">Finance Team</option>
+                <option value="management">Management Team</option>
+                <option value="operations">Operations Team</option>
+              </Form.Select>
+            </Form.Group>
+          </Col>
+        </Row>
+        <div className="budget-breakdown">
+          <h3 className="text-dark-gray fs-22-700 mb-0">Budget Breakdown</h3>
+          <table
+            bordered
+            responsive
+            className="mt-3 tbl tbl-budget-financial w-100"
+          >
+            <thead>
+              <tr>
+                <th className="text-center text-dark fs-18-500">S.No</th>
+                <th className="text-center text-dark fs-18-500">
+                  Expense Category
+                </th>
+                <th className="text-center text-dark fs-18-500">
+                  Estimated Cost (₹)
+                </th>
+                <th className="text-center text-dark fs-18-500">
+                  Approved Budget (₹)
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {formData.budgetBreakdown.map((item) => (
+                <tr key={item.id}>
+                  <td className="text-dark-gray fs-16-500 text-center">
+                    {String(item.id).padStart(2, "0")}
+                  </td>
+                  <td className="text-dark-gray fs-16-500 text-center">
+                    <Form.Control
+                      type="text"
+                      placeholder="Enter category"
+                      value={item.category}
+                      maxLength={20} // Limit to 20 characters
+                      onChange={(e) =>
+                        handleBudgetBreakdownChange(
+                          item.id,
+                          "category",
+                          e.target.value
+                        )
+                      }
+                    />
+                  </td>
+                  <td className="text-dark-gray fs-16-500 text-center">
+                    <Form.Control
+                      type="text"
+                      value={item.estimatedCost}
+                      onChange={(e) =>
+                        handleBudgetBreakdownChange(
+                          item.id,
+                          "estimatedCost",
+                          e.target.value
+                        )
+                      }
+                    />
+                  </td>
+                  <td className="text-dark-gray fs-16-500 text-center">
+                    <Form.Control
+                      type="text"
+                      value={item.approvedBudget}
+                      onChange={(e) =>
+                        handleBudgetBreakdownChange(
+                          item.id,
+                          "approvedBudget",
+                          e.target.value
+                        )
+                      }
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="add-column text-end">
+            <Button
+              className="text-primary bg-transparent border-0 fs-16-500 me-0 ms-auto"
+              onClick={handleAddColumn}
+            >
+              + Add Column
+            </Button>
+          </div>
+        </div>
+      </div>
     );
   };
 
   // Update the renderProjectTeamStakeholder function
   const renderProjectTeamStakeholder = () => {
     return (
-      <ProjectTeamStakeholder 
-      formData={formData}
-      searchFilters={searchFilters}
-      dropdownVisible={dropdownVisible}
-      teamMembers={teamMembers}
-      handleSearchFilterChange={handleSearchFilterChange}
-      toggleDropdown={toggleDropdown}
-      handleSelectItem={handleSelectItem}
-      handleRemoveItem={handleRemoveItem}
-      getFilteredItems={getFilteredItems}
-    />
+      <ProjectTeamStakeholder
+        formData={formData}
+        searchFilters={searchFilters}
+        dropdownVisible={dropdownVisible}
+        teamMembers={teamMembers}
+        handleSearchFilterChange={handleSearchFilterChange}
+        toggleDropdown={toggleDropdown}
+        handleSelectItem={handleSelectItem}
+        handleRemoveItem={handleRemoveItem}
+        getFilteredItems={getFilteredItems}
+      />
     );
   };
 
   const renderTimelineMilestonePlanning = () => {
     return (
-      <TimelineMilestonePlanning 
+      <TimelineMilestonePlanning
         formData={formData}
         handleMilestoneChange={handleMilestoneChange}
         handleAddColumn={handleAddColumn}
@@ -634,10 +766,10 @@ const CeoCreateProject = () => {
 
   const renderRiskComplianceAssessment = () => {
     return (
-      <RiskComplianceAssessment 
-      formData={formData}
-      handleAddColumn={handleAddColumn}
-    />
+      <RiskComplianceAssessment
+        formData={formData}
+        handleAddColumn={handleAddColumn}
+      />
     );
   };
 
@@ -706,7 +838,7 @@ const CeoCreateProject = () => {
                     )}
                     <div className="d-flex">
                       {currentStep === 1 || currentStep === 2 ? (
-                        <Button className="btn-primary btn fs-14-600 bg-transparent text-primary border-0  border-radius-2">
+                        <Button className="btn-primary btn fs-14-600 bg-transparent text-primary border-0 border-radius-2">
                           <svg
                             className="me-2"
                             width="20"
@@ -727,7 +859,8 @@ const CeoCreateProject = () => {
                         className="btn-primary btn fs-14-600 bg-primary border-0 border-radius-2"
                         onClick={handleNext}
                       >
-                        {currentStep === 4 ? "Final Review >" : "Next >"}
+                        {currentStep === 0 && !projectCreated ? "Create & Next >" :
+                          currentStep === 4 ? "Final Review >" : "Next >"}
                       </Button>
                     </div>
                   </div>

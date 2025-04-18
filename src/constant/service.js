@@ -6,7 +6,9 @@ export const API = {
   GET_USER_INFO: "/api/Login/LoginUserDetail",
 
   /*Ceo Project */
+  Get_PROJECTTYPE_SECTOR: "/api/Project/getProjectTypesAndProjectSectors",
   CREATE_CEO_PROJECT:"/api/Project/createProject",
+
  
 
   /** KANBAN */

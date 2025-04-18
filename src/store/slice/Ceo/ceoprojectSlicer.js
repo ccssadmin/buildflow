@@ -1,16 +1,16 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { createCeoProjectAction } from "../../actions/Ceo/ceoprojectAction";
-
+import { createCeoProjectAction, getProjectTypeSectorAction } from "../../actions/Ceo/ceoprojectAction";
 
 const initialState = {
   projects: [],
   currentProject: null,
+  projectTypesAndSectors: [],
   loading: false,
   error: null,
-  success: false
+  success: false,
 };
 
-const projectSlice = createSlice({
+const ceoProjectSlice = createSlice({
   name: "project",
   initialState,
   reducers: {
@@ -21,10 +21,11 @@ const projectSlice = createSlice({
     },
     setCurrentProject: (state, action) => {
       state.currentProject = action.payload;
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
+      // Create Project
       .addCase(createCeoProjectAction.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -40,9 +41,25 @@ const projectSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
         state.success = false;
+      })
+
+      // Get Project Type & Sector
+      .addCase(getProjectTypeSectorAction.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getProjectTypeSectorAction.fulfilled, (state, action) => {
+        state.loading = false;
+        state.projectTypesAndSectors = action.payload;
+      })
+      .addCase(getProjectTypeSectorAction.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
       });
-  }
+  },
 });
 
-export const { resetProjectState, setCurrentProject } = projectSlice.actions;
-export default projectSlice.reducer;
+
+
+export const { resetProjectState, setCurrentProject } = ceoProjectSlice.actions;
+export default ceoProjectSlice.reducer;
