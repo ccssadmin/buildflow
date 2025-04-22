@@ -7,7 +7,8 @@ export const API = {
 
   /*Ceo Project */
   Get_PROJECTTYPE_SECTOR: "/api/Project/getProjectTypesAndProjectSectors",
-  CREATE_CEO_PROJECT:"/api/Project/createProject",
+  CREATE_CEO_PROJECT:"/api/Project/upsertProject",
+  CREATE_PROJECT_BUDGET :"/api/Project/addProjectBudget",
 
  
 

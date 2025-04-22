@@ -2,8 +2,9 @@ import { Calendar } from "lucide-react";
 import React, { useRef, useEffect, useState } from "react";
 import { Form, Row, Col, Spinner, Button } from "react-bootstrap";
 import { useProject } from "../../../hooks/Ceo/useCeoProject";
+import Swal from "sweetalert2";
 
-const ProjectBasicDetails = ({ formErrors, formData, setFormData, onProjectCreated }) => {
+const ProjectBasicDetails = ({ formData, setFormData, onProjectCreated, formErrors, setFormErrors }) => {
   const dateInputRef = useRef(null);
   const completionDateInputRef = useRef(null);
   const { projectTypeSector, fetchProjectTypeSector, createProject } = useProject();
@@ -11,7 +12,6 @@ const ProjectBasicDetails = ({ formErrors, formData, setFormData, onProjectCreat
   const [loading, setLoading] = useState(true);
   const [projectCreated, setProjectCreated] = useState(false);
 
-  // Fetch the data when the component mounts
   useEffect(() => {
     const fetchData = async () => {
       await fetchProjectTypeSector();
@@ -40,54 +40,89 @@ const ProjectBasicDetails = ({ formErrors, formData, setFormData, onProjectCreat
     }
   };
 
+  const validateInputs = () => {
+    const letterRegex = /[a-zA-Z]/;
+    const errors = {};
+
+    if (!formData.projectName?.trim()) errors.projectName = "Project Name is required.";
+    if (!formData.projectLocation?.trim()) errors.projectLocation = "Location is required.";
+    if (formData.projectLocation && !letterRegex.test(formData.projectLocation)) 
+      errors.projectLocation = "Location must contain letters.";
+    if (!formData.projectTypeId) errors.projectTypeId = "Project Type must be selected.";
+    if (!formData.projectSectorId) errors.projectSectorId = "Project Sector must be selected.";
+    if (!formData.projectStartDate) errors.projectStartDate = "Project Start Date is required.";
+    if (!formData.expectedCompletionDate) errors.expectedCompletionDate = "Expected Completion Date is required.";
+    if (!formData.description?.trim()) errors.description = "Project Description is required.";
+
+    if (setFormErrors) {
+      setFormErrors(errors);
+    }
+    return Object.keys(errors).length === 0; // Return true if no errors
+  };
+
   const handleCreateClick = async () => {
+    const isValid = validateInputs();
+    if (!isValid) return;
+  
     try {
       setSubmitting(true);
-
-      // Clean up form data
+  
       const cleanFormData = {
-        projectName: formData.projectName,
-        projectLocation: formData.projectLocation,
+        projectName: formData.projectName.trim(),
+        projectLocation: formData.projectLocation.trim(),
         projectTypeId: parseInt(formData.projectTypeId),
         projectSectorId: parseInt(formData.projectSectorId),
         projectStartDate: formData.projectStartDate,
         expectedCompletionDate: formData.expectedCompletionDate,
-        description: formData.description,
+        description: formData.description.trim(),
       };
-
-      // Check if all required fields are filled
-      if (!cleanFormData.projectName || !cleanFormData.projectLocation || 
-          !cleanFormData.projectTypeId || !cleanFormData.projectSectorId || 
-          !cleanFormData.projectStartDate || !cleanFormData.expectedCompletionDate || 
-          !cleanFormData.description) {
-        alert("All required fields must be filled out.");
-        return;
-      }
-
-      // Use createProject function to create the project
+  
       const result = await createProject(cleanFormData);
+  
+    if (result.success) {
+  Swal.fire({
+    icon: "success",
+    title: "Success!",
+    text: "Project created successfully!",
+    timer: 1500,
+    showConfirmButton: false,
+  });
 
-      if (result.success) {
-        console.log("Project created successfully:", result.data);
-        // alert("Project created successfully!");
-        setProjectCreated(true);
-        
-        // Notify parent component that project was created successfully
-        if (onProjectCreated) {
-          onProjectCreated(result.data);
-        }
-      } else {
-        console.error("Error creating project:", result.error);
-        // alert("Failed to create project. Please try again.");
+  // ✅ Only store result.data as projectId
+  const projectId = result.data; // ✅ data is just the project ID like 85
+
+  setFormData((prevFormData) => ({
+    ...prevFormData,
+    projectId: projectId, // ✅ Store only the id
+  }));
+
+  setTimeout(() => {
+    if (onProjectCreated) {
+      onProjectCreated(projectId); // ✅ Pass only the id
+    }
+  }, 300);
+}
+    
+       else {
+        Swal.fire({
+          icon: "error",
+          title: "Failed!",
+          text: result.error || "Failed to create project. Please try again.",
+        });
       }
     } catch (error) {
-      console.error("Unexpected error:", error);
-      // alert("Something went wrong. Please try again.");
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "An unexpected error occurred. Please try again later.",
+      });
     } finally {
       setSubmitting(false);
     }
   };
-
+  
+  console.log("Updated formData after creating project:", formData);
+  
   return (
     <div className="step-basic-details">
       <h2 className="section-title">Project Basic Details</h2>
@@ -99,6 +134,7 @@ const ProjectBasicDetails = ({ formErrors, formData, setFormData, onProjectCreat
                 Project Name <span className="required">*</span>
               </Form.Label>
               <Form.Control
+                style={{ color: "#212529" }}
                 type="text"
                 name="projectName"
                 value={formData.projectName}
@@ -116,24 +152,29 @@ const ProjectBasicDetails = ({ formErrors, formData, setFormData, onProjectCreat
             <Form.Group className="mb-4">
               <Form.Label className="text-dark">Location</Form.Label>
               <Form.Control
+                style={{ color: "#212529" }}
                 type="text"
                 name="projectLocation"
                 value={formData.projectLocation}
                 onChange={handleInputChange}
                 placeholder="Enter location"
+                isInvalid={!!formErrors?.projectLocation}
               />
+              <Form.Control.Feedback type="invalid">
+                {formErrors?.projectLocation}
+              </Form.Control.Feedback>
             </Form.Group>
           </Col>
         </Row>
 
         <Row>
-          {/* Project Type */}
           <Col md={6}>
             <Form.Group className="mb-4">
               <Form.Label className="text-dark">
                 Project Type <span className="required">*</span>
               </Form.Label>
               <Form.Select
+                style={{ color: "#212529" }}
                 name="projectTypeId"
                 value={formData.projectTypeId}
                 onChange={handleInputChange}
@@ -156,13 +197,13 @@ const ProjectBasicDetails = ({ formErrors, formData, setFormData, onProjectCreat
             </Form.Group>
           </Col>
 
-          {/* Project Sector */}
           <Col md={6}>
             <Form.Group className="mb-4">
               <Form.Label className="text-dark">
                 Project Sector <span className="required">*</span>
               </Form.Label>
               <Form.Select
+                style={{ color: "#212529" }}
                 name="projectSectorId"
                 value={formData.projectSectorId}
                 onChange={handleInputChange}
@@ -192,13 +233,11 @@ const ProjectBasicDetails = ({ formErrors, formData, setFormData, onProjectCreat
               <Form.Label className="text-dark">
                 Project Start Date <span className="required">*</span>
               </Form.Label>
-              <div
-                className="date-input-container"
-                onClick={handleContainerClick}
-              >
+              <div className="date-input-container" onClick={handleContainerClick}>
                 <Form.Control
                   ref={dateInputRef}
                   type="date"
+                  style={{ color: "#212529" }}
                   name="projectStartDate"
                   value={formData.projectStartDate}
                   onChange={handleInputChange}
@@ -219,21 +258,23 @@ const ProjectBasicDetails = ({ formErrors, formData, setFormData, onProjectCreat
               <Form.Label className="text-dark">
                 Expected Completion Date
               </Form.Label>
-              <div
-                className="date-input-container"
-                onClick={handleContainerClickCompletionDate}
-              >
+              <div className="date-input-container" onClick={handleContainerClickCompletionDate}>
                 <Form.Control
                   ref={completionDateInputRef}
                   type="date"
+                  style={{ color: "#212529" }}
                   name="expectedCompletionDate"
                   value={formData.expectedCompletionDate}
                   onChange={handleInputChange}
+                  isInvalid={!!formErrors?.expectedCompletionDate}
                 />
                 <span className="date-icon">
                   <Calendar size={18} />
                 </span>
               </div>
+              <Form.Control.Feedback type="invalid">
+                {formErrors?.expectedCompletionDate}
+              </Form.Control.Feedback>
             </Form.Group>
           </Col>
         </Row>
@@ -245,11 +286,16 @@ const ProjectBasicDetails = ({ formErrors, formData, setFormData, onProjectCreat
               <Form.Control
                 as="textarea"
                 rows={4}
+                style={{ color: "#212529" }}
                 name="description"
                 value={formData.description}
                 onChange={handleInputChange}
                 placeholder="Enter project description"
+                isInvalid={!!formErrors?.description}
               />
+              <Form.Control.Feedback type="invalid">
+                {formErrors?.description}
+              </Form.Control.Feedback>
             </Form.Group>
           </Col>
         </Row>

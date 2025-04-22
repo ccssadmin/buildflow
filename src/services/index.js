@@ -25,6 +25,7 @@ export const getAllMembers = (params) => api.GET(API.GET_ALL_MEMBERS, params);
 /*Ceo Project */
 export const getProjectTypeSector = (params) => api.GET(API.Get_PROJECTTYPE_SECTOR,params);
 export const createceoproject = (params) => api.POST(API.CREATE_CEO_PROJECT,params);
+export const createProjectBudget = (params) => api.POST(API.CREATE_PROJECT_BUDGET, params);
 
 /** KANBAN BOARD */
 export const getAllBoard = params => api.GET(API.GET_ALL_BOARD, params);

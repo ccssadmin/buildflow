@@ -1,32 +1,154 @@
-import React from "react";
-import { Form, Row, Col, Button } from "react-bootstrap";
+import React, { useEffect } from "react";
+import { Form, Button } from "react-bootstrap";
+import Swal from "sweetalert2";
 
-const BudgetFinancialAllocation = ({ formData, handleInputChange, formErrors, handleBudgetBreakdownChange, handleAddColumn }) => {
+const BudgetFinancialAllocation = ({ formData, setFormData, onNext, createProjectBudget, loading }) => {
+
+  useEffect(() => {
+    calculateTotalBudget();
+  }, [formData.budgetBreakdown]);
+
+  const calculateTotalBudget = () => {
+    const totalApprovedBudget = formData.budgetBreakdown.reduce((acc, item) => {
+      const approved = parseFloat(item.approvedBudget) || 0;
+      return acc + approved;
+    }, 0);
+
+    setFormData((prev) => ({
+      ...prev,
+      totalBudget: totalApprovedBudget,
+    }));
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleBudgetBreakdownChange = (id, field, value) => {
+    if (field === "estimatedCost" || field === "approvedBudget") {
+      const numericValue = value.replace(/[^0-9.]/g, '');
+      const parts = numericValue.split(".");
+      if (parts.length > 2) return;
+      if (parts[1]?.length > 2) return;
+      value = numericValue;
+    }
+
+    const updatedBreakdown = formData.budgetBreakdown.map((item) =>
+      item.id === id ? { ...item, [field]: value } : item
+    );
+
+    setFormData((prev) => ({
+      ...prev,
+      budgetBreakdown: updatedBreakdown,
+    }));
+  };
+
+  const handleAddRow = () => {
+    setFormData((prev) => ({
+      ...prev,
+      budgetBreakdown: [
+        ...prev.budgetBreakdown,
+        {
+          id: Date.now(),
+          category: "",
+          estimatedCost: "",
+          approvedBudget: "",
+        },
+      ],
+    }));
+  };
+
+  const handleNextClick = async () => {
+    try {
+      if (!formData.projectId) {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Project ID missing! Please create project first.",
+        });
+        return;
+      }
+
+      const cleanBudgetBreakdown = formData.budgetBreakdown
+      .filter((item) => item.category.trim() !== "" && (parseFloat(item.estimatedCost) > 0 || parseFloat(item.approvedBudget) > 0))
+      .map((item) => ({
+        category: item.category.trim(),
+        estimatedCost: parseFloat(item.estimatedCost) || 0,
+        approvedBudget: parseFloat(item.approvedBudget) || 0,
+      }));
+
+    if (cleanBudgetBreakdown.length === 0) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Please enter at least one valid budget breakdown item.",
+      });
+      return;
+    }
+
+    const payload = {
+      // Use the numeric project ID directly, not the entire response object
+      projectId: formData.projectId,
+      totalBudget: formData.totalBudget,
+      sendTo: formData.sendTo,
+      budgetBreakdown: cleanBudgetBreakdown,
+    };
+
+    console.log("Payload sending to API:", payload);
+
+    const response = await createProjectBudget({ dto: payload });
+
+    if (response.success) {
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "Budget created successfully!",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+      setTimeout(() => {
+        onNext();
+      }, 2000);
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: response.message || "Failed to create budget.",
+      });
+    }
+  } catch (error) {
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "Something went wrong.",
+    });
+    console.error("Error occurred:", error);
+  }
+};
   return (
-    <div className="form-section">
-      <h2 className="section-title">Budget & Financial Allocation</h2>
-      <Row className="mb-4">
-        <Col md={6}>
+    <div className="budget-financial-page">
+      <h2 className="section-title mb-4">Budget & Financial Allocation</h2>
+
+      <div className="row mb-4">
+        <div className="col-md-6">
           <Form.Group>
-            <Form.Label className="text-dark fs-26-700">
-              Total Project Budget <span className="required">*</span>
-            </Form.Label>
+            <Form.Label>Total Project Budget <span className="required">*</span></Form.Label>
             <Form.Control
               type="text"
               name="totalBudget"
-              placeholder="Type amount"
               value={formData.totalBudget}
-              onChange={handleInputChange}
-              isInvalid={!!formErrors.totalBudget}
+              readOnly
             />
-            <Form.Control.Feedback type="invalid">
-              {formErrors.totalBudget}
-            </Form.Control.Feedback>
           </Form.Group>
-        </Col>
-        <Col md={6}>
+        </div>
+
+        <div className="col-md-6">
           <Form.Group>
-            <Form.Label className="text-dark fs-26-700">Send To</Form.Label>
+            <Form.Label>Send To <span className="required">*</span></Form.Label>
             <Form.Select
               name="sendTo"
               value={formData.sendTo}
@@ -38,88 +160,100 @@ const BudgetFinancialAllocation = ({ formData, handleInputChange, formErrors, ha
               <option value="operations">Operations Team</option>
             </Form.Select>
           </Form.Group>
-        </Col>
-      </Row>
-      <div className="budget-breakdown">
-        <h3 className="text-dark-gray fs-22-700 mb-0">Budget Breakdown</h3>
-        <table
-          bordered
-          responsive
-          className="mt-3 tbl tbl-budget-financial w-100"
-        >
+        </div>
+      </div>
+
+      <div className="budget-breakdown mt-4">
+        <h4>Budget Breakdown</h4>
+        <table className="table table-bordered">
           <thead>
             <tr>
-              <th className="text-center text-dark fs-18-500">S.No</th>
-              <th className="text-center text-dark fs-18-500">
-                Expense Category
-              </th>
-              <th className="text-center text-dark fs-18-500">
-                Estimated Cost (₹)
-              </th>
-              <th className="text-center text-dark fs-18-500">
-                Approved Budget (₹)
-              </th>
+              <th>S.No</th>
+              <th>Expense Category</th>
+              <th>Estimated Cost (₹)</th>
+              <th>Approved Budget (₹)</th>
             </tr>
           </thead>
           <tbody>
-            {formData.budgetBreakdown.map((item) => (
+            {formData.budgetBreakdown.map((item, index) => (
               <tr key={item.id}>
-                <td className="text-dark-gray fs-16-500 text-center">
-                  {String(item.id).padStart(2, "0")}
-                </td>
-                <td className="text-dark-gray fs-16-500 text-center">
+                <td>{index + 1}</td>
+                <td>
                   <Form.Control
                     type="text"
-                    placeholder="Enter category"
+                    style={{
+                      border: 'none',
+                      boxShadow: 'none',
+                      backgroundColor: 'transparent',
+                    }}
                     value={item.category}
-                    maxLength={20} // Limit to 20 characters
-                    onChange={(e) =>
-                      handleBudgetBreakdownChange(
-                        item.id,
-                        "category",
-                        e.target.value
-                      )
-                    }
+                    onChange={(e) => handleBudgetBreakdownChange(item.id, "category", e.target.value)}
+                    placeholder="Enter Category"
                   />
                 </td>
-                <td className="text-dark-gray fs-16-500 text-center">
+                <td>
                   <Form.Control
                     type="text"
+                    style={{
+                      border: 'none',
+                      boxShadow: 'none',
+                      backgroundColor: 'transparent',
+                    }}
                     value={item.estimatedCost}
-                    onChange={(e) =>
-                      handleBudgetBreakdownChange(
-                        item.id,
-                        "estimatedCost",
-                        e.target.value
-                      )
-                    }
+                    onChange={(e) => handleBudgetBreakdownChange(item.id, "estimatedCost", e.target.value)}
+                    placeholder="0.00"
                   />
                 </td>
-                <td className="text-dark-gray fs-16-500 text-center">
+                <td>
                   <Form.Control
                     type="text"
+                    style={{
+                      border: 'none',
+                      boxShadow: 'none',
+                      backgroundColor: 'transparent',
+                    }}
                     value={item.approvedBudget}
-                    onChange={(e) =>
-                      handleBudgetBreakdownChange(
-                        item.id,
-                        "approvedBudget",
-                        e.target.value
-                      )
-                    }
+                    onChange={(e) => handleBudgetBreakdownChange(item.id, "approvedBudget", e.target.value)}
+                    placeholder="0.00"
                   />
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-        <div className="add-column text-end">
+
+        <div className="text-end">
           <Button
-            className="text-primary bg-transparent border-0 fs-16-500 me-0 ms-auto"
-            onClick={handleAddColumn}
+            variant="outline-primary"
+            onClick={handleAddRow}
+            style={{
+              backgroundColor: '#FF6F00',
+              border: 'none',
+              color: 'white',
+              marginTop: '10px',
+              padding: '8px 20px',
+              fontSize: '14px',
+            }}
           >
-            + Add Column
+            + Add Row
           </Button>
         </div>
+      </div>
+
+      <div className="d-flex justify-content-end mt-4">
+        <Button
+          onClick={handleNextClick}
+          className="btn btn-primary"
+          style={{
+            backgroundColor: '#FF6F00',
+            border: 'none',
+            padding: '10px 30px',
+            fontSize: '16px',
+          }}
+          disabled={loading}
+        >
+          {loading ? "Saving..." : "Create Budget ✓"}
+        </Button>
       </div>
     </div>
   );

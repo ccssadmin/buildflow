@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { createCeoProjectAction, getProjectTypeSectorAction } from "../../store/actions/Ceo/ceoprojectAction";
+import { createCeoProjectAction, createProjectBudgetAction, getProjectTypeSectorAction } from "../../store/actions/Ceo/ceoprojectAction";
 import {
   selectAllProjects,
   selectCurrentProject,
@@ -37,15 +37,6 @@ export const useProject = () => {
     }
   }, [projectTypeSectorData]);
 
-  const createProject = async (projectData) => {
-    try {
-      const result = await dispatch(createCeoProjectAction(projectData)).unwrap();
-      return { success: true, data: result };
-    } catch (error) {
-      console.error("Failed to create project:", error);
-      return { success: false, error };
-    }
-  };
 
   const fetchProjectTypeSector = async () => {
     try {
@@ -63,6 +54,26 @@ export const useProject = () => {
     dispatch(setCurrentProject(project));
   };
 
+  const createProject = async (projectData) => {
+    try {
+      const result = await dispatch(createCeoProjectAction(projectData)).unwrap();
+      return { success: true, data: result };
+    } catch (error) {
+      console.error("Failed to create project:", error);
+      return { success: false, error };
+    }
+  };
+
+  const createProjectBudget = async (ProjectBudgetData) => {
+    try {
+      const result = await dispatch(createProjectBudgetAction(ProjectBudgetData)).unwrap();
+      return { success: true, data: result };
+    } catch (error) {
+      console.error("Failed to create project budget:", error);
+      return { success: false, error };
+    }
+  };
+  
   return {
     // State
     projects,
@@ -76,6 +87,7 @@ export const useProject = () => {
     createProject,
     fetchProjectTypeSector,
     resetProject,
-    updateCurrentProject
+    updateCurrentProject,
+    createProjectBudget
   };
 };

@@ -1,8 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { createCeoProjectAction, getProjectTypeSectorAction } from "../../actions/Ceo/ceoprojectAction";
+import { createCeoProjectAction, createProjectBudgetAction, getProjectTypeSectorAction } from "../../actions/Ceo/ceoprojectAction";
 
 const initialState = {
   projects: [],
+  projectBudgets: [], 
   currentProject: null,
   projectTypesAndSectors: [],
   loading: false,
@@ -55,7 +56,24 @@ const ceoProjectSlice = createSlice({
       .addCase(getProjectTypeSectorAction.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
+      })
+      //projectbudget
+      .addCase(createProjectBudgetAction.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = false;
+      })
+      .addCase(createProjectBudgetAction.fulfilled, (state, action) => {
+        state.loading = false;
+        state.success = true;
+        state.projectBudgets.push(action.payload); // <- Add to projectBudgets
+      })
+      .addCase(createProjectBudgetAction.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+        state.success = false;
       });
+      
   },
 });
 

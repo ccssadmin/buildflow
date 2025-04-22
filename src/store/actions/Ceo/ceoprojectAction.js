@@ -1,5 +1,14 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { createceoproject, getProjectTypeSector } from "../../../services";
+import { createceoproject, createProjectBudget, getProjectTypeSector } from "../../../services";
+
+// Get Project Type & Sector
+export const getProjectTypeSectorAction = createAsyncThunk(
+  "project/getTypeSector",
+  async () => {
+    const response = await getProjectTypeSector();
+    return response.data;
+  }
+);
 
 // Create Project
 export const createCeoProjectAction = createAsyncThunk(
@@ -10,11 +19,13 @@ export const createCeoProjectAction = createAsyncThunk(
   }
 );
 
-// Get Project Type & Sector
-export const getProjectTypeSectorAction = createAsyncThunk(
-  "project/getTypeSector",
-  async () => {
-    const response = await getProjectTypeSector();
+//Create Project Budget
+
+// ceoprojectAction.js
+export const createProjectBudgetAction = createAsyncThunk(
+  "project/budget",
+  async (params) => {
+    const response = await createProjectBudget(params);
     return response.data;
   }
 );
