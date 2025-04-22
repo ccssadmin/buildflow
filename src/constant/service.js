@@ -9,7 +9,9 @@ export const API = {
   Get_PROJECTTYPE_SECTOR: "/api/Project/getProjectTypesAndProjectSectors",
   CREATE_CEO_PROJECT:"/api/Project/createProject",
 
- 
+ /* Employee data */
+ GET_EMPLOYEES_BY_ROLES: "/api/Login/getEmployeesByRoles",
+ GET_VENDORS_AND_SUBCONTRACTORS: "/api/Login/getVendorsAndSubcontractors",
 
   /** KANBAN */
   GET_ALL_BOARD: "/api/BoardManagement/boards",

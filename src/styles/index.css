@@ -45,3 +45,6 @@
 @import './components/css/ceoStyles/resources.css';
 @import './components/css/ceoStyles/ceofinance.css';
 @import './components/css/ceoStyles/ceodepartments.css';
+
+/*PM FLOW STYLES */
+@import './components/css/pmStyles/dashboard.css';
