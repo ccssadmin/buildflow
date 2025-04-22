@@ -11,6 +11,7 @@ const EngineerLayout = lazy(() => import("./components/layout/engineer-layout.co
 const AqsLayout = lazy ( ( ) => import('./components/layout/aqs-layout.component'));
 const CeoLayout = lazy ( ( ) => import('./components/layout/ceo-layout.component'));
 const FinanceLayout = lazy ( ( ) => import('./components/layout/finance-layout.component'));
+const PmLayout = lazy ( ( ) => import('./components/layout/pm-layout.component'));
 
 /** PAGES */
 const Login = lazy(() => import("./pages/Login/Login"));
@@ -76,7 +77,8 @@ const Ceodepartments = lazy ( () => import ('./pages/ceoFlow/Departments/index')
 const CeoReport = lazy ( () => import ('./pages/ceoFlow/Reports/index'));
 const CeoReportView = lazy ( () => import ('./pages/ceoFlow/Reports/ViewReport'));
 const CeoSettings = lazy ( () => import ('./pages/ceoFlow/Settings/index'));
-
+// Not Found
+const NotFound = lazy(() => import("./pages/ceoFlow/NotFound/NotFound"));
 
 
 // Finance Flow
@@ -97,12 +99,25 @@ const FinanceReport = lazy ( ( ) => import('./pages/financeFlow/Reports/index'))
 const FinanceReportCreate = lazy( ( ) => import('./pages/financeFlow/Reports/ReportCreate'));
 const FinanceSettings = lazy( ( ) => import ('./pages/financeFlow/Settings/index'));
 
+// PM FLOW
+
+const PmDashboard = lazy ( () => import ('./pages/pmFlow/Dashboard/index'));
+const PmProject = lazy ( () => import ('./pages/pmFlow/Project/index'));
+const PmTicketDetails = lazy ( () => import ('./pages/pmFlow/KanbanBoard/TicketDetails'));
+const PmChat = lazy ( () => import ('./pages/pmFlow/ChatPage/Chat/ChatApp'));
+const KanbanPm = lazy ( () => import ('./pages/pmFlow/KanbanBoard/index'));
+const PmTask = lazy ( () => import ('./pages/pmFlow/Task/index'));
+const PmResources = lazy ( () => import ('./pages/pmFlow/Resources/index'));
+const PmMaterial = lazy ( () => import ('./pages/pmFlow/Material/index'));
+const PmVendor = lazy( ( ) => import('./pages/pmFlow/Vendors/index'));
+const PmVendorDetails = lazy ( ( ) => import ('./pages/pmFlow/Vendors/VendorDetails'));
+const PmVendorPriceDetails = lazy ( ( ) => import ('./pages/pmFlow/Vendors/VendorPriceDetails'));
+const PmReport = lazy ( () => import ('./pages/pmFlow/Reports/index'));
+const PmReportView = lazy ( () => import ('./pages/pmFlow/Reports/ViewReport'));
+const PmSettings = lazy ( () => import ('./pages/pmFlow/Settings/index'));
 
 
 
-
-// Not Found
-const NotFound = lazy(() => import("./pages/ceoFlow/NotFound/NotFound"));
 
 const App = () => {
   const [role, setRole] = useState(null);
@@ -132,6 +147,10 @@ const App = () => {
     Finance : {
       default : "/finance/dashboard",
       layout : FinanceLayout,
+    },
+    "Project Manager" : {
+      default : "/pm/dashboard",
+      layout : PmLayout,
     }
   };
 
@@ -234,7 +253,7 @@ const App = () => {
           <Route path="projects" element={<Projects />} />
           <Route path="projectdetails" element={<ProjectDetails />} />
           <Route path="task" element={<EngineerTask />} />
-          <Route path="chat" element={<ChatApp />} />6
+          <Route path="chat" element={<ChatApp />} />
           <Route path="settings" element={<Settings />} />
           
           <Route path="*" element={<NotFound />} />
@@ -336,6 +355,29 @@ const App = () => {
 
 
         </Route>
+
+        {/* PMRoutes */}
+
+        <Route
+          path="/pm"
+          element={<ProtectedRoute allowedRole="Project Manager"><PmLayout onLogout={handleLogout} /></ProtectedRoute>}
+        >
+          <Route path="dashboard" element={ <PmDashboard />} />
+          <Route path="project" element={<PmProject />} />
+          <Route path="approvals" element={<KanbanPm />} />
+          <Route path="ticketdetails/:ticketId" element={<PmTicketDetails />} />
+          <Route path="chats" element={<PmChat />} />
+          <Route path="task" element={<PmTask />} />
+          <Route path="resources" element={<PmResources />} />
+          <Route path="material" element={<PmMaterial />} />
+          <Route path="vendor" element={ <PmVendor />} />
+          <Route path="vendordetails" element={ <PmVendorDetails />} />
+          <Route path="vendorpricedetails" element = {<PmVendorPriceDetails />} />
+          <Route path="reports" element={<PmReport />} />
+          <Route path="reportview" element={<PmReportView />} />
+          <Route path="settings" element={<PmSettings />} />
+        </Route>
+
 
         {/* Catch all redirect */}
         <Route path="*" element={<Navigate to="/login" replace />} />

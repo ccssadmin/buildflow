@@ -26,6 +26,11 @@ export const getAllMembers = (params) => api.GET(API.GET_ALL_MEMBERS, params);
 export const getProjectTypeSector = (params) => api.GET(API.Get_PROJECTTYPE_SECTOR,params);
 export const createceoproject = (params) => api.POST(API.CREATE_CEO_PROJECT,params);
 export const createProjectBudget = (params) => api.POST(API.CREATE_PROJECT_BUDGET, params);
+// fetch vendors and subcontractors
+export const getVendorsAndSubcontractors = (params) => api.GET(API.GET_VENDORS_AND_SUBCONTRACTORS,params);
+
+// fetch all employees by roles in a single API call
+export const getEmployeesByRoles = (params) => api.GET(API.GET_EMPLOYEES_BY_ROLES, params);
 
 /** KANBAN BOARD */
 export const getAllBoard = params => api.GET(API.GET_ALL_BOARD, params);

@@ -142,8 +142,8 @@ body .bg-primary {
     font-weight: 700;
 }
 .fs-28-700 {
-    font-size: 28px;
-    font-weight: 700;
+    font-size: 28px !important;
+    font-weight: 700 !important;
 }
 .fs-26-700 {
     font-size: 26px;

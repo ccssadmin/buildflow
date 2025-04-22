@@ -10,7 +10,9 @@ export const API = {
   CREATE_CEO_PROJECT:"/api/Project/upsertProject",
   CREATE_PROJECT_BUDGET :"/api/Project/addProjectBudget",
 
- 
+ /* Employee data */
+ GET_EMPLOYEES_BY_ROLES: "/api/Login/getEmployeesByRoles",
+ GET_VENDORS_AND_SUBCONTRACTORS: "/api/Login/getVendorsAndSubcontractors",
 
   /** KANBAN */
   GET_ALL_BOARD: "/api/BoardManagement/boards",
