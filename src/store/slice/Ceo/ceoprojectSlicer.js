@@ -1,16 +1,17 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { createCeoProjectAction } from "../../actions/Ceo/ceoprojectAction";
-
+import { createCeoProjectAction, createProjectBudgetAction, getProjectTypeSectorAction } from "../../actions/Ceo/ceoprojectAction";
 
 const initialState = {
   projects: [],
+  projectBudgets: [], 
   currentProject: null,
+  projectTypesAndSectors: [],
   loading: false,
   error: null,
-  success: false
+  success: false,
 };
 
-const projectSlice = createSlice({
+const ceoProjectSlice = createSlice({
   name: "project",
   initialState,
   reducers: {
@@ -21,10 +22,11 @@ const projectSlice = createSlice({
     },
     setCurrentProject: (state, action) => {
       state.currentProject = action.payload;
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
+      // Create Project
       .addCase(createCeoProjectAction.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -35,14 +37,56 @@ const projectSlice = createSlice({
         state.success = true;
         state.projects.push(action.payload);
         state.currentProject = action.payload;
+      
+        // ✅ Save projectid into localStorage
+        const projectId = action.payload?.data?.projectid;
+        if (projectId) {
+          localStorage.setItem("projectId", projectId.toString());
+          console.log("📌 Project ID saved to localStorage:", projectId);
+        } else {
+          console.error("❌ Failed to find projectId inside Redux payload");
+        }
       })
       .addCase(createCeoProjectAction.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
         state.success = false;
+      })
+
+      // Get Project Type & Sector
+      .addCase(getProjectTypeSectorAction.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getProjectTypeSectorAction.fulfilled, (state, action) => {
+        state.loading = false;
+        state.projectTypesAndSectors = action.payload;
+      })
+      .addCase(getProjectTypeSectorAction.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      //projectbudget
+      .addCase(createProjectBudgetAction.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = false;
+      })
+      .addCase(createProjectBudgetAction.fulfilled, (state, action) => {
+        state.loading = false;
+        state.success = true;
+        state.projectBudgets.push(action.payload); // <- Add to projectBudgets
+      })
+      .addCase(createProjectBudgetAction.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+        state.success = false;
       });
-  }
+      
+  },
 });
 
-export const { resetProjectState, setCurrentProject } = projectSlice.actions;
-export default projectSlice.reducer;
+
+
+export const { resetProjectState, setCurrentProject } = ceoProjectSlice.actions;
+export default ceoProjectSlice.reducer;

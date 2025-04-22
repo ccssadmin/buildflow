@@ -6,8 +6,15 @@ export const API = {
   GET_USER_INFO: "/api/Login/LoginUserDetail",
 
   /*Ceo Project */
-  CREATE_CEO_PROJECT:"/api/Project/createProject",
- 
+  Get_PROJECTTYPE_SECTOR: "/api/Project/getProjectTypesAndProjectSectors",
+  CREATE_CEO_PROJECT:"/api/Project/upsertProject",
+  CREATE_PROJECT_BUDGET :"/api/Project/upsertProjectBudget",
+  CREATE_PROJECT_TEAM :"/api/Project/upsertProjectTeam",
+  CREATE_FINACIAL_APPROVAL :"/api/Project/upsertPermissionFinanceApproval",
+
+ /* Employee data */
+ GET_EMPLOYEES_BY_ROLES: "/api/Login/getEmployeesByRoles",
+ GET_VENDORS_AND_SUBCONTRACTORS: "/api/Login/getVendorsAndSubcontractors",
 
   /** KANBAN */
   GET_ALL_BOARD: "/api/BoardManagement/boards",

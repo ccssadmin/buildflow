@@ -2,20 +2,21 @@ import { Calendar, ChevronLeft, ChevronRight, Plus, User } from "lucide-react";
 import { useState, Fragment, useRef } from "react";
 import { Form, Button, Table, Row, Col } from "react-bootstrap";
 import ProjectSummary from "./ProjectSummary";
-import ProjectBasicDetails from "./ProjectBasicDetails";
 import BudgetFinancialAllocation from "./BudgetFinancialAllocation";
 import ProjectTeamStakeholder from "./ProjectTeamStakeholder";
 import TimelineMilestonePlanning from "./TimelineMilestonePlanning";
 import RiskComplianceAssessment from "./RiskComplianceAssessment";
+import { useProject } from "../../../hooks/Ceo/useCeoProject";
+import ProjectBasicDetails from "./ProjectBasicDetails";
+import Swal from "sweetalert2";
 // Form validation schema
 const validateForm = (step, formData) => {
   const errors = {};
 
   if (step === 0) {
     if (!formData.projectName) errors.projectName = "Project name is required";
-    if (!formData.projectType) errors.projectType = "Project type is required";
-    if (!formData.projectSector)
-      errors.projectSector = "Project sector is required";
+    if (!formData.projectTypeId) errors.projectTypeId = "Project type is required";
+    if (!formData.projectSectorId) errors.projectSectorId = "Project sector is required";
     if (!formData.projectStartDate)
       errors.projectStartDate = "Start date is required";
   } else if (step === 1) {
@@ -27,8 +28,11 @@ const validateForm = (step, formData) => {
 
 const CeoCreateProject = () => {
   // Update the state to handle multiple selections for dropdowns
+  const [projectCreated, setProjectCreated] = useState(false);
+  const { createProjectBudget, loading } = useProject();
   const [formData, setFormData] = useState({
     // Step 1: Project Basic Details
+     projectId: null,
     projectName: "",
     location: "",
     projectType: "",
@@ -176,6 +180,44 @@ const CeoCreateProject = () => {
       },
     ],
   });
+
+ // Update this function in CreateProject.jsx
+ const handleProjectCreated = (projectId) => {
+  if (!projectId) {
+    console.error("❌ No project ID received!");
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "Project creation failed: No project ID received.",
+    });
+    return;
+  }
+
+  const numericId = parseInt(projectId);
+
+  // Always overwrite localStorage (even if exists)
+  window.localStorage.setItem("projectId", numericId.toString());
+
+  // Set projectCreated to true
+  setProjectCreated(true);
+
+  // Force update formData with latest projectId
+  setFormData(prevState => ({
+    ...prevState,
+    projectId: numericId
+  }));
+
+  Swal.fire({
+    icon: "success",
+    title: "Success!",
+    text: `Project #${numericId} created successfully.`,
+    timer: 1500,
+    showConfirmButton: false
+  });
+
+  // Move to next step
+  setTimeout(() => setCurrentStep(prev => prev + 1), 1500);
+};
 
   // Add state for search filters
   const [searchFilters, setSearchFilters] = useState({
@@ -346,89 +388,91 @@ const CeoCreateProject = () => {
 
   // Modify the handleNext function
   const handleNext = () => {
-    const errors = validateForm(currentStep, formData);
-    setFormErrors(errors);
-
-    if (Object.keys(errors).length === 0) {
-      if (currentStep === 4) {
-        // If on the last step, show summary
-        handleSubmit();
-      } else {
-        setCurrentStep(currentStep + 1);
+    if (currentStep === 0 && !projectCreated) {
+      const errors = validateForm(currentStep, formData);
+      setFormErrors(errors);
+  
+      if (Object.keys(errors).length > 0) {
+        return; // Don't move if there are validation errors
       }
     }
+  
+    if (currentStep === 4) {
+      handleSubmit(); // Last step
+    } else {
+      setCurrentStep(currentStep + 1); // Move normally
+    }
   };
-
+  
   const handleBack = () => {
     setCurrentStep(currentStep - 1);
   };
 
   // Create a custom multi-select component
   const MultiSelect = ({ field, label, required = false }) => {
-  return (
-    <Form.Group>
-      <Form.Label className="text-dark">
-        {label} {required && <span className="required">*</span>}
-      </Form.Label>
-      <div className="multi-select-container">
-        <div className="selected-items">
-          {formData[field].map((item) => (
-            <div key={item.id} className="selected-item">
-              <span>{item.name}</span>
-              <button
-                type="button"
-                className="remove-btn"
-                onClick={() => handleRemoveItem(field, item.id)}
-              >
-                ×
-              </button>
-            </div>
-          ))}
-        </div>
-        <div className="search-container">
-          <Form.Control
-            type="text"
-            placeholder="Search..."
-            value={searchFilters[field] || ""}
-            onChange={(e) => handleSearchFilterChange(e, field)}
-            onClick={() => toggleDropdown(field)}
-          />
-          {dropdownVisible[field] && (
-            <div className="dropdown-menu show">
-              {getFilteredItems(field).length > 0 ? (
-                getFilteredItems(field).map((item) => (
-                  <div
-                    key={item.id}
-                    className={`dropdown-item ${
-                      formData[field].some(
+    return (
+      <Form.Group>
+        <Form.Label className="text-dark">
+          {label} {required && <span className="required">*</span>}
+        </Form.Label>
+        <div className="multi-select-container">
+          <div className="selected-items">
+            {formData[field].map((item) => (
+              <div key={item.id} className="selected-item">
+                <span>{item.name}</span>
+                <button
+                  type="button"
+                  className="remove-btn"
+                  onClick={() => handleRemoveItem(field, item.id)}
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+          <div className="search-container">
+            <Form.Control
+              type="text"
+              placeholder="Search..."
+              value={searchFilters[field] || ""}
+              onChange={(e) => handleSearchFilterChange(e, field)}
+              onClick={() => toggleDropdown(field)}
+            />
+            {dropdownVisible[field] && (
+              <div className="dropdown-menu show">
+                {getFilteredItems(field).length > 0 ? (
+                  getFilteredItems(field).map((item) => (
+                    <div
+                      key={item.id}
+                      className={`dropdown-item ${formData[field].some(
                         (selected) => selected.id === item.id
                       )
-                        ? "selected"
-                        : ""
-                    }`}
-                    onClick={() => {
-                      handleSelectItem(field, item);
-                      toggleDropdown(field, false); // Auto-close dropdown
-                    }}
-                  >
-                    {item.name}
-                    {formData[field].some(
-                      (selected) => selected.id === item.id
-                    ) && <span className="check-mark">✓</span>}
+                          ? "selected"
+                          : ""
+                        }`}
+                      onClick={() => {
+                        handleSelectItem(field, item);
+                        toggleDropdown(field, false); // Auto-close dropdown
+                      }}
+                    >
+                      {item.name}
+                      {formData[field].some(
+                        (selected) => selected.id === item.id
+                      ) && <span className="check-mark">✓</span>}
+                    </div>
+                  ))
+                ) : (
+                  <div className="dropdown-item no-results">
+                    No results found
                   </div>
-                ))
-              ) : (
-                <div className="dropdown-item no-results">
-                  No results found
-                </div>
-              )}
-            </div>
-          )}
+                )}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-    </Form.Group>
-  );
-};
+      </Form.Group>
+    );
+  };
 
 
   const [currentStep, setCurrentStep] = useState(0);
@@ -501,14 +545,14 @@ const CeoCreateProject = () => {
       estimatedCost: "", // Default estimated cost
       approvedBudget: "", // Default approved budget
     };
-  
+
     // Update state with new column
     setFormData((prevFormData) => ({
       ...prevFormData,
       budgetBreakdown: [...prevFormData.budgetBreakdown, newColumn],
     }));
   };
-  
+
 
   const renderProgressBar = () => {
     return (
@@ -535,9 +579,8 @@ const CeoCreateProject = () => {
           {steps.map((step, index) => (
             <div key={index} className="step-item">
               <div
-                className={`step-circle ${
-                  index <= currentStep ? "active" : ""
-                }`}
+                className={`step-circle ${index <= currentStep ? "active" : ""
+                  }`}
               >
                 <svg
                   width="15"
@@ -567,9 +610,8 @@ const CeoCreateProject = () => {
                 </svg>
               </div>
               <div
-                className={`step-line ${index < currentStep ? "active" : ""} ${
-                  index === steps.length - 1 ? "hidden" : ""
-                }`}
+                className={`step-line ${index < currentStep ? "active" : ""} ${index === steps.length - 1 ? "hidden" : ""
+                  }`}
               ></div>
               <div
                 className={`step-label ${index <= currentStep ? "active" : ""}`}
@@ -585,46 +627,48 @@ const CeoCreateProject = () => {
 
   const renderProjectBasicDetails = () => {
     return (
-      <ProjectBasicDetails 
-      formData={formData} 
-      setFormData={setFormData} 
-      formErrors={formErrors} 
-    />
+      <ProjectBasicDetails
+        formData={formData} 
+        setFormData={setFormData} 
+        formErrors={formErrors} 
+        onProjectCreated={handleProjectCreated}
+      />
     );
   };
 
   const renderBudgetFinancialAllocation = () => {
     return (
-      <BudgetFinancialAllocation 
-      formData={formData}
-      handleInputChange={handleInputChange}
-      formErrors={formErrors}
-      handleBudgetBreakdownChange={handleBudgetBreakdownChange}
-      handleAddColumn={handleAddColumn}
-    />
+      <BudgetFinancialAllocation
+        formData={formData} 
+        setFormData={setFormData} 
+        createProjectBudget={createProjectBudget} 
+        loading={loading}
+        onNext={() => setCurrentStep(currentStep + 1)}
+      />
     );
   };
+  
 
   // Update the renderProjectTeamStakeholder function
   const renderProjectTeamStakeholder = () => {
     return (
-      <ProjectTeamStakeholder 
-      formData={formData}
-      searchFilters={searchFilters}
-      dropdownVisible={dropdownVisible}
-      teamMembers={teamMembers}
-      handleSearchFilterChange={handleSearchFilterChange}
-      toggleDropdown={toggleDropdown}
-      handleSelectItem={handleSelectItem}
-      handleRemoveItem={handleRemoveItem}
-      getFilteredItems={getFilteredItems}
-    />
+      <ProjectTeamStakeholder
+        formData={formData}
+        searchFilters={searchFilters}
+        dropdownVisible={dropdownVisible}
+        teamMembers={teamMembers}
+        handleSearchFilterChange={handleSearchFilterChange}
+        toggleDropdown={toggleDropdown}
+        handleSelectItem={handleSelectItem}
+        handleRemoveItem={handleRemoveItem}
+        getFilteredItems={getFilteredItems}
+      />
     );
   };
 
   const renderTimelineMilestonePlanning = () => {
     return (
-      <TimelineMilestonePlanning 
+      <TimelineMilestonePlanning
         formData={formData}
         handleMilestoneChange={handleMilestoneChange}
         handleAddColumn={handleAddColumn}
@@ -634,10 +678,10 @@ const CeoCreateProject = () => {
 
   const renderRiskComplianceAssessment = () => {
     return (
-      <RiskComplianceAssessment 
-      formData={formData}
-      handleAddColumn={handleAddColumn}
-    />
+      <RiskComplianceAssessment
+        formData={formData}
+        handleAddColumn={handleAddColumn}
+      />
     );
   };
 
@@ -663,19 +707,7 @@ const CeoCreateProject = () => {
         return null;
     }
   };
-  const dateInputRef = useRef(null);
-  const completionDateInputRef = useRef(null);
 
-  const handleContainerClick = () => {
-    if (dateInputRef.current) {
-      dateInputRef.current.showPicker(); // Opens the date picker
-    }
-  };
-  const handleContainerClickCompletionDate = () => {
-    if (completionDateInputRef.current) {
-      completionDateInputRef.current.showPicker(); // Opens the date picker
-    }
-  };
   // Update the main render function
   return (
     <Fragment>
@@ -706,7 +738,7 @@ const CeoCreateProject = () => {
                     )}
                     <div className="d-flex">
                       {currentStep === 1 || currentStep === 2 ? (
-                        <Button className="btn-primary btn fs-14-600 bg-transparent text-primary border-0  border-radius-2">
+                        <Button className="btn-primary btn fs-14-600 bg-transparent text-primary border-0 border-radius-2">
                           <svg
                             className="me-2"
                             width="20"
@@ -727,7 +759,8 @@ const CeoCreateProject = () => {
                         className="btn-primary btn fs-14-600 bg-primary border-0 border-radius-2"
                         onClick={handleNext}
                       >
-                        {currentStep === 4 ? "Final Review >" : "Next >"}
+                        {currentStep === 0 && !projectCreated ? "Next >" :
+                          currentStep === 4 ? "Final Review >" : "Next >"}
                       </Button>
                     </div>
                   </div>
