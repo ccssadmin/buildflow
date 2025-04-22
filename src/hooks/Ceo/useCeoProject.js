@@ -57,22 +57,24 @@ export const useProject = () => {
   const createProject = async (projectData) => {
     try {
       const result = await dispatch(createCeoProjectAction(projectData)).unwrap();
-      return { success: true, data: result };
+      return result; // ✅ Just return directly
     } catch (error) {
       console.error("Failed to create project:", error);
       return { success: false, error };
     }
   };
-
+  
+  
   const createProjectBudget = async (ProjectBudgetData) => {
     try {
       const result = await dispatch(createProjectBudgetAction(ProjectBudgetData)).unwrap();
-      return { success: true, data: result };
+      return result;
     } catch (error) {
       console.error("Failed to create project budget:", error);
       return { success: false, error };
     }
   };
+  
   
   return {
     // State

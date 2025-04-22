@@ -37,6 +37,15 @@ const ceoProjectSlice = createSlice({
         state.success = true;
         state.projects.push(action.payload);
         state.currentProject = action.payload;
+      
+        // ✅ Save projectid into localStorage
+        const projectId = action.payload?.data?.projectid;
+        if (projectId) {
+          localStorage.setItem("projectId", projectId.toString());
+          console.log("📌 Project ID saved to localStorage:", projectId);
+        } else {
+          console.error("❌ Failed to find projectId inside Redux payload");
+        }
       })
       .addCase(createCeoProjectAction.rejected, (state, action) => {
         state.loading = false;

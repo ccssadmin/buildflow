@@ -8,6 +8,7 @@ import TimelineMilestonePlanning from "./TimelineMilestonePlanning";
 import RiskComplianceAssessment from "./RiskComplianceAssessment";
 import { useProject } from "../../../hooks/Ceo/useCeoProject";
 import ProjectBasicDetails from "./ProjectBasicDetails";
+import Swal from "sweetalert2";
 // Form validation schema
 const validateForm = (step, formData) => {
   const errors = {};
@@ -31,6 +32,7 @@ const CeoCreateProject = () => {
   const { createProjectBudget, loading } = useProject();
   const [formData, setFormData] = useState({
     // Step 1: Project Basic Details
+     projectId: null,
     projectName: "",
     location: "",
     projectType: "",
@@ -179,17 +181,43 @@ const CeoCreateProject = () => {
     ],
   });
 
-  const handleProjectCreated = (projectId) => {
-    setProjectCreated(true);
-  
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      projectId: projectId, 
-    }));
-  
-    handleNext();
-  };
-  
+ // Update this function in CreateProject.jsx
+ const handleProjectCreated = (projectId) => {
+  if (!projectId) {
+    console.error("❌ No project ID received!");
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "Project creation failed: No project ID received.",
+    });
+    return;
+  }
+
+  const numericId = parseInt(projectId);
+
+  // Always overwrite localStorage (even if exists)
+  window.localStorage.setItem("projectId", numericId.toString());
+
+  // Set projectCreated to true
+  setProjectCreated(true);
+
+  // Force update formData with latest projectId
+  setFormData(prevState => ({
+    ...prevState,
+    projectId: numericId
+  }));
+
+  Swal.fire({
+    icon: "success",
+    title: "Success!",
+    text: `Project #${numericId} created successfully.`,
+    timer: 1500,
+    showConfirmButton: false
+  });
+
+  // Move to next step
+  setTimeout(() => setCurrentStep(prev => prev + 1), 1500);
+};
 
   // Add state for search filters
   const [searchFilters, setSearchFilters] = useState({
@@ -360,25 +388,22 @@ const CeoCreateProject = () => {
 
   // Modify the handleNext function
   const handleNext = () => {
-    // If we're on step 0 and the project is already created, just proceed to the next step
-    if (currentStep === 0 && projectCreated) {
-      setCurrentStep(currentStep + 1);
-      return;
-    }
-    
-    const errors = validateForm(currentStep, formData);
-    setFormErrors(errors);
+    if (currentStep === 0 && !projectCreated) {
+      const errors = validateForm(currentStep, formData);
+      setFormErrors(errors);
   
-    if (Object.keys(errors).length === 0) {
-      if (currentStep === 4) {
-        // If on the last step, show summary
-        handleSubmit();
-      } else {
-        setCurrentStep(currentStep + 1);
+      if (Object.keys(errors).length > 0) {
+        return; // Don't move if there are validation errors
       }
     }
+  
+    if (currentStep === 4) {
+      handleSubmit(); // Last step
+    } else {
+      setCurrentStep(currentStep + 1); // Move normally
+    }
   };
-
+  
   const handleBack = () => {
     setCurrentStep(currentStep - 1);
   };

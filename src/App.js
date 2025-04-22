@@ -213,6 +213,7 @@ const App = () => {
     localStorage.removeItem("userRole");
     localStorage.removeItem("userRoleId");
     localStorage.removeItem("userData");
+    localStorage.removeItem('projectId'); 
   
     // Reset the state
     setRole(null);

@@ -1,12 +1,56 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Form, Button } from "react-bootstrap";
 import Swal from "sweetalert2";
 
 const BudgetFinancialAllocation = ({ formData, setFormData, onNext, createProjectBudget, loading }) => {
+  const [localProjectId, setLocalProjectId] = useState(null);
 
   useEffect(() => {
+    // On component mount - get project ID from all possible sources
+    const getProjectId = () => {
+      // First check formData
+      if (formData && formData.projectId) {
+        console.log("🔍 Found projectId in formData:", formData.projectId);
+        setLocalProjectId(formData.projectId);
+        return formData.projectId;
+      }
+
+      // Then check localStorage as backup
+      const storedId = localStorage.getItem("projectId");
+      if (storedId) {
+        console.log("🔍 Found projectId in localStorage:", storedId);
+        setLocalProjectId(parseInt(storedId));
+
+        // Update formData if needed
+        if (!formData.projectId) {
+          setFormData(prev => ({
+            ...prev,
+            projectId: parseInt(storedId)
+          }));
+        }
+
+        return parseInt(storedId);
+      }
+
+      console.error("❌ No project ID found anywhere!");
+      return null;
+    };
+
+    const projectId = getProjectId();
+
+    // Alert if no project ID found
+    if (!projectId) {
+      Swal.fire({
+        icon: "warning",
+        title: "Project ID Missing",
+        text: "Could not find project ID. Please go back and create the project first.",
+      });
+    }
+
     calculateTotalBudget();
-  }, [formData.budgetBreakdown]);
+  }, []);
+
+
 
   const calculateTotalBudget = () => {
     const totalApprovedBudget = formData.budgetBreakdown.reduce((acc, item) => {
@@ -62,9 +106,13 @@ const BudgetFinancialAllocation = ({ formData, setFormData, onNext, createProjec
     }));
   };
 
+
   const handleNextClick = async () => {
     try {
-      if (!formData.projectId) {
+      const projectId = formData.projectId || localProjectId || parseInt(localStorage.getItem("projectId"));
+      console.log("🚀 Using project ID for budget creation:", projectId);
+  
+      if (!projectId) {
         Swal.fire({
           icon: "error",
           title: "Error",
@@ -72,63 +120,61 @@ const BudgetFinancialAllocation = ({ formData, setFormData, onNext, createProjec
         });
         return;
       }
-
+  
       const cleanBudgetBreakdown = formData.budgetBreakdown
-      .filter((item) => item.category.trim() !== "" && (parseFloat(item.estimatedCost) > 0 || parseFloat(item.approvedBudget) > 0))
-      .map((item) => ({
-        category: item.category.trim(),
-        estimatedCost: parseFloat(item.estimatedCost) || 0,
-        approvedBudget: parseFloat(item.approvedBudget) || 0,
-      }));
-
-    if (cleanBudgetBreakdown.length === 0) {
+        .filter((item) => item.category.trim() !== "" && (parseFloat(item.estimatedCost) > 0 || parseFloat(item.approvedBudget) > 0))
+        .map((item) => ({
+          projectBudgetId: 0,  // Always 0 when creating new
+          projectExpenseCategory: item.category.trim(),
+          estimatedCost: parseFloat(item.estimatedCost) || 0,
+          approvedBudget: parseFloat(item.approvedBudget) || 0,
+        }));
+  
+      const payload = {
+        projectId: parseInt(projectId),
+        projectBudgetList: cleanBudgetBreakdown
+      };
+  
+      console.log("📤 Final Budget Payload:", payload);
+  
+      const response = await createProjectBudget(payload);
+      console.log("📥 Budget API Response:", response);
+  
+      if (response?.success) {
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Budget created successfully!",
+          timer: 2000,
+          showConfirmButton: false,
+        });
+  
+        // After success remove projectId from storage
+        localStorage.removeItem("projectId");
+        console.log("🧹 Removed projectId from localStorage after success!");
+  
+        setTimeout(() => {
+          onNext();
+        }, 2000);
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: response?.message || "Failed to create budget.",
+        });
+      }
+  
+    } catch (error) {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Please enter at least one valid budget breakdown item.",
+        text: "Something went wrong while saving budget.",
       });
-      return;
+      console.error("💥 Error while creating budget:", error);
     }
+  };
+  
 
-    const payload = {
-      // Use the numeric project ID directly, not the entire response object
-      projectId: formData.projectId,
-      totalBudget: formData.totalBudget,
-      sendTo: formData.sendTo,
-      budgetBreakdown: cleanBudgetBreakdown,
-    };
-
-    console.log("Payload sending to API:", payload);
-
-    const response = await createProjectBudget({ dto: payload });
-
-    if (response.success) {
-      Swal.fire({
-        icon: "success",
-        title: "Success",
-        text: "Budget created successfully!",
-        timer: 2000,
-        showConfirmButton: false,
-      });
-      setTimeout(() => {
-        onNext();
-      }, 2000);
-    } else {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: response.message || "Failed to create budget.",
-      });
-    }
-  } catch (error) {
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: "Something went wrong.",
-    });
-    console.error("Error occurred:", error);
-  }
-};
   return (
     <div className="budget-financial-page">
       <h2 className="section-title mb-4">Budget & Financial Allocation</h2>
@@ -140,9 +186,10 @@ const BudgetFinancialAllocation = ({ formData, setFormData, onNext, createProjec
             <Form.Control
               type="text"
               name="totalBudget"
-              value={formData.totalBudget}
+              value={formData.budgetBreakdown.reduce((sum, item) => sum + (parseFloat(item.approvedBudget) || 0), 0)}
               readOnly
             />
+
           </Form.Group>
         </div>
 

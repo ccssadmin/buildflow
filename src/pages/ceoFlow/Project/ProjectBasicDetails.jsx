@@ -78,44 +78,53 @@ const ProjectBasicDetails = ({ formData, setFormData, onProjectCreated, formErro
       };
   
       const result = await createProject(cleanFormData);
+      console.log("💬 API Response:", result);
   
-    if (result.success) {
-  Swal.fire({
-    icon: "success",
-    title: "Success!",
-    text: "Project created successfully!",
-    timer: 1500,
-    showConfirmButton: false,
-  });
-
-  // ✅ Only store result.data as projectId
-  const projectId = result.data; // ✅ data is just the project ID like 85
-
-  setFormData((prevFormData) => ({
-    ...prevFormData,
-    projectId: projectId, // ✅ Store only the id
-  }));
-
-  setTimeout(() => {
-    if (onProjectCreated) {
-      onProjectCreated(projectId); // ✅ Pass only the id
-    }
-  }, 300);
-}
-    
-       else {
+      if (result?.success === true && result?.data?.projectid) {
+        // ✅ SUCCESS Case
+        const projectId = result.data.projectid;
+  
+        Swal.fire({
+          icon: "success",
+          title: "Success!",
+          text: "Project created successfully!",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+  
+        if (projectId) {
+          localStorage.setItem("projectId", projectId); // ✅ Save to localStorage
+  
+          setFormData((prevFormData) => ({
+            ...prevFormData,
+            projectId: projectId,
+          }));
+  
+          setProjectCreated(true);
+  
+          setTimeout(() => {
+            if (onProjectCreated) {
+              onProjectCreated(projectId);
+            }
+          }, 300);
+        }
+      } 
+      else {
+        // ❌ FAILURE Case
         Swal.fire({
           icon: "error",
           title: "Failed!",
-          text: result.error || "Failed to create project. Please try again.",
+          text: result?.message || "Failed to create project. Please try again.",
         });
       }
+  
     } catch (error) {
       Swal.fire({
         icon: "error",
         title: "Error!",
         text: "An unexpected error occurred. Please try again later.",
       });
+      console.error("💥 Create project error:", error);
     } finally {
       setSubmitting(false);
     }
