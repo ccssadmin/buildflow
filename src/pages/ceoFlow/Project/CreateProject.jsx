@@ -2,20 +2,21 @@ import { Calendar, ChevronLeft, ChevronRight, Plus, User } from "lucide-react";
 import { useState, Fragment, useRef } from "react";
 import { Form, Button, Table, Row, Col } from "react-bootstrap";
 import ProjectSummary from "./ProjectSummary";
-import ProjectBasicDetails from "./ProjectBasicDetails";
 import BudgetFinancialAllocation from "./BudgetFinancialAllocation";
 import ProjectTeamStakeholder from "./ProjectTeamStakeholder";
 import TimelineMilestonePlanning from "./TimelineMilestonePlanning";
 import RiskComplianceAssessment from "./RiskComplianceAssessment";
+import { useProject } from "../../../hooks/Ceo/useCeoProject";
+import ProjectBasicDetails from "./ProjectBasicDetails";
+import Swal from "sweetalert2";
 // Form validation schema
 const validateForm = (step, formData) => {
   const errors = {};
 
   if (step === 0) {
     if (!formData.projectName) errors.projectName = "Project name is required";
-    if (!formData.projectType) errors.projectType = "Project type is required";
-    if (!formData.projectSector)
-      errors.projectSector = "Project sector is required";
+    if (!formData.projectTypeId) errors.projectTypeId = "Project type is required";
+    if (!formData.projectSectorId) errors.projectSectorId = "Project sector is required";
     if (!formData.projectStartDate)
       errors.projectStartDate = "Start date is required";
   } else if (step === 1) {
@@ -28,8 +29,10 @@ const validateForm = (step, formData) => {
 const CeoCreateProject = () => {
   // Update the state to handle multiple selections for dropdowns
   const [projectCreated, setProjectCreated] = useState(false);
+  const { createProjectBudget, loading } = useProject();
   const [formData, setFormData] = useState({
     // Step 1: Project Basic Details
+     projectId: null,
     projectName: "",
     location: "",
     projectType: "",
@@ -178,20 +181,43 @@ const CeoCreateProject = () => {
     ],
   });
 
-  const handleProjectCreated = (projectData) => {
-    // Set project created flag to true
-    setProjectCreated(true);
-    
-    // You might want to update other form data with the project data
-    // For example, if the API returns an ID you need for the next steps
-    if (projectData && projectData.id) {
-      setFormData({
-        ...formData,
-        projectId: projectData.id,
-        // Add any other fields you want to update
-      });
-    }
-  };
+ // Update this function in CreateProject.jsx
+ const handleProjectCreated = (projectId) => {
+  if (!projectId) {
+    console.error("❌ No project ID received!");
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "Project creation failed: No project ID received.",
+    });
+    return;
+  }
+
+  const numericId = parseInt(projectId);
+
+  // Always overwrite localStorage (even if exists)
+  window.localStorage.setItem("projectId", numericId.toString());
+
+  // Set projectCreated to true
+  setProjectCreated(true);
+
+  // Force update formData with latest projectId
+  setFormData(prevState => ({
+    ...prevState,
+    projectId: numericId
+  }));
+
+  Swal.fire({
+    icon: "success",
+    title: "Success!",
+    text: `Project #${numericId} created successfully.`,
+    timer: 1500,
+    showConfirmButton: false
+  });
+
+  // Move to next step
+  setTimeout(() => setCurrentStep(prev => prev + 1), 1500);
+};
 
   // Add state for search filters
   const [searchFilters, setSearchFilters] = useState({
@@ -362,25 +388,22 @@ const CeoCreateProject = () => {
 
   // Modify the handleNext function
   const handleNext = () => {
-    // If we're on step 0 and the project is already created, just proceed to the next step
-    if (currentStep === 0 && projectCreated) {
-      setCurrentStep(currentStep + 1);
-      return;
-    }
-    
-    const errors = validateForm(currentStep, formData);
-    setFormErrors(errors);
+    if (currentStep === 0 && !projectCreated) {
+      const errors = validateForm(currentStep, formData);
+      setFormErrors(errors);
   
-    if (Object.keys(errors).length === 0) {
-      if (currentStep === 4) {
-        // If on the last step, show summary
-        handleSubmit();
-      } else {
-        setCurrentStep(currentStep + 1);
+      if (Object.keys(errors).length > 0) {
+        return; // Don't move if there are validation errors
       }
     }
+  
+    if (currentStep === 4) {
+      handleSubmit(); // Last step
+    } else {
+      setCurrentStep(currentStep + 1); // Move normally
+    }
   };
-
+  
   const handleBack = () => {
     setCurrentStep(currentStep - 1);
   };
@@ -604,7 +627,7 @@ const CeoCreateProject = () => {
 
   const renderProjectBasicDetails = () => {
     return (
-      <ProjectBasicDetails 
+      <ProjectBasicDetails
         formData={formData} 
         setFormData={setFormData} 
         formErrors={formErrors} 
@@ -615,127 +638,16 @@ const CeoCreateProject = () => {
 
   const renderBudgetFinancialAllocation = () => {
     return (
-      <div className="form-section">
-        <h2 className="section-title">Budget & Financial Allocation</h2>
-        <Row className="mb-4">
-          <Col md={6}>
-            <Form.Group>
-              <Form.Label className="text-dark fs-26-700">
-                Total Project Budget <span className="required">*</span>
-              </Form.Label>
-              <Form.Control
-                type="text"
-                name="totalBudget"
-                placeholder="Type amount"
-                value={formData.totalBudget}
-                onChange={handleInputChange}
-                isInvalid={!!formErrors.totalBudget}
-              />
-              <Form.Control.Feedback type="invalid">
-                {formErrors.totalBudget}
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group>
-              <Form.Label className="text-dark fs-26-700">Send To</Form.Label>
-              <Form.Select
-                name="sendTo"
-                value={formData.sendTo}
-                onChange={handleInputChange}
-              >
-                <option value="">Select Team</option>
-                <option value="finance">Finance Team</option>
-                <option value="management">Management Team</option>
-                <option value="operations">Operations Team</option>
-              </Form.Select>
-            </Form.Group>
-          </Col>
-        </Row>
-        <div className="budget-breakdown">
-          <h3 className="text-dark-gray fs-22-700 mb-0">Budget Breakdown</h3>
-          <table
-            bordered
-            responsive
-            className="mt-3 tbl tbl-budget-financial w-100"
-          >
-            <thead>
-              <tr>
-                <th className="text-center text-dark fs-18-500">S.No</th>
-                <th className="text-center text-dark fs-18-500">
-                  Expense Category
-                </th>
-                <th className="text-center text-dark fs-18-500">
-                  Estimated Cost (₹)
-                </th>
-                <th className="text-center text-dark fs-18-500">
-                  Approved Budget (₹)
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {formData.budgetBreakdown.map((item) => (
-                <tr key={item.id}>
-                  <td className="text-dark-gray fs-16-500 text-center">
-                    {String(item.id).padStart(2, "0")}
-                  </td>
-                  <td className="text-dark-gray fs-16-500 text-center">
-                    <Form.Control
-                      type="text"
-                      placeholder="Enter category"
-                      value={item.category}
-                      maxLength={20} // Limit to 20 characters
-                      onChange={(e) =>
-                        handleBudgetBreakdownChange(
-                          item.id,
-                          "category",
-                          e.target.value
-                        )
-                      }
-                    />
-                  </td>
-                  <td className="text-dark-gray fs-16-500 text-center">
-                    <Form.Control
-                      type="text"
-                      value={item.estimatedCost}
-                      onChange={(e) =>
-                        handleBudgetBreakdownChange(
-                          item.id,
-                          "estimatedCost",
-                          e.target.value
-                        )
-                      }
-                    />
-                  </td>
-                  <td className="text-dark-gray fs-16-500 text-center">
-                    <Form.Control
-                      type="text"
-                      value={item.approvedBudget}
-                      onChange={(e) =>
-                        handleBudgetBreakdownChange(
-                          item.id,
-                          "approvedBudget",
-                          e.target.value
-                        )
-                      }
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <div className="add-column text-end">
-            <Button
-              className="text-primary bg-transparent border-0 fs-16-500 me-0 ms-auto"
-              onClick={handleAddColumn}
-            >
-              + Add Column
-            </Button>
-          </div>
-        </div>
-      </div>
+      <BudgetFinancialAllocation
+        formData={formData} 
+        setFormData={setFormData} 
+        createProjectBudget={createProjectBudget} 
+        loading={loading}
+        onNext={() => setCurrentStep(currentStep + 1)}
+      />
     );
   };
+  
 
   // Update the renderProjectTeamStakeholder function
   const renderProjectTeamStakeholder = () => {
@@ -795,19 +707,7 @@ const CeoCreateProject = () => {
         return null;
     }
   };
-  const dateInputRef = useRef(null);
-  const completionDateInputRef = useRef(null);
 
-  const handleContainerClick = () => {
-    if (dateInputRef.current) {
-      dateInputRef.current.showPicker(); // Opens the date picker
-    }
-  };
-  const handleContainerClickCompletionDate = () => {
-    if (completionDateInputRef.current) {
-      completionDateInputRef.current.showPicker(); // Opens the date picker
-    }
-  };
   // Update the main render function
   return (
     <Fragment>
@@ -859,7 +759,7 @@ const CeoCreateProject = () => {
                         className="btn-primary btn fs-14-600 bg-primary border-0 border-radius-2"
                         onClick={handleNext}
                       >
-                        {currentStep === 0 && !projectCreated ? "Create & Next >" :
+                        {currentStep === 0 && !projectCreated ? "Next >" :
                           currentStep === 4 ? "Final Review >" : "Next >"}
                       </Button>
                     </div>
