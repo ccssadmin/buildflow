@@ -26,6 +26,8 @@ export const getAllMembers = (params) => api.GET(API.GET_ALL_MEMBERS, params);
 export const getProjectTypeSector = (params) => api.GET(API.Get_PROJECTTYPE_SECTOR,params);
 export const createceoproject = (params) => api.POST(API.CREATE_CEO_PROJECT,params);
 export const createProjectBudget = (params) => api.POST(API.CREATE_PROJECT_BUDGET, params);
+export const createProjectTeam = (params) => api.POST(API.CREATE_PROJECT_TEAM,params);
+export const crateFinanceApproved = (params) => api.POST(API.CREATE_FINACIAL_APPROVAL,params);
 // fetch vendors and subcontractors
 export const getVendorsAndSubcontractors = (params) => api.GET(API.GET_VENDORS_AND_SUBCONTRACTORS,params);
 

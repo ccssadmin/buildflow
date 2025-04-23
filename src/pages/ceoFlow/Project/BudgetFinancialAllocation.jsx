@@ -124,7 +124,7 @@ const BudgetFinancialAllocation = ({ formData, setFormData, onNext, createProjec
       const cleanBudgetBreakdown = formData.budgetBreakdown
         .filter((item) => item.category.trim() !== "" && (parseFloat(item.estimatedCost) > 0 || parseFloat(item.approvedBudget) > 0))
         .map((item) => ({
-          projectBudgetId: 0,  // Always 0 when creating new
+          projectBudgetId: 0,
           projectExpenseCategory: item.category.trim(),
           estimatedCost: parseFloat(item.estimatedCost) || 0,
           approvedBudget: parseFloat(item.approvedBudget) || 0,
@@ -149,10 +149,6 @@ const BudgetFinancialAllocation = ({ formData, setFormData, onNext, createProjec
           showConfirmButton: false,
         });
   
-        // After success remove projectId from storage
-        localStorage.removeItem("projectId");
-        console.log("🧹 Removed projectId from localStorage after success!");
-  
         setTimeout(() => {
           onNext();
         }, 2000);
@@ -173,6 +169,7 @@ const BudgetFinancialAllocation = ({ formData, setFormData, onNext, createProjec
       console.error("💥 Error while creating budget:", error);
     }
   };
+  
   
 
   return (

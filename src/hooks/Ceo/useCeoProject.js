@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { createCeoProjectAction, createProjectBudgetAction, getProjectTypeSectorAction } from "../../store/actions/Ceo/ceoprojectAction";
+import { createCeoProjectAction, createProjectBudgetAction, createProjectFinanceApprovedAction, createProjectTeamAction, getProjectTypeSectorAction } from "../../store/actions/Ceo/ceoprojectAction";
 import {
   selectAllProjects,
   selectCurrentProject,
@@ -74,7 +74,25 @@ export const useProject = () => {
       return { success: false, error };
     }
   };
+  const createProjectteams = async (ProjectTeamData) => {
+    try {
+      const result = await dispatch(createProjectTeamAction(ProjectTeamData)).unwrap();
+      return result;
+    } catch (error) {
+      console.error("Failed to create project Team:", error);
+      return { success: false, error };
+    }
+  };
   
+  const createProjectFinanceApprove = async (ProjectFinanceData) => {
+    try {
+      const result = await dispatch(createProjectFinanceApprovedAction(ProjectFinanceData)).unwrap();
+      return result;
+    } catch (error) {
+      console.error("Failed to create project Finance Approved:", error);
+      return { success: false, error };
+    }
+  };
   
   return {
     // State
@@ -90,6 +108,8 @@ export const useProject = () => {
     fetchProjectTypeSector,
     resetProject,
     updateCurrentProject,
-    createProjectBudget
+    createProjectBudget,
+    createProjectteams,
+    createProjectFinanceApprove
   };
 };

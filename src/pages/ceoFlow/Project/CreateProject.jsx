@@ -340,25 +340,31 @@ const CeoCreateProject = () => {
 
   // Handle selection of an item
   const handleSelectItem = (field, item) => {
-    // Check if item is already selected
-    const isSelected = formData[field].some(
-      (selected) => selected.id === item.id
-    );
-
-    if (isSelected) {
-      // Remove item if already selected
+    if (!formData[field]) {
       setFormData({
         ...formData,
-        [field]: formData[field].filter((selected) => selected.id !== item.id),
+        [field]: [item],
+      });
+      return;
+    }
+  
+    const isSelected = formData[field].some(
+      (selected) => selected.id === item.id || selected.empId === item.empId
+    );
+  
+    if (isSelected) {
+      setFormData({
+        ...formData,
+        [field]: formData[field].filter((selected) => selected.id !== item.id && selected.empId !== item.empId),
       });
     } else {
-      // Add item if not selected
       setFormData({
         ...formData,
         [field]: [...formData[field], item],
       });
     }
   };
+  
 
   // Remove a selected item
   const handleRemoveItem = (field, itemId) => {
@@ -650,22 +656,26 @@ const CeoCreateProject = () => {
   
 
   // Update the renderProjectTeamStakeholder function
-  const renderProjectTeamStakeholder = () => {
-    return (
-      <ProjectTeamStakeholder
-        formData={formData}
-        searchFilters={searchFilters}
-        dropdownVisible={dropdownVisible}
-        teamMembers={teamMembers}
-        handleSearchFilterChange={handleSearchFilterChange}
-        toggleDropdown={toggleDropdown}
-        handleSelectItem={handleSelectItem}
-        handleRemoveItem={handleRemoveItem}
-        getFilteredItems={getFilteredItems}
-      />
-    );
-  };
+  // In CreateProject.jsx, modify the renderProjectTeamStakeholder function:
 
+// In CreateProject.jsx
+const renderProjectTeamStakeholder = () => {
+  return (
+    <ProjectTeamStakeholder
+      formData={formData}
+      setFormData={setFormData}
+      searchFilters={searchFilters}
+      dropdownVisible={dropdownVisible}
+      handleSearchFilterChange={handleSearchFilterChange}
+      toggleDropdown={toggleDropdown}
+      handleSelectItem={handleSelectItem}
+      handleRemoveItem={handleRemoveItem}
+      onNext={() => setCurrentStep((prev) => prev + 1)}
+    />
+  );
+};
+
+  
   const renderTimelineMilestonePlanning = () => {
     return (
       <TimelineMilestonePlanning

@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { createceoproject, createProjectBudget, getProjectTypeSector } from "../../../services";
+import { crateFinanceApproved, createceoproject, createProjectBudget, createProjectTeam, getProjectTypeSector } from "../../../services";
 
 // Get Project Type & Sector
 export const getProjectTypeSectorAction = createAsyncThunk(
@@ -26,6 +26,22 @@ export const createProjectBudgetAction = createAsyncThunk(
   "project/budget",
   async (params) => {
     const response = await createProjectBudget(params);
+    return response.data;
+  }
+);
+
+export const createProjectTeamAction = createAsyncThunk(
+  "project/team",
+  async (params) => {
+    const response = await createProjectTeam(params);
+    return response.data;
+  }
+);
+
+export const createProjectFinanceApprovedAction = createAsyncThunk(
+  "project/finance",
+  async (params) => {
+    const response = await crateFinanceApproved(params);
     return response.data;
   }
 );
