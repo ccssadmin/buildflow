@@ -197,9 +197,16 @@ const ProjectTeamStakeholder = ({
 
   // Modified MultiSelect component with hidden input for storing empId
   const MultiSelect = ({ field, label, required = false }) => {
-    // Use local dropdown visibility state
     const isDropdownVisible = localDropdownVisible[field] || false;
-    
+    const inputRef = React.useRef(null);
+  
+    // Focus the input when dropdown opens
+    useEffect(() => {
+      if (isDropdownVisible && inputRef.current) {
+        inputRef.current.focus();
+      }
+    }, [isDropdownVisible]);
+  
     return (
       <Form.Group>
         <Form.Label className="text-dark">
@@ -210,7 +217,6 @@ const ProjectTeamStakeholder = ({
             {formData[field]?.map((item) => (
               <div key={item.id || item.empId} className="selected-item">
                 <span>{item.name}</span>
-                {/* Hidden input to store empId for form submission */}
                 <input 
                   type="hidden" 
                   name={`${field}Ids[]`} 
@@ -228,24 +234,40 @@ const ProjectTeamStakeholder = ({
           </div>
           <div className="search-container">
             <Form.Control
+              ref={inputRef}
               type="text"
               placeholder={loading ? "Loading..." : "Search..."}
               value={searchFilters[field] || ""}
-              onChange={(e) => handleSearchFilterChange(e, field)}
-              onClick={() => handleToggleDropdown(field)}
+              onChange={(e) => {
+                handleSearchFilterChange(e, field);
+                if (!isDropdownVisible) {
+                  handleToggleDropdown(field);
+                }
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!isDropdownVisible) {
+                  handleToggleDropdown(field);
+                }
+              }}
+              onFocus={() => {
+                if (!isDropdownVisible) {
+                  handleToggleDropdown(field);
+                }
+              }}
               disabled={loading}
+              style={{ cursor: "text" }}
             />
             {isDropdownVisible && (
-              <div className="dropdown-menu show">
+              <div 
+                className="dropdown-menu show"
+                onClick={(e) => e.stopPropagation()} // Prevent closing when clicking dropdown
+              >
                 {loading ? (
-                  <div className="dropdown-item no-results">
-                    Loading...
-                  </div>
+                  <div className="dropdown-item no-results">Loading...</div>
                 ) : getFilteredItems(field).length > 0 ? (
                   getFilteredItems(field).map((item) => {
-                    // Get accurate selected state for this specific item
                     const selected = isItemSelected(field, item.id || item.empId);
-                    
                     return (
                       <div
                         key={item.id || item.empId}
@@ -262,7 +284,7 @@ const ProjectTeamStakeholder = ({
                   })
                 ) : (
                   <div className="dropdown-item no-results">
-                    No results found
+                    No results found for "{searchFilters[field]}"
                   </div>
                 )}
               </div>
