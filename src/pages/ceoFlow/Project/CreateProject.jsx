@@ -1,5 +1,5 @@
 import { Calendar, ChevronLeft, ChevronRight, Plus, User } from "lucide-react";
-import { useState, Fragment, useRef } from "react";
+import { useState, Fragment, useRef, useEffect } from "react";
 import { Form, Button, Table, Row, Col } from "react-bootstrap";
 import ProjectSummary from "./ProjectSummary";
 import BudgetFinancialAllocation from "./BudgetFinancialAllocation";
@@ -30,6 +30,7 @@ const CeoCreateProject = () => {
   // Update the state to handle multiple selections for dropdowns
   const [projectCreated, setProjectCreated] = useState(false);
   const { createProjectBudget, loading } = useProject();
+  const { createProjectMilestone } = useProject();
   const [formData, setFormData] = useState({
     // Step 1: Project Basic Details
      projectId: null,
@@ -182,7 +183,8 @@ const CeoCreateProject = () => {
   });
 
  // Update this function in CreateProject.jsx
- const handleProjectCreated = (projectId) => {
+ // In CreateProject.jsx, modify handleProjectCreated
+const handleProjectCreated = (projectId) => {
   if (!projectId) {
     console.error("❌ No project ID received!");
     Swal.fire({
@@ -195,17 +197,17 @@ const CeoCreateProject = () => {
 
   const numericId = parseInt(projectId);
 
-  // Always overwrite localStorage (even if exists)
+  // Always overwrite localStorage
   window.localStorage.setItem("projectId", numericId.toString());
 
-  // Set projectCreated to true
-  setProjectCreated(true);
-
-  // Force update formData with latest projectId
+  // Update state with the projectId
   setFormData(prevState => ({
     ...prevState,
     projectId: numericId
   }));
+
+  // Set projectCreated to true
+  setProjectCreated(true);
 
   Swal.fire({
     icon: "success",
@@ -215,10 +217,11 @@ const CeoCreateProject = () => {
     showConfirmButton: false
   });
 
-  // Move to next step
-  setTimeout(() => setCurrentStep(prev => prev + 1), 1500);
+  // Move to next step AFTER state updates
+  setTimeout(() => {
+    setCurrentStep(prev => prev + 1);
+  }, 1600);
 };
-
   // Add state for search filters
   const [searchFilters, setSearchFilters] = useState({
     projectManager: "",
@@ -340,30 +343,29 @@ const CeoCreateProject = () => {
 
   // Handle selection of an item
   const handleSelectItem = (field, item) => {
-    if (!formData[field]) {
-      setFormData({
-        ...formData,
-        [field]: [item],
-      });
-      return;
-    }
+    console.log(`Selecting item for ${field}:`, item);
   
-    const isSelected = formData[field].some(
-      (selected) => selected.id === item.id || selected.empId === item.empId
-    );
+    setFormData((prevState) => {
+      const isSelected = prevState[field]?.some(
+        (selected) => selected.id === item.id || selected.empId === item.empId
+      );
   
-    if (isSelected) {
-      setFormData({
-        ...formData,
-        [field]: formData[field].filter((selected) => selected.id !== item.id && selected.empId !== item.empId),
-      });
-    } else {
-      setFormData({
-        ...formData,
-        [field]: [...formData[field], item],
-      });
-    }
+      // Add or remove the item based on whether it's already selected
+      const updatedField = isSelected
+        ? prevState[field].filter(
+            (selected) => selected.id !== item.id && selected.empId !== item.empId
+          )
+        : [...(prevState[field] || []), item];
+  
+      console.log(`Updated ${field} data:`, updatedField);
+  
+      return {
+        ...prevState,
+        [field]: updatedField,
+      };
+    });
   };
+  
   
 
   // Remove a selected item
@@ -392,94 +394,133 @@ const CeoCreateProject = () => {
     setShowSummary(false);
   };
 
-  // Modify the handleNext function
-  const handleNext = () => {
-    if (currentStep === 0 && !projectCreated) {
-      const errors = validateForm(currentStep, formData);
+  const handleNext = async () => {
+    const errors = validateForm(currentStep, formData);
+    if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
+      return; // Stop if there are validation errors
+    }
   
-      if (Object.keys(errors).length > 0) {
-        return; // Don't move if there are validation errors
+    if (currentStep === 0 && !projectCreated) {
+      // Wait for project creation to complete in ProjectBasicDetails
+      return;
+    }
+  
+    if (currentStep === 2) {
+      // Let ProjectTeamStakeholder handle the transition
+      return;
+    }
+  
+    if (currentStep === 3) {
+      // Handle milestone saving
+      if (!formData.projectId) {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Project ID missing. Please create a project first.",
+        });
+        return;
       }
+  
+      const formattedMilestones = formData.milestones.map(milestone => ({
+        milestoneId: 0,
+        milestoneName: milestone.name,
+        milestoneDescription: milestone.description,
+        milestoneStartDate: milestone.startDate,
+        milestoneEndDate: milestone.endDate,
+        milestoneStatus: milestone.status,
+      }));
+  
+      try {
+        const response = await createProjectMilestone(formData.projectId, {
+          projectId: formData.projectId,
+          milestoneList: formattedMilestones,
+        });
+  
+        if (response.success) {
+          Swal.fire({
+            icon: "success",
+            title: "Milestones saved!",
+            timer: 1500,
+            showConfirmButton: false,
+          });
+  
+          setTimeout(() => setCurrentStep(prev => prev + 1), 1500);
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: response.message || "Failed to save milestones.",
+          });
+        }
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to save milestones. Please try again.",
+        });
+      }
+      return;
     }
   
     if (currentStep === 4) {
-      handleSubmit(); // Last step
+      handleSubmit(); // Final step
     } else {
-      setCurrentStep(currentStep + 1); // Move normally
+      setCurrentStep(prev => prev + 1);
     }
   };
+  
   
   const handleBack = () => {
     setCurrentStep(currentStep - 1);
   };
 
   // Create a custom multi-select component
-  const MultiSelect = ({ field, label, required = false }) => {
-    return (
-      <Form.Group>
-        <Form.Label className="text-dark">
-          {label} {required && <span className="required">*</span>}
-        </Form.Label>
-        <div className="multi-select-container">
-          <div className="selected-items">
-            {formData[field].map((item) => (
-              <div key={item.id} className="selected-item">
-                <span>{item.name}</span>
-                <button
-                  type="button"
-                  className="remove-btn"
-                  onClick={() => handleRemoveItem(field, item.id)}
-                >
-                  ×
-                </button>
-              </div>
-            ))}
-          </div>
-          <div className="search-container">
-            <Form.Control
-              type="text"
-              placeholder="Search..."
-              value={searchFilters[field] || ""}
-              onChange={(e) => handleSearchFilterChange(e, field)}
-              onClick={() => toggleDropdown(field)}
-            />
-            {dropdownVisible[field] && (
-              <div className="dropdown-menu show">
-                {getFilteredItems(field).length > 0 ? (
-                  getFilteredItems(field).map((item) => (
-                    <div
-                      key={item.id}
-                      className={`dropdown-item ${formData[field].some(
-                        (selected) => selected.id === item.id
-                      )
-                          ? "selected"
-                          : ""
-                        }`}
-                      onClick={() => {
-                        handleSelectItem(field, item);
-                        toggleDropdown(field, false); // Auto-close dropdown
-                      }}
-                    >
-                      {item.name}
-                      {formData[field].some(
-                        (selected) => selected.id === item.id
-                      ) && <span className="check-mark">✓</span>}
-                    </div>
-                  ))
-                ) : (
-                  <div className="dropdown-item no-results">
-                    No results found
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      </Form.Group>
-    );
-  };
-
+  // const MultiSelect = ({ field, label, required = false }) => {
+  //   const inputRef = useRef(null);
+  //   const isDropdownVisible = dropdownVisible[field] || false;
+  
+  //   useEffect(() => {
+  //     if (isDropdownVisible && inputRef.current) {
+  //       inputRef.current.focus();
+  //     }
+  //   }, [isDropdownVisible]);
+  
+  //   const handleItemClick = (item) => {
+  //     console.log(`Selected Item for ${field}:`, item);
+  //     handleSelectItem(field, item);
+  //     toggleDropdown(field);
+  //   };
+  
+  //   return (
+  //     <Form.Group>
+  //       <Form.Label>{label} {required && <span>*</span>}</Form.Label>
+  //       <div>
+  //         {formData[field]?.map((item) => (
+  //           <div key={item.id || item.empId}>
+  //             <span>{item.name}</span>
+  //           </div>
+  //         ))}
+  //         <Form.Control
+  //           ref={inputRef}
+  //           type="text"
+  //           placeholder="Search..."
+  //           onClick={() => toggleDropdown(field)}
+  //         />
+  //         {isDropdownVisible && (
+  //           <div>
+  //             {getFilteredItems(field).map((item) => (
+  //               <div key={item.id} onClick={() => handleItemClick(item)}>
+  //                 {item.name}
+  //               </div>
+  //             ))}
+  //           </div>
+  //         )}
+  //       </div>
+  //     </Form.Group>
+  //   );
+  // };
+  
 
   const [currentStep, setCurrentStep] = useState(0);
   const [formErrors, setFormErrors] = useState({});
@@ -543,22 +584,41 @@ const CeoCreateProject = () => {
     });
   };
 
-  const handleAddColumn = () => {
-    // Add a new column with an empty category field
-    const newColumn = {
-      id: formData.budgetBreakdown.length + 1, // Increment ID
-      category: "", // Set empty category for input
-      estimatedCost: "", // Default estimated cost
-      approvedBudget: "", // Default approved budget
-    };
-
-    // Update state with new column
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      budgetBreakdown: [...prevFormData.budgetBreakdown, newColumn],
-    }));
+  const handleAddColumn = (newMilestone) => {
+    if (currentStep === 1) {
+      // For budget breakdown
+      const newColumn = {
+        id: formData.budgetBreakdown.length + 1,
+        category: "",
+        estimatedCost: "",
+        approvedBudget: "",
+      };
+  
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        budgetBreakdown: [...prevFormData.budgetBreakdown, newColumn],
+      }));
+    } else if (currentStep === 3) {
+      // For milestones
+      const nextId = formData.milestones.length > 0 
+        ? Math.max(...formData.milestones.map(m => m.id)) + 1
+        : 1;
+        
+      const milestoneToAdd = newMilestone || {
+        id: nextId,
+        name: "",
+        description: "",
+        startDate: "",
+        endDate: "",
+        status: "Planned"
+      };
+      
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        milestones: [...prevFormData.milestones, milestoneToAdd],
+      }));
+    }
   };
-
 
   const renderProgressBar = () => {
     return (
@@ -662,18 +722,22 @@ const CeoCreateProject = () => {
 const renderProjectTeamStakeholder = () => {
   return (
     <ProjectTeamStakeholder
-      formData={formData}
-      setFormData={setFormData}
-      searchFilters={searchFilters}
-      dropdownVisible={dropdownVisible}
-      handleSearchFilterChange={handleSearchFilterChange}
-      toggleDropdown={toggleDropdown}
-      handleSelectItem={handleSelectItem}
-      handleRemoveItem={handleRemoveItem}
-      onNext={() => setCurrentStep((prev) => prev + 1)}
-    />
+    formData={formData}
+    setFormData={setFormData}
+    searchFilters={searchFilters}
+    dropdownVisible={dropdownVisible}
+    handleSearchFilterChange={handleSearchFilterChange}
+    toggleDropdown={toggleDropdown}
+    handleSelectItem={handleSelectItem}
+    handleRemoveItem={handleRemoveItem}
+    onNext={() => {
+      console.log("✅ Moved to step 3");
+      setCurrentStep(prev => prev + 1);
+    }}
+  />  
   );
 };
+
 
   
   const renderTimelineMilestonePlanning = () => {

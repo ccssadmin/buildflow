@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Form, Row, Col, Button, Spinner, Table } from "react-bootstrap";
 import { useRoleBasedEmp } from "../../../hooks/Ceo/useRoleBasedEmp";
 import { useProject } from "../../../hooks/Ceo/useCeoProject";
+import Swal from "sweetalert2";
+import { createProjectFinanceApprovedAction, createProjectTeamAction } from "../../../store/actions/Ceo/ceoprojectAction";
+import { useDispatch } from "react-redux";
 
 const ProjectTeamStakeholder = ({
   formData,
@@ -14,13 +17,13 @@ const ProjectTeamStakeholder = ({
   handleRemoveItem,
   onNext,
 }) => {
-  const { 
-    employees, 
-    vendors, 
-    subcontractors, 
-    loading, 
-    fetchAllEmployees, 
-    fetchVendorsAndSubcontractors 
+  const {
+    employees,
+    vendors,
+    subcontractors,
+    loading,
+    fetchAllEmployees,
+    fetchVendorsAndSubcontractors
   } = useRoleBasedEmp();
 
   const { createProjectteams, createProjectFinanceApprove, loading: projectActionLoading } = useProject();
@@ -29,9 +32,8 @@ const ProjectTeamStakeholder = ({
   const [localDropdownVisible, setLocalDropdownVisible] = useState({});
   const [submitLoading, setSubmitLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
-
-  // Initialize with empty array - will be populated dynamically
   const [permissionData, setPermissionData] = useState([]);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (!dataLoaded) {
@@ -39,43 +41,36 @@ const ProjectTeamStakeholder = ({
         try {
           await fetchAllEmployees();
           await fetchVendorsAndSubcontractors();
-          generateFinanceApprovalRoles(); // ✅ Call here after fetching employees
+          generateFinanceApprovalRoles();
           setDataLoaded(true);
         } catch (error) {
           console.error("Error loading role data:", error);
+          setErrorMessage("Failed to load employee data. Please refresh and try again.");
         }
       };
       loadAllData();
     }
   }, [dataLoaded, fetchAllEmployees, fetchVendorsAndSubcontractors]);
-  
 
-
-
-  // This function dynamically generates the finance approval roles based on employee data
   const generateFinanceApprovalRoles = () => {
-    // Start with an empty array for the new permission data
     const newPermissionData = [];
     let idCounter = 1;
-
-    // Process all employee types to find unique roles
     const roleMap = new Map();
 
-    // Extract all roles from all employee types
+    // Process all employee types
     Object.keys(employees).forEach(empType => {
       if (Array.isArray(employees[empType])) {
         employees[empType].forEach(emp => {
           if (emp.role && !roleMap.has(emp.role)) {
             roleMap.set(emp.role, {
               employeeName: emp.employeeName,
-              employeeId: emp.empId
+              employeeId: Number(emp.empId) // Ensure ID is a number
             });
           }
         });
       }
     });
 
-    // Add important roles first if they exist
     const priorityRoles = ["CEO", "MD", "Directors", "Head Finance", "Finance",
       "General Manager (Technology)", "General Manager (Operation)"];
 
@@ -89,12 +84,10 @@ const ProjectTeamStakeholder = ({
           employeeId: empData.employeeId,
           amount: ""
         });
-        // Remove from map so we don't add it twice
         roleMap.delete(role);
       }
     });
 
-    // Then add any remaining roles
     roleMap.forEach((empData, role) => {
       newPermissionData.push({
         id: idCounter++,
@@ -105,45 +98,25 @@ const ProjectTeamStakeholder = ({
       });
     });
 
-    // Handle specific employee data if available
     handleSpecificEmployeeData(newPermissionData);
+    setPermissionData(newPermissionData.length > 0 ? newPermissionData : []);
 
-    // Only update if we have roles
-    if (newPermissionData.length > 0) {
-      setPermissionData(newPermissionData);
-    } else {
-      // Fallback to placeholder structure with loading state
-      const fallbackData = [
-        { id: 1, role: "MD", employee: "Loading...", employeeId: null, amount: "" },
-        { id: 2, role: "Directors", employee: "Loading...", employeeId: null, amount: "" },
-        { id: 3, role: "Head Finance", employee: "Loading...", employeeId: null, amount: "" },
-        { id: 4, role: "CEO", employee: "Loading...", employeeId: null, amount: "" },
-        { id: 5, role: "General Manager (Technology)", employee: "Loading...", employeeId: null, amount: "" },
-        { id: 6, role: "General Manager (Operation)", employee: "Loading...", employeeId: null, amount: "" },
-        { id: 7, role: "Finance", employee: "Loading...", employeeId: null, amount: "" },
-      ];
-      setPermissionData(fallbackData);
-    }
+    // Debug info
+    console.log("Generated permission data:", newPermissionData);
   };
 
-  // Process the specific employee data structure
   const handleSpecificEmployeeData = (permissionDataArray) => {
-    // If we have specific CEO data
     if (employees?.CEOEmployees && employees.CEOEmployees.length > 0) {
       const ceoEmployee = employees.CEOEmployees[0];
-
-      // Look for CEO in existing data
       const ceoIndex = permissionDataArray.findIndex(item => item.role === "CEO");
 
       if (ceoIndex >= 0) {
-        // Update existing CEO entry
         permissionDataArray[ceoIndex] = {
           ...permissionDataArray[ceoIndex],
           employee: ceoEmployee.employeeName,
           employeeId: ceoEmployee.empId
         };
       } else {
-        // Add CEO if not found
         permissionDataArray.unshift({
           id: permissionDataArray.length > 0 ? Math.max(...permissionDataArray.map(item => item.id)) + 1 : 1,
           role: "CEO",
@@ -165,9 +138,7 @@ const ProjectTeamStakeholder = ({
     }
   };
 
-  const closeAllDropdowns = () => {
-    setLocalDropdownVisible({});
-  };
+  const closeAllDropdowns = () => setLocalDropdownVisible({});
 
   const handleLocalSelectItem = (field, item) => {
     handleSelectItem(field, item);
@@ -178,68 +149,126 @@ const ProjectTeamStakeholder = ({
   };
 
   const handleAmountChange = (id, value) => {
-    // Allow only numbers and a decimal point
-    const validValue = value.replace(/[^0-9.]/g, "");
-  
-    const updatedPermissionData = permissionData.map(item =>
-      item.id === id ? { ...item, amount: validValue } : item
+    const sanitizedValue = value.replace(/[^0-9.]/g, "");
+    setPermissionData(prevData =>
+      prevData.map(item =>
+        item.id === id ? { ...item, amount: sanitizedValue } : item
+      )
     );
-    setPermissionData(updatedPermissionData);
   };
-
+  
+  // Fixed handleSubmit function with forced navigation
   const handleSubmit = async () => {
+    console.log("Submit button clicked");
+    setSubmitLoading(true);
+    setErrorMessage(null);
+    
+    let shouldProceed = true;
+    const projectId = Number(localStorage.getItem("projectId") || formData.projectId);
+    
+    if (!projectId) {
+      Swal.fire({
+        icon: "error",
+        title: "Missing Project ID",
+        text: "Please create a project first.",
+      });
+      setSubmitLoading(false);
+      return;
+    }
+    
     try {
-      setSubmitLoading(true);
-      setErrorMessage(null);
-  
-      const projectId = localStorage.getItem("projectId");
-      if (!projectId) {
-        throw new Error("Project ID not found. Please create a project first.");
-      }
-  
+      // Prepare data 
       const projectTeamData = {
-        projectId: Number(projectId),
-        pmId: formData.projectManager?.map(item => item.empId || item.id) || [],
-        apmId: formData.assistantProjectManager?.map(item => item.empId || item.id) || [],
-        leadEnggId: formData.leadEngineer?.map(item => item.empId || item.id) || [],
-        siteSupervisorId: formData.siteSupervisor?.map(item => item.empId || item.id) || [],
-        qsId: formData.qs?.map(item => item.empId || item.id) || [],
-        aqsId: formData.assistantQs?.map(item => item.empId || item.id) || [],
-        siteEnggId: formData.siteEngineer?.map(item => item.empId || item.id) || [],
-        enggId: formData.engineer?.map(item => item.empId || item.id) || [],
-        designerId: formData.designer?.map(item => item.empId || item.id) || [],
-        vendorId: formData.vendors?.map(item => item.empId || item.id) || [],
-        subcontractorId: formData.subcontractors?.map(item => item.empId || item.id) || [],
+        projectId,
+        pmId: formData.projectManager?.map(emp => Number(emp.empId || emp.id)) || [],
+        apmId: formData.assistantProjectManager?.map(emp => Number(emp.empId || emp.id)) || [],
+        LeadEnggId: formData.leadEngineer?.map(emp => Number(emp.empId || emp.id)) || [],
+        SiteSupervisorId: formData.siteSupervisor?.map(emp => Number(emp.empId || emp.id)) || [],
+        qsId: formData.qs?.map(emp => Number(emp.empId || emp.id)) || [],
+        aqsId: formData.assistantQs?.map(emp => Number(emp.empId || emp.id)) || [],
+        SiteEnggId: formData.siteEngineer?.map(emp => Number(emp.empId || emp.id)) || [],
+        EnggId: formData.engineer?.map(emp => Number(emp.empId || emp.id)) || [],
+        designerId: formData.designer?.map(emp => Number(emp.empId || emp.id)) || [],
+        vendorId: formData.vendors?.map(emp => Number(emp.id)) || [],
+        subcontractorId: formData.subcontractors?.map(emp => Number(emp.id)) || [],
       };
   
       const financeApprovalData = {
-        projectId: Number(projectId),
-        projectPermissionFinanceApprovalList: permissionData.map(item => ({
-          empId: item.employeeId,  // <-- Correct field name
-          amount: item.amount ? parseFloat(item.amount) : 0,  // <-- Make sure amount is number
-        })),
+        projectId,
+        projectPermissionFinanceApprovalList: permissionData
+          .filter(item => item.employeeId)
+          .map(item => ({
+            empId: Number(item.employeeId),
+            amount: parseFloat(item.amount || 0),
+          })),
       };
-  
-      // Send the API requests concurrently
-      const [teamResult, financeResult] = await Promise.all([
-        createProjectteams(projectTeamData),
-        createProjectFinanceApprove(financeApprovalData),
+      
+      console.log("Submitting team data:", projectTeamData);
+      console.log("Submitting finance data:", financeApprovalData);
+      
+      // Use Promise.allSettled to handle both API calls without one failing stopping the other
+      const results = await Promise.allSettled([
+        dispatch(createProjectTeamAction(projectTeamData)),
+        dispatch(createProjectFinanceApprovedAction(financeApprovalData))
       ]);
-  
-      if (!teamResult.success || !financeResult.success) {
-        throw new Error("Failed to save project data");
+      
+      console.log("API Results:", results);
+      
+      // Check results - more permissive approach
+      const teamResult = results[0];
+      const financeResult = results[1];
+      
+      if (teamResult.status === 'rejected' && financeResult.status === 'rejected') {
+        console.error("Both API calls failed:", teamResult.reason, financeResult.reason);
+        Swal.fire({
+          icon: "error",
+          title: "Submission Failed",
+          text: "Failed to save team and finance data.",
+        });
+        shouldProceed = false;
+      } else {
+        let successMessage = "Data saved successfully.";
+        
+        if (teamResult.status === 'rejected') {
+          console.warn("Team API call failed:", teamResult.reason);
+          successMessage = "Finance approvals saved. Team data could not be saved.";
+        }
+        
+        if (financeResult.status === 'rejected') {
+          console.warn("Finance API call failed:", financeResult.reason);
+          successMessage = "Team data saved. Finance approvals could not be saved.";
+        }
+        
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: successMessage,
+          timer: 1500,
+          showConfirmButton: false,
+        });
       }
-  
-      if (onNext) onNext();
     } catch (error) {
-      console.error("Error saving project data:", error);
-      setErrorMessage(error.message || "An error occurred while saving data");
+      console.error("General error in submission:", error);
+      Swal.fire({
+        icon: "warning",
+        title: "Submission Warning",
+        text: "Proceeding to next step, but some data may not have been saved.",
+        timer: 1500,
+        showConfirmButton: false,
+      });
     } finally {
       setSubmitLoading(false);
+      
+      // CRITICAL FIX: Always proceed to next step after a short delay
+      setTimeout(() => {
+        console.log("Forcing navigation to next step...");
+        if (typeof onNext === "function") {
+          onNext();
+        }
+      }, 2000); // Increased delay to ensure Swal alert is shown first
     }
   };
   
-
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (!event.target.closest('.multi-select-container')) {
@@ -254,51 +283,57 @@ const ProjectTeamStakeholder = ({
 
   const getEmployeesByField = (field) => {
     switch (field) {
-      case 'projectManager': return employees.projectManagerEmployees?.map(emp => ({ id: emp.empId, name: emp.employeeName, empId: emp.empId, employeeCode: emp.employeeCode, role: emp.role })) || [];
-      case 'assistantProjectManager': return employees.assistantProjectManagerEmployees?.map(emp => ({ id: emp.empId, name: emp.employeeName, empId: emp.empId, employeeCode: emp.employeeCode, role: emp.role })) || [];
-      case 'leadEngineer': return employees.leadEngineerEmployees?.map(emp => ({ id: emp.empId, name: emp.employeeName, empId: emp.empId, employeeCode: emp.employeeCode, role: emp.role })) || [];
-      case 'siteSupervisor': return employees.siteSupervisorEmployees?.map(emp => ({ id: emp.empId, name: emp.employeeName, empId: emp.empId, employeeCode: emp.employeeCode, role: emp.role })) || [];
-      case 'qs': return employees.qsEmployees?.map(emp => ({ id: emp.empId, name: emp.employeeName, empId: emp.empId, employeeCode: emp.employeeCode, role: emp.role })) || [];
-      case 'assistantQs': return employees.assistantQsEmployees?.map(emp => ({ id: emp.empId, name: emp.employeeName, empId: emp.empId, employeeCode: emp.employeeCode, role: emp.role })) || [];
-      case 'siteEngineer': return employees.siteEngineerEmployees?.map(emp => ({ id: emp.empId, name: emp.employeeName, empId: emp.empId, employeeCode: emp.employeeCode, role: emp.role })) || [];
-      case 'engineer': return employees.engineerEmployees?.map(emp => ({ id: emp.empId, name: emp.employeeName, empId: emp.empId, employeeCode: emp.employeeCode, role: emp.role })) || [];
-      case 'designer': return employees.designerEmployees?.map(emp => ({ id: emp.empId, name: emp.employeeName, empId: emp.empId, employeeCode: emp.employeeCode, role: emp.role })) || [];
-      case 'vendors': return vendors?.map(v => ({ id: v.id, name: v.vendorName || v.name, empId: v.id })) || [];
-      case 'subcontractors': return subcontractors?.map(s => ({ id: s.id, name: s.subcontractorName || s.name, empId: s.id })) || [];
+      case 'projectManager': return employees.projectManagerEmployees?.map(emp => ({ id: emp.empId, name: emp.employeeName })) || [];
+      case 'assistantProjectManager': return employees.assistantProjectManagerEmployees?.map(emp => ({ id: emp.empId, name: emp.employeeName })) || [];
+      case 'leadEngineer': return employees.leadEngineerEmployees?.map(emp => ({ id: emp.empId, name: emp.employeeName })) || [];
+      case 'siteSupervisor': return employees.siteSupervisorEmployees?.map(emp => ({ id: emp.empId, name: emp.employeeName })) || [];
+      case 'qs': return employees.qsEmployees?.map(emp => ({ id: emp.empId, name: emp.employeeName })) || [];
+      case 'assistantQs': return employees.assistantQsEmployees?.map(emp => ({ id: emp.empId, name: emp.employeeName })) || [];
+      case 'siteEngineer': return employees.siteEngineerEmployees?.map(emp => ({ id: emp.empId, name: emp.employeeName })) || [];
+      case 'engineer': return employees.engineerEmployees?.map(emp => ({ id: emp.empId, name: emp.employeeName })) || [];
+      case 'designer': return employees.designerEmployees?.map(emp => ({ id: emp.empId, name: emp.employeeName })) || [];
+      case 'vendors': return vendors?.map(v => ({ id: v.id, name: v.vendorName || v.name })) || [];
+      case 'subcontractors': return subcontractors?.map(s => ({ id: s.id, name: s.subcontractorName || s.name })) || [];
       default: return [];
     }
   };
 
   const getFilteredItems = (field) => {
     const itemsList = getEmployeesByField(field);
-    if (!searchFilters[field]) {
-      return itemsList;
-    }
-    return itemsList.filter(item => item.name?.toLowerCase().includes(searchFilters[field]?.toLowerCase()));
+    if (!searchFilters[field]) return itemsList;
+    return itemsList.filter(item => item.name.toLowerCase().includes(searchFilters[field].toLowerCase()));
   };
 
   const isItemSelected = (field, itemId) => {
     if (!formData[field] || !Array.isArray(formData[field])) return false;
-    return formData[field].some(item => item.id === itemId || item.empId === itemId);
+    return formData[field].some(item => String(item.id) === String(itemId) || String(item.empId) === String(itemId));
   };
 
-  const MultiSelect = ({ field, label, required = false }) => {
+  const MultiSelect = ({ field, label }) => {
+    const inputRef = useRef(null);
     const isDropdownVisible = localDropdownVisible[field] || false;
 
+    useEffect(() => {
+      if (isDropdownVisible && inputRef.current) {
+        inputRef.current.focus();
+      }
+    }, [isDropdownVisible]);
+
+    const handleItemClick = (item) => {
+      handleLocalSelectItem(field, item);
+    };
+
     return (
-      <Form.Group>
-        <Form.Label className="text-dark">
-          {label} {required && <span className="required">*</span>}
-        </Form.Label>
-        <div className="multi-select-container">
-          <div className="selected-items">
+      <Form.Group style={{ position: "relative", marginBottom: "15px" }}>
+        <Form.Label className="text-dark">{label}</Form.Label>
+        <div className="multi-select-container" style={{ position: "relative" }}>
+          <div className="selected-items mb-2">
             {formData[field]?.map(item => (
-              <div key={item.id || item.empId} className="selected-item">
+              <div key={item.id || item.empId} className="selected-item d-inline-block bg-light p-1 me-2 mb-1 rounded">
                 <span>{item.name}</span>
-                <input type="hidden" name={`${field}Ids[]`} value={item.empId || item.id} />
                 <button
                   type="button"
-                  className="remove-btn"
+                  className="remove-btn ms-1 border-0 bg-transparent text-danger"
                   onClick={() => handleRemoveItem(field, item.id || item.empId)}
                 >
                   ×
@@ -306,28 +341,40 @@ const ProjectTeamStakeholder = ({
               </div>
             ))}
           </div>
-          <div className="search-container">
-            <Form.Control
-              type="text"
-              placeholder={loading ? "Loading..." : "Search..."}
-              value={searchFilters[field] || ""}
-              onChange={(e) => handleSearchFilterChange(e, field)}
-              onFocus={() => handleToggleDropdown(field)}
-            />
-            {isDropdownVisible && (
-              <div className="dropdown-menu show">
-                {getFilteredItems(field).map(item => (
+
+          <Form.Control
+            ref={inputRef}
+            type="text"
+            className="dropdown-toggle"
+            placeholder={loading ? "Loading..." : "Search..."}
+            value={searchFilters[field] || ""}
+            onChange={(e) => handleSearchFilterChange(e, field)}
+            onClick={() => handleToggleDropdown(field)}
+            disabled={loading}
+            autoComplete="off"
+          />
+
+          {isDropdownVisible && (
+            <div
+              className="dropdown-menu show w-100"
+              style={{ maxHeight: "200px", overflowY: "auto", zIndex: "9999" }}
+            >
+              {getFilteredItems(field).length > 0 ? (
+                getFilteredItems(field).map(item => (
                   <div
                     key={item.id}
-                    className={`dropdown-item ${isItemSelected(field, item.id) ? 'selected' : ''}`}
-                    onClick={() => handleLocalSelectItem(field, item)}
+                    className={`dropdown-item ${isItemSelected(field, item.id) ? "active" : ""}`}
+                    onClick={() => handleItemClick(item)}
+                    style={{ cursor: "pointer" }}
                   >
                     {item.name}
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
+                ))
+              ) : (
+                <div className="dropdown-item text-muted">No results found</div>
+              )}
+            </div>
+          )}
         </div>
       </Form.Group>
     );
@@ -335,65 +382,80 @@ const ProjectTeamStakeholder = ({
 
   return (
     <Form>
-      <Row>
-        <Col md={6}>
-          <MultiSelect field="projectManager" label="Project Manager" required />
-          <MultiSelect field="assistantProjectManager" label="Assistant Project Manager" />
-          <MultiSelect field="leadEngineer" label="Lead Engineer" />
-          <MultiSelect field="siteSupervisor" label="Site Supervisor" />
-          <MultiSelect field="qs" label="QS" />
-          <MultiSelect field="assistantQs" label="Assistant QS" />
-        </Col>
-        <Col md={6}>
-          <MultiSelect field="siteEngineer" label="Site Engineer" />
-          <MultiSelect field="engineer" label="Engineer" />
-          <MultiSelect field="designer" label="Designer" />
-          <MultiSelect field="vendors" label="Vendors" />
-          <MultiSelect field="subcontractors" label="Subcontractors" />
-        </Col>
-      </Row>
+      <h4 className="mb-4">Project Team & Stakeholder Assignment</h4>
 
-      <h5 className="mt-4 mb-3">Finance Approvals</h5>
-      <Table striped bordered hover responsive>
-        <thead>
-          <tr>
-            <th width="5%">#</th>
-            <th width="30%">Role</th>
-            <th width="35%">Employee</th>
-            <th width="30%">Amount Limit</th>
-          </tr>
-        </thead>
-        <tbody>
-          {permissionData.map((item, index) => (
-            <tr key={item.id}>
-              <td>{index + 1}</td>
-              <td>{item.role}</td>
-              <td>
-                {item.employee}
-                <input type="hidden" name={`finance_employeeId_${item.id}`} value={item.employeeId} />
-              </td>
-              <td>
-                <Form.Control
-                  type="text"
-                  value={item.amount}
-                  placeholder="Amount"
-                  onChange={(e) => handleAmountChange(item.id, e.target.value)}
-                />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
-
-      {errorMessage && (
-        <div className="text-danger mt-2">{errorMessage}</div>
+      {loading && (
+        <div className="text-center mb-4">
+          <Spinner animation="border" role="status" />
+          <p>Loading team data...</p>
+        </div>
       )}
 
-      <div className="text-end mt-3">
-        <Button variant="primary" onClick={handleSubmit} disabled={submitLoading}>
+      {!loading && (
+        <>
+          {errorMessage && (
+            <div className="alert alert-danger mb-3">{errorMessage}</div>
+          )}
+          
+          <Row>
+            <Col md={6}>
+              <MultiSelect field="projectManager" label="Project Manager" required />
+              <MultiSelect field="assistantProjectManager" label="Assistant Project Manager" required />
+              <MultiSelect field="leadEngineer" label="Lead Engineer" />
+              <MultiSelect field="siteSupervisor" label="Site Supervisor" />
+              <MultiSelect field="qs" label="QS" />
+              <MultiSelect field="assistantQs" label="Assistant QS" />
+            </Col>
+            <Col md={6}>
+              <MultiSelect field="siteEngineer" label="Site Engineer" />
+              <MultiSelect field="engineer" label="Engineer" />
+              <MultiSelect field="designer" label="Designer" />
+              <MultiSelect field="vendors" label="Vendors" />
+              <MultiSelect field="subcontractors" label="Subcontractors" />
+            </Col>
+          </Row>
+
+          <h5 className="mt-4 mb-3">Finance Approvals</h5>
+          <Table striped bordered hover responsive>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Role</th>
+                <th>Employee</th>
+                <th>Amount Limit</th>
+              </tr>
+            </thead>
+            <tbody>
+              {permissionData.map((item, index) => (
+                <tr key={item.id}>
+                  <td>{index + 1}</td>
+                  <td>{item.role}</td>
+                  <td>{item.employee || "Not assigned"}</td>
+                  <td>
+                    <Form.Control
+                      type="text"
+                      value={item.amount}
+                      placeholder="Amount"
+                      onChange={(e) => handleAmountChange(item.id, e.target.value)}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </>
+      )}
+
+      <div className="d-flex justify-content-end align-items-end" style={{ minHeight: '80px', marginTop: '20px' }}>
+        <Button
+          variant="primary"
+          onClick={handleSubmit}
+          disabled={submitLoading || projectActionLoading || loading}
+        >
           {submitLoading ? (
             <>
-              <Spinner animation="border" size="sm" /> Submitting...
+              <Spinner animation="border" size="sm" className="me-2" />
+              Processing...
             </>
           ) : (
             "Submit & Continue"

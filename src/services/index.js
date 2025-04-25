@@ -28,6 +28,7 @@ export const createceoproject = (params) => api.POST(API.CREATE_CEO_PROJECT,para
 export const createProjectBudget = (params) => api.POST(API.CREATE_PROJECT_BUDGET, params);
 export const createProjectTeam = (params) => api.POST(API.CREATE_PROJECT_TEAM,params);
 export const crateFinanceApproved = (params) => api.POST(API.CREATE_FINACIAL_APPROVAL,params);
+export const createProjectMilestone = (params) => api.POST(API.CREATE_PROJECT_MILESTONE , params)
 // fetch vendors and subcontractors
 export const getVendorsAndSubcontractors = (params) => api.GET(API.GET_VENDORS_AND_SUBCONTRACTORS,params);
 

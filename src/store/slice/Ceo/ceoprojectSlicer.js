@@ -3,6 +3,7 @@ import {
   createCeoProjectAction,
   createProjectBudgetAction,
   createProjectFinanceApprovedAction,
+  createProjectMilestoneAction,
   createProjectTeamAction,
   getProjectTypeSectorAction,
 } from "../../actions/Ceo/ceoprojectAction";
@@ -10,6 +11,7 @@ import {
 const initialState = {
   projects: [],
   projectBudgets: [],
+  projectMilestone : [], 
   currentProject: null,
   projectTypesAndSectors: [],
   loading: false,
@@ -135,7 +137,23 @@ const ceoProjectSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
         state.success = false;
+      })
+      .addCase(createProjectMilestoneAction.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = false;
+      })
+      .addCase(createProjectMilestoneAction.fulfilled, (state, action) => {
+        state.loading = false;
+        state.success = true;
+        state.projectMilestone.push(action.payload);
+      })
+      .addCase(createProjectMilestoneAction.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+        state.success = false;
       });
+
   },
 });
 
