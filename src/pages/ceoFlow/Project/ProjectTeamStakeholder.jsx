@@ -429,24 +429,28 @@ const ProjectTeamStakeholder = ({
       )}
 
       <div className="d-flex justify-content-end align-items-end" style={{ minHeight: '80px', marginTop: '20px' }}>
-        <Button
-          variant="primary"
-          onClick={handleSubmit}
-          disabled={submitLoading}
-          className="me-2"
-        >
-          {submitLoading ? (
-            <>
-              <Spinner animation="border" size="sm" className="me-2" />
-              Submitting...
-            </>
-          ) : (
-            "Submit"
-          )}
-        </Button>
-        <Button onClick={() => navigate('/ceo/projectmilestone')}>
-  Test Navigation
+      <Button
+  variant="primary"
+  onClick={async () => {
+    if (!submitLoading) {
+      handleSubmit(); // Call the submit function
+      await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulate submit loading delay if needed
+      navigate('/ceo/projectmilestone'); // Navigate to the specified route
+    }
+  }}
+  disabled={submitLoading}
+  className="me-2"
+>
+  {submitLoading ? (
+    <>
+      <Spinner animation="border" size="sm" className="me-2" />
+      Submitting...
+    </>
+  ) : (
+    "Submit and Navigate"
+  )}
 </Button>
+
       </div>
     </Form>
   );
