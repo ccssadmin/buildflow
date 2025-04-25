@@ -4,6 +4,7 @@ import Spinner from "./components/spinner/spinner.component";
 
 import "./styles/index.scss";
 import "./styles/index.css";
+import TimelineContainer from "./pages/ceoFlow/Project/TimelineMilestonePlanning";
 
 /** LAYOUTS */
 const MdLayout = lazy(() => import("./components/layout/user-layout.component"));
@@ -77,6 +78,7 @@ const Ceodepartments = lazy ( () => import ('./pages/ceoFlow/Departments/index')
 const CeoReport = lazy ( () => import ('./pages/ceoFlow/Reports/index'));
 const CeoReportView = lazy ( () => import ('./pages/ceoFlow/Reports/ViewReport'));
 const CeoSettings = lazy ( () => import ('./pages/ceoFlow/Settings/index'));
+const ProjectTimeline = lazy( () => import('./pages/ceoFlow/Project/TimelineMilestonePlanning'));
 // Not Found
 const NotFound = lazy(() => import("./pages/ceoFlow/NotFound/NotFound"));
 
@@ -318,6 +320,7 @@ const App = () => {
           <Route path="project" element={<CeoProject />} />
           <Route path="projectdetails" element={<CeoProjectDetails />} />
           <Route path="createproject" element={<CeoCreateProject />} />
+          <Route path="projectmilestone" element={ <ProjectTimeline />} />
           <Route path="approvals" element={<KanbanCeo />} />
           <Route path="ticketdetails/:ticketId" element={<CeoTicketDetails />} />
           <Route path="chats" element={<CeoChat />} />
