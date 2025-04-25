@@ -9,6 +9,7 @@ import RiskComplianceAssessment from "./RiskComplianceAssessment";
 import { useProject } from "../../../hooks/Ceo/useCeoProject";
 import ProjectBasicDetails from "./ProjectBasicDetails";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 // Form validation schema
 const validateForm = (step, formData) => {
   const errors = {};
@@ -31,6 +32,7 @@ const CeoCreateProject = () => {
   const [projectCreated, setProjectCreated] = useState(false);
   const { createProjectBudget, loading } = useProject();
   const { createProjectMilestone } = useProject();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     // Step 1: Project Basic Details
      projectId: null,
@@ -395,33 +397,58 @@ const handleProjectCreated = (projectId) => {
   };
 
   const handleNext = async () => {
+    // Clear form errors first
+    setFormErrors({});
+    
+    // For step 2 (ProjectTeamStakeholder), we just return and let the component handle it
+    if (currentStep === 2) {
+      console.log("Step 2: Letting ProjectTeamStakeholder handle it");
+      return;
+    }
+    
+    // Validate form for current step
     const errors = validateForm(currentStep, formData);
     if (Object.keys(errors).length > 0) {
+      console.log("Validation errors:", errors);
       setFormErrors(errors);
-      return; // Stop if there are validation errors
-    }
-  
-    if (currentStep === 0 && !projectCreated) {
-      // Wait for project creation to complete in ProjectBasicDetails
       return;
     }
   
-    if (currentStep === 2) {
-      // Let ProjectTeamStakeholder handle the transition
+    // Handle special cases for different steps
+    if (currentStep === 0 && !projectCreated) {
+      console.log("Step 0: Waiting for project creation");
       return;
     }
   
     if (currentStep === 3) {
-      // Handle milestone saving
-      if (!formData.projectId) {
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "Project ID missing. Please create a project first.",
-        });
-        return;
-      }
+      console.log("Step 3: Handling milestones");
+      await handleMilestoneSubmit();
+      return;
+    }
   
+    if (currentStep === 4) {
+      console.log("Step 4: Final submission");
+      handleSubmit();
+      return;
+    }
+    
+    // Default case: simply move to next step
+    console.log(`Moving from step ${currentStep} to ${currentStep + 1}`);
+    setCurrentStep(prev => prev + 1);
+  };
+  
+  // Add this helper function for milestone handling
+  const handleMilestoneSubmit = async () => {
+    if (!formData.projectId) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Project ID missing. Please create a project first.",
+      });
+      return;
+    }
+  
+    try {
       const formattedMilestones = formData.milestones.map(milestone => ({
         milestoneId: 0,
         milestoneName: milestone.name,
@@ -431,45 +458,35 @@ const handleProjectCreated = (projectId) => {
         milestoneStatus: milestone.status,
       }));
   
-      try {
-        const response = await createProjectMilestone(formData.projectId, {
-          projectId: formData.projectId,
-          milestoneList: formattedMilestones,
+      const response = await createProjectMilestone(formData.projectId, {
+        projectId: formData.projectId,
+        milestoneList: formattedMilestones,
+      });
+  
+      if (response.success) {
+        await Swal.fire({
+          icon: "success",
+          title: "Milestones saved!",
+          timer: 1500,
+          showConfirmButton: false,
         });
-  
-        if (response.success) {
-          Swal.fire({
-            icon: "success",
-            title: "Milestones saved!",
-            timer: 1500,
-            showConfirmButton: false,
-          });
-  
-          setTimeout(() => setCurrentStep(prev => prev + 1), 1500);
-        } else {
-          Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: response.message || "Failed to save milestones.",
-          });
-        }
-      } catch (error) {
+        setCurrentStep(prev => prev + 1);
+      } else {
         Swal.fire({
           icon: "error",
           title: "Error",
-          text: "Failed to save milestones. Please try again.",
+          text: response.message || "Failed to save milestones.",
         });
       }
-      return;
-    }
-  
-    if (currentStep === 4) {
-      handleSubmit(); // Final step
-    } else {
-      setCurrentStep(prev => prev + 1);
+    } catch (error) {
+      console.error("Error saving milestones:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to save milestones. Please try again.",
+      });
     }
   };
-  
   
   const handleBack = () => {
     setCurrentStep(currentStep - 1);
@@ -731,15 +748,15 @@ const renderProjectTeamStakeholder = () => {
     handleSelectItem={handleSelectItem}
     handleRemoveItem={handleRemoveItem}
     onNext={() => {
-      console.log("✅ Moved to step 3");
-      setCurrentStep(prev => prev + 1);
+      console.log("ProjectTeamStakeholder called onNext");
+       setCurrentStep(currentStep + 1);
+  // or
+  navigate('/next-page');
     }}
-  />  
+  />
   );
 };
 
-
-  
   const renderTimelineMilestonePlanning = () => {
     return (
       <TimelineMilestonePlanning

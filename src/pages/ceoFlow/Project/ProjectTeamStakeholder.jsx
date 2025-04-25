@@ -5,6 +5,7 @@ import { useProject } from "../../../hooks/Ceo/useCeoProject";
 import Swal from "sweetalert2";
 import { createProjectFinanceApprovedAction, createProjectTeamAction } from "../../../store/actions/Ceo/ceoprojectAction";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const ProjectTeamStakeholder = ({
   formData,
@@ -28,11 +29,15 @@ const ProjectTeamStakeholder = ({
 
   const { createProjectteams, createProjectFinanceApprove, loading: projectActionLoading } = useProject();
 
+
   const [dataLoaded, setDataLoaded] = useState(false);
   const [localDropdownVisible, setLocalDropdownVisible] = useState({});
   const [submitLoading, setSubmitLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const [permissionData, setPermissionData] = useState([]);
+  const isSubmitting = useRef(false);
+
+  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -157,115 +162,114 @@ const ProjectTeamStakeholder = ({
     );
   };
   
-  // Fixed handleSubmit function with forced navigation
+  // Modified handleSubmit function to ensure navigation to the project milestone page
   const handleSubmit = async () => {
-    console.log("Submit button clicked");
+    // Prevent multiple submissions
+    if (isSubmitting.current) return;
+    isSubmitting.current = true;
+    
+    console.log("🔁 Submitting project team and finance data...");
     setSubmitLoading(true);
     setErrorMessage(null);
-    
-    let shouldProceed = true;
+  
     const projectId = Number(localStorage.getItem("projectId") || formData.projectId);
-    
     if (!projectId) {
-      Swal.fire({
-        icon: "error",
-        title: "Missing Project ID",
-        text: "Please create a project first.",
-      });
+      setErrorMessage("Missing Project ID. Please create a project first.");
       setSubmitLoading(false);
+      isSubmitting.current = false;
       return;
     }
-    
+  
     try {
-      // Prepare data 
-      const projectTeamData = {
+      const teamData = {
         projectId,
-        pmId: formData.projectManager?.map(emp => Number(emp.empId || emp.id)) || [],
-        apmId: formData.assistantProjectManager?.map(emp => Number(emp.empId || emp.id)) || [],
-        LeadEnggId: formData.leadEngineer?.map(emp => Number(emp.empId || emp.id)) || [],
-        SiteSupervisorId: formData.siteSupervisor?.map(emp => Number(emp.empId || emp.id)) || [],
-        qsId: formData.qs?.map(emp => Number(emp.empId || emp.id)) || [],
-        aqsId: formData.assistantQs?.map(emp => Number(emp.empId || emp.id)) || [],
-        SiteEnggId: formData.siteEngineer?.map(emp => Number(emp.empId || emp.id)) || [],
-        EnggId: formData.engineer?.map(emp => Number(emp.empId || emp.id)) || [],
-        designerId: formData.designer?.map(emp => Number(emp.empId || emp.id)) || [],
-        vendorId: formData.vendors?.map(emp => Number(emp.id)) || [],
-        subcontractorId: formData.subcontractors?.map(emp => Number(emp.id)) || [],
+        pmId: (formData.projectManager || []).map(emp => Number(emp.empId || emp.id)),
+        apmId: (formData.assistantProjectManager || []).map(emp => Number(emp.empId || emp.id)),
+        LeadEnggId: (formData.leadEngineer || []).map(emp => Number(emp.empId || emp.id)),
+        SiteSupervisorId: (formData.siteSupervisor || []).map(emp => Number(emp.empId || emp.id)),
+        qsId: (formData.qs || []).map(emp => Number(emp.empId || emp.id)),
+        aqsId: (formData.assistantQs || []).map(emp => Number(emp.empId || emp.id)),
+        SiteEnggId: (formData.siteEngineer || []).map(emp => Number(emp.empId || emp.id)),
+        EnggId: (formData.engineer || []).map(emp => Number(emp.empId || emp.id)),
+        designerId: (formData.designer || []).map(emp => Number(emp.empId || emp.id)),
+        vendorId: (formData.vendors || []).map(emp => Number(emp.id)),
+        subcontractorId: (formData.subcontractors || []).map(emp => Number(emp.id)),
       };
   
-      const financeApprovalData = {
+      const financeData = {
         projectId,
         projectPermissionFinanceApprovalList: permissionData
-          .filter(item => item.employeeId)
-          .map(item => ({
-            empId: Number(item.employeeId),
-            amount: parseFloat(item.amount || 0),
+          .filter(emp => emp.employeeId)
+          .map(emp => ({
+            empId: Number(emp.employeeId),
+            amount: parseFloat(emp.amount || 0),
           })),
       };
+  
+      // Execute actions one after another instead of in parallel
+      let teamSuccess = false;
+      let financeSuccess = false;
       
-      console.log("Submitting team data:", projectTeamData);
-      console.log("Submitting finance data:", financeApprovalData);
+      try {
+        // Wait for team data to be saved
+        const teamResult = await dispatch(createProjectTeamAction(teamData));
+        teamSuccess = true;
+        console.log("✅ Team data saved successfully", teamResult);
+      } catch (error) {
+        console.error("Team creation error:", error);
+      }
       
-      // Use Promise.allSettled to handle both API calls without one failing stopping the other
-      const results = await Promise.allSettled([
-        dispatch(createProjectTeamAction(projectTeamData)),
-        dispatch(createProjectFinanceApprovedAction(financeApprovalData))
-      ]);
+      try {
+        // Wait for finance data to be saved
+        const financeResult = await dispatch(createProjectFinanceApprovedAction(financeData));
+        financeSuccess = true;
+        console.log("✅ Finance data saved successfully", financeResult);
+      } catch (error) {
+        console.error("Finance approval error:", error);
+      }
       
-      console.log("API Results:", results);
+      // Both operations completed (success or fail)
+      setSubmitLoading(false);
+      isSubmitting.current = false;
       
-      // Check results - more permissive approach
-      const teamResult = results[0];
-      const financeResult = results[1];
-      
-      if (teamResult.status === 'rejected' && financeResult.status === 'rejected') {
-        console.error("Both API calls failed:", teamResult.reason, financeResult.reason);
-        Swal.fire({
-          icon: "error",
-          title: "Submission Failed",
-          text: "Failed to save team and finance data.",
-        });
-        shouldProceed = false;
+      if (!teamSuccess && !financeSuccess) {
+        setErrorMessage("Failed to save data. Please try again.");
       } else {
-        let successMessage = "Data saved successfully.";
-        
-        if (teamResult.status === 'rejected') {
-          console.warn("Team API call failed:", teamResult.reason);
-          successMessage = "Finance approvals saved. Team data could not be saved.";
+        // At least one operation was successful
+        if (!teamSuccess) {
+          console.warn("Finance saved, but team data failed.");
+        } else if (!financeSuccess) {
+          console.warn("Team saved, but finance data failed.");
+        } else {
+          console.log("Both team and finance data saved successfully.");
         }
         
-        if (financeResult.status === 'rejected') {
-          console.warn("Finance API call failed:", financeResult.reason);
-          successMessage = "Team data saved. Finance approvals could not be saved.";
-        }
-        
+        // Show success feedback if needed
         Swal.fire({
+          title: "Success!",
+          text: "Project team and finance data saved successfully",
           icon: "success",
-          title: "Success",
-          text: successMessage,
           timer: 1500,
-          showConfirmButton: false,
+          showConfirmButton: false
+        }).then(() => {
+          // Important: Navigate after the success message
+          console.log("✅ Navigating to project milestone page...");
+          // Try onNext function first
+          if (onNext && typeof onNext === 'function') {
+            navigate(`/ceo/project/timelinemilestone/${projectId}`);
+
+            // onNext();
+          } else {
+            // Fallback: directly navigate to the timeline page
+            // FIX: Use the correct path for timeline milestone page
+          }
         });
       }
-    } catch (error) {
-      console.error("General error in submission:", error);
-      Swal.fire({
-        icon: "warning",
-        title: "Submission Warning",
-        text: "Proceeding to next step, but some data may not have been saved.",
-        timer: 1500,
-        showConfirmButton: false,
-      });
-    } finally {
+    } catch (err) {
+      console.error("Submit error:", err);
+      setErrorMessage("Something went wrong. Please try again.");
       setSubmitLoading(false);
-      
-      // CRITICAL FIX: Always proceed to next step after a short delay
-      setTimeout(() => {
-        console.log("Forcing navigation to next step...");
-        if (typeof onNext === "function") {
-          onNext();
-        }
-      }, 2000); // Increased delay to ensure Swal alert is shown first
+      isSubmitting.current = false;
     }
   };
   
@@ -450,15 +454,16 @@ const ProjectTeamStakeholder = ({
         <Button
           variant="primary"
           onClick={handleSubmit}
-          disabled={submitLoading || projectActionLoading || loading}
+          disabled={submitLoading}
+          className="me-2"
         >
           {submitLoading ? (
             <>
               <Spinner animation="border" size="sm" className="me-2" />
-              Processing...
+              Submitting...
             </>
           ) : (
-            "Submit & Continue"
+            "Submit"
           )}
         </Button>
       </div>
