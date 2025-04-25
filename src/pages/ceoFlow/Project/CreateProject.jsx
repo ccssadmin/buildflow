@@ -402,6 +402,7 @@ const handleProjectCreated = (projectId) => {
     
     // For step 2 (ProjectTeamStakeholder), we just return and let the component handle it
     if (currentStep === 2) {
+      
       console.log("Step 2: Letting ProjectTeamStakeholder handle it");
       return;
     }

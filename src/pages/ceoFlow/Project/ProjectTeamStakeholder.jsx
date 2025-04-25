@@ -164,7 +164,6 @@ const ProjectTeamStakeholder = ({
   
   // Modified handleSubmit function to ensure navigation to the project milestone page
   const handleSubmit = async () => {
-    // Prevent multiple submissions
     if (isSubmitting.current) return;
     isSubmitting.current = true;
     
@@ -206,68 +205,47 @@ const ProjectTeamStakeholder = ({
           })),
       };
   
-      // Execute actions one after another instead of in parallel
-      let teamSuccess = false;
-      let financeSuccess = false;
-      
-      try {
-        // Wait for team data to be saved
-        const teamResult = await dispatch(createProjectTeamAction(teamData));
-        teamSuccess = true;
-        console.log("✅ Team data saved successfully", teamResult);
-      } catch (error) {
-        console.error("Team creation error:", error);
+      // Execute both actions
+      const [teamResult, financeResult] = await Promise.all([
+        dispatch(createProjectTeamAction(teamData)),
+        dispatch(createProjectFinanceApprovedAction(financeData))
+      ]);
+  
+      // Check if both actions were successful
+      const teamSuccess = teamResult?.payload?.success;
+      const financeSuccess = financeResult?.payload?.success;
+  
+      if (!teamSuccess || !financeSuccess) {
+        throw new Error("One or more operations failed");
       }
-      
-      try {
-        // Wait for finance data to be saved
-        const financeResult = await dispatch(createProjectFinanceApprovedAction(financeData));
-        financeSuccess = true;
-        console.log("✅ Finance data saved successfully", financeResult);
-      } catch (error) {
-        console.error("Finance approval error:", error);
-      }
-      
-      // Both operations completed (success or fail)
-      setSubmitLoading(false);
-      isSubmitting.current = false;
-      
-      if (!teamSuccess && !financeSuccess) {
-        setErrorMessage("Failed to save data. Please try again.");
+  
+      // Show success message
+      await Swal.fire({
+        title: "Success!",
+        text: "Project team and finance data saved successfully",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false
+      });
+      const nextPath = `/ceo/project/timelinemilestone/${projectId}`;
+    console.log("Navigating to:", nextPath); // Debug log
+      // Navigate after success
+      if (onNext) {
+        const nextPath = `/ceo/project/timelinemilestone/${projectId}`;
+        console.log("Navigating to:", nextPath); // Debug log
+        // onNext(); // Use the provided navigation function if available
       } else {
-        // At least one operation was successful
-        if (!teamSuccess) {
-          console.warn("Finance saved, but team data failed.");
-        } else if (!financeSuccess) {
-          console.warn("Team saved, but finance data failed.");
-        } else {
-          console.log("Both team and finance data saved successfully.");
-        }
-        
-        // Show success feedback if needed
-        Swal.fire({
-          title: "Success!",
-          text: "Project team and finance data saved successfully",
-          icon: "success",
-          timer: 1500,
-          showConfirmButton: false
-        }).then(() => {
-          // Important: Navigate after the success message
-          console.log("✅ Navigating to project milestone page...");
-          // Try onNext function first
-          if (onNext && typeof onNext === 'function') {
-            navigate(`/ceo/project/timelinemilestone/${projectId}`);
-
-            // onNext();
-          } else {
-            // Fallback: directly navigate to the timeline page
-            // FIX: Use the correct path for timeline milestone page
-          }
+        // Fallback navigation
+        navigate(`/ceo/project/timelinemilestone/${projectId}`, {
+          state: { projectId },
+          replace: true
         });
       }
+  
     } catch (err) {
       console.error("Submit error:", err);
       setErrorMessage("Something went wrong. Please try again.");
+    } finally {
       setSubmitLoading(false);
       isSubmitting.current = false;
     }
@@ -451,21 +429,28 @@ const ProjectTeamStakeholder = ({
       )}
 
       <div className="d-flex justify-content-end align-items-end" style={{ minHeight: '80px', marginTop: '20px' }}>
-        <Button
-          variant="primary"
-          onClick={handleSubmit}
-          disabled={submitLoading}
-          className="me-2"
-        >
-          {submitLoading ? (
-            <>
-              <Spinner animation="border" size="sm" className="me-2" />
-              Submitting...
-            </>
-          ) : (
-            "Submit"
-          )}
-        </Button>
+      <Button
+  variant="primary"
+  onClick={async () => {
+    if (!submitLoading) {
+      handleSubmit(); // Call the submit function
+      await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulate submit loading delay if needed
+      navigate('/ceo/projectmilestone'); // Navigate to the specified route
+    }
+  }}
+  disabled={submitLoading}
+  className="me-2"
+>
+  {submitLoading ? (
+    <>
+      <Spinner animation="border" size="sm" className="me-2" />
+      Submitting...
+    </>
+  ) : (
+    "Submit and Navigate"
+  )}
+</Button>
+
       </div>
     </Form>
   );

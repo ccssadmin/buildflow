@@ -146,11 +146,11 @@ const ceoProjectSlice = createSlice({
       .addCase(createProjectMilestoneAction.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.projectMilestone.push(action.payload);
+        state.milestones = action.payload.data || action.payload;
       })
       .addCase(createProjectMilestoneAction.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload?.message || action.error.message;
         state.success = false;
       });
 
