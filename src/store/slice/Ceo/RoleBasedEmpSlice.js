@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import { 
   getAllEmployeesByRolesAction, 
   getRoleBasedEmpAction, 
+  getrolesAction, 
   getVendorsAndSubcontractorsAction 
 } from '../../actions/Ceo/RoleBasedEmpAction';
 
@@ -34,6 +35,9 @@ const API_TO_STATE_MAP = {
 };
 
 const initialState = {
+
+  //roles
+  roles:[],
   // Employee data by role
   ceoEmployees: [],
   projectManagerEmployees: [],
@@ -167,7 +171,21 @@ const roleBasedEmpSlice = createSlice({
       .addCase(getVendorsAndSubcontractorsAction.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
-      });
+      })
+      .addCase(getrolesAction.pending, (state)=>{
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getrolesAction.fulfilled, (state, action)=>{
+        state.loading = true;
+        state.roles = action.payload;
+        console.log("getroles", action.payload)
+        state.success = true;
+      })
+      .addCase(getrolesAction.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
   }
 });
 

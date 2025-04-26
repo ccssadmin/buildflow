@@ -11,22 +11,24 @@
 
 .login-form-container {
     width: 600px;
-    height: 550px;
     overflow: hidden;
     background: #ffffff;
     border-radius: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 40px 0px;
 }
-
+.login-page {
+    height: 100%;
+}
 .login-form {
     max-width: 80%;
     margin: 0px auto;
     display: flex;
     align-items: center;
     justify-content: end;
-    height: auto;
+    height: 100%;
 }
 
 .login-form-container-button {
