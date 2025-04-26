@@ -35,13 +35,30 @@ const ProjectSummary = ({ formData, onBackClick }) => {
     { id: 4, name: "Devon Lane", role: "Finance Head" },
     { id: 5, name: "Cody Fisher", role: "GM Technology", image: "T" },
   ];
-
+  const PROJECT_TYPES = {
+    1: "Residential",
+    2: "Industrial"
+  };
+  const PROJECT_SECTORS = {
+    1: "Public",
+    2: "Private"
+  };
   const handleCheckboxChange = (id) => {
     setSelectedUsers((prev) =>
       prev.includes(id) ? prev.filter((userId) => userId !== id) : [...prev, id]
     );
   };
+ // Get Project Type name from ID
+ const getProjectTypeName = () => {
+  if (!formData.projectTypeId) return "Not provided";
+  return PROJECT_TYPES[formData.projectTypeId] || "Not provided";
+};
 
+// Get Project Sector name from ID
+const getProjectSectorName = () => {
+  if (!formData.projectSectorId) return "Not provided";
+  return PROJECT_SECTORS[formData.projectSectorId] || "Not provided";
+};
   return (
     <div className="project-summary">
       <div className="breadcrumb-container pb-3 d-flex align-items-center">
@@ -98,7 +115,7 @@ const ProjectSummary = ({ formData, onBackClick }) => {
               <Form.Control
                 disabled
                 type="text"
-                placeholder={formData.location || "Not provided"}
+                placeholder={formData.projectLocation  || "Not provided"}
               />
             </div>
           </Col>
@@ -108,7 +125,7 @@ const ProjectSummary = ({ formData, onBackClick }) => {
               <Form.Control
                 disabled
                 type="text"
-                placeholder={formData.projectType || "Not provided"}
+                placeholder={getProjectTypeName()}
               />
             </div>
           </Col>
@@ -120,7 +137,7 @@ const ProjectSummary = ({ formData, onBackClick }) => {
               <Form.Control
                 disabled
                 type="text"
-                placeholder={formData.projectSector || "Not provided"}
+                placeholder={getProjectSectorName()}
               />
             </div>
           </Col>

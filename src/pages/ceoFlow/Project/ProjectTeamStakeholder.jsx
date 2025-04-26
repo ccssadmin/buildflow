@@ -548,7 +548,7 @@ const ProjectTeamStakeholder = ({
                 <th>#</th>
                 <th>Role</th>
                 <th>Employee</th>
-                <th>Amount Limit</th>
+                <th>Amount Limit (%)</th>
               </tr>
             </thead>
             <tbody>
