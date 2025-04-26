@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { createCeoProjectAction, createProjectBudgetAction, getProjectTypeSectorAction } from "../../store/actions/Ceo/ceoprojectAction";
+import { createCeoProjectAction, createProjectBudgetAction, createProjectFinanceApprovedAction, createProjectMilestoneAction, createProjectTeamAction, getProjectTypeSectorAction } from "../../store/actions/Ceo/ceoprojectAction";
 import {
   selectAllProjects,
   selectCurrentProject,
@@ -10,6 +10,7 @@ import {
 } from "../../store/selector/ceo/ceoProjectSelector";
 import { resetProjectState, setCurrentProject } from "../../store/slice/Ceo/ceoprojectSlicer";
 import { useEffect, useState } from "react";
+import axios from "axios";
 
 export const useProject = () => {
   const dispatch = useDispatch();
@@ -74,7 +75,51 @@ export const useProject = () => {
       return { success: false, error };
     }
   };
+
+  const createProjectteams = async (data) => {
+    try {
+      const res = await axios.post(`/api/project/upsertProjectTeam`, data);
+      return { success: true, data: res.data };
+    } catch (err) {
+      console.error("createProjectteams error:", err);
+      return { success: false, message: err?.response?.data?.message || "Team API error" };
+    }
+  };
   
+  const createProjectFinanceApprove = async (data) => {
+    try {
+      const res = await axios.post(`/api/project/upsertPermissionFinanceApproval`, data);
+      return { success: true, data: res.data };
+    } catch (err) {
+      console.error("createProjectFinanceApprove error:", err);
+      return { success: false, message: err?.response?.data?.message || "Finance API error" };
+    }
+  };
+  
+
+
+// In your useProject.js hook
+const createProjectMilestone = async (projectId, milestoneDto) => {
+  try {
+    const result = await dispatch(
+      createProjectMilestoneAction({ projectId, milestoneDto })
+    ).unwrap();
+    
+    return {
+      success: true,
+      data: result,
+      message: 'Milestones created successfully'
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message || 'Failed to create milestones'
+    };
+  }
+};
+
+
+
   
   return {
     // State
@@ -90,6 +135,9 @@ export const useProject = () => {
     fetchProjectTypeSector,
     resetProject,
     updateCurrentProject,
-    createProjectBudget
+    createProjectBudget,
+    createProjectteams,
+    createProjectFinanceApprove,
+    createProjectMilestone
   };
 };

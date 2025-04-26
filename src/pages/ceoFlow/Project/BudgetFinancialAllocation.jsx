@@ -233,7 +233,7 @@ const [selectedUsers, setSelectedUsers] = useState([]);
       const cleanBudgetBreakdown = formData.budgetBreakdown
         .filter((item) => item.category.trim() !== "" && (parseFloat(item.estimatedCost) > 0 || parseFloat(item.approvedBudget) > 0))
         .map((item) => ({
-          projectBudgetId: 0,  // Always 0 when creating new
+          projectBudgetId: 0,
           projectExpenseCategory: item.category.trim(),
           estimatedCost: parseFloat(item.estimatedCost) || 0,
           approvedBudget: parseFloat(item.approvedBudget) || 0,
@@ -283,6 +283,7 @@ const [selectedUsers, setSelectedUsers] = useState([]);
     }
   };
 
+  
 
   return (
     <div className="budget-financial-page">

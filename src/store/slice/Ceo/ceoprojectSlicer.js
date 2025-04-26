@@ -1,9 +1,17 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { createCeoProjectAction, createProjectBudgetAction, getProjectTypeSectorAction } from "../../actions/Ceo/ceoprojectAction";
+import {
+  createCeoProjectAction,
+  createProjectBudgetAction,
+  createProjectFinanceApprovedAction,
+  createProjectMilestoneAction,
+  createProjectTeamAction,
+  getProjectTypeSectorAction,
+} from "../../actions/Ceo/ceoprojectAction";
 
 const initialState = {
   projects: [],
-  projectBudgets: [], 
+  projectBudgets: [],
+  projectMilestone : [], 
   currentProject: null,
   projectTypesAndSectors: [],
   loading: false,
@@ -23,6 +31,16 @@ const ceoProjectSlice = createSlice({
     setCurrentProject: (state, action) => {
       state.currentProject = action.payload;
     },
+    logoutClearProjectState: (state) => {
+      state.projects = [];
+      state.projectBudgets = [];
+      state.currentProject = null;
+      state.projectTypesAndSectors = [];
+      state.loading = false;
+      state.error = null;
+      state.success = false;
+      localStorage.removeItem("projectId"); // ✅ remove projectId only on logout
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -35,16 +53,16 @@ const ceoProjectSlice = createSlice({
       .addCase(createCeoProjectAction.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.projects.push(action.payload);
-        state.currentProject = action.payload;
-      
-        // ✅ Save projectid into localStorage
-        const projectId = action.payload?.data?.projectid;
-        if (projectId) {
+        const projectData = action.payload?.data || action.payload;
+        state.projects.push(projectData);
+        state.currentProject = projectData;
+
+        const projectId = projectData?.projectId || projectData?.projectid;
+        if (projectId !== undefined) {
           localStorage.setItem("projectId", projectId.toString());
           console.log("📌 Project ID saved to localStorage:", projectId);
         } else {
-          console.error("❌ Failed to find projectId inside Redux payload");
+          console.error("❌ Project ID not found in payload");
         }
       })
       .addCase(createCeoProjectAction.rejected, (state, action) => {
@@ -66,7 +84,8 @@ const ceoProjectSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
-      //projectbudget
+
+      // Create Project Budget
       .addCase(createProjectBudgetAction.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -75,18 +94,68 @@ const ceoProjectSlice = createSlice({
       .addCase(createProjectBudgetAction.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.projectBudgets.push(action.payload); // <- Add to projectBudgets
+        state.projectBudgets.push(action.payload);
+        // ❌ DO NOT modify projectId or currentProject here
       })
       .addCase(createProjectBudgetAction.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
         state.success = false;
+      })
+
+      // Create Project Team
+      .addCase(createProjectTeamAction.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = false;
+      })
+      .addCase(createProjectTeamAction.fulfilled, (state, action) => {
+        state.loading = false;
+        state.success = true;
+        console.log("✅ Project Team created:", action.payload);
+        // ❌ Again do not touch projectId or localStorage
+      })
+      .addCase(createProjectTeamAction.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+        state.success = false;
+      })
+
+      // Create Project Finance Approved
+      .addCase(createProjectFinanceApprovedAction.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = false;
+      })
+      .addCase(createProjectFinanceApprovedAction.fulfilled, (state, action) => {
+        state.loading = false;
+        state.success = true;
+        console.log("✅ Project Finance Approved:", action.payload);
+        // ❌ Again do not touch projectId or localStorage
+      })
+      .addCase(createProjectFinanceApprovedAction.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+        state.success = false;
+      })
+      .addCase(createProjectMilestoneAction.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = false;
+      })
+      .addCase(createProjectMilestoneAction.fulfilled, (state, action) => {
+        state.loading = false;
+        state.success = true;
+        state.milestones = action.payload.data || action.payload;
+      })
+      .addCase(createProjectMilestoneAction.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.message || action.error.message;
+        state.success = false;
       });
-      
+
   },
 });
 
-
-
-export const { resetProjectState, setCurrentProject } = ceoProjectSlice.actions;
+export const { resetProjectState, setCurrentProject, logoutClearProjectState } = ceoProjectSlice.actions;
 export default ceoProjectSlice.reducer;

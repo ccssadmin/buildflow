@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { createceoproject, createProjectBudget, getProjectTypeSector } from "../../../services";
+import { crateFinanceApproved, createceoproject, createProjectBudget, createProjectMilestone, createProjectTeam, getProjectTypeSector } from "../../../services";
 
 // Get Project Type & Sector
 export const getProjectTypeSectorAction = createAsyncThunk(
@@ -27,5 +27,56 @@ export const createProjectBudgetAction = createAsyncThunk(
   async (params) => {
     const response = await createProjectBudget(params);
     return response.data;
+  }
+);
+
+export const createProjectTeamAction = createAsyncThunk(
+  "project/team",
+  async (params) => {
+    const response = await createProjectTeam(params);
+    return { success: true, data: response.data }; 
+  }
+);
+
+
+export const createProjectFinanceApprovedAction = createAsyncThunk(
+  "project/finance",
+  async (params, { rejectWithValue }) => {
+    try {
+      console.log("Calling API with params:", params);
+      const response = await crateFinanceApproved(params);
+      console.log("API Response:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("API Error:", error.response || error.message);
+      return rejectWithValue(error.response?.data || { message: error.message });
+    }
+  }
+);
+
+
+export const createProjectMilestoneAction = createAsyncThunk(
+  "project/milestone",
+  async ({ projectId, milestoneDto }, { rejectWithValue }) => {
+    try {
+      if (!projectId || projectId <= 0) {
+        return rejectWithValue({
+          message: "Invalid project ID",
+          data: { projectId }
+        });
+      }
+      
+      console.log("Sending milestone data:", milestoneDto);
+      const response = await createProjectMilestone(projectId, milestoneDto);
+      
+      console.log("Received response:", response);
+      return response;
+    } catch (error) {
+      console.error("API Error:", error);
+      return rejectWithValue(error.response?.data || { 
+        message: error.message,
+        data: { projectId }
+      });
+    }
   }
 );

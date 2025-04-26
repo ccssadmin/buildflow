@@ -181,4 +181,4 @@ const handleTicketSubmission = async () => {
   );
 };
 
-export default TimelineMilestonePlanning;
+export default TimelineContainer;

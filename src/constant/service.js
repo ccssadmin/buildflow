@@ -11,6 +11,7 @@ export const API = {
   CREATE_PROJECT_BUDGET :"/api/Project/upsertProjectBudget",
   CREATE_PROJECT_TEAM :"/api/Project/upsertProjectTeam",
   CREATE_FINACIAL_APPROVAL :"/api/Project/upsertPermissionFinanceApproval",
+  CREATE_PROJECT_MILESTONE : "/api/Project/upsertProjectMilestones",
 
  /* Employee data */
  GET_EMPLOYEES_BY_ROLES: "/api/Login/getEmployeesByRoles",
