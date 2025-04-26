@@ -1,5 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { getEmployeesByRoles, getroles, getVendorsAndSubcontractors } from "../../../services/index";
+import { getEmployeesByRoles, getVendorsAndSubcontractors } from "../../../services/index";
 
 /**
  * Fetch all employees grouped by roles
@@ -22,16 +22,6 @@ export const getVendorsAndSubcontractorsAction = createAsyncThunk(
     return response.data;
   }
 );
-
-//Fetch Roles
-export const getrolesAction = createAsyncThunk(
-  "GetRoles/fetch",
-  async() =>{
-    const response = await getroles();
-    console.log("API Response:", response);
-    return response.data;
-  }
-)
 
 // Legacy actions for backward compatibility
 export const getRoleBasedEmpAction = createAsyncThunk(
