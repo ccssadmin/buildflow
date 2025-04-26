@@ -579,7 +579,7 @@ const ProjectTeamStakeholder = ({
         style={{ minHeight: "80px", marginTop: "20px" }}
       >
         <Button
-  variant="primary"
+  className="btn-primary btn fs-14-600 bg-primary border-0 border-radius-2"
   onClick={async () => {
     if (!submitLoading) {
       await handleSubmit(); // Wait for submission to complete
@@ -589,7 +589,7 @@ const ProjectTeamStakeholder = ({
     }
   }}
   disabled={submitLoading}
-  className="me-2"
+  
 >
   {submitLoading ? (
     <>
@@ -597,7 +597,7 @@ const ProjectTeamStakeholder = ({
       Submitting...
     </>
   ) : (
-    "Next Step"
+    "Next >"
   )}
 </Button>
       </div>
