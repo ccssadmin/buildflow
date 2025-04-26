@@ -14,7 +14,10 @@ export const API = {
   CREATE_PROJECT_TEAM :"/api/Project/upsertProjectTeam",
   CREATE_FINACIAL_APPROVAL :"/api/Project/upsertPermissionFinanceApproval",
   CREATE_PROJECT_MILESTONE : "/api/Project/upsertProjectMilestones",
+  GET_PROJECT_DETAILS_BY_ID: "/api/Project/getProjectDetails",
+  GET_ALL_PROJECT_FILTER : "/api/Project/get-projects-by-status",
 
+  
  /* Employee data */
  GET_EMPLOYEES_BY_ROLES: "/api/Login/getEmployeesByRoles",
  GET_VENDORS_AND_SUBCONTRACTORS: "/api/Login/getVendorsAndSubcontractors",

@@ -1,8 +1,9 @@
 import { useDispatch, useSelector } from "react-redux";
-import { createCeoProjectAction, createProjectBudgetAction, createProjectFinanceApprovedAction, createProjectMilestoneAction, createProjectTeamAction, getProjectTypeSectorAction } from "../../store/actions/Ceo/ceoprojectAction";
+import { createCeoProjectAction, createProjectBudgetAction, createProjectFinanceApprovedAction, createProjectMilestoneAction, createProjectTeamAction, getAllProjectByFilterAction, getProjectDetailsAction, getProjectTypeSectorAction } from "../../store/actions/Ceo/ceoprojectAction";
 import {
   selectAllProjects,
   selectCurrentProject,
+  selectProjectDetails,
   selectProjectError,
   selectProjectLoading,
   selectProjectSuccess,
@@ -21,6 +22,7 @@ export const useProject = () => {
   const error = useSelector(selectProjectError);
   const success = useSelector(selectProjectSuccess);
   const projectTypeSectorData = useSelector(selectProjectTypeSector);
+  const projectDetails = useSelector(selectProjectDetails);
 
   // Structured project type and sector data
   const [projectTypeSector, setProjectTypeSector] = useState({
@@ -118,7 +120,25 @@ const createProjectMilestone = async (projectId, milestoneDto) => {
   }
 };
 
-
+const fetchProjectDetails = async (projectId) => {
+  try {
+   const result = await dispatch(getProjectDetailsAction(projectId)).unwrap();
+   console.log(" Project Details:", result);
+   return result;
+  } catch (error) {
+    console.error("Failed to fetch project Details:", error);
+  }
+};
+// Fetch all projects with optional status filter
+const fetchAllProjectByFilter = async (status = null) => {
+  try {
+    const result = await dispatch(getAllProjectByFilterAction(status)).unwrap();
+    return { success: true, data: result };
+  } catch (error) {
+    console.error("Failed to fetch projects:", error);
+    return { success: false, error: error.message };
+  }
+};
 
   
   return {
@@ -129,6 +149,7 @@ const createProjectMilestone = async (projectId, milestoneDto) => {
     error,
     success,
     projectTypeSector,
+    projectDetails,
 
     // Actions
     createProject,
@@ -138,6 +159,9 @@ const createProjectMilestone = async (projectId, milestoneDto) => {
     createProjectBudget,
     createProjectteams,
     createProjectFinanceApprove,
-    createProjectMilestone
+    createProjectMilestone,
+    fetchProjectDetails,
+    fetchAllProjectByFilter,
+
   };
 };

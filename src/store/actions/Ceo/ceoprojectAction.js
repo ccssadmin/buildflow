@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { crateFinanceApproved, createceoproject, createProjectBudget, createProjectMilestone, createProjectTeam, getProjectTypeSector } from "../../../services";
+import { crateFinanceApproved, createceoproject, createProjectBudget, createProjectMilestone, createProjectTeam, getAllProjectByFilter, getProjectDetails, getProjectTypeSector } from "../../../services";
 
 // Get Project Type & Sector
 export const getProjectTypeSectorAction = createAsyncThunk(
@@ -80,3 +80,19 @@ export const createProjectMilestoneAction = createAsyncThunk(
     }
   }
 );
+/** USED TO GET PROJECT DETAILS - CEO FLOW */
+export const getProjectDetailsAction = createAsyncThunk(
+  "getProjectDetails",
+  async (params) => {
+    const response = await getProjectDetails(params);
+    return response.data;
+  }
+);
+
+export const getAllProjectByFilterAction = createAsyncThunk (
+  "proect/getProjectByStatus",
+  async () => {
+    const response = await getAllProjectByFilter();
+    return response.data;
+  }
+)

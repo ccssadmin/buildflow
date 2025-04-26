@@ -31,7 +31,8 @@ export const crateFinanceApproved = (params) => api.POST(API.CREATE_FINACIAL_APP
 export const createProjectMilestone = (params) => api.POST(API.CREATE_PROJECT_MILESTONE , params)
 // fetch vendors and subcontractors
 export const getVendorsAndSubcontractors = (params) => api.GET(API.GET_VENDORS_AND_SUBCONTRACTORS,params);
-
+export const getProjectDetails = (params) => api.GET(API.GET_PROJECT_DETAILS_BY_ID+'?projectId='+params);
+export const getAllProjectByFilter = (params) => api.GET(API.GET_ALL_PROJECT_FILTER , params );
 // fetch all employees by roles in a single API call
 export const getEmployeesByRoles = (params) => api.GET(API.GET_EMPLOYEES_BY_ROLES, params);
 //get role

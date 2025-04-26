@@ -41,7 +41,11 @@ const exportToExcel = (milestone) => {
   XLSX.writeFile(workbook, `${milestone.name.replace(/\s+/g, "_")}.xlsx`); // Save as file
 };
 
-const ProjectMilestoneTable = () => {
+const ProjectMilestoneTable = ({ milestoneDetails = [], projectId }) => {
+
+
+console.log("milestoneDetails:", milestoneDetails, projectId);
+
   return (
       <div className="project-milestone-scroll">
         <table className="tbl table table-bordered mb-0">
@@ -56,12 +60,12 @@ const ProjectMilestoneTable = () => {
             </tr>
             </thead>
             <tbody>
-            {milestones.map((milestone, index) => (
+            {milestoneDetails.map((milestone, index) => (
                 <tr key={index}>
-                    <td className="text-dark-gray text-center">{milestone.name}</td>
-                    <td className="text-left">{milestone.description}</td>
-                    <td className="text-dark-gray text-center">{milestone.dueDate}</td>
-                    <td className="text-dark-gray text-center">{getStatusIndicator(milestone.completion)}</td>
+                    <td className="text-dark-gray text-center">{milestone.milestone_name}</td>
+                    <td className="text-left">{milestone.milestone_description}</td>
+                    <td className="text-dark-gray text-center">{milestone.milestone_end_date}</td>
+                   <td className="text-dark-gray text-center">{getStatusIndicator(milestone.milestone_status)}</td>
                     <td className="text-dark fs-14-600 text-center">{milestone.completion}%</td>
                     <td className="text-dark-gray text-center">
                         {milestone.completion > 0 ? (

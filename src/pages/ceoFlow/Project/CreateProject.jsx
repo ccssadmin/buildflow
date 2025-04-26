@@ -780,10 +780,11 @@ const renderProjectTeamStakeholder = () => {
 
   const renderRiskComplianceAssessment = () => {
     return (
-      <RiskComplianceAssessment
-        formData={formData}
-        handleAddColumn={handleAddColumn}
-      />
+      <RiskComplianceAssessment 
+      formData={formData} 
+      setFormData={setFormData} 
+      handleAddColumn={handleAddColumn} 
+    />
     );
   };
 
