@@ -312,8 +312,7 @@ const ProjectBasicDetails = ({ formData, setFormData, onProjectCreated, formErro
         <Row className="d-flex justify-content-end align-items-end" style={{ minHeight: '100px' }}>
           <Col xs="auto">
             <Button
-              variant="primary"
-              style={{ backgroundColor: '#FF6F00', border: 'none' }}
+              className="btn-primary btn fs-14-600 bg-primary border-0 border-radius-2"
               onClick={handleCreateClick}
               disabled={submitting || projectCreated}
             >
@@ -324,7 +323,7 @@ const ProjectBasicDetails = ({ formData, setFormData, onProjectCreated, formErro
               ) : projectCreated ? (
                 "Created ✓"
               ) : (
-                "Create Project"
+                "Next >"
               )}
             </Button>
           </Col>

@@ -827,18 +827,19 @@ const renderProjectTeamStakeholder = () => {
             ) : (
               <>
                 {renderProgressBar()}
-                <div className="form-container p-0">
+                
+                <div className={`form-container p-0  position-relative ${currentStep === 4 ? 'step-risk' : ''}`}>
                   {renderFormStep()}
                   <div className="form-actions justify-content-between">
                     {currentStep > 0 && (
                       <Button
-                        className="border-0 border-radius-2 text-dark-gray fs-24-600 bg-transparent btn btn-primary"
+                        className="border-0 border-radius-2 text-dark-gray btn-back fs-24-600 bg-transparent btn btn-primary"
                         onClick={handleBack}
                       >
                         &lt; Back
                       </Button>
                     )}
-                    <div className="d-flex d-none">
+                    <div className={`d-flex ${currentStep === 4 ? 'd-block step-risk' : 'd-none'}`}>
                       {currentStep === 1 || currentStep === 2 ? (
                         <Button className="btn-primary btn fs-14-600 bg-transparent text-primary border-0 border-radius-2">
                           <svg
@@ -858,7 +859,7 @@ const renderProjectTeamStakeholder = () => {
                         </Button>
                       ) : null}
                       <Button
-                        className="btn-primary btn fs-14-600 bg-primary border-0 border-radius-2"
+                        className="btn-primary btn-final-review btn fs-14-600 bg-primary border-0 border-radius-2"
                         onClick={handleNext}
                       >
                         {currentStep === 0 && !projectCreated ? "Next >" :
