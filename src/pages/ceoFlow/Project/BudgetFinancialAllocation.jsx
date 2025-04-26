@@ -12,6 +12,7 @@ const BudgetFinancialAllocation = ({
   fetchAllEmployees,
   loading,
   createTicket,
+  createNotify
 }) => {
   const [localProjectId, setLocalProjectId] = useState(null);
   const [filteredRoles, setFilteredRoles] = useState([]);
@@ -121,47 +122,47 @@ const BudgetFinancialAllocation = ({
     }
   }, [formData.sendTo]);
   const handleTicketSubmission = async () => {
-    const projectId =
-      formData.projectId ||
-      localProjectId ||
-      parseInt(localStorage.getItem("projectId"));
-    const createdBy = parseInt(localStorage.getItem("userRoleId")); // Replace this with actual CEO empId if available
-
-    // if (!projectId || selectedUsers.length === 0) {
-    //   Swal.fire({
-    //     icon: "warning",
-    //     title: "Missing Info",
-    //     text: "Project ID or Assigned Employee missing.",
-    //   });
-    //   return;
-    // }
-
+    const projectId = formData.projectId || localProjectId || parseInt(localStorage.getItem("projectId"));
+    const createdBy = parseInt(localStorage.getItem("userRoleId")); // This is CEO's user id (creator)
+  
     for (const empId of selectedUsers) {
       const ticketPayload = {
         projectId,
         ticketType: "budget",
-        assignTo: empId,
+        assignTo: selectedUsers,
         createdBy: createdBy,
       };
-
+  
       try {
-        await createTicket(ticketPayload); // Redux async action
+        await createTicket(ticketPayload); // First create the ticket
         console.log("✅ Ticket created for:", empId);
+  
+        // After successful ticket creation, create notification
+        const notificationPayload = {
+          empId: selectedUsers,                         // Assigned employee
+          notificationType: "Ticket Assigned",  // Default message
+          sourceEntityId: 0,             // Use projectId as the source entity (or ticket id if available)
+          message: "A new budget ticket has been assigned to you.", // Customizable message
+        };
+  
+        await createNotify(notificationPayload); // Create notification
+        console.log("🔔 Notification created for:", empId);
+  
       } catch (err) {
-        console.error("❌ Failed to create ticket for:", empId, err);
+        console.error("❌ Failed to create ticket or notification for:", empId, err);
       }
     }
-
+  
     Swal.fire({
       icon: "success",
-      title: "Tickets Created",
-      text: "Tickets successfully submitted.",
+      title: "Tickets and Notifications Created",
+      text: "Tickets and notifications successfully submitted.",
       timer: 1500,
       showConfirmButton: false,
     });
-
+  
     setShowModal(false);
-  };
+  };
 
   const calculateTotalBudget = () => {
     const totalApprovedBudget = formData.budgetBreakdown.reduce((acc, item) => {

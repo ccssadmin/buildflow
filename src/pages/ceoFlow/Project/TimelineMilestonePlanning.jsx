@@ -14,6 +14,7 @@ const TimelineMilestonePlanning = ({
   onNextStep,
   setFormData,
   createTicket,
+  createNotify
 }) => {
   const [showModal, setShowModal] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState([]);
@@ -30,36 +31,47 @@ const TimelineMilestonePlanning = ({
   };
 
   const handleTicketSubmission = async () => {
-    const projectId =
-      formData.projectId || parseInt(localStorage.getItem("projectId"));
-    const createdBy = parseInt(localStorage.getItem("userRoleId"));
-
+    const projectId = formData.projectId || localProjectId || parseInt(localStorage.getItem("projectId"));
+    const createdBy = parseInt(localStorage.getItem("userRoleId")); // This is CEO's user id (creator)
+  
     for (const empId of selectedUsers) {
       const ticketPayload = {
         projectId,
         ticketType: "milestone",
-        assignTo: empId,
+        assignTo: selectedUsers,
         createdBy: createdBy,
       };
-
+  
       try {
-        await createTicket(ticketPayload); // Redux async action
-        console.log("Ticket created for:", empId);
+        await createTicket(ticketPayload); // First create the ticket
+        console.log("✅ Ticket created for:", empId);
+  
+        // After successful ticket creation, create notification
+        const notificationPayload = {
+          empId: selectedUsers,                         // Assigned employee
+          notificationType: "Ticket Assigned",  // Default message
+          sourceEntityId: 0,             // Use projectId as the source entity (or ticket id if available)
+          message: "A new budget ticket has been assigned to you.", // Customizable message
+        };
+  
+        await createNotify(notificationPayload); // Create notification
+        console.log("🔔 Notification created for:", empId);
+  
       } catch (err) {
-        console.error("Failed to create ticket for:", empId, err);
+        console.error("❌ Failed to create ticket or notification for:", empId, err);
       }
     }
-
+  
     Swal.fire({
       icon: "success",
-      title: "Tickets Created",
-      text: "All tickets successfully submitted.",
+      title: "Tickets and Notifications Created",
+      text: "Tickets and notifications successfully submitted.",
       timer: 1500,
       showConfirmButton: false,
     });
-
+  
     setShowModal(false);
-  };
+  };
 
   useEffect(() => {
     // On component mount - get project ID from all possible sources

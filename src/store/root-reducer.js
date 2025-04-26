@@ -5,11 +5,15 @@ import kanbanSlice from './slice/kanban';
 import masterSlice from './slice/master';
 import ceoProjectReducer from './slice/Ceo/ceoprojectSlicer'; 
 import rolebasedemp from "./slice/Ceo/RoleBasedEmpSlice";
+import createticketReducer from "./slice/Ceo/TicketcreationSlicer";
+import createNotifyReducer from "./slice/Ceo/notificationSlicer"
 export const rootReducer = combineReducers({
   auth: authSlice.reducer,
   toast: toastSlice.reducer,
   kanban: kanbanSlice.reducer,
   master: masterSlice.reducer,
   project: ceoProjectReducer,
-  rolebasedemp : rolebasedemp,
+  rolebasedemp: rolebasedemp,
+  createticket: createticketReducer,
+  createnotify: createNotifyReducer,
 });
