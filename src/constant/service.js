@@ -16,7 +16,6 @@ export const API = {
  /* Employee data */
  GET_EMPLOYEES_BY_ROLES: "/api/Login/getEmployeesByRoles",
  GET_VENDORS_AND_SUBCONTRACTORS: "/api/Login/getVendorsAndSubcontractors",
- GET_ROLE: "/api/Role/getRoles",
 
   /** KANBAN */
   GET_ALL_BOARD: "/api/BoardManagement/boards",
@@ -122,7 +121,7 @@ export const API = {
   DELETE_TOOL: '/api/ToolManagement/deletetool?id=',
 
   /** TASK/TICKET MANAGEMENT */
-  ADD_TICKET: '/api/Ticket/createTicket',
+  ADD_TICKET: '/api/TicketManagement/add-ticket',
   UPDATE_TICKET: '/api/TicketManagement/update-ticket',
   SUGGESTED_MEMBERS: '/api/TicketManagement/suggested-members',
   CUSTOMER_SEARCH: '/api/TicketManagement/ticketcustomers?customersearch=',

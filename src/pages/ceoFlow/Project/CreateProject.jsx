@@ -9,8 +9,6 @@ import RiskComplianceAssessment from "./RiskComplianceAssessment";
 import { useProject } from "../../../hooks/Ceo/useCeoProject";
 import ProjectBasicDetails from "./ProjectBasicDetails";
 import Swal from "sweetalert2";
-import { useRoleBasedEmp } from "../../../hooks/Ceo/useRoleBasedEmp";
-import { useTicket } from "../../../hooks/Ceo/useTicket";
 import { useNavigate } from "react-router-dom";
 // Form validation schema
 const validateForm = (step, formData) => {
@@ -35,8 +33,6 @@ const CeoCreateProject = () => {
   const { createProjectBudget, loading } = useProject();
   const { createProjectMilestone } = useProject();
   const navigate = useNavigate();
-  const {fetchroles, fetchAllEmployees, employees} = useRoleBasedEmp();
-  const{createTicket} = useTicket();
   const [formData, setFormData] = useState({
     // Step 1: Project Basic Details
      projectId: null,
@@ -730,9 +726,6 @@ const handleProjectCreated = (projectId) => {
         formData={formData} 
         setFormData={setFormData} 
         createProjectBudget={createProjectBudget} 
-        fetchroles = {fetchroles}
-        fetchAllEmployees={fetchAllEmployees}
-        createTicket= {createTicket}
         loading={loading}
         onNext={() => setCurrentStep(currentStep + 1)}
       />
@@ -771,9 +764,6 @@ const renderProjectTeamStakeholder = () => {
         formData={formData}
         handleMilestoneChange={handleMilestoneChange}
         handleAddColumn={handleAddColumn}
-        fetchAllEmployees={fetchAllEmployees}
-        employees = {employees}
-        createTicket= {createTicket}
       />
     );
   };
