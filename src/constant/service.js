@@ -5,6 +5,8 @@ export const API = {
   GET_USER_PROFILE: "/v1.0/me",
   GET_USER_INFO: "/api/Login/LoginUserDetail",
 
+  GET_ROLE: "/api/Role/getRoles",
+
   /*Ceo Project */
   Get_PROJECTTYPE_SECTOR: "/api/Project/getProjectTypesAndProjectSectors",
   CREATE_CEO_PROJECT:"/api/Project/upsertProject",
@@ -121,7 +123,7 @@ export const API = {
   DELETE_TOOL: '/api/ToolManagement/deletetool?id=',
 
   /** TASK/TICKET MANAGEMENT */
-  ADD_TICKET: '/api/TicketManagement/add-ticket',
+  ADD_TICKET: '/api/Ticket/createTicket',
   UPDATE_TICKET: '/api/TicketManagement/update-ticket',
   SUGGESTED_MEMBERS: '/api/TicketManagement/suggested-members',
   CUSTOMER_SEARCH: '/api/TicketManagement/ticketcustomers?customersearch=',

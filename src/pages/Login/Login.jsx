@@ -282,7 +282,7 @@ export default function Login({ onLoginSuccess }) {
                       style={{
                         position: "absolute",
                         right: "10px",
-                        top: "50%",
+                        top: "40%",
                         transform: "translateY(-50%)",
                         cursor: "pointer",
                         color: "#BBBBBB",

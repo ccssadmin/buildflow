@@ -34,7 +34,8 @@ export const getVendorsAndSubcontractors = (params) => api.GET(API.GET_VENDORS_A
 
 // fetch all employees by roles in a single API call
 export const getEmployeesByRoles = (params) => api.GET(API.GET_EMPLOYEES_BY_ROLES, params);
-
+//get role
+export const getroles = (params) => api.GET(API.GET_ROLE, params);
 /** KANBAN BOARD */
 export const getAllBoard = params => api.GET(API.GET_ALL_BOARD, params);
 export const getBoardById = params => api.GET(API.GET_BOARD_BY_ID+'/'+params);
@@ -166,7 +167,7 @@ export const toolsList = (params) => api.POST(API.TOOLS_LIST, params);
 export const deleteTool = (params) => api.GET(API.DELETE_TOOL+params);
 
 /** TASK MANAGEMENT */
-export const addTicket = (params)=> api.POST(API.ADD_TICKET, params);
+export const addTicket = (params)=> api.POST(API.ADD_TICKET, params);
 export const updateTicket = (params)=> api.POST(API.UPDATE_TICKET+'/'+params.ticket_id,params);
 export const suggestedMembers = (params)=> api.GET(API.SUGGESTED_MEMBERS, params);
 export const customerSearch = (params)=> customerAPI.POST(API.CUSTOMER_SEARCH+params);
