@@ -282,7 +282,6 @@ const [selectedUsers, setSelectedUsers] = useState([]);
       console.error("Error while creating budget:", error);
     }
   };
-
   
 
   return (
