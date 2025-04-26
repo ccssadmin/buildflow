@@ -2,8 +2,10 @@ import { createSlice } from '@reduxjs/toolkit';
 import { 
   getAllEmployeesByRolesAction, 
   getRoleBasedEmpAction, 
+  getrolesAction, 
   getVendorsAndSubcontractorsAction 
 } from '../../actions/Ceo/RoleBasedEmpAction';
+
 
 // Role key mapping for consistent state management
 const ROLE_KEYS = {
@@ -49,6 +51,9 @@ const initialState = {
   // Vendors and subcontractors
   vendors: [],
   subcontractors: [],
+
+  //roles
+  roles:[],
   
   // Request status
   loading: false,
@@ -65,6 +70,20 @@ const roleBasedEmpSlice = createSlice({
   extraReducers: (builder) => {
     // Handle all employees by roles fetching (new unified endpoint)
     builder
+      .addCase(getrolesAction.pending, (state)=>{
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getrolesAction.fulfilled, (state, action)=>{
+        state.loading = true;
+        state.roles = action.payload;
+        console.log("getroles", action.payload)
+        state.success = true;
+      })
+      .addCase(getrolesAction.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
       .addCase(getAllEmployeesByRolesAction.pending, (state) => {
         state.loading = true;
         state.error = null;

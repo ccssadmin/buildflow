@@ -9,6 +9,8 @@ import RiskComplianceAssessment from "./RiskComplianceAssessment";
 import { useProject } from "../../../hooks/Ceo/useCeoProject";
 import ProjectBasicDetails from "./ProjectBasicDetails";
 import Swal from "sweetalert2";
+import { useRoleBasedEmp } from "../../../hooks/Ceo/useRoleBasedEmp";
+import { useTicket } from "../../../hooks/Ceo/useTicket";
 // Form validation schema
 const validateForm = (step, formData) => {
   const errors = {};
@@ -30,6 +32,8 @@ const CeoCreateProject = () => {
   // Update the state to handle multiple selections for dropdowns
   const [projectCreated, setProjectCreated] = useState(false);
   const { createProjectBudget, loading } = useProject();
+  const {fetchroles, fetchAllEmployees, employees} = useRoleBasedEmp();
+  const{createTicket} = useTicket();
   const [formData, setFormData] = useState({
     // Step 1: Project Basic Details
      projectId: null,
@@ -642,6 +646,9 @@ const CeoCreateProject = () => {
         formData={formData} 
         setFormData={setFormData} 
         createProjectBudget={createProjectBudget} 
+        fetchroles = {fetchroles}
+        fetchAllEmployees={fetchAllEmployees}
+        createTicket= {createTicket}
         loading={loading}
         onNext={() => setCurrentStep(currentStep + 1)}
       />
@@ -672,6 +679,9 @@ const CeoCreateProject = () => {
         formData={formData}
         handleMilestoneChange={handleMilestoneChange}
         handleAddColumn={handleAddColumn}
+        fetchAllEmployees={fetchAllEmployees}
+        employees = {employees}
+        createTicket= {createTicket}
       />
     );
   };

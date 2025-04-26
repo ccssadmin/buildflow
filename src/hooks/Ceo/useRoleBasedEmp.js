@@ -1,6 +1,8 @@
 import { useDispatch, useSelector } from "react-redux";
 import { 
   getAllEmployeesByRolesAction, 
+  getroles, 
+  getrolesAction, 
   getVendorsAndSubcontractorsAction 
 } from "../../store/actions/Ceo/RoleBasedEmpAction";
 import { resetRoleBasedEmpState } from "../../store/slice/Ceo/RoleBasedEmpSlice";
@@ -28,6 +30,9 @@ export const useRoleBasedEmp = () => {
   // Get vendors and subcontractors
   const vendors = roleBasedEmpState.vendors || [];
   const subcontractors = roleBasedEmpState.subcontractors || [];
+
+  // Get roles
+  const roles = roleBasedEmpState.roles || [];
   
   // Status flags
   const loading = roleBasedEmpState.loading || false;
@@ -63,6 +68,21 @@ export const useRoleBasedEmp = () => {
   };
 
   /**
+   * Fetch roles
+   * @returns {Promise} Promise that resolves when the API call is complete
+   */
+  const fetchroles = async () => {
+    try {
+      const result = await dispatch(getrolesAction()).unwrap(); // <- Add .unwrap()
+      console.log("roles:", result);
+      return { success: true, data: result };
+    } catch (error) {
+      console.error("Failed to fetch roles:", error);
+      return { success: false, error };
+    }
+  };
+
+  /**
    * Reset the role-based employee state
    */
   const resetEmployeeState = () => {
@@ -83,7 +103,8 @@ export const useRoleBasedEmp = () => {
       engineerEmployees: employees.engineerEmployees.length,
       designerEmployees: employees.designerEmployees.length,
       vendors: vendors.length,
-      subcontractors: subcontractors.length
+      subcontractors: subcontractors.length,
+      roles: roles.length
     });
   };
 
@@ -95,11 +116,13 @@ export const useRoleBasedEmp = () => {
     loading,
     error,
     success,
+    roles,
     
     // Actions
     fetchAllEmployees,
     fetchVendorsAndSubcontractors,
     resetEmployeeState,
-    logEmployeeState
+    logEmployeeState,
+    fetchroles
   };
 };
