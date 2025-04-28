@@ -264,74 +264,74 @@ const handleProjectCreated = (projectId) => {
   const [showSummary, setShowSummary] = useState(false);
 
   // Sample data for dropdowns
-  const teamMembers = {
-    projectManager: [
-      { id: 1, name: "John Doe" },
-      { id: 2, name: "Jane Smith" },
-      { id: 3, name: "Michael Johnson" },
-      { id: 4, name: "Emily Williams" },
-    ],
-    assistantProjectManager: [
-      { id: 1, name: "Mike Johnson" },
-      { id: 2, name: "Sarah Williams" },
-      { id: 3, name: "David Brown" },
-      { id: 4, name: "Lisa Davis" },
-    ],
-    leadEngineer: [
-      { id: 1, name: "Robert Brown" },
-      { id: 2, name: "Emily Davis" },
-      { id: 3, name: "Thomas Wilson" },
-      { id: 4, name: "Olivia Martin" },
-    ],
-    siteSupervisor: [
-      { id: 1, name: "David Wilson" },
-      { id: 2, name: "Lisa Miller" },
-      { id: 3, name: "James Taylor" },
-      { id: 4, name: "Emma Clark" },
-    ],
-    qs: [
-      { id: 1, name: "James Taylor" },
-      { id: 2, name: "Emma Clark" },
-      { id: 3, name: "William Harris" },
-      { id: 4, name: "Sophia Martin" },
-    ],
-    assistantQs: [
-      { id: 1, name: "Thomas White" },
-      { id: 2, name: "Olivia Green" },
-      { id: 3, name: "Daniel Thompson" },
-      { id: 4, name: "Ava Robinson" },
-    ],
-    siteEngineer: [
-      { id: 1, name: "William Harris" },
-      { id: 2, name: "Sophia Martin" },
-      { id: 3, name: "Joseph Lewis" },
-      { id: 4, name: "Mia Walker" },
-    ],
-    engineer: [
-      { id: 1, name: "Daniel Thompson" },
-      { id: 2, name: "Ava Robinson" },
-      { id: 3, name: "Alexander Hall" },
-      { id: 4, name: "Charlotte Young" },
-    ],
-    designer: [
-      { id: 1, name: "Joseph Lewis" },
-      { id: 2, name: "Mia Walker" },
-      { id: 3, name: "Benjamin Allen" },
-      { id: 4, name: "Amelia King" },
-    ],
-    vendors: [
-      { id: 1, name: "Acme Supplies" },
-      { id: 2, name: "Global Materials" },
-      { id: 3, name: "Quality Products" },
-      { id: 4, name: "Premium Vendors" },
-    ],
-    subcontractors: [
-      { id: 1, name: "Elite Construction" },
-      { id: 2, name: "Premier Services" },
-      { id: 3, name: "Expert Builders" },
-      { id: 4, name: "Professional Contractors" },
-    ],
-  };
+  // const teamMembers = {
+  //   projectManager: [
+  //     { id: 1, name: "John Doe" },
+  //     { id: 2, name: "Jane Smith" },
+  //     { id: 3, name: "Michael Johnson" },
+  //     { id: 4, name: "Emily Williams" },
+  //   ],
+  //   assistantProjectManager: [
+  //     { id: 1, name: "Mike Johnson" },
+  //     { id: 2, name: "Sarah Williams" },
+  //     { id: 3, name: "David Brown" },
+  //     { id: 4, name: "Lisa Davis" },
+  //   ],
+  //   leadEngineer: [
+  //     { id: 1, name: "Robert Brown" },
+  //     { id: 2, name: "Emily Davis" },
+  //     { id: 3, name: "Thomas Wilson" },
+  //     { id: 4, name: "Olivia Martin" },
+  //   ],
+  //   siteSupervisor: [
+  //     { id: 1, name: "David Wilson" },
+  //     { id: 2, name: "Lisa Miller" },
+  //     { id: 3, name: "James Taylor" },
+  //     { id: 4, name: "Emma Clark" },
+  //   ],
+  //   qs: [
+  //     { id: 1, name: "James Taylor" },
+  //     { id: 2, name: "Emma Clark" },
+  //     { id: 3, name: "William Harris" },
+  //     { id: 4, name: "Sophia Martin" },
+  //   ],
+  //   assistantQs: [
+  //     { id: 1, name: "Thomas White" },
+  //     { id: 2, name: "Olivia Green" },
+  //     { id: 3, name: "Daniel Thompson" },
+  //     { id: 4, name: "Ava Robinson" },
+  //   ],
+  //   siteEngineer: [
+  //     { id: 1, name: "William Harris" },
+  //     { id: 2, name: "Sophia Martin" },
+  //     { id: 3, name: "Joseph Lewis" },
+  //     { id: 4, name: "Mia Walker" },
+  //   ],
+  //   engineer: [
+  //     { id: 1, name: "Daniel Thompson" },
+  //     { id: 2, name: "Ava Robinson" },
+  //     { id: 3, name: "Alexander Hall" },
+  //     { id: 4, name: "Charlotte Young" },
+  //   ],
+  //   designer: [
+  //     { id: 1, name: "Joseph Lewis" },
+  //     { id: 2, name: "Mia Walker" },
+  //     { id: 3, name: "Benjamin Allen" },
+  //     { id: 4, name: "Amelia King" },
+  //   ],
+  //   vendors: [
+  //     { id: 1, name: "Acme Supplies" },
+  //     { id: 2, name: "Global Materials" },
+  //     { id: 3, name: "Quality Products" },
+  //     { id: 4, name: "Premium Vendors" },
+  //   ],
+  //   subcontractors: [
+  //     { id: 1, name: "Elite Construction" },
+  //     { id: 2, name: "Premier Services" },
+  //     { id: 3, name: "Expert Builders" },
+  //     { id: 4, name: "Professional Contractors" },
+  //   ],
+  // };
 
   // Handle search filter change
   const handleSearchFilterChange = (e, field) => {
@@ -350,46 +350,52 @@ const handleProjectCreated = (projectId) => {
   };
 
   // Handle selection of an item
-  const handleSelectItem = (field, item) => {
-    console.log(`Selecting item for ${field}:`, item);
-  
-    setFormData((prevState) => {
-      const isSelected = prevState[field]?.some(
-        (selected) => selected.id === item.id || selected.empId === item.empId
-      );
-  
-      // Add or remove the item based on whether it's already selected
-      const updatedField = isSelected
-        ? prevState[field].filter(
-            (selected) => selected.id !== item.id && selected.empId !== item.empId
-          )
-        : [...(prevState[field] || []), item];
-  
-      console.log(`Updated ${field} data:`, updatedField);
-  
-      return {
-        ...prevState,
-        [field]: updatedField,
-      };
-    });
-  };
-  
-  
+// Handle selection of an item
+const handleSelectItem = (field, item) => {
+  console.log(`Selecting item for ${field}:`, item);
 
-  // Remove a selected item
-  const handleRemoveItem = (field, itemId) => {
-    setFormData({
-      ...formData,
-      [field]: formData[field].filter((item) => item.id !== itemId),
-    });
-  };
+  setFormData((prevState) => {
+    const currentSelection = prevState[field] || [];
+
+    // Check if the item is already selected
+    const isSelected = currentSelection.some(
+      (selected) => selected.id === item.id || selected.empId === item.empId
+    );
+
+    // If selected, remove it; if not, add it
+    const updatedSelection = isSelected
+      ? currentSelection.filter(
+          (selected) => selected.id !== item.id && selected.empId !== item.empId
+        )
+      : [...currentSelection, item];
+
+    console.log(`Updated ${field} data:`, updatedSelection);
+
+    return {
+      ...prevState,
+      [field]: updatedSelection,
+    };
+  });
+};
+
+  
+const handleRemoveItem = (field, itemId) => {
+  setFormData((prevState) => ({
+    ...prevState,
+    [field]: (prevState[field] || []).filter(
+      (item) => item.id !== itemId && item.empId !== itemId
+    ),
+  }));
+};
+
+  
 
   // Filter items based on search text
-  const getFilteredItems = (field) => {
-    return teamMembers[field].filter((item) =>
-      item.name.toLowerCase().includes(searchFilters[field].toLowerCase())
-    );
-  };
+  // const getFilteredItems = (field) => {
+  //   return teamMembers[field].filter((item) =>
+  //     item.name.toLowerCase().includes(searchFilters[field].toLowerCase())
+  //   );
+  // };
 
   // Handle form submission after final step
   const handleSubmit = () => {

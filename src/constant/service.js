@@ -4,7 +4,6 @@ export const API = {
   LOGOUT: "/api/auth/logout",
   GET_USER_PROFILE: "/v1.0/me",
   GET_USER_INFO: "/api/Login/LoginUserDetail",
-
   GET_ROLE: "/api/Role/getRoles",
 
   /*Ceo Project */
