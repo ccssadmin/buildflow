@@ -5,6 +5,8 @@ import {
   createProjectFinanceApprovedAction,
   createProjectMilestoneAction,
   createProjectTeamAction,
+  getAllProjectByFilterAction,
+  getProjectDetailsAction,
   getProjectTypeSectorAction,
 } from "../../actions/Ceo/ceoprojectAction";
 
@@ -146,13 +148,39 @@ const ceoProjectSlice = createSlice({
       .addCase(createProjectMilestoneAction.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.projectMilestone.push(action.payload);
+        state.milestones = action.payload.data || action.payload;
       })
       .addCase(createProjectMilestoneAction.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload?.message || action.error.message;
         state.success = false;
       });
+      /** PROJECT DETAILS */
+    builder.addCase(getProjectDetailsAction.pending, (state, action) => {
+      state.getProjectDetails.loading = true;
+    });
+    builder.addCase(getProjectDetailsAction.fulfilled, (state, action) => {
+      const data = action.payload;
+      state.getProjectDetails.data = data;
+      console.log("Project Details:", data);
+      state.getProjectDetails.loading = false;
+    });
+    builder.addCase(getProjectDetailsAction.rejected, (state, action) => {
+      state.fetchError = action.error;
+      state.getProjectDetails.loading = false;
+    })
+
+.addCase ( getAllProjectByFilterAction.pending, (state) => {
+  state.loading = true;
+  state.error = null;
+})
+.addCase ( getAllProjectByFilterAction.fulfilled, (state,action) => {
+  state.loading = false;
+  state.error = action.payload;
+}) .addCase ( getAllProjectByFilterAction.rejected, (state,action) => {
+  state.loading = false;
+  state.error = action.error.message;
+})
 
   },
 });

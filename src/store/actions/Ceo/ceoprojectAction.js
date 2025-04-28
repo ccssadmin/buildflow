@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { crateFinanceApproved, createceoproject, createProjectBudget, createProjectMilestone, createProjectTeam, getProjectTypeSector } from "../../../services";
+import { crateFinanceApproved, createceoproject, createProjectBudget, createProjectMilestone, createProjectTeam, getAllProjectByFilter, getProjectDetails, getProjectTypeSector } from "../../../services";
 
 // Get Project Type & Sector
 export const getProjectTypeSectorAction = createAsyncThunk(
@@ -55,35 +55,44 @@ export const createProjectFinanceApprovedAction = createAsyncThunk(
 );
 
 
-// In your ceoprojectAction.js
 export const createProjectMilestoneAction = createAsyncThunk(
   "project/milestone",
-  async (params, { rejectWithValue }) => {
+  async ({ projectId, milestoneDto }, { rejectWithValue }) => {
     try {
-      // Validate the projectId
-      if (!params.projectId || params.projectId <= 0) {
+      if (!projectId || projectId <= 0) {
         return rejectWithValue({
           message: "Invalid project ID",
-          data: { projectid: params.projectId || 0 }
+          data: { projectId }
         });
       }
       
-      // Log what we're sending
-      console.log("📤 Sending milestone data to API:", JSON.stringify(params, null, 2));
+      console.log("Sending milestone data:", milestoneDto);
+      const response = await createProjectMilestone(projectId, milestoneDto);
       
-      // Pass the params directly to the API function
-      const response = await createProjectMilestone(params);
-      
-      // Log response
-      console.log("📥 Received response:", JSON.stringify(response.data, null, 2));
-      
-      return response.data;
+      console.log("Received response:", response);
+      return response;
     } catch (error) {
-      console.error("💥 API Error:", error);
+      console.error("API Error:", error);
       return rejectWithValue(error.response?.data || { 
         message: error.message,
-        data: { projectid: params?.projectId || 0 }
+        data: { projectId }
       });
     }
   }
 );
+/** USED TO GET PROJECT DETAILS - CEO FLOW */
+export const getProjectDetailsAction = createAsyncThunk(
+  "getProjectDetails",
+  async (params) => {
+    const response = await getProjectDetails(params);
+    return response.data;
+  }
+);
+
+export const getAllProjectByFilterAction = createAsyncThunk (
+  "proect/getProjectByStatus",
+  async () => {
+    const response = await getAllProjectByFilter();
+    return response.data;
+  }
+)

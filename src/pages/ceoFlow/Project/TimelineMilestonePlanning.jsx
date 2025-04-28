@@ -1,351 +1,505 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { Form, Button, Modal } from "react-bootstrap";
+import Swal from "sweetalert2";
+import { useProject } from "../../../hooks/Ceo/useCeoProject";
+import { useParams } from "react-router-dom";
+import DatePicker from "react-datepicker"; // Import DatePicker
+import "react-datepicker/dist/react-datepicker.css"; // Import styles
+import { profile } from "../../../assets/images";
 
-const initialMilestones = [
-  { milestone: "Foundation Work", description: "Complete excavation and concrete laying", start: "", end: "", status: "Planned" },
-  { milestone: "Structural Framing", description: "Assemble steel and structural framing", start: "", end: "", status: "Planned" },
-  { milestone: "Roofing Installation", description: "Complete installation of roofing system", start: "", end: "", status: "Planned" },
-  { milestone: "Exterior Walls", description: "Brickwork, plastering, and painting", start: "", end: "", status: "Planned" },
-  { milestone: "Plumbing & Electrical Work", description: "Install pipes, wiring, and fixtures", start: "", end: "", status: "Planned" },
-  { milestone: "Interior Design & Finishing", description: "Install doors, windows & interiors", start: "", end: "", status: "Planned" },
-  { milestone: "Final Inspection & Handover", description: "Quality check and handover to client", start: "", end: "", status: "Planned" },
-];
+const TimelineMilestonePlanning = ({
+  formData,
+  handleMilestoneChange,
+  handleAddColumn,
+  onNextStep,
+  setFormData,
+  createTicket,
+  createNotify
+}) => {
+  const [showModal, setShowModal] = useState(false);
+  const [selectedUsers, setSelectedUsers] = useState([]);
+  const { projectId } = useParams();
+  const { createProjectMilestone, loading, currentProject } = useProject();
+  const [localProjectId, setLocalProjectId] = useState(null);
 
-const TimelineMilestoneTable = () => {
-  const [milestones, setMilestones] = useState(initialMilestones);
+  const handleCheckboxChange = (userId) => {
+    setSelectedUsers((prevSelected) =>
+      prevSelected.includes(userId)
+        ? prevSelected.filter((id) => id !== userId)
+        : [...prevSelected, userId]
+    );
+  };
 
-  const handleChange = (index, field, value) => {
-    const updated = [...milestones];
-    updated[index][field] = value;
-    setMilestones(updated);
+  const handleTicketSubmission = async () => {
+    const projectId = formData.projectId || localProjectId || parseInt(localStorage.getItem("projectId"));
+    const createdBy = parseInt(localStorage.getItem("userRoleId")); // This is CEO's user id (creator)
+  
+    for (const empId of selectedUsers) {
+      const ticketPayload = {
+        projectId,
+        ticketType: "milestone",
+        assignTo: selectedUsers,
+        createdBy: createdBy,
+      };
+  
+      try {
+        await createTicket(ticketPayload); // First create the ticket
+        console.log("✅ Ticket created for:", empId);
+  
+        // After successful ticket creation, create notification
+        const notificationPayload = {
+          empId: selectedUsers,                         // Assigned employee
+          notificationType: "Ticket Assigned",  // Default message
+          sourceEntityId: 0,             // Use projectId as the source entity (or ticket id if available)
+          message: "A new budget ticket has been assigned to you.", // Customizable message
+        };
+  
+        await createNotify(notificationPayload); // Create notification
+        console.log("🔔 Notification created for:", empId);
+  
+      } catch (err) {
+        console.error("❌ Failed to create ticket or notification for:", empId, err);
+      }
+    }
+  
+    Swal.fire({
+      icon: "success",
+      title: "Tickets and Notifications Created",
+      text: "Tickets and notifications successfully submitted.",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+  
+    setShowModal(false);
+  };
+
+  useEffect(() => {
+    // On component mount - get project ID from all possible sources
+    const getProjectId = () => {
+      // First check formData
+      if (formData && formData.projectId) {
+        console.log("🔍 Found projectId in formData:", formData.projectId);
+        setLocalProjectId(formData.projectId);
+        return formData.projectId;
+      }
+
+      // Then check localStorage as backup
+      const storedId = localStorage.getItem("projectId");
+      if (storedId) {
+        console.log("🔍 Found projectId in localStorage:", storedId);
+        setLocalProjectId(parseInt(storedId));
+
+        // Update formData if needed
+        if (!formData.projectId) {
+          setFormData((prev) => ({
+            ...prev,
+            projectId: parseInt(storedId),
+          }));
+        }
+
+        return parseInt(storedId);
+      }
+
+      console.error("❌ No project ID found anywhere!");
+      return null;
+    };
+
+    const projectId = getProjectId();
+
+    // Alert if no project ID found
+    if (!projectId) {
+      Swal.fire({
+        icon: "warning",
+        title: "Project ID Missing",
+        text: "Could not find project ID. Please go back and create the project first.",
+      });
+    }
+  }, []);
+  // Progress steps
+  const steps = [
+    "Project Basic Details",
+    "Budget & Financial Allocation",
+    "Project Team & Stakeholder Assignment",
+    "Timeline & Milestone Planning",
+    "Risk & Compliance Assessment",
+  ];
+  const [currentStep, setCurrentStep] = useState(3); // Timeline is step 3
+
+  useEffect(() => {
+    const storedProjectId = localStorage.getItem("projectId");
+    const resolvedProjectId =
+      projectId ||
+      storedProjectId ||
+      currentProject?.projectId ||
+      currentProject?.data?.projectid;
+
+    if (resolvedProjectId) {
+      setFormData((prev) => ({
+        ...prev,
+        projectId: resolvedProjectId,
+      }));
+    } else {
+      console.error("No project ID found in timeline component!");
+    }
+  }, [projectId, currentProject]);
+
+  const handleAddMilestone = () => {
+    const newId =
+      formData.milestones.length > 0
+        ? Math.max(...formData.milestones.map((m) => m.id)) + 1
+        : 1;
+
+    setFormData((prev) => ({
+      ...prev,
+      milestones: [
+        ...prev.milestones,
+        {
+          id: newId,
+          name: "",
+          description: "",
+          startDate: "",
+          endDate: "",
+          status: "Planned",
+        },
+      ],
+    }));
+  };
+
+  // Modified function to handle date changes with DatePicker
+  const handleDateChange = (id, field, date) => {
+    // Convert date to string format if it exists
+    const dateString = date ? date.toISOString().split("T")[0] : "";
+
+    // Call the original handleMilestoneChange with the formatted date
+    handleMilestoneChange(id, field, dateString);
+  };
+
+  // Helper function to format dates
+  const formatDateString = (dateStr) => {
+    if (!dateStr) return null;
+
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+      return dateStr;
+    }
+
+    try {
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return null;
+
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+
+      return `${year}-${month}-${day}`;
+    } catch (e) {
+      console.error("Date parsing error:", e);
+      return null;
+    }
+  };
+
+  // Helper function to convert string date to Date object for DatePicker
+  const parseDate = (dateStr) => {
+    if (!dateStr) return null;
+    const date = new Date(dateStr);
+    return isNaN(date.getTime()) ? null : date;
+  };
+
+  const handleSubmit = async () => {
+    if (!formData.projectId) {
+      Swal.fire({
+        icon: "error",
+        title: "No Project Selected",
+        text: "Please create or select a project first.",
+      });
+      return;
+    }
+
+    // Only validate milestones that have data entered
+    // Skip empty milestones instead of showing warnings
+    const milestonesToSubmit = formData.milestones.filter(
+      (m) => m.name.trim() || m.startDate || m.endDate || m.description.trim()
+    );
+
+    // Check if any milestone with data has missing required fields
+
+    // Validate date ranges for milestones that have both dates
+    const invalidDateRanges = milestonesToSubmit.filter(
+      (m) =>
+        m.startDate && m.endDate && new Date(m.endDate) < new Date(m.startDate)
+    );
+
+    if (invalidDateRanges.length > 0) {
+      Swal.fire({
+        icon: "warning",
+        title: "Invalid Date Ranges",
+        text: `${invalidDateRanges.length} milestone(s) have end dates that are earlier than their start dates. Please correct these issues.`,
+      });
+      return;
+    }
+
+    // Prepare the milestone list with only valid entries
+    const milestoneList = milestonesToSubmit.map((milestone) => ({
+      milestoneId: 0, // Default ID as 0 for new milestones
+      milestoneName: milestone.name.trim(),
+      milestoneDescription: milestone.description
+        ? milestone.description.trim()
+        : "",
+      milestoneStartDate: formatDateString(milestone.startDate),
+      milestoneEndDate: formatDateString(milestone.endDate),
+      Status: milestone.status || "Planned",
+    }));
+
+    // Fixed payload structure according to API requirements
+    const payload = {
+      projectId: parseInt(formData.projectId, 10),
+      milestoneList: milestoneList, // This could be an empty array if no milestones have data
+    };
+
+    console.log("Payload being sent to API:", payload);
+
+    try {
+      const response = await createProjectMilestone(payload);
+
+      if (response?.success) {
+        Swal.fire({
+          icon: "success",
+          title: "Success!",
+          text:
+            milestoneList.length > 0
+              ? "Project milestones have been saved successfully."
+              : "Project has been saved successfully with no milestones.",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+
+        setTimeout(() => {
+          if (onNextStep) {
+            onNextStep();
+          }
+        }, 1600);
+      } else {
+        throw new Error(response?.message || "Failed to save project");
+      }
+    } catch (error) {
+      console.error("Error saving project:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.message || "Something went wrong. Please try again.",
+      });
+    }
   };
 
   return (
-    <div className="overflow-x-auto mt-10 px-6 w-full">
-      {/* Heading */}
-      <h2 className="text-2xl font-semibold text-gray-800 mb-6">
-        Timeline & Milestone Planning
-      </h2>
+    <div className="timeline-milestone-page">
+      <div className="container-fluid">
+        <div className="row mb-4">
+          <div className="col-12">
+            <h2 className="section-title mb-4">
+              Timeline & Milestone Planning
+            </h2>
+          </div>
+        </div>
 
-      {/* Table */}
-      <table className="w-full text-left border border-gray text-sm">
-      <thead style={{ backgroundColor: '#EBEBEB' }} className="text-gray-700 uppercase">
-  <tr>
-    <th className="p-3 border">Milestone</th>
-    <th className="p-3 border">Description</th>
-    <th className="p-3 border">Start Date</th>
-    <th className="p-3 border">End Date</th>
-    <th className="p-3 border">Status</th>
-  </tr>
-</thead>
+        <div className="form-section">
+          <table className="tbl mt-4 table table-bordered w-100">
+            <thead>
+              <tr>
+                <th className="text-center text-dark fs-18-500">S.No</th>
+                <th className="text-center text-dark fs-18-500">
+                  Milestone Name
+                </th>
+                <th className="text-center text-dark fs-18-500">Description</th>
+                <th className="text-center text-dark fs-18-500">Start Date</th>
+                <th className="text-center text-dark fs-18-500">End Date</th>
+                <th className="text-center text-dark fs-18-500">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {formData.milestones.map((milestone) => (
+                <tr key={milestone.id}>
+                  <td className="text-center text-dark-gray fs-16-500">
+                    {milestone.id}
+                  </td>
+                  <td className="text-center text-dark-gray fs-16-500">
+                    <Form.Control
+                      type="text"
+                      className="border-0 shadow-none bg-transparent"
+                      value={milestone.name}
+                      onChange={(e) =>
+                        handleMilestoneChange(
+                          milestone.id,
+                          "name",
+                          e.target.value
+                        )
+                      }
+                      placeholder="Enter milestone name"
+                    />
+                  </td>
+                  <td className="text-center text-dark-gray fs-16-500">
+                    <Form.Control
+                      type="text"
+                      className="border-0 shadow-none bg-transparent"
+                      value={milestone.description}
+                      onChange={(e) =>
+                        handleMilestoneChange(
+                          milestone.id,
+                          "description",
+                          e.target.value
+                        )
+                      }
+                      placeholder="Enter description"
+                    />
+                  </td>
+                  <td className="text-center text-dark-gray fs-16-500">
+                    <div className="date-input-container">
+                      <DatePicker
+                        selected={parseDate(milestone.startDate)}
+                        onChange={(date) =>
+                          handleDateChange(milestone.id, "startDate", date)
+                        }
+                        className="form-control border-0 shadow-none bg-transparent w-100"
+                        dateFormat="d MMMM yyyy" // Changed from "yyyy-MM-dd" to "d MMMM yyyy"
+                        placeholderText="Select start date"
+                      />
+                    </div>
+                  </td>
+                  <td className="text-center text-dark-gray fs-16-500">
+                    <div className="date-input-container">
+                      <DatePicker
+                        selected={parseDate(milestone.endDate)}
+                        onChange={(date) =>
+                          handleDateChange(milestone.id, "endDate", date)
+                        }
+                        className="form-control border-0 shadow-none bg-transparent"
+                        dateFormat="d MMMM yyyy" // Changed from "yyyy-MM-dd" to "d MMMM yyyy"
+                        placeholderText="Select end date"
+                        minDate={parseDate(milestone.startDate)}
+                      />
+                    </div>
+                  </td>
+                  <td className="text-center text-dark-gray fs-16-500">
+                    <Form.Select
+                      className="border-0 shadow-none bg-transparent text-dark"
+                      value={milestone.status}
+                      onChange={(e) =>
+                        handleMilestoneChange(
+                          milestone.id,
+                          "status",
+                          e.target.value
+                        )
+                      }
+                    >
+                      <option value="Planned">Planned</option>
+                      <option value="In Progress">In Progress</option>
+                      <option value="Completed">Completed</option>
+                      <option value="Delayed">Delayed</option>
+                    </Form.Select>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
 
+          <div className="text-end mt-3">
+            {/* <Button
+              variant="outline-primary"
+              onClick={handleAddMilestone}
+              className="btn-add-milestone"
+              style={{
+                backgroundColor: '#FF6F00',
+                border: 'none',
+                color: 'white',
+                marginTop: '10px',
+                padding: '8px 20px',
+                fontSize: '14px',
+              }}
+            >
+              + Add Milestone
+            </Button> */}
+            <Button
+              onClick={handleAddMilestone}
+              className="text-primary bg-transparent border-0 fs-16-500 me-0 ms-auto"
+            >
+              + Add Row
+            </Button>
+          </div>
+        </div>
 
-        <tbody>
-          {milestones.map((row, idx) => (
-            <tr key={idx} className="text-gray-800">
-              <td className="p-3 border">{row.milestone}</td>
-              <td className="p-3 border">{row.description}</td>
-              <td className="p-3 border">
-                {/* Read-only Start Date */}
-                <div className="w-full bg-transparent text-gray">{row.start || "DD/MM/YYYY"}</div>
-              </td>
-              <td className="p-3 border">
-                {/* Read-only End Date */}
-                <div className="w-full bg-transparent text-gray">{row.end || "DD/MM/YYYY"}</div>
-              </td>
-              <td className="p-3 border relative">
-                <select
-                  className="border-white"
-                  value={row.status}
-                  onChange={(e) => handleChange(idx, "status", e.target.value)}
-                >
-                  <option>Planned</option>
-                  <option>In Progress</option>
-                  <option>Completed</option>
-                </select>
-                {/* Dropdown Arrow */}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+        <div className="d-flex justify-content-end mt-4">
+          {/* <Button
+            variant="primary"
+            onClick={() => setShowModal(true)}
+            disabled={formData.projectManager.length === 0}
+          >
+            Send To
+          </Button> */}
+          <Button 
+          onClick={() => setShowModal(true)}
+          disabled={formData.projectManager.length === 0}
+          className="btn-primary btn fs-14-600 bg-transparent text-primary border-0 border-radius-2">
+            <svg
+              className="me-2"
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M10 3.33464C9.22645 3.33464 8.48459 3.64193 7.93761 4.18891C7.39062 4.73589 7.08333 5.47775 7.08333 6.2513C7.08333 7.02485 7.39062 7.76672 7.93761 8.3137C8.48459 8.86068 9.22645 9.16797 10 9.16797C10.7735 9.16797 11.5154 8.86068 12.0624 8.3137C12.6094 7.76672 12.9167 7.02485 12.9167 6.2513C12.9167 5.47775 12.6094 4.73589 12.0624 4.18891C11.5154 3.64193 10.7735 3.33464 10 3.33464ZM5.41667 6.2513C5.41667 5.03573 5.89955 3.86994 6.75909 3.0104C7.61864 2.15085 8.78442 1.66797 10 1.66797C11.2156 1.66797 12.3814 2.15085 13.2409 3.0104C14.1004 3.86994 14.5833 5.03573 14.5833 6.2513C14.5833 7.46688 14.1004 8.63267 13.2409 9.49221C12.3814 10.3518 11.2156 10.8346 10 10.8346C8.78442 10.8346 7.61864 10.3518 6.75909 9.49221C5.89955 8.63267 5.41667 7.46688 5.41667 6.2513ZM2.5 15.8346C2.5 14.7296 2.93899 13.6698 3.72039 12.8884C4.50179 12.107 5.5616 11.668 6.66667 11.668H13.3333C14.4384 11.668 15.4982 12.107 16.2796 12.8884C17.061 13.6698 17.5 14.7296 17.5 15.8346V18.3346H2.5V15.8346ZM6.66667 13.3346C6.00363 13.3346 5.36774 13.598 4.8989 14.0669C4.43006 14.5357 4.16667 15.1716 4.16667 15.8346V16.668H15.8333V15.8346C15.8333 15.1716 15.5699 14.5357 15.1011 14.0669C14.6323 13.598 13.9964 13.3346 13.3333 13.3346H6.66667Z"
+                fill="#FF6F00"
+              />
+            </svg>
+            Send To
+          </Button>
+          <Button
+            className="btn-primary btn fs-14-600 bg-primary border-0 border-radius-2"
+            onClick={handleSubmit}
+            disabled={loading}
+          >
+            {loading ? "Saving..." : "Next >"}
+          </Button>
+        </div>
 
-      {/* Add Column Button */}
-      <div className="flex justify-end mt-4  ">
-      <div className="flex justify-between w-full ">
-      <button className="text-orange font-semibold text-sm border-0 bg-transparent  ">
-    + Add Column
-</button>
-
-</div>
-
-</div>
+        <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+          <Modal.Body>
+            {formData?.projectManager?.map((pm) => (
+              <div key={pm.id} className="d-flex align-items-center mb-3">
+                <Form.Check
+                  type="checkbox"
+                  className="me-3"
+                  checked={selectedUsers.includes(pm.id)}
+                  onChange={() => handleCheckboxChange(pm.id)}
+                />
+                <img
+                  src={profile}
+                  alt={pm.name}
+                  className="rounded-circle me-3"
+                  style={{ width: "50px", height: "50px", objectFit: "cover" }}
+                />
+                <p className="mb-0 fs-22-700 text-dark">
+                  {pm.name}
+                  <span className="d-block fs-14-400 text-dark-grey">
+                    Project Manager
+                  </span>
+                </p>
+              </div>
+            ))}
+          </Modal.Body>
+          <Modal.Footer className="justify-content-center">
+            <Button
+              className="btn-primary btn fs-14-600 bg-primary border-0 border-radius-2"
+              onClick={handleTicketSubmission}
+              disabled={selectedUsers.length === 0}
+            >
+              Submit
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      </div>
     </div>
   );
 };
 
-export default TimelineMilestoneTable; //ui only
-
-
-// import React, { useState, useEffect } from "react";
-// import { Button } from "react-bootstrap";
-// import Swal from "sweetalert2";
-// import { useProject } from "../../../hooks/Ceo/useCeoProject";
-// import { useParams } from "react-router-dom";
-
-// const TimelineContainer = () => {
-//   const { projectId } = useParams();
-//   const { createProjectMilestone, loading, currentProject } = useProject();
-//   const [formData, setFormData] = useState({
-//     projectId: null,
-//     milestones: [
-//       {
-//         id: 1,
-//         name: "Initial Planning",
-//         description: "Project kickoff and initial planning phase",
-//         startDate: "",
-//         endDate: "",
-//         status: "Planned"
-//       }
-//     ]
-//   });
-
-//   useEffect(() => {
-//     // Get project ID from URL params, localStorage or current project
-//     const storedProjectId = localStorage.getItem("projectId");
-//     const resolvedProjectId = projectId || storedProjectId || (currentProject?.projectId || currentProject?.data?.projectid);
-    
-//     if (resolvedProjectId) {
-//       console.log("⚠️ Setting project ID in timeline:", resolvedProjectId);
-//       setFormData(prev => ({
-//         ...prev,
-//         projectId: resolvedProjectId
-//       }));
-//     } else {
-//       console.error("❌ No project ID found in timeline component!");
-//     }
-//   }, [projectId, currentProject]);
-
-//   const handleMilestoneChange = (id, field, value) => {
-//     setFormData(prev => ({
-//       ...prev,
-//       milestones: prev.milestones.map(milestone => 
-//         milestone.id === id ? { ...milestone, [field]: value } : milestone
-//       )
-//     }));
-//   };
-
-//   const handleAddMilestone = () => {
-//     const newId = formData.milestones.length > 0 
-//       ? Math.max(...formData.milestones.map(m => m.id)) + 1 
-//       : 1;
-      
-//     setFormData(prev => ({
-//       ...prev,
-//       milestones: [
-//         ...prev.milestones, 
-//         {
-//           id: newId,
-//           name: `Milestone ${newId}`,
-//           description: "",
-//           startDate: "",
-//           endDate: "",
-//           status: "Planned"
-//         }
-//       ]
-//     }));
-//   };
-
-//   const handleSubmit = async () => {
-//     if (!formData.projectId) {
-//       Swal.fire({
-//         icon: "error",
-//         title: "No Project Selected",
-//         text: "Please create or select a project first."
-//       });
-//       return;
-//     }
-
-//     // Validate required fields
-//     const invalidMilestones = formData.milestones.filter(
-//       m => !m.name || !m.startDate || !m.endDate
-//     );
-
-//     if (invalidMilestones.length > 0) {
-//       Swal.fire({
-//         icon: "warning",
-//         title: "Incomplete Data",
-//         text: "Please fill in all required fields (name, start date, end date) for all milestones."
-//       });
-//       return;
-//     }
-
-//     // Format the milestone data according to API requirements
-//     const formattedMilestones = formData.milestones.map(milestone => ({
-//       milestoneId: 0,
-//       milestoneName: milestone.name,
-//       milestoneDescription: milestone.description,
-//       milestoneStartDate: milestone.startDate,
-//       milestoneEndDate: milestone.endDate,
-//       milestoneStatus: milestone.status
-//     }));
-    
-//     // Create the DTO structure the API expects
-//     const milestoneDto = {
-//       projectId: parseInt(formData.projectId),
-//       milestoneList: formattedMilestones
-//     };
-    
-//     console.log("Submitting milestones:", milestoneDto);
-    
-//     try {
-//       const response = await createProjectMilestone(formData.projectId, milestoneDto);
-      
-//       if (response.success) {
-//         Swal.fire({
-//           icon: "success",
-//           title: "Success!",
-//           text: "Project milestones have been saved successfully.",
-//           timer: 1500,
-//           showConfirmButton: false
-//         });
-//       } else {
-//         throw new Error(response.message || "Failed to save milestones");
-//       }
-//     } catch (error) {
-//       console.error("Error saving milestones:", error);
-//       Swal.fire({
-//         icon: "error",
-//         title: "Error",
-//         text: error.message || "Something went wrong. Please try again."
-//       });
-//     }
-//   };
-
-//   // Simple milestone row renderer
-//   const renderMilestoneRow = (milestone) => {
-//     return (
-//       <div className="card mb-3" key={milestone.id}>
-//         <div className="card-body">
-//           <div className="row">
-//             <div className="col-md-6">
-//               <div className="form-group mb-3">
-//                 <label>Milestone Name</label>
-//                 <input 
-//                   type="text"
-//                   className="form-control"
-//                   value={milestone.name}
-//                   onChange={(e) => handleMilestoneChange(milestone.id, 'name', e.target.value)}
-//                   placeholder="Enter milestone name"
-//                 />
-//               </div>
-//               <div className="form-group mb-3">
-//                 <label>Description</label>
-//                 <textarea
-//                   className="form-control"
-//                   value={milestone.description}
-//                   onChange={(e) => handleMilestoneChange(milestone.id, 'description', e.target.value)}
-//                   placeholder="Enter description"
-//                   rows="2"
-//                 />
-//               </div>
-//             </div>
-//             <div className="col-md-6">
-//               <div className="row">
-//                 <div className="col-md-6">
-//                   <div className="form-group mb-3">
-//                     <label>Start Date</label>
-//                     <input 
-//                       type="date"
-//                       className="form-control"
-//                       value={milestone.startDate}
-//                       onChange={(e) => handleMilestoneChange(milestone.id, 'startDate', e.target.value)}
-//                     />
-//                   </div>
-//                 </div>
-//                 <div className="col-md-6">
-//                   <div className="form-group mb-3">
-//                     <label>End Date</label>
-//                     <input 
-//                       type="date"
-//                       className="form-control"
-//                       value={milestone.endDate}
-//                       onChange={(e) => handleMilestoneChange(milestone.id, 'endDate', e.target.value)}
-//                     />
-//                   </div>
-//                 </div>
-//               </div>
-//               <div className="form-group">
-//                 <label>Status</label>
-//                 <select
-//                   className="form-control"
-//                   value={milestone.status}
-//                   onChange={(e) => handleMilestoneChange(milestone.id, 'status', e.target.value)}
-//                 >
-//                   <option value="Planned">Planned</option>
-//                   <option value="In Progress">In Progress</option>
-//                   <option value="Completed">Completed</option>
-//                   <option value="Delayed">Delayed</option>
-//                 </select>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     );
-//   };
-
-//   return (
-//     <div className="container-fluid">
-//       <div className="row mb-4">
-//         <div className="col-12">
-//           <h4 className="mb-3">Timeline & Milestone Planning</h4>
-//           <p>Project ID: {formData.projectId || "Not selected"}</p>
-//         </div>
-//       </div>
-      
-//       <div className="row mb-4">
-//         <div className="col-12">
-//           {formData.milestones.map(renderMilestoneRow)}
-//         </div>
-//       </div>
-      
-//       <div className="row mb-4">
-//         <div className="col-12">
-//           <Button 
-//             variant="outline-primary" 
-//             onClick={handleAddMilestone}
-//             style={{
-//               backgroundColor: '#FF6F00',
-//               border: 'none',
-//               color: 'white',
-//               padding: '8px 20px',
-//               fontSize: '14px',
-//             }}
-//           >
-//             + Add Milestone
-//           </Button>
-//         </div>
-//       </div>
-
-//       <div className="row mt-4">
-//         <div className="col-12 d-flex justify-content-end">
-//           <Button 
-//             variant="primary" 
-//             onClick={handleSubmit}
-//             disabled={loading}
-//             style={{
-//               backgroundColor: '#FF6F00',
-//               border: 'none',
-//               padding: '10px 30px',
-//               fontSize: '16px',
-//             }}
-//           >
-//             {loading ? "Saving..." : "Save Milestones"}
-//           </Button>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default TimelineContainer; //working chatgpt code
+export default TimelineMilestonePlanning;

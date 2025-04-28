@@ -2,7 +2,8 @@ import { Calendar } from "lucide-react";
 import React, { useState } from "react";
 import { Button, Row, Col, Form, Modal } from "react-bootstrap";
 import { profile } from "../../../assets/images";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 // Permission and Finance Approval data
 const permissionData = [
@@ -24,10 +25,20 @@ const permissionData = [
   },
   { id: 7, role: "Finance", employee: "Jane Cooper", amount: "" },
 ];
-const ProjectSummary = ({ formData, onBackClick }) => {
+const ProjectSummary = ({
+  formData,
+  onBackClick,
+  createTicket,
+  createNotify,
+  fetchroles,
+  fetchAllEmployees,
+}) => {
   const [showModal, setShowModal] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState([]);
+  const [dynamicRoles, setDynamicRoles] = useState([]);
+  const [employeesByRole, setEmployeesByRole] = useState([]);
 
+  const navigate = useNavigate();
   const users = [
     { id: 1, name: "Jacob Jones", role: "Managing Director" },
     { id: 2, name: "Robert Fox", role: "Director" },
@@ -35,13 +46,30 @@ const ProjectSummary = ({ formData, onBackClick }) => {
     { id: 4, name: "Devon Lane", role: "Finance Head" },
     { id: 5, name: "Cody Fisher", role: "GM Technology", image: "T" },
   ];
-
+  const PROJECT_TYPES = {
+    1: "Residential",
+    2: "Industrial",
+  };
+  const PROJECT_SECTORS = {
+    1: "Public",
+    2: "Private",
+  };
   const handleCheckboxChange = (id) => {
     setSelectedUsers((prev) =>
       prev.includes(id) ? prev.filter((userId) => userId !== id) : [...prev, id]
     );
   };
+  // Get Project Type name from ID
+  const getProjectTypeName = () => {
+    if (!formData.projectTypeId) return "Not provided";
+    return PROJECT_TYPES[formData.projectTypeId] || "Not provided";
+  };
 
+  // Get Project Sector name from ID
+  const getProjectSectorName = () => {
+    if (!formData.projectSectorId) return "Not provided";
+    return PROJECT_SECTORS[formData.projectSectorId] || "Not provided";
+  };
   return (
     <div className="project-summary">
       <div className="breadcrumb-container pb-3 d-flex align-items-center">
@@ -98,7 +126,7 @@ const ProjectSummary = ({ formData, onBackClick }) => {
               <Form.Control
                 disabled
                 type="text"
-                placeholder={formData.location || "Not provided"}
+                placeholder={formData.projectLocation || "Not provided"}
               />
             </div>
           </Col>
@@ -108,7 +136,7 @@ const ProjectSummary = ({ formData, onBackClick }) => {
               <Form.Control
                 disabled
                 type="text"
-                placeholder={formData.projectType || "Not provided"}
+                placeholder={getProjectTypeName()}
               />
             </div>
           </Col>
@@ -120,7 +148,7 @@ const ProjectSummary = ({ formData, onBackClick }) => {
               <Form.Control
                 disabled
                 type="text"
-                placeholder={formData.projectSector || "Not provided"}
+                placeholder={getProjectSectorName()}
               />
             </div>
           </Col>
@@ -459,7 +487,70 @@ const ProjectSummary = ({ formData, onBackClick }) => {
         <Button
           variant="primary"
           className="submit-btn"
-          onClick={() => setShowModal(true)}
+          onClick={async () => {
+            try {
+              const rolesResponse = await fetchroles();
+
+              if (rolesResponse?.data) {
+                const targetRoles = [
+                  "Managing Director",
+                  "Director",
+                  "Finance Head",
+                  "GM Technology",
+                ];
+
+                const filteredRoles = rolesResponse.data.filter((role) =>
+                  targetRoles.includes(role.roleName)
+                );
+
+                console.log("🎯 Filtered Roles:", filteredRoles);
+
+                const allEmployees = [];
+
+                for (const role of filteredRoles) {
+                  const empResponse = await fetchAllEmployees(role.roleId);
+
+                  console.log("👀 empResponse:", empResponse);
+
+                  const employeesByRole = empResponse?.data?.employeesByRole;
+
+                  if (employeesByRole) {
+                    const employeesForExactRole =
+                      employeesByRole[role.roleName]; // 🔥 exact match
+
+                    if (Array.isArray(employeesForExactRole)) {
+                      console.log(
+                        `👀 Employees for role (${role.roleName}):`,
+                        employeesForExactRole
+                      );
+
+                      allEmployees.push(
+                        ...employeesForExactRole.map((emp) => ({
+                          ...emp,
+
+                          roleName: role.roleName, // keep correct roleName
+                        }))
+                      );
+                    } else {
+                      console.warn(
+                        `⚠️ No employees found under role: ${role.roleName}`
+                      );
+                    }
+                  }
+                }
+
+                console.log("🎯 All Employees collected:", allEmployees);
+
+                setEmployeesByRole(allEmployees);
+
+                setShowModal(true);
+              } else {
+                console.error("❌ No roles fetched");
+              }
+            } catch (error) {
+              console.error("❌ Error fetching roles/employees:", error);
+            }
+          }}
         >
           Submit for Approval
         </Button>
@@ -467,46 +558,108 @@ const ProjectSummary = ({ formData, onBackClick }) => {
 
       {/* Modal popup  */}
 
-      <Modal show={showModal} className="model-approvel-send" onHide={() => setShowModal(false)} centered>
-        <Modal.Body >
-          {users.map((user) => (
-            <div key={user.id} className="d-flex align-items-center mb-3">
-              <Form.Check
-                type="checkbox"
-                className="me-3"
-                checked={selectedUsers.includes(user.id)}
-                onChange={() => handleCheckboxChange(user.id)}
-              />
-              <img
-                src={profile}
-                alt={`${user.name}'s profile`}
-                className="rounded-circle me-3"
-                style={{ width: "50px", height: "50px", objectFit: "cover" }}
-              />
-              <p className="mb-0 fs-22-700 text-dark">
-                {user.name}
-                <span className="d-block fs-14-400 text-dark-grey">
-                  {user.role}
-                </span>
-              </p>
-            </div>
-          ))}
+      <Modal
+        show={showModal}
+        className="model-approvel-send"
+        onHide={() => setShowModal(false)}
+        centered
+      >
+        <Modal.Body>
+          {employeesByRole.length > 0 ? (
+            employeesByRole.map((emp) => (
+              <div key={emp.empId} className="d-flex align-items-center mb-3">
+                <Form.Check
+                  type="checkbox"
+                  className="me-3"
+                  checked={selectedUsers.includes(emp.empId)}
+                  onChange={() => handleCheckboxChange(emp.empId)}
+                />
+
+                <img
+                  src={profile}
+                  alt={`${emp.name || "Employee"}'s profile`}
+                  className="rounded-circle me-3"
+                  style={{ width: "50px", height: "50px", objectFit: "cover" }}
+                />
+
+                <p className="mb-0 fs-22-700 text-dark">
+                  {emp.employeeName}
+
+                  <span className="d-block fs-14-400 text-dark-grey">
+                    {emp.roleName}
+                  </span>
+                </p>
+              </div>
+            ))
+          ) : (
+            <p>No employees found under selected roles.</p>
+          )}
         </Modal.Body>
         <Modal.Footer className="justify-content-center">
-          <Link to='/ceo/ticketdetails/Project%20Planning'
+          <Button
             className={`d-flex justify-content-center ${
               selectedUsers.length > 0 ? "btn-allow" : "btn-not-allow"
             }`}
-            onClick={() => {
-              console.log("Selected Users:", selectedUsers);
-              setShowModal(false);
-      
-              
+            onClick={async () => {
+              for (const empId of selectedUsers) {
+                const selectedEmployee = employeesByRole.find(
+                  (emp) => emp.empId === empId
+                );
+
+                if (!selectedEmployee) continue;
+
+                try {
+                  // 1. Create Ticket
+
+                  await createTicket({
+                    projectId: formData.projectId,
+
+                    ticketType: "submit",
+
+                    assignTo: selectedUsers,
+
+                    createdBy: 1, // Replace with logged-in CEO id
+                  });
+
+                  // 2. Create Notification
+
+                  await createNotify({
+                    empId: empId,
+
+                    notificationType: "approval-request",
+
+                    sourceEntityId: formData.projectId,
+
+                    message: `Approval requested for project ${formData.projectName}`,
+                  });
+                } catch (error) {
+                  console.error(
+                    `❌ Failed to create ticket/notification for ${selectedEmployee.name}:`,
+                    error
+                  );
+                }
+
+                Swal.fire({
+                  icon: "success",
+
+                  title: "Tickets and Notifications Created",
+
+                  text: "Tickets and notifications successfully submitted.",
+
+                  timer: 1500,
+
+                  showConfirmButton: false,
+                });
+
+                setShowModal(false);
+
+                navigate("/ceo/ticketdetails/Resource%20Requirement");
+              }
             }}
             disabled={selectedUsers.length === 0} // Disable button if no users are selected
           >
             Submit
-          </Link>
+          </Button>
         </Modal.Footer>
       </Modal>
     </div>

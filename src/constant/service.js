@@ -4,6 +4,7 @@ export const API = {
   LOGOUT: "/api/auth/logout",
   GET_USER_PROFILE: "/v1.0/me",
   GET_USER_INFO: "/api/Login/LoginUserDetail",
+  GET_ROLE: "/api/Role/getRoles",
 
   /*Ceo Project */
   Get_PROJECTTYPE_SECTOR: "/api/Project/getProjectTypesAndProjectSectors",
@@ -12,10 +13,16 @@ export const API = {
   CREATE_PROJECT_TEAM :"/api/Project/upsertProjectTeam",
   CREATE_FINACIAL_APPROVAL :"/api/Project/upsertPermissionFinanceApproval",
   CREATE_PROJECT_MILESTONE : "/api/Project/upsertProjectMilestones",
+  GET_PROJECT_DETAILS_BY_ID: "/api/Project/getProjectDetails",
+  GET_ALL_PROJECT_FILTER : "/api/Project/get-projects-by-status",
 
+  
  /* Employee data */
  GET_EMPLOYEES_BY_ROLES: "/api/Login/getEmployeesByRoles",
  GET_VENDORS_AND_SUBCONTRACTORS: "/api/Login/getVendorsAndSubcontractors",
+
+//Notification
+  CREATE_NOTIFICATION: "/api/Notification/create-notification",
 
   /** KANBAN */
   GET_ALL_BOARD: "/api/BoardManagement/boards",
@@ -121,7 +128,7 @@ export const API = {
   DELETE_TOOL: '/api/ToolManagement/deletetool?id=',
 
   /** TASK/TICKET MANAGEMENT */
-  ADD_TICKET: '/api/TicketManagement/add-ticket',
+  ADD_TICKET: '/api/Ticket/createTicket',
   UPDATE_TICKET: '/api/TicketManagement/update-ticket',
   SUGGESTED_MEMBERS: '/api/TicketManagement/suggested-members',
   CUSTOMER_SEARCH: '/api/TicketManagement/ticketcustomers?customersearch=',

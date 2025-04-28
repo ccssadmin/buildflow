@@ -130,7 +130,7 @@ const App = () => {
 
   // Define role-based routes and default paths
   const roleRoutes = {
-    ManagingDirector: {
+    "Managing Director": {
       default: "/home",
       layout: MdLayout,
     },
@@ -138,7 +138,7 @@ const App = () => {
       default: "/admin/engineerdashboard",
       layout: EngineerLayout,
     },
-    AQS : {
+    "Assistant QS" : {
       default : "/aqs/aqsdashboard",
       layout : AqsLayout,
     },
@@ -146,7 +146,7 @@ const App = () => {
       default : "/ceo/dashboard",
       layout : CeoLayout,
     },
-    Finance : {
+    "Finance Head" : {
       default : "/finance/dashboard",
       layout : FinanceLayout,
     },
@@ -248,7 +248,7 @@ const App = () => {
         {/* SUPERADMIN ROUTES (MD Flow) */}
         <Route
           path="/"
-          element={<ProtectedRoute allowedRole="ManagingDirector"><MdLayout onLogout={handleLogout} /></ProtectedRoute>}
+          element={<ProtectedRoute allowedRole="Managing Director"><MdLayout onLogout={handleLogout} /></ProtectedRoute>}
         >
           <Route path="home" element={<MdDashboard />} />
           <Route path="approvals" element={<Kanban />} />
@@ -288,7 +288,7 @@ const App = () => {
 
         <Route
           path="/aqs"
-          element={<ProtectedRoute allowedRole="AQS"><AqsLayout onLogout={handleLogout} /></ProtectedRoute>}
+          element={<ProtectedRoute allowedRole="Assistant QS"><AqsLayout onLogout={handleLogout} /></ProtectedRoute>}
         >
           <Route path="aqsdashboard" element={ <AqsDashboard />} />
           <Route path="aqsapprovals" element={ <KanbanAqs />} />
@@ -338,7 +338,7 @@ const App = () => {
 
         <Route
         path="/finance"
-        element={<ProtectedRoute allowedRole="Finance"><FinanceLayout onLogout={handleLogout}/></ProtectedRoute>}
+        element={<ProtectedRoute allowedRole="Finance Head"><FinanceLayout onLogout={handleLogout}/></ProtectedRoute>}
         >
 
           <Route path="dashboard" element={<FinanceDashboard />} />

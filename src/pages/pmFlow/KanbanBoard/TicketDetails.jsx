@@ -46,6 +46,58 @@ const EngineerTicketDetails = () => {
     }
   ]);
 
+
+  const [approvalData] = useState([
+    { 
+      role: "Managing Director", 
+      statuses: [
+        { type: "Rejected", color: "danger", active: true },
+        { type: "Pending", color: "warning", active: false },
+        { type: "Approved", color: "success", active: false }
+      ]
+    },
+    { 
+      role: "Director", 
+      statuses: [
+        { type: "Rejected", color: "danger", active: false },
+        { type: "Pending", color: "warning", active: true },
+        { type: "Approved", color: "success", active: false }
+      ]
+    },
+    { 
+      role: "CEO", 
+      statuses: [
+        { type: "Rejected", color: "danger", active: true },
+        { type: "Pending", color: "warning", active: false },
+        { type: "Approved", color: "success", active: false }
+      ]
+    },
+    { 
+      role: "General Manager (Tech)", 
+      statuses: [
+        { type: "Rejected", color: "danger", active: false },
+        { type: "Pending", color: "warning", active: false },
+        { type: "Approved", color: "success", active: true }
+      ]
+    },
+    { 
+      role: "General Manager (Admin)", 
+      statuses: [
+        { type: "Rejected", color: "danger", active: false },
+        { type: "Pending", color: "warning", active: false },
+        { type: "Approved", color: "success", active: true }
+      ]
+    },
+    { 
+      role: "Finance Head", 
+      statuses: [
+        { type: "Rejected", color: "danger", active: true },
+        { type: "Pending", color: "warning", active: false },
+        { type: "Approved", color: "success", active: false }
+      ]
+    }
+  ]);
+
   // Date state management
   const [orderDate, setOrderDate] = useState(null);
   const [dueDate, setDueDate] = useState(null);
@@ -441,6 +493,19 @@ const EngineerTicketDetails = () => {
                 </Nav.Item>
                 <Nav.Item>
                   <Nav.Link
+                    className={`px-3 py-2 ${activeTab === 'approvalstatus' ? 'text-white' : 'text-dark'}`}
+                    onClick={() => handleTabChange('approvalstatus')}
+                    style={{
+                      borderRadius: '4px 4px 0 0',
+                      backgroundColor: activeTab === 'approvalstatus' ? '#FF6F00' : 'transparent',
+                      marginRight : 3
+                    }}
+                  >
+                    Approval Status
+                  </Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                  <Nav.Link
                     className={`px-3 py-2 ${activeTab === 'comments' ? 'text-white' : 'text-dark'}`}
                     onClick={() => handleTabChange('comments')}
                     style={{
@@ -552,6 +617,48 @@ const EngineerTicketDetails = () => {
                 ))}
               </div>
             )}
+
+            {activeTab === 'approvalstatus' && (
+              <>
+                <Row className="mb-3 fw-bold" style={{ fontSize: '14px' , marginBottom : 5 , marginTop : 30}}>
+                  <Col xs={6} style={{fontSize : 18}}>List</Col>
+                  <Col xs={6} style={{fontSize : 18}}>Status</Col>
+                </Row>
+                
+                {approvalData.map((item, index) => (
+                  <Row key={index} className="mb-4 align-items-center">
+                    <Col xs={6}>
+                      <span style={{ fontSize: '14px', color: '#444' }}>{item.role}</span>
+                    </Col>
+                    <Col xs={6}>
+                      <div className="d-flex flex-wrap">
+                        {item.statuses.map((status, idx) => (
+                          <div key={idx} className="me-2 mb-2">
+                            <Badge 
+                              bg={status.active ? status.color : 'light'} 
+                              text={status.active ? 'white' : 'dark'}
+                              style={{ 
+                                padding: '6px 12px', 
+                                borderRadius: '4px', 
+                                fontWeight: '400',
+                                fontSize: '12px',
+                                opacity: status.active ? 1 : 0.6,
+                                border: status.active ? 'none' : '1px solid #dee2e6',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              {status.type}
+                            </Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </Col>
+                  </Row>
+                ))}
+              </>
+            )}
+
+
 
             {/* Files Tab Content */}
             {activeTab === 'files' && (

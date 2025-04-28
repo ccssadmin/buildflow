@@ -9,7 +9,10 @@ import RiskComplianceAssessment from "./RiskComplianceAssessment";
 import { useProject } from "../../../hooks/Ceo/useCeoProject";
 import ProjectBasicDetails from "./ProjectBasicDetails";
 import Swal from "sweetalert2";
+import { useRoleBasedEmp } from "../../../hooks/Ceo/useRoleBasedEmp";
+import { useTicket } from "../../../hooks/Ceo/useTicket";
 import { useNavigate } from "react-router-dom";
+import { useNotification } from "../../../hooks/Ceo/useNotification";
 // Form validation schema
 const validateForm = (step, formData) => {
   const errors = {};
@@ -33,6 +36,9 @@ const CeoCreateProject = () => {
   const { createProjectBudget, loading } = useProject();
   const { createProjectMilestone } = useProject();
   const navigate = useNavigate();
+  const {fetchroles, fetchAllEmployees, employees} = useRoleBasedEmp();
+  const{createTicket} = useTicket();
+  const {createNotify} = useNotification();
   const [formData, setFormData] = useState({
     // Step 1: Project Basic Details
      projectId: null,
@@ -258,74 +264,74 @@ const handleProjectCreated = (projectId) => {
   const [showSummary, setShowSummary] = useState(false);
 
   // Sample data for dropdowns
-  const teamMembers = {
-    projectManager: [
-      { id: 1, name: "John Doe" },
-      { id: 2, name: "Jane Smith" },
-      { id: 3, name: "Michael Johnson" },
-      { id: 4, name: "Emily Williams" },
-    ],
-    assistantProjectManager: [
-      { id: 1, name: "Mike Johnson" },
-      { id: 2, name: "Sarah Williams" },
-      { id: 3, name: "David Brown" },
-      { id: 4, name: "Lisa Davis" },
-    ],
-    leadEngineer: [
-      { id: 1, name: "Robert Brown" },
-      { id: 2, name: "Emily Davis" },
-      { id: 3, name: "Thomas Wilson" },
-      { id: 4, name: "Olivia Martin" },
-    ],
-    siteSupervisor: [
-      { id: 1, name: "David Wilson" },
-      { id: 2, name: "Lisa Miller" },
-      { id: 3, name: "James Taylor" },
-      { id: 4, name: "Emma Clark" },
-    ],
-    qs: [
-      { id: 1, name: "James Taylor" },
-      { id: 2, name: "Emma Clark" },
-      { id: 3, name: "William Harris" },
-      { id: 4, name: "Sophia Martin" },
-    ],
-    assistantQs: [
-      { id: 1, name: "Thomas White" },
-      { id: 2, name: "Olivia Green" },
-      { id: 3, name: "Daniel Thompson" },
-      { id: 4, name: "Ava Robinson" },
-    ],
-    siteEngineer: [
-      { id: 1, name: "William Harris" },
-      { id: 2, name: "Sophia Martin" },
-      { id: 3, name: "Joseph Lewis" },
-      { id: 4, name: "Mia Walker" },
-    ],
-    engineer: [
-      { id: 1, name: "Daniel Thompson" },
-      { id: 2, name: "Ava Robinson" },
-      { id: 3, name: "Alexander Hall" },
-      { id: 4, name: "Charlotte Young" },
-    ],
-    designer: [
-      { id: 1, name: "Joseph Lewis" },
-      { id: 2, name: "Mia Walker" },
-      { id: 3, name: "Benjamin Allen" },
-      { id: 4, name: "Amelia King" },
-    ],
-    vendors: [
-      { id: 1, name: "Acme Supplies" },
-      { id: 2, name: "Global Materials" },
-      { id: 3, name: "Quality Products" },
-      { id: 4, name: "Premium Vendors" },
-    ],
-    subcontractors: [
-      { id: 1, name: "Elite Construction" },
-      { id: 2, name: "Premier Services" },
-      { id: 3, name: "Expert Builders" },
-      { id: 4, name: "Professional Contractors" },
-    ],
-  };
+  // const teamMembers = {
+  //   projectManager: [
+  //     { id: 1, name: "John Doe" },
+  //     { id: 2, name: "Jane Smith" },
+  //     { id: 3, name: "Michael Johnson" },
+  //     { id: 4, name: "Emily Williams" },
+  //   ],
+  //   assistantProjectManager: [
+  //     { id: 1, name: "Mike Johnson" },
+  //     { id: 2, name: "Sarah Williams" },
+  //     { id: 3, name: "David Brown" },
+  //     { id: 4, name: "Lisa Davis" },
+  //   ],
+  //   leadEngineer: [
+  //     { id: 1, name: "Robert Brown" },
+  //     { id: 2, name: "Emily Davis" },
+  //     { id: 3, name: "Thomas Wilson" },
+  //     { id: 4, name: "Olivia Martin" },
+  //   ],
+  //   siteSupervisor: [
+  //     { id: 1, name: "David Wilson" },
+  //     { id: 2, name: "Lisa Miller" },
+  //     { id: 3, name: "James Taylor" },
+  //     { id: 4, name: "Emma Clark" },
+  //   ],
+  //   qs: [
+  //     { id: 1, name: "James Taylor" },
+  //     { id: 2, name: "Emma Clark" },
+  //     { id: 3, name: "William Harris" },
+  //     { id: 4, name: "Sophia Martin" },
+  //   ],
+  //   assistantQs: [
+  //     { id: 1, name: "Thomas White" },
+  //     { id: 2, name: "Olivia Green" },
+  //     { id: 3, name: "Daniel Thompson" },
+  //     { id: 4, name: "Ava Robinson" },
+  //   ],
+  //   siteEngineer: [
+  //     { id: 1, name: "William Harris" },
+  //     { id: 2, name: "Sophia Martin" },
+  //     { id: 3, name: "Joseph Lewis" },
+  //     { id: 4, name: "Mia Walker" },
+  //   ],
+  //   engineer: [
+  //     { id: 1, name: "Daniel Thompson" },
+  //     { id: 2, name: "Ava Robinson" },
+  //     { id: 3, name: "Alexander Hall" },
+  //     { id: 4, name: "Charlotte Young" },
+  //   ],
+  //   designer: [
+  //     { id: 1, name: "Joseph Lewis" },
+  //     { id: 2, name: "Mia Walker" },
+  //     { id: 3, name: "Benjamin Allen" },
+  //     { id: 4, name: "Amelia King" },
+  //   ],
+  //   vendors: [
+  //     { id: 1, name: "Acme Supplies" },
+  //     { id: 2, name: "Global Materials" },
+  //     { id: 3, name: "Quality Products" },
+  //     { id: 4, name: "Premium Vendors" },
+  //   ],
+  //   subcontractors: [
+  //     { id: 1, name: "Elite Construction" },
+  //     { id: 2, name: "Premier Services" },
+  //     { id: 3, name: "Expert Builders" },
+  //     { id: 4, name: "Professional Contractors" },
+  //   ],
+  // };
 
   // Handle search filter change
   const handleSearchFilterChange = (e, field) => {
@@ -344,46 +350,52 @@ const handleProjectCreated = (projectId) => {
   };
 
   // Handle selection of an item
-  const handleSelectItem = (field, item) => {
-    console.log(`Selecting item for ${field}:`, item);
-  
-    setFormData((prevState) => {
-      const isSelected = prevState[field]?.some(
-        (selected) => selected.id === item.id || selected.empId === item.empId
-      );
-  
-      // Add or remove the item based on whether it's already selected
-      const updatedField = isSelected
-        ? prevState[field].filter(
-            (selected) => selected.id !== item.id && selected.empId !== item.empId
-          )
-        : [...(prevState[field] || []), item];
-  
-      console.log(`Updated ${field} data:`, updatedField);
-  
-      return {
-        ...prevState,
-        [field]: updatedField,
-      };
-    });
-  };
-  
-  
+// Handle selection of an item
+const handleSelectItem = (field, item) => {
+  console.log(`Selecting item for ${field}:`, item);
 
-  // Remove a selected item
-  const handleRemoveItem = (field, itemId) => {
-    setFormData({
-      ...formData,
-      [field]: formData[field].filter((item) => item.id !== itemId),
-    });
-  };
+  setFormData((prevState) => {
+    const currentSelection = prevState[field] || [];
+
+    // Check if the item is already selected
+    const isSelected = currentSelection.some(
+      (selected) => selected.id === item.id || selected.empId === item.empId
+    );
+
+    // If selected, remove it; if not, add it
+    const updatedSelection = isSelected
+      ? currentSelection.filter(
+          (selected) => selected.id !== item.id && selected.empId !== item.empId
+        )
+      : [...currentSelection, item];
+
+    console.log(`Updated ${field} data:`, updatedSelection);
+
+    return {
+      ...prevState,
+      [field]: updatedSelection,
+    };
+  });
+};
+
+  
+const handleRemoveItem = (field, itemId) => {
+  setFormData((prevState) => ({
+    ...prevState,
+    [field]: (prevState[field] || []).filter(
+      (item) => item.id !== itemId && item.empId !== itemId
+    ),
+  }));
+};
+
+  
 
   // Filter items based on search text
-  const getFilteredItems = (field) => {
-    return teamMembers[field].filter((item) =>
-      item.name.toLowerCase().includes(searchFilters[field].toLowerCase())
-    );
-  };
+  // const getFilteredItems = (field) => {
+  //   return teamMembers[field].filter((item) =>
+  //     item.name.toLowerCase().includes(searchFilters[field].toLowerCase())
+  //   );
+  // };
 
   // Handle form submission after final step
   const handleSubmit = () => {
@@ -726,6 +738,10 @@ const handleProjectCreated = (projectId) => {
         formData={formData} 
         setFormData={setFormData} 
         createProjectBudget={createProjectBudget} 
+        fetchroles = {fetchroles}
+        fetchAllEmployees={fetchAllEmployees}
+        createTicket= {createTicket}
+        createNotify= {createNotify}
         loading={loading}
         onNext={() => setCurrentStep(currentStep + 1)}
       />
@@ -751,8 +767,6 @@ const renderProjectTeamStakeholder = () => {
     onNext={() => {
       console.log("ProjectTeamStakeholder called onNext");
        setCurrentStep(currentStep + 1);
-  // or
-  navigate('/next-page');
     }}
   />
   );
@@ -764,16 +778,23 @@ const renderProjectTeamStakeholder = () => {
         formData={formData}
         handleMilestoneChange={handleMilestoneChange}
         handleAddColumn={handleAddColumn}
+        fetchAllEmployees={fetchAllEmployees}
+        employees = {employees}
+        createTicket= {createTicket}
+        createNotify= {createNotify}
+        onNextStep={() => setCurrentStep(currentStep + 1)}
+        setFormData={setFormData}
       />
     );
   };
 
   const renderRiskComplianceAssessment = () => {
     return (
-      <RiskComplianceAssessment
-        formData={formData}
-        handleAddColumn={handleAddColumn}
-      />
+      <RiskComplianceAssessment 
+      formData={formData} 
+      setFormData={setFormData} 
+      handleAddColumn={handleAddColumn} 
+    />
     );
   };
 
@@ -809,6 +830,10 @@ const renderProjectTeamStakeholder = () => {
             {showSummary ? (
               <ProjectSummary
                 formData={formData}
+                fetchroles = {fetchroles}
+                createTicket= {createTicket}
+                createNotify= {createNotify}
+                fetchAllEmployees={fetchAllEmployees}
                 onBackClick={(step) => {
                   setCurrentStep(step);
                   setShowSummary(false);
@@ -817,18 +842,19 @@ const renderProjectTeamStakeholder = () => {
             ) : (
               <>
                 {renderProgressBar()}
-                <div className="form-container p-0">
+                
+                <div className={`form-container p-0  position-relative ${currentStep === 4 ? 'step-risk' : ''}`}>
                   {renderFormStep()}
                   <div className="form-actions justify-content-between">
                     {currentStep > 0 && (
                       <Button
-                        className="border-0 border-radius-2 text-dark-gray fs-24-600 bg-transparent btn btn-primary"
+                        className="border-0 border-radius-2 text-dark-gray btn-back fs-24-600 bg-transparent btn btn-primary"
                         onClick={handleBack}
                       >
                         &lt; Back
                       </Button>
                     )}
-                    <div className="d-flex">
+                    <div className={`d-flex ${currentStep === 4 ? 'd-block step-risk' : 'd-none'}`}>
                       {currentStep === 1 || currentStep === 2 ? (
                         <Button className="btn-primary btn fs-14-600 bg-transparent text-primary border-0 border-radius-2">
                           <svg
@@ -848,7 +874,7 @@ const renderProjectTeamStakeholder = () => {
                         </Button>
                       ) : null}
                       <Button
-                        className="btn-primary btn fs-14-600 bg-primary border-0 border-radius-2"
+                        className="btn-primary btn-final-review btn fs-14-600 bg-primary border-0 border-radius-2"
                         onClick={handleNext}
                       >
                         {currentStep === 0 && !projectCreated ? "Next >" :

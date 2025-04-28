@@ -1,0 +1,1 @@
+export const createTickets = (state) => state.createticket?.createticket || [];

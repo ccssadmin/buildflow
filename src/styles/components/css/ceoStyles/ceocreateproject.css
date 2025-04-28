@@ -41,7 +41,21 @@
     z-index: 1;
     flex: 1;
 }
-
+.page-ceo-createproject  .btn-back {
+    position: absolute;
+    bottom: 44px;
+}
+.page-ceo-createproject .step-risk  .btn-back {
+    bottom: 0px;
+}
+.page-ceo-createproject .step-risk {
+    margin-bottom: 20px;
+}
+.page-ceo-createproject  .btn-final-review {
+    position: absolute;
+    right: -10px;
+    bottom: 0px;
+}
 .page-ceo-createproject .step-circle {
     width: 40px;
     height: 40px;
@@ -133,7 +147,7 @@
     font-weight: 700;
 }
 .page-ceo-createproject .form-control::placeholder {
-    color: #BBBBBB;
+    color: #606060;
     font-weight: 500;
 }
 
@@ -145,7 +159,7 @@
     height: auto;
     font-size: 16px;
     font-weight: 500;
-    color: #BBBBBB;
+    color: #606060;
     background-color: transparent;
     height: 48px !important;
 }
@@ -192,7 +206,7 @@
 }
 
 .page-ceo-createproject.date-icon:hover {
-    color: #007bff;
+    color: var(--primary-color);
 }
 
 /* Date picker pop-up */
@@ -203,12 +217,12 @@
 }
 
 .page-ceo-createproject .react-datepicker__header {
-    background-color: #007bff;
+    background-color: var(--primary-color);
     color: #fff;
 }
 
 .page-ceo-createproject .react-datepicker__day--selected {
-    background-color: #007bff;
+    background-color: var(--primary-color);
     color: #fff;
 }
 
