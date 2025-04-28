@@ -8,7 +8,7 @@ import GroupChatScreen from "../GroupChat/GroupChatScreen";
 const ChatApp = () => {
   const [selectedChat, setSelectedChat] = useState(null);
   const [selectedGroup, setSelectedGroup] = useState(null);
-  const [activeSection, setActiveSection] = useState("chats"); // "chats" or "groups"
+  const [activeSection, setActiveSection] = useState("chats"); 
 
   useEffect(() => {
     if (activeSection === "chats") {
@@ -19,23 +19,26 @@ const ChatApp = () => {
   }, [activeSection]);
 
   return (
-    <div className="d-flex" style={{ height: "100vh" }}>
-      {/* Side Navigation */}
+    <div className="d-flex flex-column" style={{ height: "100vh" }}>
+      {/* Top Navigation */}
       <div
-        className="bg-light d-flex flex-column align-items-center p-3 border-end"
-        style={{ width: "70px" }}
+        className="bg-light d-flex  border-bottom"
+        style={{ height: "70px"  }}
       >
         <div
-          className="d-flex flex-column align-items-center my-3 p-2 rounded"
+          className="d-flex flex-row align-items-center mx-4 p-1 rounded "
           style={{
             cursor: "pointer",
-            backgroundColor: activeSection === "chats" ? "#FFE0B2" : "transparent"
+            backgroundColor: activeSection === "chats" ? "#FFE0B2" : "transparent",
+            // height: 30,
+            // marginTop : 10
+
           }}
           onClick={() => setActiveSection("chats")}
         >
           <FiMessageSquare
             className="fs-3"
-            style={{ color: activeSection === "chats" ? "#FF6F00" : "gray" }}
+            style={{ color: activeSection === "chats" ? "#FF6F00" : "gray"  , marginRight : 4}}
           />
           <span
             className={`small ${activeSection === "chats" ? "text-dark" : "text-muted"}`}
@@ -45,16 +48,18 @@ const ChatApp = () => {
         </div>
 
         <div
-          className="d-flex flex-column align-items-center my-3 p-2 rounded"
+          className="d-flex flex-row align-items-center mx-4 p-2 rounded"
           style={{
             cursor: "pointer",
-            backgroundColor: activeSection === "groups" ? "#FFE0B2" : "transparent"
+            backgroundColor: activeSection === "groups" ? "#FFE0B2" : "transparent",
+            // height: 30,
+            // marginTop : 10
           }}
           onClick={() => setActiveSection("groups")}
         >
           <FiUsers
             className="fs-3"
-            style={{ color: activeSection === "groups" ? "#FF6F00" : "gray" }}
+            style={{ color: activeSection === "groups" ? "#FF6F00" : "gray"  , marginRight : 4}}
           />
           <span
             className={`small ${activeSection === "groups" ? "text-dark" : "text-muted"}`}
@@ -62,7 +67,6 @@ const ChatApp = () => {
             Groups
           </span>
         </div>
-
       </div>
 
       {/* Content Area */}
