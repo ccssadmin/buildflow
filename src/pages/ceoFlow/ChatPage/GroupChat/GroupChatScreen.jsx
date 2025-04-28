@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { FaEllipsisV } from "react-icons/fa";
 import { BsEmojiSmile, BsPlus } from "react-icons/bs";
 import { FiPaperclip, FiSend } from "react-icons/fi";
+import chatBg from "../../../../assets/images/chatbackgroundimage.jpg";
+
 
 // Dummy data for group messages
 const groupMessagesData = [
@@ -56,7 +58,14 @@ const GroupChatScreen = ({ selectedGroup }) => {
       </div>
 
       {/* Messages Area */}
-      <div className="chat-messages flex-grow-1 p-3 overflow-auto">
+      <div className="chat-messages flex-grow-1 p-3 overflow-auto"
+      style={{
+                 backgroundImage: `url(${chatBg})`,
+                backgroundSize: "cover",
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "center",
+              }}
+      >
         {messages.map((msg) => (
           <div
             key={msg.id}

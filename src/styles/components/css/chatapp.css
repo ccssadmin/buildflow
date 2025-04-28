@@ -173,6 +173,6 @@
 .chat-input .icon { cursor: pointer; font-size: 20px; }
 .send-icon { color: #FF6F00 !important; }
 .active-chat {
-  background-color: #FFE0B2; /* light orange */
+  background-color: #FFF5EE; 
 }
 
