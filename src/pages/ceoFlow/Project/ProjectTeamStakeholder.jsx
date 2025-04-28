@@ -165,14 +165,6 @@ const ProjectTeamStakeholder = ({
 
   const closeAllDropdowns = () => setLocalDropdownVisible({});
 
-  const handleLocalSelectItem = (field, item) => {
-    handleSelectItem(field, item);
-    setLocalDropdownVisible((prev) => ({
-      ...prev,
-      [field]: false,
-    }));
-  };
-
   const handleAmountChange = (id, value) => {
     const sanitizedValue = value.replace(/[^0-9.]/g, "");
     setPermissionData((prevData) =>
@@ -384,6 +376,47 @@ const ProjectTeamStakeholder = ({
     }
   };
 
+  // Replace the existing handleLocalSelectItem function with this one
+  // Replace the handleLocalSelectItem function with this implementation
+  const handleLocalSelectItem = (field, item) => {
+    setFormData((prevState) => {
+      const currentSelection = prevState[field] || [];
+
+      // Check if the item is already selected
+      const isSelected = currentSelection.some(
+        (selected) =>
+          (selected.id && String(selected.id) === String(item.id)) ||
+          (selected.empId && String(selected.empId) === String(item.id))
+      );
+
+      // If already selected, keep the current selection
+      // Otherwise add the new item to the selection
+      const updatedSelection = isSelected
+        ? currentSelection
+        : [...currentSelection, item];
+
+      return {
+        ...prevState,
+        [field]: updatedSelection,
+      };
+    });
+
+    // Keep the dropdown open for further selection
+    setLocalDropdownVisible((prev) => ({
+      ...prev,
+      [field]: true,
+    }));
+  };
+
+  // Also update the isItemSelected function for better checking
+  const isItemSelected = (field, itemId) => {
+    return (formData[field] || []).some(
+      (item) =>
+        (item.id && String(item.id) === String(itemId)) ||
+        (item.empId && String(item.empId) === String(itemId))
+    );
+  };
+
   const getFilteredItems = (field) => {
     const itemsList = getEmployeesByField(field);
     if (!searchFilters[field]) return itemsList;
@@ -392,14 +425,6 @@ const ProjectTeamStakeholder = ({
     );
   };
 
-  const isItemSelected = (field, itemId) => {
-    if (!formData[field] || !Array.isArray(formData[field])) return false;
-    return formData[field].some(
-      (item) =>
-        String(item.id) === String(itemId) ||
-        String(item.empId) === String(itemId)
-    );
-  };
 
   const MultiSelect = ({ field, label }) => {
     const inputRef = useRef(null);
@@ -412,16 +437,19 @@ const ProjectTeamStakeholder = ({
     }, [isDropdownVisible]);
 
     const handleItemClick = (item) => {
-      handleLocalSelectItem(field, item);
+      handleLocalSelectItem(field, item); // Add the selected item
+      // Clear search input immediately after selecting
+      handleSearchFilterChange({ target: { value: '' } }, field);
+      handleToggleDropdown(field);
+
     };
+
 
     return (
       <Form.Group style={{ position: "relative", marginBottom: "15px" }}>
         <Form.Label className="text-dark">{label}</Form.Label>
-        <div
-          className="multi-select-container"
-          style={{ position: "relative" }}
-        >
+        <div className="multi-select-container" style={{ position: "relative" }}>
+          {/* Render selected items */}
           <div className="selected-items mb-2">
             {formData[field]?.map((item) => (
               <div
@@ -440,11 +468,14 @@ const ProjectTeamStakeholder = ({
             ))}
           </div>
 
+          {/* Search input */}
           <Form.Control
             ref={inputRef}
             type="text"
             className="dropdown-toggle w-100"
-            placeholder={loading ? "Loading..." : "Search..."}
+            placeholder={
+              (formData[field] && formData[field].length > 0) ? "" : (loading ? "Loading..." : "Search...")
+            }
             value={searchFilters[field] || ""}
             onChange={(e) => handleSearchFilterChange(e, field)}
             onClick={() => handleToggleDropdown(field)}
@@ -452,6 +483,8 @@ const ProjectTeamStakeholder = ({
             autoComplete="off"
           />
 
+
+          {/* Dropdown list */}
           {isDropdownVisible && (
             <div
               className="dropdown-menu show w-100"
@@ -461,9 +494,8 @@ const ProjectTeamStakeholder = ({
                 getFilteredItems(field).map((item) => (
                   <div
                     key={item.id}
-                    className={`dropdown-item ${
-                      isItemSelected(field, item.id) ? "active" : ""
-                    }`}
+                    className={`dropdown-item ${isItemSelected(field, item.id) ? "active" : ""
+                      }`}
                     onClick={() => handleItemClick(item)}
                     style={{ cursor: "pointer" }}
                   >
@@ -479,6 +511,7 @@ const ProjectTeamStakeholder = ({
       </Form.Group>
     );
   };
+
 
   return (
     <Form>
@@ -579,27 +612,27 @@ const ProjectTeamStakeholder = ({
         style={{ minHeight: "80px", marginTop: "20px" }}
       >
         <Button
-  className="btn-primary btn fs-14-600 bg-primary border-0 border-radius-2"
-  onClick={async () => {
-    if (!submitLoading) {
-      await handleSubmit(); // Wait for submission to complete
-      if (onNext) {
-        onNext(); // Call the provided onNext function
-      }
-    }
-  }}
-  disabled={submitLoading}
-  
->
-  {submitLoading ? (
-    <>
-      <Spinner animation="border" size="sm" className="me-2" />
-      Submitting...
-    </>
-  ) : (
-    "Next >"
-  )}
-</Button>
+          className="btn-primary btn fs-14-600 bg-primary border-0 border-radius-2"
+          onClick={async () => {
+            if (!submitLoading) {
+              await handleSubmit(); // Wait for submission to complete
+              if (onNext) {
+                onNext(); // Call the provided onNext function
+              }
+            }
+          }}
+          disabled={submitLoading}
+
+        >
+          {submitLoading ? (
+            <>
+              <Spinner animation="border" size="sm" className="me-2" />
+              Submitting...
+            </>
+          ) : (
+            "Next >"
+          )}
+        </Button>
       </div>
     </Form>
   );
