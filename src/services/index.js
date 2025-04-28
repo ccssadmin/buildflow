@@ -29,6 +29,7 @@ export const createProjectBudget = (params) => api.POST(API.CREATE_PROJECT_BUDGE
 export const createProjectTeam = (params) => api.POST(API.CREATE_PROJECT_TEAM,params);
 export const crateFinanceApproved = (params) => api.POST(API.CREATE_FINACIAL_APPROVAL,params);
 export const createProjectMilestone = (params) => api.POST(API.CREATE_PROJECT_MILESTONE , params)
+export const createprojectapproval = (params) =>api.POST(API. CREATE_PROJECT_APPROVAL,params);
 // fetch vendors and subcontractors
 export const getVendorsAndSubcontractors = (params) => api.GET(API.GET_VENDORS_AND_SUBCONTRACTORS,params);
 export const getProjectDetails = (params) => api.GET(API.GET_PROJECT_DETAILS_BY_ID+'?projectId='+params);
