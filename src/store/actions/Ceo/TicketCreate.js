@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { addTicket } from "../../../services";
+import { addTicket, createprojectapproval } from "../../../services";
 
 export const createticketAction = createAsyncThunk(
   "createTicket",
@@ -8,3 +8,11 @@ export const createticketAction = createAsyncThunk(
     return response.data;
   }
 );
+
+export const createprojectapprovalAction = createAsyncThunk(
+  "projectApproval",
+  async (approvalPayload) => {
+    const response = await  createprojectapproval(approvalPayload);
+    return response.data;
+  }
+)

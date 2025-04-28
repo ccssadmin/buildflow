@@ -15,6 +15,7 @@ export const API = {
   CREATE_PROJECT_MILESTONE : "/api/Project/upsertProjectMilestones",
   GET_PROJECT_DETAILS_BY_ID: "/api/Project/getProjectDetails",
   GET_ALL_PROJECT_FILTER : "/api/Project/get-projects-by-status",
+  CREATE_PROJECT_APPROVAL : "/api/Project/upsert-project-approval",
 
   
  /* Employee data */

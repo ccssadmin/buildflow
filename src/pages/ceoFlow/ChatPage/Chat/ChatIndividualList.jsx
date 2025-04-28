@@ -28,6 +28,7 @@ const ChatIndividualList = ({ selectedChat, setSelectedChat }) => {
   }`}
   onClick={() => openChat(user)}
   style={{ cursor: "pointer" }}
+  
 >
 
           <div className="d-flex align-items-center">

@@ -8,6 +8,8 @@ import { useNavigate } from 'react-router-dom';
 import { AiOutlineUser } from 'react-icons/ai';
 import { RiSaveFill } from "react-icons/ri";
 import { BsCalendar3 } from "react-icons/bs";
+import { createticketAction } from '../../../store/actions/Ceo/TicketCreate';
+import { useDispatch } from 'react-redux';
 
 const EngineerTicketDetails = () => {
   const [activeTab, setActiveTab] = useState('all');
@@ -17,6 +19,8 @@ const EngineerTicketDetails = () => {
   const fileInputRef = useRef(null);
   const imageInputRef = useRef(null);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [approvalStatus, setApprovalStatus] = useState(null);
 
   // File upload state
   const [uploadedFiles, setUploadedFiles] = useState([]);
@@ -187,7 +191,23 @@ const EngineerTicketDetails = () => {
       showToastNotification('Comment posted successfully');
     }
   };
+  const handleApproval = (status) => {
+    setApprovalStatus(status);
+  };
+  const handleSaveApproval = async () => {
+    if (!approvalStatus) {
+      alert('Please select an action (Approve/Reject).');
+      return;
+    }
 
+    try {
+      const payload = { status: approvalStatus }; // Adjust the payload as needed
+      const result = await dispatch(createticketAction(payload)).unwrap();
+      console.log('Save successful:', result);
+    } catch (error) {
+      console.error('Save failed:', error);
+    }
+  };
   // Handle file attachment
   const handleFileAttachment = (e) => {
     const files = Array.from(e.target.files);
@@ -942,11 +962,22 @@ const EngineerTicketDetails = () => {
 
             {/* Approved By */}
             <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
-              <span className="text-muted">Approved By</span>
-              <div className="d-flex align-items-center">
-                <span className="bg-success text-white px-2 py-1 rounded">MD</span>
-              </div>
-            </div>
+        <span className="text-muted">Action</span>
+        <div className="d-flex align-items-center">
+          <button
+            className="btn btn-danger me-2"
+            onClick={() => handleApproval('Rejected')}
+          >
+            Reject
+          </button>
+          <button
+            className="btn btn-success"
+            onClick={() => handleApproval('Approved')}
+          >
+            Approve
+          </button>
+        </div>
+      </div>
 
             {/* Labels */}
             <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
@@ -1083,17 +1114,15 @@ const EngineerTicketDetails = () => {
 
             {/* Action Buttons */}
             <div className="d-flex justify-content-end mt-5">
-                          <Button variant="light" className="px-4">Cancel</Button>
-                          <Button
-                            variant="warning"
-                            className="text-white px-4 ms-2"
-                            style={{ backgroundColor: '#FF6F00' }}
-                            onClick={handleSave}
-                          >
-                            <RiSaveFill style={{ color: 'white', marginRight: '5px' }} />
-                            Save
-                          </Button>
-                        </div>
+        <Button className="btn btn-light px-4">Cancel</Button>
+        <Button
+          className="btn btn-warning text-white px-4 ms-2"
+          style={{ backgroundColor: '#FF6F00' }}
+          onClick={handleSave}
+        >
+          Save
+        </Button>
+      </div>
             
                       </div>
         </Col>

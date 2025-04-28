@@ -3,7 +3,7 @@ import { FaEllipsisV } from "react-icons/fa";
 import { BsEmojiSmile, BsPlus } from "react-icons/bs";
 import { FiPaperclip, FiSend } from "react-icons/fi";
 import { BsCheck2, BsCheck2All, BsEye } from "react-icons/bs";
-
+import chatBg from "../../../../assets/images/chatbackgroundimage.jpg";
 
 const messagesData = [
   { id: 1, sender: "other", text: "Hello, how are you?", time: "7:20 pm" },
@@ -11,7 +11,6 @@ const messagesData = [
   { id: 3, sender: "other", text: "I'm doing great!", time: "7:22 pm" },
   { id: 4, sender: "me", text: "Glad to hear that.", time: "7:23 pm", status: "delivered" },
 ];
-
 
 const ChatIndividualScreen = ({ selectedChat }) => {
   const [chatMessages, setChatMessages] = useState(messagesData);
@@ -31,24 +30,22 @@ const ChatIndividualScreen = ({ selectedChat }) => {
           sender: "me",
           text: newMessage,
           time: getCurrentTime(),
-          status: "sent", // default to sent
+          status: "sent",
         },
       ]);
       setNewMessage("");
 
-      // Simulate delivery/read for demo (optional)
       setTimeout(() => {
-        setChatMessages(prevMessages =>
-          prevMessages.map(msg =>
+        setChatMessages((prevMessages) =>
+          prevMessages.map((msg) =>
             msg.id === chatMessages.length + 1
-              ? { ...msg, status: "read" } // simulate read after a while
+              ? { ...msg, status: "read" }
               : msg
           )
         );
       }, 2000);
     }
   };
-
 
   return (
     <div className="chat-window flex-grow-1 d-flex flex-column">
@@ -73,15 +70,26 @@ const ChatIndividualScreen = ({ selectedChat }) => {
       </div>
 
       {/* Messages */}
-      <div className="chat-messages flex-grow-1 p-3 overflow-auto">
+      <div
+        className="chat-messages flex-grow-1 p-3 overflow-auto"
+        style={{
+           backgroundImage: `url(${chatBg})`,
+          backgroundSize: "cover",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "center",
+        }}
+      >
         {chatMessages.map((msg) => (
           <div
             key={msg.id}
             className={`mb-3 ${msg.sender === "me" ? "text-end" : ""}`}
           >
             <div
-              className={`chat-bubble p-2 d-inline-block rounded ${msg.sender === "me" ? "text-white ms-auto" : "bg-light me-auto"
-                }`}
+              className={`chat-bubble p-2 d-inline-block rounded ${
+                msg.sender === "me"
+                  ? "text-white ms-auto"
+                  : "bg-light me-auto"
+              }`}
               style={{
                 maxWidth: "80%",
                 backgroundColor: msg.sender === "me" ? "#FF6F00" : "white",
@@ -90,7 +98,11 @@ const ChatIndividualScreen = ({ selectedChat }) => {
               {msg.text}
               <div className="text-end">
                 <small
-                  className={`${msg.sender === "me" ? "text-white-50" : "text-muted"} d-flex align-items-center justify-content-end gap-1`}
+                  className={`${
+                    msg.sender === "me"
+                      ? "text-white-50"
+                      : "text-muted"
+                  } d-flex align-items-center justify-content-end gap-1`}
                 >
                   {msg.time}
                   {msg.sender === "me" && (
@@ -101,7 +113,6 @@ const ChatIndividualScreen = ({ selectedChat }) => {
                     </>
                   )}
                 </small>
-
               </div>
             </div>
           </div>
@@ -115,23 +126,21 @@ const ChatIndividualScreen = ({ selectedChat }) => {
         <BsPlus className="icon me-2" style={{ cursor: "pointer" }} />
         <input
           type="text"
-          className="form-control me-2 "
+          className="form-control me-2"
           placeholder="Send message..."
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-          style={{ backgroundColor: '#EFEFEF' }}
+          style={{ backgroundColor: "#EFEFEF" }}
         />
         <FiSend
-          size={24} // optional, can be any size you want
+          size={24}
           onClick={sendMessage}
           style={{
-            color: '#FF6F00',
-            cursor: 'pointer',
-            flexShrink: 0, // if you're using flex, this prevents squishing
+            color: "#FF6F00",
+            cursor: "pointer",
           }}
         />
-
       </div>
     </div>
   );

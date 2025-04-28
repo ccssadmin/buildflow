@@ -28,6 +28,7 @@ const ChatIndividualList = ({ selectedChat, setSelectedChat }) => {
   }`}
   onClick={() => openChat(user)}
   style={{ cursor: "pointer" }}
+  
 >
 
           <div className="d-flex align-items-center">
@@ -36,7 +37,7 @@ const ChatIndividualList = ({ selectedChat, setSelectedChat }) => {
               style={{
                 width: "40px",
                 height: "40px",
-                backgroundColor: "#007bff",
+                backgroundColor: "#FF6F00",
                 fontWeight: "bold",
               }}
             >
