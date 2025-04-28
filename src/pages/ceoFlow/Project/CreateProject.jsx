@@ -12,6 +12,7 @@ import Swal from "sweetalert2";
 import { useRoleBasedEmp } from "../../../hooks/Ceo/useRoleBasedEmp";
 import { useTicket } from "../../../hooks/Ceo/useTicket";
 import { useNavigate } from "react-router-dom";
+import { useNotification } from "../../../hooks/Ceo/useNotification";
 // Form validation schema
 const validateForm = (step, formData) => {
   const errors = {};
@@ -37,6 +38,7 @@ const CeoCreateProject = () => {
   const navigate = useNavigate();
   const {fetchroles, fetchAllEmployees, employees} = useRoleBasedEmp();
   const{createTicket} = useTicket();
+  const {createNotify} = useNotification();
   const [formData, setFormData] = useState({
     // Step 1: Project Basic Details
      projectId: null,
@@ -733,6 +735,7 @@ const handleProjectCreated = (projectId) => {
         fetchroles = {fetchroles}
         fetchAllEmployees={fetchAllEmployees}
         createTicket= {createTicket}
+        createNotify= {createNotify}
         loading={loading}
         onNext={() => setCurrentStep(currentStep + 1)}
       />
@@ -772,6 +775,7 @@ const renderProjectTeamStakeholder = () => {
         fetchAllEmployees={fetchAllEmployees}
         employees = {employees}
         createTicket= {createTicket}
+        createNotify= {createNotify}
         onNextStep={() => setCurrentStep(currentStep + 1)}
         setFormData={setFormData}
       />
@@ -820,6 +824,10 @@ const renderProjectTeamStakeholder = () => {
             {showSummary ? (
               <ProjectSummary
                 formData={formData}
+                fetchroles = {fetchroles}
+                createTicket= {createTicket}
+                createNotify= {createNotify}
+                fetchAllEmployees={fetchAllEmployees}
                 onBackClick={(step) => {
                   setCurrentStep(step);
                   setShowSummary(false);

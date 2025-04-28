@@ -147,7 +147,7 @@
     font-weight: 700;
 }
 .page-ceo-createproject .form-control::placeholder {
-    color: #BBBBBB;
+    color: #606060;
     font-weight: 500;
 }
 
@@ -159,7 +159,7 @@
     height: auto;
     font-size: 16px;
     font-weight: 500;
-    color: #BBBBBB;
+    color: #606060;
     background-color: transparent;
     height: 48px !important;
 }

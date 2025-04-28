@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 // Define tag colors
@@ -10,92 +10,135 @@ const tagColors = {
 
 const KanbanBoard = () => {
   const navigate = useNavigate();
-  const [columns, setColumns] = useState([
-    {
-      title: "Open",
-      count: 6,
-      color: "#D2F4FF",
-      tasks: [
-        { 
-          title: "Resource Requirement", 
-          tags: ["HR", "Finance"], 
-          description: "Payroll, compliance, and employee engagement using HR software and best practices to ensure a productive workforce.",
-          date: "15 feb", 
-          comments: 0, 
-          files: 1 
-        },
-        { 
-          title: "Resource Requirement", 
-          tags: ["HR", "Finance"], 
-          description: "Payroll, compliance, and employee engagement using HR software and best practices to ensure a productive workforce.",
-          date: "15 feb", 
-          comments: 0, 
-          files: 1 
-        },
-        { 
-          title: "Resource Requirement", 
-          tags: ["HR", "Finance"], 
-          description: "Payroll, compliance, and employee engagement using HR software and best practices to ensure a productive workforce.",
-          date: "15 feb", 
-          comments: 0, 
-          files: 1 
-        },
-        { 
-          title: "Resource Requirement", 
-          tags: ["HR", "Finance"], 
-          description: "Payroll, compliance, and employee engagement using HR software and best practices to ensure a productive workforce.",
-          date: "15 feb", 
-          comments: 0, 
-          files: 1 
-        },
-      ],
-    },
-    {
-      title: "Work in Progress",
-      count: 1,
-      color: "#FFEECF",
-      tasks: [
-        { 
-          title: "Resource Requirement", 
-          tags: ["HR", "Finance", "PO"], 
-          description: "Payroll, compliance, and employee engagement using HR software and best practices to ensure a productive workforce.",
-          date: "15 feb", 
-          comments: 0, 
-          files: 1 
-        },
-      ],
-    },
-    {
-      title: "Review",
-      count: 6,
-      color: "#E4CFFF",
-      tasks: [
-        { 
-          title: "Resource Requirement", 
-          tags: ["HR", "Finance", "PO"], 
-          description: "Payroll, compliance, and employee engagement using HR software and best practices to ensure a productive workforce.",
-          date: "15 feb", 
-          comments: 0, 
-          files: 1 
-        },
-      ],
-    },
-    {
-      title: "Approved",
-      count: 6,
-      color: "#DAFFCF",
-      tasks: [
-        { 
-          title: "Resource Requirement", 
-          tags: ["HR", "Finance", "PO"], 
-          description: "Payroll, compliance, and employee engagement using HR software and best practices to ensure a productive workforce.",
-          date: "15 feb", 
-          comments: 0, 
-          files: 1 
-        },
-      ],
-    },
-  ]);
+  // const [columns, setColumns] = useState([
+  //   {
+  //     title: "Open",
+  //     count: 6,
+  //     color: "#D2F4FF",
+  //     tasks: [
+  //       { 
+  //         title: "Resource Requirement", 
+  //         tags: ["HR", "Finance"], 
+  //         description: "Payroll, compliance, and employee engagement using HR software and best practices to ensure a productive workforce.",
+  //         date: "15 feb", 
+  //         comments: 0, 
+  //         files: 1 
+  //       },
+  //       { 
+  //         title: "Resource Requirement", 
+  //         tags: ["HR", "Finance"], 
+  //         description: "Payroll, compliance, and employee engagement using HR software and best practices to ensure a productive workforce.",
+  //         date: "15 feb", 
+  //         comments: 0, 
+  //         files: 1 
+  //       },
+  //       { 
+  //         title: "Resource Requirement", 
+  //         tags: ["HR", "Finance"], 
+  //         description: "Payroll, compliance, and employee engagement using HR software and best practices to ensure a productive workforce.",
+  //         date: "15 feb", 
+  //         comments: 0, 
+  //         files: 1 
+  //       },
+  //       { 
+  //         title: "Resource Requirement", 
+  //         tags: ["HR", "Finance"], 
+  //         description: "Payroll, compliance, and employee engagement using HR software and best practices to ensure a productive workforce.",
+  //         date: "15 feb", 
+  //         comments: 0, 
+  //         files: 1 
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     title: "Work in Progress",
+  //     count: 1,
+  //     color: "#FFEECF",
+  //     tasks: [
+  //       { 
+  //         title: "Resource Requirement", 
+  //         tags: ["HR", "Finance", "PO"], 
+  //         description: "Payroll, compliance, and employee engagement using HR software and best practices to ensure a productive workforce.",
+  //         date: "15 feb", 
+  //         comments: 0, 
+  //         files: 1 
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     title: "Review",
+  //     count: 6,
+  //     color: "#E4CFFF",
+  //     tasks: [
+  //       { 
+  //         title: "Resource Requirement", 
+  //         tags: ["HR", "Finance", "PO"], 
+  //         description: "Payroll, compliance, and employee engagement using HR software and best practices to ensure a productive workforce.",
+  //         date: "15 feb", 
+  //         comments: 0, 
+  //         files: 1 
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     title: "Approved",
+  //     count: 6,
+  //     color: "#DAFFCF",
+  //     tasks: [
+  //       { 
+  //         title: "Resource Requirement", 
+  //         tags: ["HR", "Finance", "PO"], 
+  //         description: "Payroll, compliance, and employee engagement using HR software and best practices to ensure a productive workforce.",
+  //         date: "15 feb", 
+  //         comments: 0, 
+  //         files: 1 
+  //       },
+  //     ],
+  //   },
+  // ]);
+
+  const [columns, setColumns] = useState([]);
+    
+    useEffect(() => {
+      const userData = JSON.parse(localStorage.getItem('userData'));
+      if (userData && userData.tickets) {
+        const mappedTasks = userData.tickets.map(ticket => ({
+          title: ticket.ticketName,
+          tags: ["PO"], // Example, you can improve this later
+          description: ticket.ticketDescription,
+          date: new Date(ticket.ticketCreatedDate).toLocaleDateString('en-GB'), // Format date
+          comments: 0,
+          files: 0
+        }));
+  
+        setColumns([
+          {
+            title: "Open",
+            count: mappedTasks.length,
+            color: "#D2F4FF",
+            tasks: mappedTasks
+          },
+          {
+            title: "Work in Progress",
+            count: 0,
+            color: "#FFEECF",
+            tasks: []
+          },
+          {
+            title: "Review",
+            count: 0,
+            color: "#E4CFFF",
+            tasks: []
+          },
+          {
+            title: "Approved",
+            count: 0,
+            color: "#DAFFCF",
+            tasks: []
+          }
+        ]);
+      }
+    }, []);
 
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [showTaskInput, setShowTaskInput] = useState(false);

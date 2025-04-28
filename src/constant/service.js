@@ -22,6 +22,9 @@ export const API = {
  GET_EMPLOYEES_BY_ROLES: "/api/Login/getEmployeesByRoles",
  GET_VENDORS_AND_SUBCONTRACTORS: "/api/Login/getVendorsAndSubcontractors",
 
+//Notification
+  CREATE_NOTIFICATION: "/api/Notification/create-notification",
+
   /** KANBAN */
   GET_ALL_BOARD: "/api/BoardManagement/boards",
   GET_BOARD_BY_ID: "/api/BoardManagement/boards",
