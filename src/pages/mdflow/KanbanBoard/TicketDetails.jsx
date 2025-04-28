@@ -6,9 +6,8 @@ import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { useNavigate } from 'react-router-dom';
 import { AiOutlineUser } from 'react-icons/ai';
-import { BsCalendar3 } from "react-icons/bs";
 import { RiSaveFill } from "react-icons/ri";
-
+import { BsCalendar3 } from "react-icons/bs";
 
 const EngineerTicketDetails = () => {
   const [activeTab, setActiveTab] = useState('all');
@@ -44,6 +43,58 @@ const EngineerTicketDetails = () => {
       avatarColor: 'info',
       content: 'First Milestone cement is finished. I want second phase of cements.',
       files: []
+    }
+  ]);
+
+
+  const [approvalData] = useState([
+    { 
+      role: "Managing Director", 
+      statuses: [
+        { type: "Rejected", color: "danger", active: true },
+        { type: "Pending", color: "warning", active: false },
+        { type: "Approved", color: "success", active: false }
+      ]
+    },
+    { 
+      role: "Director", 
+      statuses: [
+        { type: "Rejected", color: "danger", active: false },
+        { type: "Pending", color: "warning", active: true },
+        { type: "Approved", color: "success", active: false }
+      ]
+    },
+    { 
+      role: "CEO", 
+      statuses: [
+        { type: "Rejected", color: "danger", active: true },
+        { type: "Pending", color: "warning", active: false },
+        { type: "Approved", color: "success", active: false }
+      ]
+    },
+    { 
+      role: "General Manager (Tech)", 
+      statuses: [
+        { type: "Rejected", color: "danger", active: false },
+        { type: "Pending", color: "warning", active: false },
+        { type: "Approved", color: "success", active: true }
+      ]
+    },
+    { 
+      role: "General Manager (Admin)", 
+      statuses: [
+        { type: "Rejected", color: "danger", active: false },
+        { type: "Pending", color: "warning", active: false },
+        { type: "Approved", color: "success", active: true }
+      ]
+    },
+    { 
+      role: "Finance Head", 
+      statuses: [
+        { type: "Rejected", color: "danger", active: true },
+        { type: "Pending", color: "warning", active: false },
+        { type: "Approved", color: "success", active: false }
+      ]
     }
   ]);
 
@@ -442,6 +493,19 @@ const EngineerTicketDetails = () => {
                 </Nav.Item>
                 <Nav.Item>
                   <Nav.Link
+                    className={`px-3 py-2 ${activeTab === 'approvalstatus' ? 'text-white' : 'text-dark'}`}
+                    onClick={() => handleTabChange('approvalstatus')}
+                    style={{
+                      borderRadius: '4px 4px 0 0',
+                      backgroundColor: activeTab === 'approvalstatus' ? '#FF6F00' : 'transparent',
+                      marginRight : 3
+                    }}
+                  >
+                    Approval Status
+                  </Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                  <Nav.Link
                     className={`px-3 py-2 ${activeTab === 'comments' ? 'text-white' : 'text-dark'}`}
                     onClick={() => handleTabChange('comments')}
                     style={{
@@ -553,6 +617,48 @@ const EngineerTicketDetails = () => {
                 ))}
               </div>
             )}
+
+            {activeTab === 'approvalstatus' && (
+              <>
+                <Row className="mb-3 fw-bold" style={{ fontSize: '14px' , marginBottom : 5 , marginTop : 30}}>
+                  <Col xs={6} style={{fontSize : 18}}>List</Col>
+                  <Col xs={6} style={{fontSize : 18}}>Status</Col>
+                </Row>
+                
+                {approvalData.map((item, index) => (
+                  <Row key={index} className="mb-4 align-items-center">
+                    <Col xs={6}>
+                      <span style={{ fontSize: '14px', color: '#444' }}>{item.role}</span>
+                    </Col>
+                    <Col xs={6}>
+                      <div className="d-flex flex-wrap">
+                        {item.statuses.map((status, idx) => (
+                          <div key={idx} className="me-2 mb-2">
+                            <Badge 
+                              bg={status.active ? status.color : 'light'} 
+                              text={status.active ? 'white' : 'dark'}
+                              style={{ 
+                                padding: '6px 12px', 
+                                borderRadius: '4px', 
+                                fontWeight: '400',
+                                fontSize: '12px',
+                                opacity: status.active ? 1 : 0.6,
+                                border: status.active ? 'none' : '1px solid #dee2e6',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              {status.type}
+                            </Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </Col>
+                  </Row>
+                ))}
+              </>
+            )}
+
+
 
             {/* Files Tab Content */}
             {activeTab === 'files' && (
@@ -742,8 +848,8 @@ const EngineerTicketDetails = () => {
               </div>
             </div>
 
-             {/* Order Date */}
-                        <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
+            {/* Order Date */}
+            <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
                           <span className="text-muted">Order Date</span>
                           <div className="d-flex align-items-center position-relative">
                             <Button
@@ -789,6 +895,16 @@ const EngineerTicketDetails = () => {
                             )}
                           </div>
                         </div>
+
+
+            <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
+              <span className="text-muted">Query</span>
+              <div className="d-flex align-items-center">
+                <button className=" text-dark-gray px-2 py-1 rounded " style={{ width: '80px', border: 'none', marginRight: '5px' }}>Cancel</button>
+                <button className=" text-white px-2 py-1 rounded" style={{ backgroundColor: '#30A335', width: '90px', border: 'none' }}>Accept</button>
+              </div>
+            </div>
+
 
             {/* Move To */}
             <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">

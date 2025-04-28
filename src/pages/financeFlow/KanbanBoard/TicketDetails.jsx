@@ -9,7 +9,7 @@ import { AiOutlineUser } from 'react-icons/ai';
 import { RiSaveFill } from "react-icons/ri";
 import { BsCalendar3 } from "react-icons/bs";
 
-const FinanceTicketDetails = () => {
+const EngineerTicketDetails = () => {
   const [activeTab, setActiveTab] = useState('all');
   const [commentText, setCommentText] = useState('');
   const [showToast, setShowToast] = useState(false);
@@ -43,6 +43,58 @@ const FinanceTicketDetails = () => {
       avatarColor: 'info',
       content: 'First Milestone cement is finished. I want second phase of cements.',
       files: []
+    }
+  ]);
+
+
+  const [approvalData] = useState([
+    { 
+      role: "Managing Director", 
+      statuses: [
+        { type: "Rejected", color: "danger", active: true },
+        { type: "Pending", color: "warning", active: false },
+        { type: "Approved", color: "success", active: false }
+      ]
+    },
+    { 
+      role: "Director", 
+      statuses: [
+        { type: "Rejected", color: "danger", active: false },
+        { type: "Pending", color: "warning", active: true },
+        { type: "Approved", color: "success", active: false }
+      ]
+    },
+    { 
+      role: "CEO", 
+      statuses: [
+        { type: "Rejected", color: "danger", active: true },
+        { type: "Pending", color: "warning", active: false },
+        { type: "Approved", color: "success", active: false }
+      ]
+    },
+    { 
+      role: "General Manager (Tech)", 
+      statuses: [
+        { type: "Rejected", color: "danger", active: false },
+        { type: "Pending", color: "warning", active: false },
+        { type: "Approved", color: "success", active: true }
+      ]
+    },
+    { 
+      role: "General Manager (Admin)", 
+      statuses: [
+        { type: "Rejected", color: "danger", active: false },
+        { type: "Pending", color: "warning", active: false },
+        { type: "Approved", color: "success", active: true }
+      ]
+    },
+    { 
+      role: "Finance Head", 
+      statuses: [
+        { type: "Rejected", color: "danger", active: true },
+        { type: "Pending", color: "warning", active: false },
+        { type: "Approved", color: "success", active: false }
+      ]
     }
   ]);
 
@@ -293,7 +345,7 @@ const FinanceTicketDetails = () => {
       <Row className="g-0">
         <div className="d-flex align-items-center ms-3 mt-4">
           <small className="text-muted me-2"
-            onClick={() => navigate('/admin/engineerapprovals')}
+            onClick={() => navigate('/approvals')}
             style={{ cursor: 'pointer' }}
           >Approvals</small>
           <small className="text-muted mx-2">›</small>
@@ -441,6 +493,19 @@ const FinanceTicketDetails = () => {
                 </Nav.Item>
                 <Nav.Item>
                   <Nav.Link
+                    className={`px-3 py-2 ${activeTab === 'approvalstatus' ? 'text-white' : 'text-dark'}`}
+                    onClick={() => handleTabChange('approvalstatus')}
+                    style={{
+                      borderRadius: '4px 4px 0 0',
+                      backgroundColor: activeTab === 'approvalstatus' ? '#FF6F00' : 'transparent',
+                      marginRight : 3
+                    }}
+                  >
+                    Approval Status
+                  </Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                  <Nav.Link
                     className={`px-3 py-2 ${activeTab === 'comments' ? 'text-white' : 'text-dark'}`}
                     onClick={() => handleTabChange('comments')}
                     style={{
@@ -552,6 +617,48 @@ const FinanceTicketDetails = () => {
                 ))}
               </div>
             )}
+
+            {activeTab === 'approvalstatus' && (
+              <>
+                <Row className="mb-3 fw-bold" style={{ fontSize: '14px' , marginBottom : 5 , marginTop : 30}}>
+                  <Col xs={6} style={{fontSize : 18}}>List</Col>
+                  <Col xs={6} style={{fontSize : 18}}>Status</Col>
+                </Row>
+                
+                {approvalData.map((item, index) => (
+                  <Row key={index} className="mb-4 align-items-center">
+                    <Col xs={6}>
+                      <span style={{ fontSize: '14px', color: '#444' }}>{item.role}</span>
+                    </Col>
+                    <Col xs={6}>
+                      <div className="d-flex flex-wrap">
+                        {item.statuses.map((status, idx) => (
+                          <div key={idx} className="me-2 mb-2">
+                            <Badge 
+                              bg={status.active ? status.color : 'light'} 
+                              text={status.active ? 'white' : 'dark'}
+                              style={{ 
+                                padding: '6px 12px', 
+                                borderRadius: '4px', 
+                                fontWeight: '400',
+                                fontSize: '12px',
+                                opacity: status.active ? 1 : 0.6,
+                                border: status.active ? 'none' : '1px solid #dee2e6',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              {status.type}
+                            </Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </Col>
+                  </Row>
+                ))}
+              </>
+            )}
+
+
 
             {/* Files Tab Content */}
             {activeTab === 'files' && (
@@ -710,9 +817,12 @@ const FinanceTicketDetails = () => {
                   style={{ color: '#FF6F00', textDecoration: 'none' }}
                   onClick={() => setShowAssignSelector(!showAssignSelector)}
                 >
-                  <span style={{ color: '#FF6F00' }}>{currentAssignee ? currentAssignee.name : 'Assign To'}</span>
+                  <span style={{ color: '#FF6F00' }}>
+                    {currentAssignee ? currentAssignee.name : 'Assign To'}
+                  </span>
                   <AiOutlineUser className="ms-1" style={{ fill: '#FF6F00' }} />
                 </Button>
+
 
                 {showAssignSelector && (
                   <div className="position-absolute end-0 top-100 bg-white shadow border rounded mt-1" style={{ zIndex: 1000, minWidth: '200px' }}>
@@ -740,51 +850,61 @@ const FinanceTicketDetails = () => {
 
             {/* Order Date */}
             <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
-              <span className="text-muted">Order Date</span>
-              <div className="d-flex align-items-center position-relative">
-                <Button
-                  variant="link"
-                  className="p-0 text-dark d-flex align-items-center"
-                  onClick={() => setShowOrderDatePicker(!showOrderDatePicker)}
-                >
-                  <span>{orderDate ? orderDate.toLocaleDateString() : 'Edit'}</span>
-                  <BsCalendar3 className="ms-1" />
-                </Button>
-                {showOrderDatePicker && (
-                  <div className="position-absolute end-0 top-100 bg-white shadow border rounded" style={{ zIndex: 1000 }}>
-                    <DatePicker
-                      selected={orderDate}
-                      onChange={handleOrderDateChange}
-                      inline
-                    />
-                  </div>
-                )}
+                          <span className="text-muted">Order Date</span>
+                          <div className="d-flex align-items-center position-relative">
+                            <Button
+                              variant="link"
+                              className="p-0 text-dark d-flex align-items-center"
+                              onClick={() => setShowOrderDatePicker(!showOrderDatePicker)}
+                            >
+                              <span>{orderDate ? orderDate.toLocaleDateString() : 'Edit'}</span>
+                              <BsCalendar3 className="ms-1" />
+                            </Button>
+                            {showOrderDatePicker && (
+                              <div className="position-absolute end-0 top-100 bg-white shadow border rounded" style={{ zIndex: 1000 }}>
+                                <DatePicker
+                                  selected={orderDate}
+                                  onChange={handleOrderDateChange}
+                                  inline
+                                />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+            
+                        {/* Due Date */}
+                        <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
+                          <span className="text-muted">Due Date</span>
+                          <div className="d-flex align-items-center position-relative">
+                            <Button
+                              variant="link"
+                              className="p-0 text-dark d-flex align-items-center"
+                              onClick={() => setShowDueDatePicker(!showDueDatePicker)}
+                            >
+                              <span>{dueDate ? dueDate.toLocaleDateString() : 'Edit'}</span>
+                              <BsCalendar3 className="ms-1" />
+                            </Button>
+                            {showDueDatePicker && (
+                              <div className="position-absolute end-0 top-100 bg-white shadow border rounded" style={{ zIndex: 1000 }}>
+                                <DatePicker
+                                  selected={dueDate}
+                                  onChange={handleDueDateChange}
+                                  inline
+                                />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+
+            <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
+              <span className="text-muted">Query</span>
+              <div className="d-flex align-items-center">
+                <button className=" text-dark-gray px-2 py-1 rounded " style={{ width: '80px', border: 'none', marginRight: '5px' }}>Cancel</button>
+                <button className=" text-white px-2 py-1 rounded" style={{ backgroundColor: '#30A335', width: '90px', border: 'none' }}>Accept</button>
               </div>
             </div>
 
-            {/* Due Date */}
-            <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
-              <span className="text-muted">Due Date</span>
-              <div className="d-flex align-items-center position-relative">
-                <Button
-                  variant="link"
-                  className="p-0 text-dark d-flex align-items-center"
-                  onClick={() => setShowDueDatePicker(!showDueDatePicker)}
-                >
-                  <span>{dueDate ? dueDate.toLocaleDateString() : 'Edit'}</span>
-                  <BsCalendar3 className="ms-1" />
-                </Button>
-                {showDueDatePicker && (
-                  <div className="position-absolute end-0 top-100 bg-white shadow border rounded" style={{ zIndex: 1000 }}>
-                    <DatePicker
-                      selected={dueDate}
-                      onChange={handleDueDateChange}
-                      inline
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
 
             {/* Move To */}
             <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
@@ -820,23 +940,11 @@ const FinanceTicketDetails = () => {
               </div>
             </div>
 
-            {/* Moveby */}
+            {/* Approved By */}
             <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
-              <span className="text-muted">Move By</span>
-              {/* <div className="d-flex align-items-center">
-                <span className="bg-success text-white px-2 py-1 rounded">MD</span>
-              </div> */}
-              <div className="d-flex align-items-center" style={{ marginRight: '5px' }}>
-                <div className="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center" style={{ width: '24px', height: '24px', fontSize: '12px', marginLeft: '140px' }}>RK</div>
-              </div>
-              <span className="text-muted">Site Engineer</span>
-            </div>
-
-            {/* Approved */}
-            <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
-              <span className="text-muted">Approved </span>
+              <span className="text-muted">Approved By</span>
               <div className="d-flex align-items-center">
-                <button className=" text-white px-2 py-1 rounded" style={{ backgroundColor: '#FF6F00', width: '100px', border: '1px solid #FF6F00' }}>Send</button>
+                <span className="bg-success text-white px-2 py-1 rounded">MD</span>
               </div>
             </div>
 
@@ -975,23 +1083,23 @@ const FinanceTicketDetails = () => {
 
             {/* Action Buttons */}
             <div className="d-flex justify-content-end mt-5">
-              <Button variant="light" className="px-4">Cancel</Button>
-              <Button
-                variant="warning"
-                className="text-white px-4 ms-2"
-                style={{ backgroundColor: '#FF6F00' }}
-                onClick={handleSave}
-              >
-                <RiSaveFill style={{ color: 'white', marginRight: '5px' }} />
-                Save
-              </Button>
-            </div>
-
-          </div>
+                          <Button variant="light" className="px-4">Cancel</Button>
+                          <Button
+                            variant="warning"
+                            className="text-white px-4 ms-2"
+                            style={{ backgroundColor: '#FF6F00' }}
+                            onClick={handleSave}
+                          >
+                            <RiSaveFill style={{ color: 'white', marginRight: '5px' }} />
+                            Save
+                          </Button>
+                        </div>
+            
+                      </div>
         </Col>
       </Row>
     </Container>
   );
 };
 
-export default FinanceTicketDetails;
+export default EngineerTicketDetails;
