@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { getticketbyidAction } from "../../../store/actions/Ceo/TicketCreateAction";
+import { useDispatch } from "react-redux";
 
 // Define tag colors
 const tagColors = {
@@ -10,6 +12,7 @@ const tagColors = {
 
 const KanbanBoard = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   // const [columns, setColumns] = useState([
   //   {
   //     title: "Open",
@@ -100,17 +103,16 @@ const KanbanBoard = () => {
   const [columns, setColumns] = useState([]);
   
   useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem('userData'));
+    const userData = JSON.parse(localStorage.getItem("userData"));
     if (userData && userData.tickets) {
-      const mappedTasks = userData.tickets.map(ticket => ({
+      const mappedTasks = userData.tickets.map((ticket) => ({
+        id: ticket.ticketId, 
         title: ticket.ticketName,
-        tags: ["PO"], // Example, you can improve this later
         description: ticket.ticketDescription,
-        date: new Date(ticket.ticketCreatedDate).toLocaleDateString('en-GB'), // Format date
-        comments: 0,
-        files: 0
+        date: new Date(ticket.ticketCreatedDate).toLocaleDateString("en-GB"),
+        tags: ["PO"], // Example tags
       }));
-
+  
       setColumns([
         {
           title: "Open",
@@ -176,8 +178,19 @@ const KanbanBoard = () => {
     setShowTaskInput(false);
   };
 
-  const handleTaskClick = (task) => {
-    navigate(`/ticket/${task.title}`, { state: { task } });
+  const handleTaskClick = async (task) => {
+    try {
+      const ticketDetails = await dispatch(getticketbyidAction(task.id)).unwrap();
+      navigate(`/ticket/${task.id}`, { 
+        state: { 
+          ticket: ticketDetails, // Make sure this matches what TicketDetails expects
+          from: 'kanban' 
+        } 
+      });
+    } catch (error) {
+      console.error("Failed to fetch ticket details:", error);
+      // Optionally show an error message to the user
+    }
   };
 
   const handleMenuClick = (columnIndex) => {
