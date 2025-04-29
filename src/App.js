@@ -13,6 +13,7 @@ const AqsLayout = lazy ( ( ) => import('./components/layout/aqs-layout.component
 const CeoLayout = lazy ( ( ) => import('./components/layout/ceo-layout.component'));
 const FinanceLayout = lazy ( ( ) => import('./components/layout/finance-layout.component'));
 const PmLayout = lazy ( ( ) => import('./components/layout/pm-layout.component'));
+const HrLayout = lazy ( ( ) => import('./components/layout/hr-layout.component'));
 
 /** PAGES */
 const Login = lazy(() => import("./pages/Login/Login"));
@@ -118,7 +119,16 @@ const PmReport = lazy ( () => import ('./pages/pmFlow/Reports/index'));
 const PmReportView = lazy ( () => import ('./pages/pmFlow/Reports/ViewReport'));
 const PmSettings = lazy ( () => import ('./pages/pmFlow/Settings/index'));
 
+//Hr Flow
 
+const HrDashboard = lazy( ( ) => import('./pages/hrFlow/Dashboard/index'));
+const HrEmployee = lazy( ( ) => import ('./pages/hrFlow/Employee/index'));
+const AddHrEmployee = lazy ( ( ) => import('./pages/hrFlow/Employee/AddEmployee'));
+const HrEmployeeDetail = lazy( ( ) => import('./pages/hrFlow/Employee/EmployeeDetail'));
+const HrKanban = lazy( () => import('./pages/hrFlow/KanbanBoard/index'));
+const HrKanbanTicketDetails = lazy( ( ) => import('./pages/hrFlow/KanbanBoard/TicketDetails'));
+const HrChat = lazy( ( ) => import('./pages/hrFlow/ChatPage/Chat/ChatApp'));
+const HrSettings = lazy( ( ) => import('./pages/hrFlow/Settings/index'));
 
 
 const App = () => {
@@ -153,6 +163,10 @@ const App = () => {
     "Project Manager" : {
       default : "/pm/dashboard",
       layout : PmLayout,
+    },
+    "HR" : {
+      default:"/hr/dashboard",
+      layout : HrLayout
     }
   };
 
@@ -380,6 +394,22 @@ const App = () => {
           <Route path="reports" element={<PmReport />} />
           <Route path="reportview" element={<PmReportView />} />
           <Route path="settings" element={<PmSettings />} />
+        </Route>
+
+        {/* HR */}
+
+        <Route
+          path="/hr"
+          element={<ProtectedRoute allowedRole="HR"><HrLayout onLogout={handleLogout} /></ProtectedRoute>}        
+        >
+          <Route path="dashboard" element={ <HrDashboard />} />
+          <Route path="employee" element ={ <HrEmployee />} />
+          <Route path="addemployee" element ={ <AddHrEmployee />} />
+          <Route path="employeedetail" element={ <HrEmployeeDetail />} />
+          <Route path="approvals" element={ <HrKanban />} />
+          <Route path="hrticketdetails/:ticketId" element={ <HrKanbanTicketDetails />}/>
+          <Route path="chats" element={ <HrChat />} />
+          <Route path="settings" element={ <HrSettings />}/>
         </Route>
 
 
