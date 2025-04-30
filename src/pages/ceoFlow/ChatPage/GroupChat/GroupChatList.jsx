@@ -23,7 +23,7 @@ const GroupChatList = ({ selectedGroup, setSelectedGroup }) => {
           style={{
             cursor: "pointer",
             backgroundColor:
-              selectedGroup && selectedGroup.id === group.id ? "#FFE0B2" : "transparent",
+              selectedGroup && selectedGroup.id === group.id ? "#FFF5EE " : "transparent",
           }}
         >
           <div>

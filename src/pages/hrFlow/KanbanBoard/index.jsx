@@ -1,9 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getticketbyidAction } from "../../../store/actions/Ceo/TicketCreateAction";
-import { useDispatch } from "react-redux";
-import { userInfoAction } from "../../../store/actions";
 
 // Define tag colors
 const tagColors = {
@@ -14,152 +10,92 @@ const tagColors = {
 
 const KanbanBoard = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  // const [columns, setColumns] = useState([
-  //   {
-  //     title: "Open",
-  //     count: 6,
-  //     color: "#D2F4FF",
-  //     tasks: [
-  //       { 
-  //         title: "Resource Requirement", 
-  //         tags: ["HR", "Finance"], 
-  //         description: "Payroll, compliance, and employee engagement using HR software and best practices to ensure a productive workforce.",
-  //         date: "15 feb", 
-  //         comments: 0, 
-  //         files: 1 
-  //       },
-  //       { 
-  //         title: "Resource Requirement", 
-  //         tags: ["HR", "Finance"], 
-  //         description: "Payroll, compliance, and employee engagement using HR software and best practices to ensure a productive workforce.",
-  //         date: "15 feb", 
-  //         comments: 0, 
-  //         files: 1 
-  //       },
-  //       { 
-  //         title: "Resource Requirement", 
-  //         tags: ["HR", "Finance"], 
-  //         description: "Payroll, compliance, and employee engagement using HR software and best practices to ensure a productive workforce.",
-  //         date: "15 feb", 
-  //         comments: 0, 
-  //         files: 1 
-  //       },
-  //       { 
-  //         title: "Resource Requirement", 
-  //         tags: ["HR", "Finance"], 
-  //         description: "Payroll, compliance, and employee engagement using HR software and best practices to ensure a productive workforce.",
-  //         date: "15 feb", 
-  //         comments: 0, 
-  //         files: 1 
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     title: "Work in Progress",
-  //     count: 1,
-  //     color: "#FFEECF",
-  //     tasks: [
-  //       { 
-  //         title: "Resource Requirement", 
-  //         tags: ["HR", "Finance", "PO"], 
-  //         description: "Payroll, compliance, and employee engagement using HR software and best practices to ensure a productive workforce.",
-  //         date: "15 feb", 
-  //         comments: 0, 
-  //         files: 1 
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     title: "Review",
-  //     count: 6,
-  //     color: "#E4CFFF",
-  //     tasks: [
-  //       { 
-  //         title: "Resource Requirement", 
-  //         tags: ["HR", "Finance", "PO"], 
-  //         description: "Payroll, compliance, and employee engagement using HR software and best practices to ensure a productive workforce.",
-  //         date: "15 feb", 
-  //         comments: 0, 
-  //         files: 1 
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     title: "Approved",
-  //     count: 6,
-  //     color: "#DAFFCF",
-  //     tasks: [
-  //       { 
-  //         title: "Resource Requirement", 
-  //         tags: ["HR", "Finance", "PO"], 
-  //         description: "Payroll, compliance, and employee engagement using HR software and best practices to ensure a productive workforce.",
-  //         date: "15 feb", 
-  //         comments: 0, 
-  //         files: 1 
-  //       },
-  //     ],
-  //   },
-  // ]);
-
-  const [columns, setColumns] = useState([]);
-  
-  useEffect(() => {
-    const fetchTickets = async () => {
-      try {
-        const response = await dispatch(userInfoAction()); // 🔥 Dispatch the Redux thunk
-        const userData = response.payload; // 🔥 Data is inside payload
-
-        if (userData && Array.isArray(userData.tickets)) {
-          const mappedTasks = userData.tickets.map(ticket => ({
-            title: ticket.ticketName,
-            tags: ["PO"], // Example tag, you can dynamically add if needed
-            description: ticket.ticketDescription,
-            date: new Date(ticket.ticketCreatedDate).toLocaleDateString('en-GB'), // Format date as DD/MM/YYYY
-            comments: 0,
-            files: 0
-          }));
-
-          console.log("ticket",mappedTasks)
-
-          setColumns([
-            {
-              title: "Open",
-              count: mappedTasks.length,
-              color: "#D2F4FF",
-              tasks: mappedTasks
-            },
-            {
-              title: "Work in Progress",
-              count: 0,
-              color: "#FFEECF",
-              tasks: []
-            },
-            {
-              title: "Review",
-              count: 0,
-              color: "#E4CFFF",
-              tasks: []
-            },
-            {
-              title: "Approved",
-              count: 0,
-              color: "#DAFFCF",
-              tasks: []
-            }
-          ]);
-        } else {
-          console.log("⚠️ No tickets found for the user.");
-        }
-      } catch (error) {
-        console.error("❌ Failed to fetch user info or tickets:", error);
-      }
-    };
-
-    fetchTickets();
-  }, [dispatch]);
-
-
+  const [columns, setColumns] = useState([
+    {
+      title: "Open",
+      count: 6,
+      color: "#D2F4FF",
+      tasks: [
+        { 
+          title: "Resource Requirement", 
+          tags: ["HR", "Finance"], 
+          description: "Payroll, compliance, and employee engagement using HR software and best practices to ensure a productive workforce.",
+          date: "15 feb", 
+          comments: 0, 
+          files: 1 
+        },
+        { 
+          title: "Resource Requirement", 
+          tags: ["HR", "Finance"], 
+          description: "Payroll, compliance, and employee engagement using HR software and best practices to ensure a productive workforce.",
+          date: "15 feb", 
+          comments: 0, 
+          files: 1 
+        },
+        { 
+          title: "Resource Requirement", 
+          tags: ["HR", "Finance"], 
+          description: "Payroll, compliance, and employee engagement using HR software and best practices to ensure a productive workforce.",
+          date: "15 feb", 
+          comments: 0, 
+          files: 1 
+        },
+        { 
+          title: "Resource Requirement", 
+          tags: ["HR", "Finance"], 
+          description: "Payroll, compliance, and employee engagement using HR software and best practices to ensure a productive workforce.",
+          date: "15 feb", 
+          comments: 0, 
+          files: 1 
+        },
+      ],
+    },
+    {
+      title: "Work in Progress",
+      count: 1,
+      color: "#FFEECF",
+      tasks: [
+        { 
+          title: "Resource Requirement", 
+          tags: ["HR", "Finance", "PO"], 
+          description: "Payroll, compliance, and employee engagement using HR software and best practices to ensure a productive workforce.",
+          date: "15 feb", 
+          comments: 0, 
+          files: 1 
+        },
+      ],
+    },
+    {
+      title: "Review",
+      count: 6,
+      color: "#E4CFFF",
+      tasks: [
+        { 
+          title: "Resource Requirement", 
+          tags: ["HR", "Finance", "PO"], 
+          description: "Payroll, compliance, and employee engagement using HR software and best practices to ensure a productive workforce.",
+          date: "15 feb", 
+          comments: 0, 
+          files: 1 
+        },
+      ],
+    },
+    {
+      title: "Approved",
+      count: 6,
+      color: "#DAFFCF",
+      tasks: [
+        { 
+          title: "Resource Requirement", 
+          tags: ["HR", "Finance", "PO"], 
+          description: "Payroll, compliance, and employee engagement using HR software and best practices to ensure a productive workforce.",
+          date: "15 feb", 
+          comments: 0, 
+          files: 1 
+        },
+      ],
+    },
+  ]);
 
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [showTaskInput, setShowTaskInput] = useState(false);
@@ -196,19 +132,8 @@ const KanbanBoard = () => {
     setShowTaskInput(false);
   };
 
-  const handleTaskClick = async (task) => {
-    try {
-      const ticketDetails = await dispatch(getticketbyidAction(task.id)).unwrap();
-      navigate(`/ticket/${task.id}`, { 
-        state: { 
-          ticket: ticketDetails, // Make sure this matches what TicketDetails expects
-          from: 'kanban' 
-        } 
-      });
-    } catch (error) {
-      console.error("Failed to fetch ticket details:", error);
-      // Optionally show an error message to the user
-    }
+  const handleTaskClick = (task) => {
+    navigate(`/hr/hrticketdetails/${task.title}`, { state: { task } });
   };
 
   const handleMenuClick = (columnIndex) => {
@@ -246,12 +171,12 @@ const KanbanBoard = () => {
 
   return (
     <div className="kanban-page-container">
-      <div className="kanban-header-section">
-        <div className="kanban-project-info">
+      {/* <div className="kanban-header-section"> */}
+        {/* <div className="kanban-project-info">
           <h2 className="kanban-project-title">Ramnad RWSP Site</h2>
           <div className="kanban-project-manager">
             <div className="kanban-manager-avatar">
-              {/* <img src="/api/placeholder/40/40" alt="Manager" /> */}
+              <img src="/api/placeholder/40/40" alt="Manager" />
             <h6 style={{textAlign:'center'}}>RR</h6>
             </div>
             <div className="kanban-manager-details">
@@ -270,8 +195,8 @@ const KanbanBoard = () => {
             </svg>
             Kanban
           </button>
-        </div>
-      </div>
+        </div> */}
+      {/* </div>  */}
 
       <div className="kanban-container">
         <div className="kanban-board">

@@ -1,14 +1,17 @@
-import React, { useState, useRef } from 'react';
+
+import React, { useState, useRef, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Container, Row, Col, Form, Button, Badge, Nav, Toast, ToastContainer } from 'react-bootstrap';
 import { BsPaperclip, BsImage, BsLink, BsCalendar, BsPencil, BsChevronDown, BsX } from 'react-icons/bs';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { AiOutlineUser } from 'react-icons/ai';
-import { BsCalendar3 } from "react-icons/bs";
 import { RiSaveFill } from "react-icons/ri";
-
+import { BsCalendar3 } from "react-icons/bs";
+import { useDispatch } from 'react-redux';
+import { useTicket } from '../../../hooks/Ceo/useTicket';
+import { getticketbyidAction, updateProjectApprovalAction } from '../../../store/actions/Ceo/TicketCreateAction';
 
 const EngineerTicketDetails = () => {
   const [activeTab, setActiveTab] = useState('all');
@@ -18,6 +21,14 @@ const EngineerTicketDetails = () => {
   const fileInputRef = useRef(null);
   const imageInputRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
+  const dispatch = useDispatch();
+  const { createProjectApprovalHook } = useTicket();
+  const { ticket } = location.state || {};
+  const [ticketDetails, setTicketDetails] = useState(ticket);
+  const [isLoading, setIsLoading] = useState(!ticket);
+  const [approvalStatus, setApprovalStatus] = useState(null);
+
 
   // File upload state
   const [uploadedFiles, setUploadedFiles] = useState([]);
@@ -47,9 +58,60 @@ const EngineerTicketDetails = () => {
     }
   ]);
 
+  const [approvalData] = useState([
+    {
+      role: "Managing Director",
+      statuses: [
+        { type: "Rejected", color: "danger", active: true },
+        { type: "Pending", color: "warning", active: false },
+        { type: "Approved", color: "success", active: false }
+      ]
+    },
+    {
+      role: "Director",
+      statuses: [
+        { type: "Rejected", color: "danger", active: false },
+        { type: "Pending", color: "warning", active: true },
+        { type: "Approved", color: "success", active: false }
+      ]
+    },
+    {
+      role: "CEO",
+      statuses: [
+        { type: "Rejected", color: "danger", active: true },
+        { type: "Pending", color: "warning", active: false },
+        { type: "Approved", color: "success", active: false }
+      ]
+    },
+    {
+      role: "General Manager (Tech)",
+      statuses: [
+        { type: "Rejected", color: "danger", active: false },
+        { type: "Pending", color: "warning", active: false },
+        { type: "Approved", color: "success", active: true }
+      ]
+    },
+    {
+      role: "General Manager (Admin)",
+      statuses: [
+        { type: "Rejected", color: "danger", active: false },
+        { type: "Pending", color: "warning", active: false },
+        { type: "Approved", color: "success", active: true }
+      ]
+    },
+    {
+      role: "Finance Head",
+      statuses: [
+        { type: "Rejected", color: "danger", active: true },
+        { type: "Pending", color: "warning", active: false },
+        { type: "Approved", color: "success", active: false }
+      ]
+    }
+  ]);
+
   // Date state management
-  const [orderDate, setOrderDate] = useState(null);
-  const [dueDate, setDueDate] = useState(null);
+  const [orderDate, setOrderDate] = useState(ticket?.create_date ? new Date(ticket.create_date) : null);
+  const [dueDate, setDueDate] = useState(ticket?.due_date ? new Date(ticket.due_date) : null);
   const [showOrderDatePicker, setShowOrderDatePicker] = useState(false);
   const [showDueDatePicker, setShowDueDatePicker] = useState(false);
 
@@ -114,27 +176,106 @@ const EngineerTicketDetails = () => {
     { id: 6, name: 'Mohan Das', initials: 'MD', color: 'dark' }
   ]);
 
-  // Handle send comment with attached files
-  const handleSendComment = () => {
-    if (commentText.trim() || uploadedFiles.length > 0 || uploadedImages.length > 0) {
-      const newComment = {
-        id: comments.length + 1,
-        user: 'Jeya Pratha',
-        role: 'Designer',
-        avatar: 'JP',
-        avatarColor: 'danger',
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        content: commentText,
-        files: [...uploadedFiles],
-        images: [...uploadedImages]
+  // At the top of TicketDetails.jsx
+
+
+  useEffect(() => {
+    const fetchTicketDetails = async () => {
+      if (!ticketDetails && ticket?.ticket_id) {
+        setIsLoading(true);
+        try {
+          const data = await dispatch(getticketbyidAction(ticket.ticket_id)).unwrap();
+          setTicketDetails(data);
+          // Set dates if available
+          if (data.create_date) {
+            setOrderDate(new Date(data.create_date));
+          }
+          if (data.due_date) {
+            setDueDate(new Date(data.due_date));
+          }
+        } catch (error) {
+          console.error("Failed to fetch ticket details:", error);
+          showToastNotification("Failed to load ticket details");
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchTicketDetails();
+  }, [dispatch, ticketDetails, ticket]);
+
+  const handleApproval = (status) => {
+    setApprovalStatus(status);
+    showToastNotification(`Status set to ${status}`);
+  };
+
+  const handleSave = async () => {
+    if (!approvalStatus) {
+      showToastNotification("Please select Approve or Reject");
+      return;
+    }
+
+    if (!ticketDetails?.ticket_id) {
+      showToastNotification("Ticket information is incomplete");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const userData = JSON.parse(localStorage.getItem('userData'));
+      const approvalData = {
+        ticketId: ticketDetails.ticket_id, // Make sure this matches your API parameter name
+        isapproved: approvalStatus === "Approved", // Convert to boolean
+        token: userData?.token,
       };
 
-      setComments([...comments, newComment]);
-      setCommentText('');
-      setUploadedFiles([]);
-      setUploadedImages([]);
-      showToastNotification('Comment posted successfully');
+      const result = await dispatch(updateProjectApprovalAction(approvalData)).unwrap();
+
+      if (result.success) {
+        showToastNotification("Approval saved successfully!");
+        // Update the ticket details with the new approval status
+        setTicketDetails(prev => ({
+          ...prev,
+          isapproved: approvalStatus === "Approved",
+          approved_by: userData?.username || "You"
+        }));
+      } else {
+        showToastNotification(result.error || "Failed to save approval");
+      }
+    } catch (error) {
+      console.error("Error during save:", error);
+      showToastNotification("An error occurred while saving approval");
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+
+  const handleSendComment = () => {
+    if (!commentText.trim()) {
+      showToastNotification("Please enter a comment.");
+      return;
+    }
+
+    const newComment = {
+      id: Date.now(),
+      user: "You",
+      role: "Commenter",
+      avatar: "Y",
+      avatarColor: "primary",
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      content: commentText,
+      files: uploadedFiles,
+      images: uploadedImages
+    };
+
+    setComments([newComment, ...comments]);
+    setCommentText('');
+    setUploadedFiles([]);
+    setUploadedImages([]);
+    showToastNotification("Comment sent");
   };
 
   // Handle file attachment
@@ -150,7 +291,6 @@ const EngineerTicketDetails = () => {
     setUploadedFiles([...uploadedFiles, ...newFiles]);
     showToastNotification(`${files.length} file(s) attached`);
 
-    // Reset the file input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -174,7 +314,6 @@ const EngineerTicketDetails = () => {
       showToastNotification(`${imageFiles.length} image(s) attached`);
     }
 
-    // Reset the image input
     if (imageInputRef.current) {
       imageInputRef.current.value = '';
     }
@@ -266,9 +405,21 @@ const EngineerTicketDetails = () => {
     setShowToast(true);
   };
 
-  // Save changes
-  const handleSave = () => {
-    showToastNotification('All changes saved successfully');
+  // Format date for display
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Not set';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
+  };
+
+  // Get initials from name
+  const getInitials = (name) => {
+    if (!name) return 'NA';
+    return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
 
   return (
@@ -298,15 +449,20 @@ const EngineerTicketDetails = () => {
             style={{ cursor: 'pointer' }}
           >Approvals</small>
           <small className="text-muted mx-2">›</small>
-          <small style={{ color: '#FF6F00' }}>E-office</small>
+          <small style={{ color: '#FF6F00' }}>{ticketDetails?.name || 'Ticket Details'}</small>
         </div>
         <div className="mt-3 ms-3">
-          <h4>E-office</h4>
+          <h4>{ticketDetails?.name || 'Ticket Details'}</h4>
           <div className="d-flex align-items-center mt-1">
             <small className="text-muted">Created by</small>
             <div className="ms-2 d-flex align-items-center">
-              <div className="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center" style={{ width: '20px', height: '20px', fontSize: '12px' }}>R</div>
-              <small className="ms-1">Designer on 04-03-2023</small>
+              <div className="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center"
+                style={{ width: '20px', height: '20px', fontSize: '12px' }}>
+                {getInitials(ticketDetails?.ticket_owner_name)}
+              </div>
+              <small className="ms-1">
+                {ticketDetails?.ticket_owner_name || 'Unknown'} on {formatDate(ticketDetails?.create_date)}
+              </small>
             </div>
           </div>
         </div>
@@ -317,7 +473,7 @@ const EngineerTicketDetails = () => {
             <div className="d-flex align-items-start mb-3">
               <div className="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center me-2"
                 style={{ width: '36px', height: '36px', fontSize: '16px', flexShrink: 0 }}>
-                JJ
+                {getInitials(ticketDetails?.ticket_owner_name)}
               </div>
               <div className="flex-grow-1">
                 <Form className="position-relative">
@@ -420,7 +576,6 @@ const EngineerTicketDetails = () => {
                       Send
                     </Button>
                   </div>
-
                 </Form>
               </div>
             </div>
@@ -438,6 +593,19 @@ const EngineerTicketDetails = () => {
                     }}
                   >
                     All
+                  </Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                  <Nav.Link
+                    className={`px-3 py-2 ${activeTab === 'approvalstatus' ? 'text-white' : 'text-dark'}`}
+                    onClick={() => handleTabChange('approvalstatus')}
+                    style={{
+                      borderRadius: '4px 4px 0 0',
+                      backgroundColor: activeTab === 'approvalstatus' ? '#FF6F00' : 'transparent',
+                      marginRight: 3
+                    }}
+                  >
+                    Approval Status
                   </Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
@@ -476,7 +644,6 @@ const EngineerTicketDetails = () => {
                     History
                   </Nav.Link>
                 </Nav.Item>
-
               </Nav>
             </div>
 
@@ -552,6 +719,46 @@ const EngineerTicketDetails = () => {
                   </div>
                 ))}
               </div>
+            )}
+
+            {activeTab === 'approvalstatus' && (
+              <>
+                <Row className="mb-3 fw-bold" style={{ fontSize: '14px', marginBottom: 5, marginTop: 30 }}>
+                  <Col xs={6} style={{ fontSize: 18 }}>List</Col>
+                  <Col xs={6} style={{ fontSize: 18 }}>Status</Col>
+                </Row>
+
+                {approvalData.map((item, index) => (
+                  <Row key={index} className="mb-4 align-items-center">
+                    <Col xs={6}>
+                      <span style={{ fontSize: '14px', color: '#444' }}>{item.role}</span>
+                    </Col>
+                    <Col xs={6}>
+                      <div className="d-flex flex-wrap">
+                        {item.statuses.map((status, idx) => (
+                          <div key={idx} className="me-2 mb-2">
+                            <Badge
+                              bg={status.active ? status.color : 'light'}
+                              text={status.active ? 'white' : 'dark'}
+                              style={{
+                                padding: '6px 12px',
+                                borderRadius: '4px',
+                                fontWeight: '400',
+                                fontSize: '12px',
+                                opacity: status.active ? 1 : 0.6,
+                                border: status.active ? 'none' : '1px solid #dee2e6',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              {status.type}
+                            </Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </Col>
+                  </Row>
+                ))}
+              </>
             )}
 
             {/* Files Tab Content */}
@@ -635,9 +842,9 @@ const EngineerTicketDetails = () => {
                     <div>
                       <div className="d-flex align-items-center">
                         <span className="fw-bold">Ticket Created</span>
-                        <span className="text-muted ms-2 small">04-03-2023, 10:00 AM</span>
+                        <span className="text-muted ms-2 small">{formatDate(ticketDetails?.create_date)}</span>
                       </div>
-                      <p className="text-muted small mb-0">Ticket created by Designer</p>
+                      <p className="text-muted small mb-0">Ticket created by {ticketDetails?.ticket_owner_name || 'Unknown'}</p>
                     </div>
                   </div>
 
@@ -645,45 +852,29 @@ const EngineerTicketDetails = () => {
                     <div className="timeline-marker bg-info rounded-circle" style={{ width: '10px', height: '10px', marginTop: '6px', marginRight: '10px' }}></div>
                     <div>
                       <div className="d-flex align-items-center">
-                        <span className="fw-bold">Label Added</span>
-                        <span className="text-muted ms-2 small">04-03-2023, 10:05 AM</span>
+                        <span className="fw-bold">Ticket Type</span>
+                        <span className="text-muted ms-2 small">{ticketDetails?.ticket_type || 'N/A'}</span>
                       </div>
-                      <p className="text-muted small mb-0">Labels 'Urgent', 'High Priority' added by System</p>
+                      <p className="text-muted small mb-0">Type: {ticketDetails?.ticket_type || 'Not specified'}</p>
                     </div>
                   </div>
 
-                  <div className="timeline-item d-flex mb-3">
-                    <div className="timeline-marker bg-warning rounded-circle" style={{ width: '10px', height: '10px', marginTop: '6px', marginRight: '10px' }}></div>
-                    <div>
-                      <div className="d-flex align-items-center">
-                        <span className="fw-bold">Assigned</span>
-                        <span className="text-muted ms-2 small">04-03-2023, 11:30 AM</span>
+                  {ticketDetails?.isapproved !== null && (
+                    <div className="timeline-item d-flex mb-3">
+                      <div className="timeline-marker bg-success rounded-circle" style={{ width: '10px', height: '10px', marginTop: '6px', marginRight: '10px' }}></div>
+                      <div>
+                        <div className="d-flex align-items-center">
+                          <span className="fw-bold">Approval Status</span>
+                          <span className="text-muted ms-2 small">
+                            {ticketDetails?.isapproved ? 'Approved' : 'Rejected'}
+                          </span>
+                        </div>
+                        <p className="text-muted small mb-0">
+                          Status: {ticketDetails?.isapproved ? 'Approved' : 'Rejected'}
+                        </p>
                       </div>
-                      <p className="text-muted small mb-0">Ticket assigned to Vicky Keerthana</p>
                     </div>
-                  </div>
-
-                  <div className="timeline-item d-flex mb-3">
-                    <div className="timeline-marker bg-danger rounded-circle" style={{ width: '10px', height: '10px', marginTop: '6px', marginRight: '10px' }}></div>
-                    <div>
-                      <div className="d-flex align-items-center">
-                        <span className="fw-bold">Quotation Declined</span>
-                        <span className="text-muted ms-2 small">05-03-2023, 09:15 AM</span>
-                      </div>
-                      <p className="text-muted small mb-0">Declined by Surya Pratha</p>
-                    </div>
-                  </div>
-
-                  <div className="timeline-item d-flex">
-                    <div className="timeline-marker bg-success rounded-circle" style={{ width: '10px', height: '10px', marginTop: '6px', marginRight: '10px' }}></div>
-                    <div>
-                      <div className="d-flex align-items-center">
-                        <span className="fw-bold">Comment Added</span>
-                        <span className="text-muted ms-2 small">Today</span>
-                      </div>
-                      <p className="text-muted small mb-0">First Milestone cement is finished</p>
-                    </div>
-                  </div>
+                  )}
                 </div>
               </div>
             )}
@@ -697,7 +888,11 @@ const EngineerTicketDetails = () => {
             <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
               <span className="text-muted">Ticket Owner</span>
               <div className="d-flex align-items-center">
-                <div className="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center" style={{ width: '24px', height: '24px', fontSize: '12px' }}>RK</div>
+                <div className="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center"
+                  style={{ width: '24px', height: '24px', fontSize: '12px' }}>
+                  {getInitials(ticketDetails?.ticket_owner_name)}
+                </div>
+                <span className="ms-2">{ticketDetails?.ticket_owner_name || 'Unknown'}</span>
               </div>
             </div>
 
@@ -716,7 +911,6 @@ const EngineerTicketDetails = () => {
                   </span>
                   <AiOutlineUser className="ms-1" style={{ fill: '#FF6F00' }} />
                 </Button>
-
 
                 {showAssignSelector && (
                   <div className="position-absolute end-0 top-100 bg-white shadow border rounded mt-1" style={{ zIndex: 1000, minWidth: '200px' }}>
@@ -742,53 +936,74 @@ const EngineerTicketDetails = () => {
               </div>
             </div>
 
-             {/* Order Date */}
-                        <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
-                          <span className="text-muted">Order Date</span>
-                          <div className="d-flex align-items-center position-relative">
-                            <Button
-                              variant="link"
-                              className="p-0 text-dark d-flex align-items-center"
-                              onClick={() => setShowOrderDatePicker(!showOrderDatePicker)}
-                            >
-                              <span>{orderDate ? orderDate.toLocaleDateString() : 'Edit'}</span>
-                              <BsCalendar3 className="ms-1" />
-                            </Button>
-                            {showOrderDatePicker && (
-                              <div className="position-absolute end-0 top-100 bg-white shadow border rounded" style={{ zIndex: 1000 }}>
-                                <DatePicker
-                                  selected={orderDate}
-                                  onChange={handleOrderDateChange}
-                                  inline
-                                />
-                              </div>
-                            )}
-                          </div>
-                        </div>
-            
-                        {/* Due Date */}
-                        <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
-                          <span className="text-muted">Due Date</span>
-                          <div className="d-flex align-items-center position-relative">
-                            <Button
-                              variant="link"
-                              className="p-0 text-dark d-flex align-items-center"
-                              onClick={() => setShowDueDatePicker(!showDueDatePicker)}
-                            >
-                              <span>{dueDate ? dueDate.toLocaleDateString() : 'Edit'}</span>
-                              <BsCalendar3 className="ms-1" />
-                            </Button>
-                            {showDueDatePicker && (
-                              <div className="position-absolute end-0 top-100 bg-white shadow border rounded" style={{ zIndex: 1000 }}>
-                                <DatePicker
-                                  selected={dueDate}
-                                  onChange={handleDueDateChange}
-                                  inline
-                                />
-                              </div>
-                            )}
-                          </div>
-                        </div>
+            {/* Order Date */}
+            <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
+              <span className="text-muted">Order Date</span>
+              <div className="d-flex align-items-center position-relative">
+                <Button
+                  variant="link"
+                  className="p-0 text-dark d-flex align-items-center"
+                  onClick={() => setShowOrderDatePicker(!showOrderDatePicker)}
+                >
+                  <span>{orderDate ? orderDate.toLocaleDateString() : formatDate(ticketDetails?.create_date) || 'Not set'}</span>
+                  <BsCalendar3 className="ms-1" />
+                </Button>
+                {showOrderDatePicker && (
+                  <div className="position-absolute end-0 top-100 bg-white shadow border rounded" style={{ zIndex: 1000 }}>
+                    <DatePicker
+                      selected={orderDate}
+                      onChange={handleOrderDateChange}
+                      inline
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Due Date */}
+            <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
+              <span className="text-muted">Due Date</span>
+              <div className="d-flex align-items-center position-relative">
+                <Button
+                  variant="link"
+                  className="p-0 text-dark d-flex align-items-center"
+                  onClick={() => setShowDueDatePicker(!showDueDatePicker)}
+                >
+                  <span>{dueDate ? dueDate.toLocaleDateString() : formatDate(ticketDetails?.due_date) || 'Not set'}</span>
+                  <BsCalendar3 className="ms-1" />
+                </Button>
+                {showDueDatePicker && (
+                  <div className="position-absolute end-0 top-100 bg-white shadow border rounded" style={{ zIndex: 1000 }}>
+                    <DatePicker
+                      selected={dueDate}
+                      onChange={handleDueDateChange}
+                      inline
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Query */}
+            <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
+              <span className="text-muted">Query</span>
+              <div className="d-flex align-items-center">
+                <button
+                  className="text-dark-gray px-2 py-1 rounded"
+                  style={{ width: '80px', border: 'none', marginRight: '5px' }}
+                  onClick={() => navigate('/approvals')}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="text-white px-2 py-1 rounded"
+                  style={{ backgroundColor: '#30A335', width: '90px', border: 'none' }}
+                  onClick={handleSave}
+                >
+                  Accept
+                </button>
+              </div>
+            </div>
 
             {/* Move To */}
             <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
@@ -826,11 +1041,44 @@ const EngineerTicketDetails = () => {
 
             {/* Approved By */}
             <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
-              <span className="text-muted">Approved By</span>
+              <span className="text-muted">Action</span>
               <div className="d-flex align-items-center">
-                <span className="bg-success text-white px-2 py-1 rounded">MD</span>
+                <button
+                  className={`btn me-2 ${approvalStatus === 'Rejected' ? 'btn-danger' : 'btn-outline-danger'}`}
+                  onClick={() => handleApproval('Rejected')}
+                  disabled={isLoading}
+                >
+                  Reject
+                </button>
+                <button
+                  className={`btn ${approvalStatus === 'Approved' ? 'btn-success' : 'btn-outline-success'}`}
+                  onClick={() => handleApproval('Approved')}
+                  disabled={isLoading}
+                >
+                  Approve
+                </button>
               </div>
             </div>
+            {/* Approval Status */}
+            {ticketDetails?.isapproved !== null && (
+              <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
+                <span className="text-muted">Approval Status</span>
+                <Badge
+                  bg={ticketDetails?.isapproved ? 'success' : 'danger'}
+                  className="px-2 py-1"
+                >
+                  {ticketDetails?.isapproved ? 'Approved' : 'Rejected'}
+                </Badge>
+              </div>
+            )}
+
+            {/* Approved By */}
+            {ticketDetails?.approved_by && (
+              <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
+                <span className="text-muted">Approved By</span>
+                <span>{ticketDetails?.approved_by}</span>
+              </div>
+            )}
 
             {/* Labels */}
             <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
@@ -967,19 +1215,31 @@ const EngineerTicketDetails = () => {
 
             {/* Action Buttons */}
             <div className="d-flex justify-content-end mt-5">
-                          <Button variant="light" className="px-4">Cancel</Button>
-                          <Button
-                            variant="warning"
-                            className="text-white px-4 ms-2"
-                            style={{ backgroundColor: '#FF6F00' }}
-                            onClick={handleSave}
-                          >
-                            <RiSaveFill style={{ color: 'white', marginRight: '5px' }} />
-                            Save
-                          </Button>
-                        </div>
-            
-                      </div>
+              <Button
+                variant="light"
+                className="px-4"
+                onClick={() => navigate('/approvals')}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="warning"
+                className="text-white px-4 ms-2"
+                style={{ backgroundColor: '#FF6F00' }}
+                onClick={handleSave}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                ) : (
+                  <>
+                    <RiSaveFill style={{ color: 'white', marginRight: '5px' }} />
+                    Save
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
         </Col>
       </Row>
     </Container>
