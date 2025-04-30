@@ -18,7 +18,8 @@ export const API = {
   GET_TICKET_BY_ID : "/api/Ticket/get-ticket-by-id",
   UPDATE_PROJECT_APPROVAL: '/api/Ticket/update-ticket-by-id',
 
-
+  /*PM FLOW  */
+  GET_PROJECT_DETAILS:"/api/Project/getProjectDetails",
   
  /* Employee data */
  GET_EMPLOYEES_BY_ROLES: "/api/Login/getEmployeesByRoles",

@@ -8,6 +8,7 @@ import {
   getAllProjectByFilterAction,
   getProjectDetailsAction,
   getProjectTypeSectorAction,
+  getPmProject,
 } from "../../actions/Ceo/ceoprojectAction";
 
 const initialState = {
@@ -19,6 +20,16 @@ const initialState = {
   loading: false,
   error: null,
   success: false,
+  pmProjectDetails: {
+    data: null,
+    loading: false,
+    error: null,
+  },
+  getProjectDetails: {
+    loading: false,
+    data: null,
+    error: null,
+  },
 };
 
 const ceoProjectSlice = createSlice({
@@ -72,7 +83,19 @@ const ceoProjectSlice = createSlice({
         state.error = action.error.message;
         state.success = false;
       })
-
+      // Get PM Project
+      .addCase(getPmProject.pending, (state) => {
+        state.pmProjectDetails.loading = true;
+        state.pmProjectDetails.error = null;
+      })
+      .addCase(getPmProject.fulfilled, (state, action) => {
+        state.pmProjectDetails.loading = false;
+        state.pmProjectDetails.data = action.payload;
+      })
+      .addCase(getPmProject.rejected, (state, action) => {
+        state.pmProjectDetails.loading = false;
+        state.pmProjectDetails.error = action.error.message;
+      })
       // Get Project Type & Sector
       .addCase(getProjectTypeSectorAction.pending, (state) => {
         state.loading = true;
