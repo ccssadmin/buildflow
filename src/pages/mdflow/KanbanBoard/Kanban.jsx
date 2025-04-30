@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { getticketbyidAction } from "../../../store/actions/Ceo/TicketCreateAction";
-import { useDispatch } from "react-redux";
 import { userInfoAction } from "../../../store/actions";
 
 // Define tag colors
@@ -112,7 +111,7 @@ const KanbanBoard = () => {
 
         if (userData && Array.isArray(userData.tickets)) {
           const mappedTasks = userData.tickets.map(ticket => ({
-            title: ticket.ticketName,
+            id: ticket.ticketId, 
             tags: ["PO"], // Example tag, you can dynamically add if needed
             description: ticket.ticketDescription,
             date: new Date(ticket.ticketCreatedDate).toLocaleDateString('en-GB'), // Format date as DD/MM/YYYY

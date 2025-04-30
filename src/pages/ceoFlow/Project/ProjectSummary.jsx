@@ -607,12 +607,14 @@ const ProjectSummary = ({
                   if (!selectedEmployee) continue;
             
                   // 1. Create Ticket for THIS employee only
-                  await createTicket({
+                  const ticketResponse = await createTicket({
                     projectId: formData.projectId,
                     ticketType: "submit",
-                    assignTo: [empId],  // ✅ Only this user's id
-                    createdBy: 1  // CEO id (replace with real one if dynamic)
+                    assignTo: selectedUsers,
+                    createdBy: 1
                   });
+                  
+                  const ticketId = ticketResponse?.data?.ticketId; 
             
                   // 2. Create Notification for THIS employee only
                   await createNotify({
@@ -621,18 +623,22 @@ const ProjectSummary = ({
                     sourceEntityId: 0,
                     message: `Approval requested for project ${formData.projectName}`
                   });
+
+                  if (ticketId) {
+                    Swal.fire({
+                      icon: "success",
+                      title: "Tickets and Notifications Created",
+                      text: "Tickets and notifications successfully submitted.",
+                      timer: 1500,
+                      showConfirmButton: false,
+                    });
+                  
+                    setShowModal(false);
+                    navigate(`/ceo/ticketdetails/${ticketId}`);
+                  }
                 }
             
-                Swal.fire({
-                  icon: "success",
-                  title: "Tickets and Notifications Created",
-                  text: "Tickets and notifications successfully submitted.",
-                  timer: 1500,
-                  showConfirmButton: false,
-                });
-            
-                setShowModal(false);
-                navigate('/ceo/ticketdetails/Resource%20Requirement');
+                
                 
               } catch (error) {
                 console.error("❌ Failed to create ticket/notification:", error);
