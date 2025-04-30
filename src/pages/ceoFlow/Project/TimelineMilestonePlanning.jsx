@@ -38,7 +38,7 @@ const TimelineMilestonePlanning = ({
       const ticketPayload = {
         projectId,
         ticketType: "milestone",
-        assignTo: selectedUsers,
+        assignTo: [empId],
         createdBy: createdBy,
       };
   
@@ -48,7 +48,7 @@ const TimelineMilestonePlanning = ({
   
         // After successful ticket creation, create notification
         const notificationPayload = {
-          empId: selectedUsers,                         // Assigned employee
+          empId: [empId],                         // Assigned employee
           notificationType: "Ticket Assigned",  // Default message
           sourceEntityId: 0,             // Use projectId as the source entity (or ticket id if available)
           message: "A new budget ticket has been assigned to you.", // Customizable message

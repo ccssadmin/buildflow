@@ -12,6 +12,9 @@ import {
 } from 'react-bootstrap';
 import { ChevronLeft, ChevronRight, Calendar, ChevronDown, X } from 'lucide-react';
 import profile from "../../../assets/images/Profile-pic.png";
+import { useDispatch } from "react-redux";
+import { userInfoAction } from "../../../store/actions";
+
 const AqsNotificationTab  = () => {
    // State for active tab
    const [activeTab, setActiveTab] = useState('unread');
@@ -58,60 +61,115 @@ const AqsNotificationTab  = () => {
    const yearList = generateYearList();
    
    // Notification data
-   const [notifications, setNotifications] = useState([
-     {
-       id: 1,
-       department: 'Finance',
-       title: 'KAN Site',
-       subtitle: 'Approval from MD',
-       description: 'We would like to update you that we are currently awaiting approval on the material requirement submitted for KAN site. Kindly review and provide your confirmation at the earliest to avoid any delays in the process.',
-       date: '17-02-2025', // Matches the default selected date
-       time: '02:55 pm',
-       sender: 'Marvin McKinney',
-       priority: 'High Prioritize',
-       attachment: 'PO file attached',
-       status: 'unread'
-     },
-     {
-       id: 2,
-       department: 'Purchase Team',
-       title: 'KAN Site',
-       subtitle: 'Approval from MD',
-       description: 'We would like to update you that we are currently awaiting approval on the material requirement submitted for KAN site. Kindly review and provide your confirmation at the earliest to avoid any delays in the process.',
-       date: '28-02-2025',
-       time: '02:55 pm',
-       sender: 'Marvin McKinney',
-       priority: 'High Prioritize',
-       attachment: 'PO file attached',
-       status: 'unread'
-     },
-     {
-       id: 3,
-       department: 'Purchase Team',
-       title: 'KAN Site',
-       subtitle: 'Approval from MD',
-       description: 'We would like to update you that we are currently awaiting approval on the material requirement submitted for KAN site. Kindly review and provide your confirmation at the earliest to avoid any delays in the process.',
-       date: '17-02-2025', // Matches the default selected date
-       time: '10:30 am',
-       sender: 'Marvin McKinney',
-       priority: 'Medium Prioritize',
-       attachment: 'PO file attached',
-       status: 'unread'
-     },
-     {
-       id: 4,
-       department: 'HR',
-       title: 'Training Session',
-       subtitle: 'Mandatory Compliance Training',
-       description: 'Please be informed that a mandatory compliance training session has been scheduled. All team members are required to attend and complete the certification process.',
-       date: '18-02-2025',
-       time: '09:00 am',
-       sender: 'Sarah Johnson',
-       priority: 'High Prioritize',
-       attachment: 'Schedule attached',
-       status: 'unread'
-     },
-   ]);
+  //  const [notifications, setNotifications] = useState([
+  //    {
+  //      id: 1,
+  //      department: 'Finance',
+  //      title: 'KAN Site',
+  //      subtitle: 'Approval from MD',
+  //      description: 'We would like to update you that we are currently awaiting approval on the material requirement submitted for KAN site. Kindly review and provide your confirmation at the earliest to avoid any delays in the process.',
+  //      date: '17-02-2025', // Matches the default selected date
+  //      time: '02:55 pm',
+  //      sender: 'Marvin McKinney',
+  //      priority: 'High Prioritize',
+  //      attachment: 'PO file attached',
+  //      status: 'unread'
+  //    },
+  //    {
+  //      id: 2,
+  //      department: 'Purchase Team',
+  //      title: 'KAN Site',
+  //      subtitle: 'Approval from MD',
+  //      description: 'We would like to update you that we are currently awaiting approval on the material requirement submitted for KAN site. Kindly review and provide your confirmation at the earliest to avoid any delays in the process.',
+  //      date: '28-02-2025',
+  //      time: '02:55 pm',
+  //      sender: 'Marvin McKinney',
+  //      priority: 'High Prioritize',
+  //      attachment: 'PO file attached',
+  //      status: 'unread'
+  //    },
+  //    {
+  //      id: 3,
+  //      department: 'Purchase Team',
+  //      title: 'KAN Site',
+  //      subtitle: 'Approval from MD',
+  //      description: 'We would like to update you that we are currently awaiting approval on the material requirement submitted for KAN site. Kindly review and provide your confirmation at the earliest to avoid any delays in the process.',
+  //      date: '17-02-2025', // Matches the default selected date
+  //      time: '10:30 am',
+  //      sender: 'Marvin McKinney',
+  //      priority: 'Medium Prioritize',
+  //      attachment: 'PO file attached',
+  //      status: 'unread'
+  //    },
+  //    {
+  //      id: 4,
+  //      department: 'HR',
+  //      title: 'Training Session',
+  //      subtitle: 'Mandatory Compliance Training',
+  //      description: 'Please be informed that a mandatory compliance training session has been scheduled. All team members are required to attend and complete the certification process.',
+  //      date: '18-02-2025',
+  //      time: '09:00 am',
+  //      sender: 'Sarah Johnson',
+  //      priority: 'High Prioritize',
+  //      attachment: 'Schedule attached',
+  //      status: 'unread'
+  //    },
+  //  ]);
+
+  const dispatch = useDispatch();
+  
+    const [notifications, setNotifications] = useState([]);
+    
+     useEffect(() => {
+      const fetchNotifications = async () => {
+        try {
+          const response = await dispatch(userInfoAction()); // 🔥 Get action result
+          const userData = response.payload; // 🔥 Actual data is inside payload
+    
+          if (userData && userData.empId && Array.isArray(userData.notifications)) {
+            const empId = userData.empId;
+    
+            const userNotifications = userData.notifications.filter(
+              (notification) => notification.emp_id === empId
+            );
+    
+            console.log("notification:", userNotifications);
+    
+            const uniqueNotificationsMap = new Map();
+            userNotifications.forEach((n) => {
+              if (!uniqueNotificationsMap.has(n.notificationId)) {
+                uniqueNotificationsMap.set(n.notificationId, n);
+              }
+            });
+            const uniqueNotifications = Array.from(uniqueNotificationsMap.values());
+    
+            console.log("✅ Notifications after filtering:", uniqueNotifications);
+    
+            const mappedNotifications = uniqueNotifications.map((n) => ({
+              id: n.notificationId,
+              department: "General",
+              title: "Approval Request",
+              subtitle: n.message || "No Message",
+              description: n.message || "No Description Available",
+              date: "26-04-2025",
+              time: "01:00 PM",
+              sender: "System",
+              priority: "Medium Prioritize",
+              attachment: "None",
+              status: n.is_read ? 'approved' : 'unread'
+            }));
+    
+            setNotifications(mappedNotifications);
+          } else {
+            console.log("⚠️ No user data or notifications found.");
+          }
+        } catch (error) {
+          console.error("❌ Failed to fetch user info or notifications:", error);
+        }
+      };
+    
+      fetchNotifications();
+    }, [dispatch]); // also add dispatch in dependency
    
    // Function to get week dates centered around a specific date
    const getWeekDates = (date) => {

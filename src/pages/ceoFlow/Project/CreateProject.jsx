@@ -764,6 +764,9 @@ const renderProjectTeamStakeholder = () => {
     toggleDropdown={toggleDropdown}
     handleSelectItem={handleSelectItem}
     handleRemoveItem={handleRemoveItem}
+    fetchroles = {fetchroles}
+    createTicket= {createTicket}
+    createNotify= {createNotify}
     onNext={() => {
       console.log("ProjectTeamStakeholder called onNext");
        setCurrentStep(currentStep + 1);

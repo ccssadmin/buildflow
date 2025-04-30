@@ -600,63 +600,51 @@ const ProjectSummary = ({
             className={`d-flex justify-content-center ${
               selectedUsers.length > 0 ? "btn-allow" : "btn-not-allow"
             }`}
-            onClick={async () => {
-              for (const empId of selectedUsers) {
-                const selectedEmployee = employeesByRole.find(
-                  (emp) => emp.empId === empId
-                );
-
-                if (!selectedEmployee) continue;
-
-                try {
-                  // 1. Create Ticket
-
+            onClick={async () => {           
+              try {
+                for (const empId of selectedUsers) {
+                  const selectedEmployee = employeesByRole.find(emp => emp.empId === empId);
+                  if (!selectedEmployee) continue;
+            
+                  // 1. Create Ticket for THIS employee only
                   await createTicket({
                     projectId: formData.projectId,
-
                     ticketType: "submit",
-
-                    assignTo: selectedUsers,
-
-                    createdBy: 1, // Replace with logged-in CEO id
+                    assignTo: [empId],  // ✅ Only this user's id
+                    createdBy: 1  // CEO id (replace with real one if dynamic)
                   });
-
-                  // 2. Create Notification
-
+            
+                  // 2. Create Notification for THIS employee only
                   await createNotify({
-                    empId: empId,
-
+                    empId: [empId],  // ✅ Only this user's id
                     notificationType: "approval-request",
-
-                    sourceEntityId: formData.projectId,
-
-                    message: `Approval requested for project ${formData.projectName}`,
+                    sourceEntityId: 0,
+                    message: `Approval requested for project ${formData.projectName}`
                   });
-                } catch (error) {
-                  console.error(
-                    `❌ Failed to create ticket/notification for ${selectedEmployee.name}:`,
-                    error
-                  );
                 }
-
+            
                 Swal.fire({
                   icon: "success",
-
                   title: "Tickets and Notifications Created",
-
                   text: "Tickets and notifications successfully submitted.",
-
                   timer: 1500,
-
                   showConfirmButton: false,
                 });
-
+            
                 setShowModal(false);
-
-                navigate("/ceo/ticketdetails/Resource%20Requirement");
+                navigate('/ceo/ticketdetails/Resource%20Requirement');
+                
+              } catch (error) {
+                console.error("❌ Failed to create ticket/notification:", error);
+                Swal.fire({
+                  icon: "error",
+                  title: "Error",
+                  text: "Something went wrong. Please try again.",
+                });
               }
             }}
-            disabled={selectedUsers.length === 0} // Disable button if no users are selected
+            disabled={selectedUsers.length === 0}
+            
           >
             Submit
           </Button>
