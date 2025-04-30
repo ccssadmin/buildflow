@@ -12,6 +12,9 @@ import {
 } from 'react-bootstrap';
 import { ChevronLeft, ChevronRight, Calendar, ChevronDown, X } from 'lucide-react';
 import profile from "../../assets/images/Profile-pic.png";
+import useAuth from '../../hooks/useAuth';
+import { userInfoAction } from '../../store/actions';
+import { useDispatch } from 'react-redux';
 const Notification = () => {
   // State for active tab
   const [activeTab, setActiveTab] = useState('unread');
@@ -30,6 +33,8 @@ const Notification = () => {
   
   // State for calendar view mode
   const [calendarViewMode, setCalendarViewMode] = useState('month'); // 'month', 'year', 'yearList'
+
+  const dispatch = useDispatch();
   
   // Update currentDate to match week of selected date when date changes
   useEffect(() => {
@@ -58,34 +63,58 @@ const Notification = () => {
   const yearList = generateYearList();
   const [notifications, setNotifications] = useState([]);
 
-  useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem('userData'));
-    
-    if (userData && userData.empId && userData.notifications) {
-      const empId = userData.empId;
-  
-      // Filter notifications only for logged-in user's empId
-      const userNotifications = userData.notifications.filter(
-        (notification) => notification.emp_id === empId
-      );
-  
-      const mappedNotifications = userNotifications.map((n) => ({
-        id: n.notificationId,
-        department: "General", // you can change this if you want
-        title: "Approval Request",
-        subtitle: n.message,
-        description: n.message,
-        date: "26-04-2025", // Replace with real date if available
-        time: "01:00 PM",   // Replace with real time if available
-        sender: "System",
-        priority: "Medium Prioritize",
-        attachment: "None",
-        status: n.is_read ? 'approved' : 'unread'
-      }));
-  
-      setNotifications(mappedNotifications);
+ useEffect(() => {
+  const fetchNotifications = async () => {
+    try {
+      const response = await dispatch(userInfoAction()); // 🔥 Get action result
+      const userData = response.payload; // 🔥 Actual data is inside payload
+
+      if (userData && userData.empId && Array.isArray(userData.notifications)) {
+        const empId = userData.empId;
+
+        const userNotifications = userData.notifications.filter(
+          (notification) => notification.emp_id === empId
+        );
+
+        console.log("notification:", userNotifications);
+
+        const uniqueNotificationsMap = new Map();
+        userNotifications.forEach((n) => {
+          if (!uniqueNotificationsMap.has(n.notificationId)) {
+            uniqueNotificationsMap.set(n.notificationId, n);
+          }
+        });
+        const uniqueNotifications = Array.from(uniqueNotificationsMap.values());
+
+        console.log("✅ Notifications after filtering:", uniqueNotifications);
+
+        const mappedNotifications = uniqueNotifications.map((n) => ({
+          id: n.notificationId,
+          department: "General",
+          title: "Approval Request",
+          subtitle: n.message || "No Message",
+          description: n.message || "No Description Available",
+          date: "26-04-2025",
+          time: "01:00 PM",
+          sender: "System",
+          priority: "Medium Prioritize",
+          attachment: "None",
+          status: n.is_read ? 'approved' : 'unread'
+        }));
+
+        setNotifications(mappedNotifications);
+      } else {
+        console.log("⚠️ No user data or notifications found.");
+      }
+    } catch (error) {
+      console.error("❌ Failed to fetch user info or notifications:", error);
     }
-  }, []);
+  };
+
+  fetchNotifications();
+}, [dispatch]); // also add dispatch in dependency
+
+
   
   // Notification data
   // const [notifications, setNotifications] = useState([

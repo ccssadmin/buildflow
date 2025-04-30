@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { userInfoAction } from "../../../store/actions";
 
 // Define tag colors
 const tagColors = {
@@ -97,48 +99,63 @@ const KanbanBoard = () => {
   //   },
   // ]);
 
-  const [columns, setColumns] = useState([]);
+   const [columns, setColumns] = useState([]);
+    const dispatch = useDispatch();
     
     useEffect(() => {
-      const userData = JSON.parse(localStorage.getItem('userData'));
-      if (userData && userData.tickets) {
-        const mappedTasks = userData.tickets.map(ticket => ({
-          title: ticket.ticketName,
-          tags: ["PO"], // Example, you can improve this later
-          description: ticket.ticketDescription,
-          date: new Date(ticket.ticketCreatedDate).toLocaleDateString('en-GB'), // Format date
-          comments: 0,
-          files: 0
-        }));
+      const fetchTickets = async () => {
+        try {
+          const response = await dispatch(userInfoAction()); // 🔥 Dispatch the Redux thunk
+          const userData = response.payload; // 🔥 Data is inside payload
   
-        setColumns([
-          {
-            title: "Open",
-            count: mappedTasks.length,
-            color: "#D2F4FF",
-            tasks: mappedTasks
-          },
-          {
-            title: "Work in Progress",
-            count: 0,
-            color: "#FFEECF",
-            tasks: []
-          },
-          {
-            title: "Review",
-            count: 0,
-            color: "#E4CFFF",
-            tasks: []
-          },
-          {
-            title: "Approved",
-            count: 0,
-            color: "#DAFFCF",
-            tasks: []
+          if (userData && Array.isArray(userData.tickets)) {
+            const mappedTasks = userData.tickets.map(ticket => ({
+              title: ticket.ticketName,
+              tags: ["PO"], // Example tag, you can dynamically add if needed
+              description: ticket.ticketDescription,
+              date: new Date(ticket.ticketCreatedDate).toLocaleDateString('en-GB'), // Format date as DD/MM/YYYY
+              comments: 0,
+              files: 0
+            }));
+  
+            console.log("ticket",mappedTasks)
+  
+            setColumns([
+              {
+                title: "Open",
+                count: mappedTasks.length,
+                color: "#D2F4FF",
+                tasks: mappedTasks
+              },
+              {
+                title: "Work in Progress",
+                count: 0,
+                color: "#FFEECF",
+                tasks: []
+              },
+              {
+                title: "Review",
+                count: 0,
+                color: "#E4CFFF",
+                tasks: []
+              },
+              {
+                title: "Approved",
+                count: 0,
+                color: "#DAFFCF",
+                tasks: []
+              }
+            ]);
+          } else {
+            console.log("⚠️ No tickets found for the user.");
           }
-        ]);
-      }
-    }, []);
+        } catch (error) {
+          console.error("❌ Failed to fetch user info or tickets:", error);
+        }
+      };
+  
+      fetchTickets();
+    }, [dispatch]);
 
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [showTaskInput, setShowTaskInput] = useState(false);

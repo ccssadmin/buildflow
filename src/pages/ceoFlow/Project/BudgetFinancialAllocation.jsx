@@ -84,7 +84,7 @@ const BudgetFinancialAllocation = ({
         console.log("Roles fetched in BudgetFinancialAllocation:", data); // Add this log
         if (success && data) {
           const filtered = data.filter(
-            (r) => r.roleName === "QS" || r.roleName === "Assistant QS"
+            (r) => r.roleName === "QS" || r.roleName === "Assistant QS" || r.roleName === "Finance Head"
           );
           setFilteredRoles(filtered);
         }
@@ -121,6 +121,7 @@ const BudgetFinancialAllocation = ({
       getEmployees();
     }
   }, [formData.sendTo]);
+  
   const handleTicketSubmission = async () => {
     const projectId = formData.projectId || localProjectId || parseInt(localStorage.getItem("projectId"));
     const createdBy = parseInt(localStorage.getItem("userRoleId")); // This is CEO's user id (creator)
@@ -129,7 +130,7 @@ const BudgetFinancialAllocation = ({
       const ticketPayload = {
         projectId,
         ticketType: "budget",
-        assignTo: selectedUsers,
+        assignTo: [empId],
         createdBy: createdBy,
       };
   
@@ -139,7 +140,7 @@ const BudgetFinancialAllocation = ({
   
         // After successful ticket creation, create notification
         const notificationPayload = {
-          empId: selectedUsers,                         // Assigned employee
+          empId: [empId],                         // Assigned employee
           notificationType: "Ticket Assigned",  // Default message
           sourceEntityId: 0,             // Use projectId as the source entity (or ticket id if available)
           message: "A new budget ticket has been assigned to you.", // Customizable message
