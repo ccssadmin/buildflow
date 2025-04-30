@@ -1,0 +1,1 @@
+export const selectTicketDetails = (state) => state.getticket?.ticketDetails || null;

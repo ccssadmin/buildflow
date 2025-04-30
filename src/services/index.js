@@ -21,6 +21,8 @@ export const logout = (...props) => api.POST(API.LOGOUT, ...props);
 export const getUserInfo = (params) => api.GET(API.GET_USER_INFO, params);
 export const getUserDetailsById = (params) => api.GET(API.GET_USER_DETAILS_BY_ID+'/'+params);
 export const getAllMembers = (params) => api.GET(API.GET_ALL_MEMBERS, params);
+//Department//
+export const getDepartments = (params) => api.GET(API.GET_DEPARTMENT,params);
 
 /*Ceo Project */
 export const getProjectTypeSector = (params) => api.GET(API.Get_PROJECTTYPE_SECTOR,params);

@@ -21,7 +21,6 @@ export const getticketbyidAction = createAsyncThunk(
   }
 );
 
-
 export const updateProjectApprovalAction = createAsyncThunk(
   'updateprojectapproval/submit',
   async (approvalPayload, { rejectWithValue }) => {
