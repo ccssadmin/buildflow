@@ -1,15 +1,15 @@
 import React from "react";
 import * as XLSX from "xlsx";
 
-const milestones = [
-  { name: "Foundation Work", description: "Complete excavation and concrete laying", dueDate: "30 Sep 2022", completion: 100 },
-  { name: "Structural Framing", description: "Assemble steel and structural framing", dueDate: "15 Dec 2022", completion: 65 },
-  { name: "Roofing Installation", description: "Complete installation of roofing system", dueDate: "14 May 2023", completion: 0 },
-  { name: "Exterior Walls", description: "Brickwork, plastering, and painting", dueDate: "30 Oct 2023", completion: 0 },
-  { name: "Plumbing & Electrical Work", description: "Install pipes, wiring, and fixtures", dueDate: "15 Jan 2024", completion: 0 },
-  { name: "Interior Design & Finishing", description: "Install doors, windows & interiors", dueDate: "30 Dec 2024", completion: 0 },
-  { name: "Final Inspection & Handover", description: "Quality check and handover to client", dueDate: "05 May 2025", completion: 0 },
-];
+// const milestones = [
+//   { name: "Foundation Work", description: "Complete excavation and concrete laying", dueDate: "30 Sep 2022", completion: 100 },
+//   { name: "Structural Framing", description: "Assemble steel and structural framing", dueDate: "15 Dec 2022", completion: 65 },
+//   { name: "Roofing Installation", description: "Complete installation of roofing system", dueDate: "14 May 2023", completion: 0 },
+//   { name: "Exterior Walls", description: "Brickwork, plastering, and painting", dueDate: "30 Oct 2023", completion: 0 },
+//   { name: "Plumbing & Electrical Work", description: "Install pipes, wiring, and fixtures", dueDate: "15 Jan 2024", completion: 0 },
+//   { name: "Interior Design & Finishing", description: "Install doors, windows & interiors", dueDate: "30 Dec 2024", completion: 0 },
+//   { name: "Final Inspection & Handover", description: "Quality check and handover to client", dueDate: "05 May 2025", completion: 0 },
+// ];
 
 // Function to determine status based on completion percentage
 const getStatus = (completion) => {
@@ -19,19 +19,37 @@ const getStatus = (completion) => {
 };
 
 // Function to get the corresponding status icon and text
-const getStatusIndicator = (completion) => {
-  const status = getStatus(completion);
+// Map and display milestone status from API with indicators
+const getStatusIndicator = (status) => {
+  let normalizedStatus = "";
+  let label = "";
+  let icon = "";
+
   switch (status) {
     case "Completed":
-      return <span className="text-dark-gray" style={{  }}>✅ Completed</span>;
+      normalizedStatus = "Completed";
+      icon = "✅";
+      label = "Completed";
+      break;
     case "InProgress":
-      return <span  className="text-dark-gray"  style={{  }}>🟡 InProgress</span>;
+    case "In Progress":
+      normalizedStatus = "InProgress";
+      icon = "🟡";
+      label = "In Progress";
+      break;
+    case "Planned":
     case "Pending":
-      return <span  className="text-dark-gray"  style={{  }}>⚪ Pending</span>;
+    case "NotStarted":
     default:
-      return null;
+      normalizedStatus = "Planned";
+      icon = "⚪";
+      label = "Planned";
+      break;
   }
+
+  return <span className="text-dark-gray">{icon} {label}</span>;
 };
+
 
 // Function to export row data to Excel
 const exportToExcel = (milestone) => {
@@ -43,8 +61,10 @@ const exportToExcel = (milestone) => {
 
 const ProjectMilestoneTable = ({ milestoneDetails = [], projectId }) => {
 
-
 console.log("milestoneDetails:", milestoneDetails, projectId);
+
+console.log("project_Status:", milestoneDetails?.milestone_description);
+
 
   return (
       <div className="project-milestone-scroll">
@@ -65,7 +85,7 @@ console.log("milestoneDetails:", milestoneDetails, projectId);
                     <td className="text-dark-gray text-center">{milestone.milestone_name}</td>
                     <td className="text-left">{milestone.milestone_description}</td>
                     <td className="text-dark-gray text-center">{milestone.milestone_end_date}</td>
-                   <td className="text-dark-gray text-center">{getStatusIndicator(milestone.milestone_status)}</td>
+    <td className="text-dark-gray text-center"> {getStatusIndicator(milestone.milestone_status)}</td>
                     <td className="text-dark fs-14-600 text-center">{milestone.completion}%</td>
                     <td className="text-dark-gray text-center">
                         {milestone.completion > 0 ? (

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { getticketbyidAction } from "../../../store/actions/Ceo/TicketCreateAction";
-import { useDispatch } from "react-redux";
 import { userInfoAction } from "../../../store/actions";
 
 // Define tag colors
