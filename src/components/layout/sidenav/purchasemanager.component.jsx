@@ -1,19 +1,18 @@
 import { useState } from "react";
 
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import * as menu from "../../../assets/images";
 import useAuth from "../../../hooks/useAuth";
 import PopupModal from "../../common/PopupModal";
 import ContactUsForm from "../../common/ContactUsForm";
-import IconProjects from "../../../assets/images/menu/icon-projects.svg"
-import IconDashboard from "../../../assets/images/menu/icon-dashboard.svg"
-import IconSettings from "../../../assets/images/menu/icon-settings.svg"
-import IconApprovals from "../../../assets/images/menu/icon-approvals.svg"
-import IconChat from "../../../assets/images/menu/icon-chat.svg"
-import IconVendor from "../../../assets/images/menu/icon-vendor.svg"
+import IconPO from "../../../assets/images/menu/icon-po.svg";
+import IconVendor from "../../../assets/images/menu/icon-vendor.svg";
+import IconDashboard from "../../../assets/images/menu/icon-dashboard.svg";
+import IconSettings from "../../../assets/images/menu/icon-settings.svg";
+import IconApprovals from "../../../assets/images/menu/icon-approvals.svg";
+import IconChat from "../../../assets/images/menu/icon-chat.svg";
 
-
-const AqssideNav = ({ onChange }) => {
+const PurchasemanagersideNav = ({ onChange }) => {
   const [collaps, setCollaps] = useState(false);
   const [{ data: auth }] = useAuth();
   const [contactUsForm, setContactUsForm] = useState(false);
@@ -29,7 +28,10 @@ const AqssideNav = ({ onChange }) => {
   const closeModal = () => {
     setContactUsForm(false);
   };
-
+  const location = useLocation();
+  const isApprovelActive =
+    location.pathname === "/purchasemanager/approvals" ||
+    location.pathname.startsWith("/purchasemanager/ticketdetails");
   return (
     <>
       <div className="sidenav-content">
@@ -42,39 +44,65 @@ const AqssideNav = ({ onChange }) => {
             }
           >
             {/* DASHBOARD */}
-           
+
             <h5
               className="sidenav-content__headings-lists--title"
-              title="Home"
+              title="Dashboard"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/aqs/aqsdashboard" className="link-tag">
+              <NavLink to="/purchasemanager/dashboard" className="link-tag">
                 {({ isActive, isPending }) => (
                   <>
-                    <img
-                      src={IconDashboard}
-                      alt={"Kanban"}
-                    />                    
+                    <img src={IconDashboard} alt={"Dashboard"} />
                     <span>Dashboard </span>
-                    {collaps && "Kanban"}
+                    {collaps && "Dashboard"}
                   </>
-                  
                 )}
               </NavLink>
             </h5>
-            {/* TEAM */}
             <h5
               className="sidenav-content__headings-lists--title"
-              title="Team"
+              title="Vendors"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/aqs/aqsapprovals" className="link-tag">
+              <NavLink to="/purchasemanager/vendors" className="link-tag">
                 {({ isActive, isPending }) => (
                   <>
-                    <img
-                      src={IconProjects}
-                      alt={"Projects"}
-                    />
+                    <img src={IconVendor} alt={"Vendors"} />
+                    <span>Vendors </span>
+                    {collaps && "Vendors"}
+                  </>
+                )}
+              </NavLink>
+            </h5>
+            <h5
+              className="sidenav-content__headings-lists--title"
+              title="POs"
+              disabled={auth?.details?.roleName == null ? true : false}
+            >
+              <NavLink to="/purchasemanager/po" className="link-tag">
+                {({ isActive, isPending }) => (
+                  <>
+                    <img src={IconPO} alt={"POs"} />
+                    <span>PO </span>
+                    {collaps && "POs"}
+                  </>
+                )}
+              </NavLink>
+            </h5>
+
+            <h5
+              className="sidenav-content__headings-lists--title"
+              title="Approvals"
+              disabled={auth?.details?.roleName == null ? true : false}
+            >
+              <NavLink
+                to="/purchasemanager/approvals"
+                className={`link-tag ${isApprovelActive ? "active" : ""}`}
+              >
+                {({ isActive, isPending }) => (
+                  <>
+                    <img src={IconApprovals} alt={"Projects"} />
                     <span>Approvals</span>
                     {collaps && "Projects"}
                   </>
@@ -83,173 +111,39 @@ const AqssideNav = ({ onChange }) => {
             </h5>
             <h5
               className="sidenav-content__headings-lists--title"
-              title="Team"
+              title="Chats"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/aqs/aqschats" className="link-tag">
+              <NavLink to="/purchasemanager/chats" className="link-tag">
                 {({ isActive, isPending }) => (
                   <>
-                    <img
-                      src={IconApprovals}
-                      alt={"Approval"}
-                    />
+                    <img src={IconChat} alt={"Approval"} />
                     <span>Chats</span>
-                    {collaps && "Team"}
+                    {collaps && "Chats"}
                   </>
                 )}
               </NavLink>
             </h5>
             <h5
               className="sidenav-content__headings-lists--title"
-              title="Team"
+              title="Settings"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/aqs/aqsmaterial" className="link-tag">
-                {({ isActive, isPending }) => (
-                  <>
-                    <img
-                      src={IconChat}
-                      alt={"Chat"} className="d-block"
-                    />
-                    <span>Materials</span>
-                    {collaps && "Team"}
-                  </>
-                )}
-              </NavLink>
-            </h5>
-            <h5
-              className="sidenav-content__headings-lists--title"
-              title="Team"
-              disabled={auth?.details?.roleName == null ? true : false}
-            >
-              <NavLink to="/aqs/aqsinventory" className="link-tag">
-                {({ isActive, isPending }) => (
-                  <>
-                    <img
-                      src={IconChat}
-                      alt={"Chat"} className="d-block"
-                    />
-                    <span>Inventory</span>
-                    {collaps && "Team"}
-                  </>
-                )}
-              </NavLink>
-            </h5>
-            <h5
-              className="sidenav-content__headings-lists--title"
-              title="Team"
-              disabled={auth?.details?.roleName == null ? true : false}
-            >
-              <NavLink to="/aqs/aqsboq" className="link-tag">
-                {({ isActive, isPending }) => (
-                  <>
-                    <img
-                      src={IconChat}
-                      alt={"Chat"} className="d-block"
-                    />
-                    <span>BOQ</span>
-                    {collaps && "Team"}
-                  </>
-                )}
-              </NavLink>
-            </h5>
-            <h5
-              className="sidenav-content__headings-lists--title"
-              title="Team"
-              disabled={auth?.details?.roleName == null ? true : false}
-            >
-              <NavLink to="/aqs/aqscostestimation" className="link-tag">
-                {({ isActive, isPending }) => (
-                  <>
-                    <img
-                      src={IconChat}
-                      alt={"Chat"} className="d-block"
-                    />
-                    <span>Cost Estimation</span>
-                    {collaps && "Team"}
-                  </>
-                )}
-              </NavLink>
-            </h5>
-            <h5
-              className="sidenav-content__headings-lists--title"
-              title="Team"
-              disabled={auth?.details?.roleName == null ? true : false}
-            >
-              <NavLink to="/aqs/aqsvendor" className="link-tag">
-                {({ isActive, isPending }) => (
-                  <>
-                    <img
-                      src={IconVendor}
-                      alt={"Chat"} className="d-block"
-                    />
-                    <span>Vendors</span>
-                    {collaps && "Team"}
-                  </>
-                )}
-              </NavLink>
-            </h5>
-            <h5
-              className="sidenav-content__headings-lists--title"
-              title="Team"
-              disabled={auth?.details?.roleName == null ? true : false}
-            >
-              <NavLink to="/aqs/aqssetting" className="link-tag">
+              <NavLink to="/purchasemanager/settings" className="link-tag">
                 {({ isActive, isPending }) => (
                   <>
                     <img
                       src={IconSettings}
-                      alt={"Chat"} className="d-block"
+                      alt={"Settings"}
+                      className="d-block"
                     />
                     <span>Settings</span>
                     {collaps && "Team"}
                   </>
                 )}
               </NavLink>
-            </h5>            
-          
-            
-            {auth.activeWorkSpace !== 3 && (
-              <>
-                {/* PRODUCTS */}
-                {/* <h5
-                  className="sidenav-content__headings-lists--title"
-                  title="Products"
-                  disabled={auth?.details?.roleName == null ? true : false}
-                >
-                  <NavLink to="/products" className="link-tag">
-                    {({ isActive, isPending }) => (
-                      <>
-                        <img
-                          src={isActive ? menu.Products : menu.inactiveProducts}
-                          alt={"Products"}
-                        />
-                        {collaps && "Products"}
-                      </>
-                    )}
-                  </NavLink>
-                </h5> */}
+            </h5>
 
-                {/* CUSTOMERS */}
-                {/* <h5
-                  className="sidenav-content__headings-lists--title"
-                  title="Customers"
-                  disabled={auth?.details?.roleName == null ? true : false}
-                >
-                  <NavLink to="/customers" className="link-tag">
-                    {({ isActive, isPending }) => (
-                      <>
-                        <img
-                          src={isActive ? menu.Company : menu.inactiveCompany}
-                          alt={"Customers"}
-                        />
-                        {collaps && "Customers"}
-                      </>
-                    )}
-                  </NavLink>
-                </h5> */}
-              </>
-            )}
             {auth.activeWorkSpace == 2 && (
               <h5
                 className="sidenav-content__headings-lists--title"
@@ -371,4 +265,4 @@ const AqssideNav = ({ onChange }) => {
   );
 };
 
-export default AqssideNav;
+export default PurchasemanagersideNav;
