@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { createCeoProjectAction, createProjectBudgetAction, createProjectFinanceApprovedAction, createProjectMilestoneAction, createProjectTeamAction, getAllProjectByFilterAction, getProjectDetailsAction, getProjectTypeSectorAction } from "../../store/actions/Ceo/ceoprojectAction";
+import { createCeoProjectAction, createProjectBudgetAction, createProjectFinanceApprovedAction, createProjectMilestoneAction, createProjectTeamAction, getAllProjectByFilterAction, getPmProject, getProjectDetailsAction, getProjectTypeSectorAction } from "../../store/actions/Ceo/ceoprojectAction";
 import {
   selectAllProjects,
   selectCurrentProject,
@@ -139,7 +139,15 @@ const fetchAllProjectByFilter = async (status = null) => {
     return { success: false, error: error.message };
   }
 };
-
+const fetchPmAllProject = async (status = null) => {
+  try {
+    const result = await dispatch(getPmProject(status)).unwrap();
+    return { success: true, data: result };
+  } catch (error) {
+    console.error("Failed to fetch PM project:", error);
+    return { success: false, error: error.message };
+  }
+};
   
   return {
     // State
@@ -162,6 +170,6 @@ const fetchAllProjectByFilter = async (status = null) => {
     createProjectMilestone,
     fetchProjectDetails,
     fetchAllProjectByFilter,
-
+    fetchPmAllProject,
   };
 };

@@ -41,25 +41,35 @@ const employeeslists = [
   { name: "Salvatore Roberts", position: "Project Manager", pendingcount: "5", img: profile_img }
 ];
 
-const ProjectEmployeesList = () => {
+
+const ProjectEmployeesList = ({ employeesList }) => {
+
+  console.log("employeeslists:", employeesList);
+
+  console.log("employees position:", employeesList?.emp_name);
+
+
   return (
     <Container className="p-0">
         <div className="headr-projectemployeeslist">
             <Row className="mb-4 align-items-center">
-              <Col>
+              <Col> 
                   <h2 className="mb-0 title-1">All employees</h2>
               </Col>
             </Row>
         </div>
         <div className="project-employees-list">
-          {employeeslists.map((employee, index) => (
+          {employeesList.map((employee, index) => (
           <div key={index} className="employee-card d-flex align-items-center">
             <img src={employee.img} className="employee-img" alt="" />
             <div className="">
               <h4 className="title-3 employee-name">
-                {employee.name}{employee?.pendingcount > 0 && <span>{employee.pendingcount} Pending</span>}
+                {employee.emp_name}{employee?.request_count > 0 && <span>{employee.request_count} \
+                  Pending</span>}
               </h4>
-              <h6 className="employee-name">{employee.position}</h6>
+              <h6 className="employee-name">
+                {employee.role}
+                </h6>
             </div>
           </div>
           ))}
