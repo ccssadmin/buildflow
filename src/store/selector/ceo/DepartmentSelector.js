@@ -1,1 +1,2 @@
-export const selectTicketDetails = (state) => state.getticket?.ticketDetails || null;
+export const selectDepartmentsDetails = (state) => state.departments.data;
+export const selectSelectedDepartmentEmployees = (state) => state.departments.selectedDepartmentEmployees;
