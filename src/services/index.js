@@ -21,6 +21,12 @@ export const logout = (...props) => api.POST(API.LOGOUT, ...props);
 export const getUserInfo = (params) => api.GET(API.GET_USER_INFO, params);
 export const getUserDetailsById = (params) => api.GET(API.GET_USER_DETAILS_BY_ID+'/'+params);
 export const getAllMembers = (params) => api.GET(API.GET_ALL_MEMBERS, params);
+//Department//
+export const getDepartments = (params) => api.GET(API.GET_DEPARTMENTS, params);
+export const getDepartmentsById = (id) => {
+  const endpoint = API.GET_DEPARTMENTS_BY_ID.replace(/\/+$/, ""); 
+  return api.GET(`${endpoint}/${id}`);
+};
 
 /*Ceo Project */
 export const getProjectTypeSector = (params) => api.GET(API.Get_PROJECTTYPE_SECTOR,params);
@@ -36,6 +42,9 @@ export const getTicketById = (ticketId) => {
     }
     return api.GET(`${API.GET_TICKET_BY_ID}?ticketId=${ticketId}`);
   };
+  export const getTicketLabels = (params) => 
+    api.GET(API.GET_TICKET_LABELS + '/' + params.empId, params);
+  
 export const updateprojectapproval = (params) =>api.PUT(API.UPDATE_PROJECT_APPROVAL+'/'+params.ticketId,params);
 // fetch vendors and subcontractors
 export const getVendorsAndSubcontractors = (params) => api.GET(API.GET_VENDORS_AND_SUBCONTRACTORS,params);

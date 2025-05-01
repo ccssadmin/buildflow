@@ -1,6 +1,19 @@
 import { useDispatch, useSelector } from "react-redux";
-import { selectApprovals, selectTickets, selectTicketDetails } from "../../store/selector/ceo/ticketSelector";
-import { updateProjectApprovalAction, createticketAction, getticketbyidAction } from "../../store/actions/Ceo/TicketCreateAction";
+import { 
+  selectApprovals, 
+  selectTickets, 
+  selectTicketDetails, 
+  selectTicketLabels, 
+  selectTicketsByLabel, 
+  selectLabelsLoading, 
+  selectLabelsError 
+} from "../../store/selector/ceo/ticketSelector";
+import { 
+  updateProjectApprovalAction, 
+  createticketAction, 
+  getticketbyidAction, 
+  getTicketLabelsAction 
+} from "../../store/actions/Ceo/TicketCreateAction";
 
 export const useTicket = () => {
   const dispatch = useDispatch();
@@ -8,6 +21,10 @@ export const useTicket = () => {
   const ticket = useSelector(selectTickets);
   const ticketDetails = useSelector(selectTicketDetails);
   const approvals = useSelector(selectApprovals);
+  const labels = useSelector(selectTicketLabels);
+  const ticketsByLabel = useSelector(selectTicketsByLabel);
+  const loading = useSelector(selectLabelsLoading);
+  const error = useSelector(selectLabelsError);
 
   const createTicket = async (ticketData) => {
     try {
@@ -15,6 +32,16 @@ export const useTicket = () => {
       return { success: true, data: result };
     } catch (error) {
       console.error("Failed to create ticket:", error);
+      return { success: false, error };
+    }
+  };
+
+  const fetchLabelsByEmployeeId = async (employeeId) => {
+    try {
+      const result = await dispatch(getTicketLabelsAction(employeeId)).unwrap();
+      return { success: true, data: result };
+    } catch (error) {
+      console.error("Failed to fetch ticket labels:", error);
       return { success: false, error };
     }
   };
@@ -43,8 +70,13 @@ export const useTicket = () => {
     ticket,
     ticketDetails,
     approvals,
+    labels,
+    ticketsByLabel,
+    loading,
+    error,
     createTicket,
     fetchTicketById,
-    updateProjectApprovalHook
+    updateProjectApprovalHook,
+    fetchLabelsByEmployeeId,
   };
 };

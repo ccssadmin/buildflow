@@ -16,8 +16,12 @@ export const API = {
   GET_PROJECT_DETAILS_BY_ID: "/api/Project/getProjectDetails",
   GET_ALL_PROJECT_FILTER : "/api/Project/get-projects-by-status",
   GET_TICKET_BY_ID : "/api/Ticket/get-ticket-by-id",
+  GET_TICKET_LABELS : "/api/Login/board-details",
   UPDATE_PROJECT_APPROVAL: '/api/Ticket/update-ticket-by-id',
 
+//department //
+ GET_DEPARTMENTS : "/api/Department/get-department",
+ GET_DEPARTMENTS_BY_ID : "/api/Login/getEmployeesByDepartment/",
   /*PM FLOW  */
   GET_PROJECT_DETAILS:"/api/Project/getProjectDetails",
   

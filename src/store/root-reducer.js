@@ -6,7 +6,8 @@ import masterSlice from './slice/master';
 import ceoProjectReducer from './slice/Ceo/ceoprojectSlicer'; 
 import rolebasedemp from "./slice/Ceo/RoleBasedEmpSlice";
 import createticketReducer from "./slice/Ceo/TicketcreationSlicer";
-import createNotifyReducer from "./slice/Ceo/notificationSlicer"
+import createNotifyReducer from "./slice/Ceo/notificationSlicer";
+import departmentReducer from "./slice/Ceo/DepartmentSlicer";
 import riskReducer from "./slice/Ceo/riskSlice"
 export const rootReducer = combineReducers({
   auth: authSlice.reducer,
@@ -17,5 +18,6 @@ export const rootReducer = combineReducers({
   rolebasedemp: rolebasedemp,
   createticket: createticketReducer,
   createnotify: createNotifyReducer,
+  departments: departmentReducer,
   risk: riskReducer,
 });
