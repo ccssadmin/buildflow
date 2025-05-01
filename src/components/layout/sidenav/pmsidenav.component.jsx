@@ -5,14 +5,12 @@ import * as menu from "../../../assets/images";
 import useAuth from "../../../hooks/useAuth";
 import PopupModal from "../../common/PopupModal";
 import ContactUsForm from "../../common/ContactUsForm";
-import IconProjects from "../../../assets/images/menu/icon-projects.svg";
 import IconDashboard from "../../../assets/images/menu/icon-dashboard.svg";
 import IconSettings from "../../../assets/images/menu/icon-settings.svg";
 import IconApprovals from "../../../assets/images/menu/icon-approvals.svg";
 import IconChat from "../../../assets/images/menu/icon-chat.svg";
-import IconDepartments from "../../../assets/images/menu/icon-departments.svg";
 import IconResources from "../../../assets/images/menu/icon-resources.svg";
-import IconFinance from "../../../assets/images/menu/icon-finance.svg";
+import IconVendor from "../../../assets/images/menu/icon-vendor.svg";
 
 const PmSidenav = ({ onChange }) => {
   const [collaps, setCollaps] = useState(false);
@@ -99,7 +97,7 @@ const PmSidenav = ({ onChange }) => {
               >
                 {({ isActive, isPending }) => (
                   <>
-                    <img src={IconProjects} alt={"Projects"} />
+                    <img src={IconApprovals} alt={"Projects"} />
                     <span>Approvals</span>
                     {collaps && "Projects"}
                   </>
@@ -182,7 +180,7 @@ const PmSidenav = ({ onChange }) => {
                 {({ isActive, isPending }) => (
                   <>
                     <img
-                      src={IconChat}
+                      src={IconVendor}
                       alt={"Chat"} className="d-block"
                     />
                     <span>Vendors</span>

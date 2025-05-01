@@ -22,6 +22,8 @@ export const API = {
 //department //
  GET_DEPARTMENTS : "/api/Department/get-department",
  GET_DEPARTMENTS_BY_ID : "/api/Login/getEmployeesByDepartment/",
+  /*PM FLOW  */
+  GET_PROJECT_DETAILS:"/api/Project/getProjectDetails",
   
  /* Employee data */
  GET_EMPLOYEES_BY_ROLES: "/api/Login/getEmployeesByRoles",

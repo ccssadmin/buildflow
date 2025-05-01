@@ -77,7 +77,9 @@ const CeoProjects = () => {
       <div className="d-flex justify-content-between my-3">
         <div className="d-flex justify-content-between align-items-center">
           <img src={profile} alt="" className="proprietor-img" />
-          <h4 className="proprietor-name">{project.client_name}</h4>
+          <h4 className="proprietor-name d-flex justify-content-center align-items-center fs-5 gap-2">{project.client_name} 
+            <p className="text-secondary" style={{ fontSize: '14px', marginTop: '18px' }}>
+              Project Manager</p></h4>
           <h6 className="site-category">{project.siteCategory}</h6>
         </div>
         <div>
@@ -95,10 +97,10 @@ const CeoProjects = () => {
         </h4>
       </div>
       <div className="small-progress">
-        <ProjectProgressBar progress={project.completion} />
+        <ProjectProgressBar progress={project.project_status} />
       </div>
       <div className="d-flex justify-content-between mt-4">
-        <Link className="requests-count">{project.requestsPending} Requests Pending</Link>
+        <Link className="requests-count">{project.ticket_count} Requests Pending</Link>
         <Link className="view-project text-decoration-none" to="/ceo/projectdetails"
           onClick={() => localStorage.setItem("projectId", project.project_id)}>
           View Project

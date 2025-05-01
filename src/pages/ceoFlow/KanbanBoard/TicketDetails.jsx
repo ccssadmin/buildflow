@@ -1,13 +1,14 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Container, Row, Col, Form, Button, Badge, Nav, Toast, ToastContainer } from 'react-bootstrap';
 import { BsPaperclip, BsImage, BsLink, BsCalendar, BsPencil, BsChevronDown, BsX } from 'react-icons/bs';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { AiOutlineUser } from 'react-icons/ai';
 import { RiSaveFill } from "react-icons/ri";
 import { BsCalendar3 } from "react-icons/bs";
+import { useTicket } from '../../../hooks/Ceo/useTicket';
 
 const EngineerTicketDetails = () => {
   const [activeTab, setActiveTab] = useState('all');
@@ -17,10 +18,24 @@ const EngineerTicketDetails = () => {
   const fileInputRef = useRef(null);
   const imageInputRef = useRef(null);
   const navigate = useNavigate();
+  const { ticketId } = useParams();
+  const {getTicketById} = useTicket(); 
+  const [ticketData, setTicketData] = useState("");
 
   // File upload state
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [uploadedImages, setUploadedImages] = useState([]);
+
+  useEffect(() => {
+      const fetchTicketDetails = async () => {
+        const response = await getTicketById(ticketId); // implement this
+        setTicketData(response.data); // store in state and render
+      };
+    
+      if (ticketId) {
+        fetchTicketDetails();
+      }
+    }, [ticketId]);
 
   const [comments, setComments] = useState([
     {

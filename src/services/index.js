@@ -54,6 +54,9 @@ export const getAllProjectByFilter = (params) => api.GET(API.GET_ALL_PROJECT_FIL
 export const getEmployeesByRoles = (params) => api.GET(API.GET_EMPLOYEES_BY_ROLES, params);
 //get role
 export const getroles = (params) => api.GET(API.GET_ROLE, params);
+
+/* PM Project*/
+export const getPmProjectDetails = (params) =>api.GET(API.GET_PROJECT_DETAILS,params);
 //notification
 export const createNotification = params => api.POST(API.CREATE_NOTIFICATION, params);
 /** KANBAN BOARD */

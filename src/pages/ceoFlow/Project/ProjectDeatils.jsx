@@ -25,10 +25,26 @@ useEffect(() => {
 }, []);
 
   const project = {
-    completion: 50, 
+    completion: 70, 
   };
 
 console.log("Project Details variable data:", projectDetails);
+
+function formatIndianValue(value) {
+  if (typeof value !== "number") {
+    return "-"; // fallback if value is not a number
+  }
+
+  if (value >= 10000000) {
+    return (value / 10000000).toFixed(2) + "cr"; // crore
+  } else if (value >= 100000) {
+    return (value / 100000).toFixed(2) + "lak"; // lakh
+  } else if (value >= 1000) {
+    return value.toLocaleString('en-IN'); // thousands formatted with commas
+  } else {
+    return value.toString(); // hundreds, tens, units
+  }
+}
 
 
   return (
@@ -36,25 +52,27 @@ console.log("Project Details variable data:", projectDetails);
       <main className="page-project-details d-flex">
         <div className="left-container">
 
-          {/* <div className="row">
+          <div className="row">
             <div className="col-sm-12 col-md-6 col-lg-6 col-xl-3">
               <div className="card-conatiner">
                 <h2>
-                  <span className="text-dark-gray">Total Projects</span>420
+                  <span className="text-dark-gray">Project Budget</span>
+                  {formatIndianValue(projectDetails?.value?.project?.project_total_budget)}
                 </h2>
               </div>
             </div>
             <div className="col-sm-12 col-md-6 col-lg-6 col-xl-3">
               <div className="card-conatiner">
                 <h2>
-                  <span className="text-dark-gray">Active Projects</span>112
+                  <span className="text-dark-gray">Released Budget</span>2.50cr
                 </h2>
               </div>
             </div>
             <div className="col-sm-12 col-md-6 col-lg-6 col-xl-3">
               <div className="card-conatiner">
                 <h2>
-                  <span className="text-dark-gray">Biding Projects</span>24
+                  <span className="text-dark-gray">Total Employees</span>
+                  {projectDetails?.value?.total_employee_count}
                 </h2>
               </div>
             </div>
@@ -62,12 +80,13 @@ console.log("Project Details variable data:", projectDetails);
               <div className="card-conatiner">
                 <div>
                   <h2>
-                    <span className="text-dark-gray">Pending Approvals</span>12
+                    <span className="text-dark-gray">Total Requests</span>
+                    {projectDetails?.value?.total_request_count}
                   </h2>
                 </div>
               </div>
             </div>
-          </div> */}
+          </div>
 
           <div className="row mt-4">
             <div className="col-sm-12 col-md-12 col-lg-12 col-xl-12">
@@ -81,7 +100,7 @@ console.log("Project Details variable data:", projectDetails);
                     <span>Start Date</span>{projectDetails?.value?.project?.project_end_date}
                   </h4>
                 </div>
-                <ProjectProgressBar progress={project.completion} />
+                <ProjectProgressBar progress={projectDetails?.value?.project?.project_status} />
               </div>
               <div className="card-site-conatiner project-milestone mt-4">
                 <h4>Project Milestone</h4>
@@ -94,7 +113,9 @@ console.log("Project Details variable data:", projectDetails);
           </div>
         </div>
         <div className="right-container">
-          <ProjectEmployeesList />
+          <ProjectEmployeesList 
+          employeesList ={projectDetails?.value?.team_details || []}
+          projectId={projectDetails?.value?.project?.project_id}/>
         </div>
       </main>
     </Fragment>

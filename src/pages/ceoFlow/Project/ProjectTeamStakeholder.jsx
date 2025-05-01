@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Form, Row, Col, Button, Spinner, Table } from "react-bootstrap";
+import { Form, Row, Col, Button, Spinner, Table, Modal } from "react-bootstrap";
 import { useRoleBasedEmp } from "../../../hooks/Ceo/useRoleBasedEmp";
 import { useProject } from "../../../hooks/Ceo/useCeoProject";
 import Swal from "sweetalert2";
@@ -9,6 +9,7 @@ import {
 } from "../../../store/actions/Ceo/ceoprojectAction";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { profile } from "../../../assets/images";
 
 const ProjectTeamStakeholder = ({
   formData,
@@ -20,6 +21,9 @@ const ProjectTeamStakeholder = ({
   handleSelectItem,
   handleRemoveItem,
   onNext,
+  fetchroles,
+  createTicket,
+  createNotify,
 }) => {
   const {
     employees,
@@ -42,9 +46,114 @@ const ProjectTeamStakeholder = ({
   const [errorMessage, setErrorMessage] = useState(null);
   const [permissionData, setPermissionData] = useState([]);
   const isSubmitting = useRef(false);
+  const [filteredRoles, setFilteredRoles] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedUsers, setSelectedUsers] = useState([]);
+  const [localProjectId, setLocalProjectId] = useState(null);
+  const [employee, setEmployees] = useState([]);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const handleCheckboxChange = (userId) => {
+    setSelectedUsers((prev) =>
+      prev.includes(userId)
+        ? prev.filter((id) => id !== userId)
+        : [...prev, userId]
+    );
+  };
+
+  const getRoleNameById = (id) => {
+    const role = filteredRoles.find((r) => r.roleId === parseInt(id));
+    return role?.roleName || null;
+  };
+
+  useEffect(() => {
+    const getFilteredRoles = async () => {
+      try {
+        const { success, data } = await fetchroles();
+        console.log("Roles fetched in BudgetFinancialAllocation:", data); // Add this log
+        if (success && data) {
+          const filtered = data.filter(
+            (r) => r.roleName === "HR" 
+          );
+          setFilteredRoles(filtered);
+        }
+      } catch (error) {
+        console.error("Error fetching roles:", error);
+      }
+    };
+
+    getFilteredRoles();
+  }, []);
+
+  useEffect(() => {
+    const getEmployees = async () => {
+      try {
+        const { success, data } = await fetchAllEmployees();
+        const roleName = getRoleNameById(formData.sendTo);
+        if (
+          success &&
+          data?.employeesByRole &&
+          data.employeesByRole[roleName]
+        ) {
+          const filteredEmployees = data.employeesByRole[roleName];
+          console.log("employee", filteredEmployees);
+          setEmployees(filteredEmployees);
+        } else {
+          setEmployees([]);
+        }
+      } catch (error) {
+        console.error("Error fetching employees:", error);
+      }
+    };
+
+    if (formData.sendTo) {
+      getEmployees();
+    }
+  }, [formData.sendTo]);
+
+  const handleTicketSubmission = async () => {
+    const projectId = formData.projectId || localProjectId || parseInt(localStorage.getItem("projectId"));
+    const createdBy = parseInt(localStorage.getItem("userRoleId")); // This is CEO's user id (creator)
+
+    for (const empId of selectedUsers) {
+      const ticketPayload = {
+        projectId,
+        ticketType: "project team",
+        assignTo: [empId],
+        createdBy: createdBy,
+      };
+
+      try {
+        await createTicket(ticketPayload);
+        console.log("✅ Ticket created for:", empId);
+
+        const notificationPayload = {
+          empId: [empId],                         
+          notificationType: "Ticket Assigned",  
+          sourceEntityId: 0,             
+          message: "A new budget ticket has been assigned to you.", 
+        };
+
+        await createNotify(notificationPayload); 
+        console.log("🔔 Notification created for:", empId);
+
+      } catch (err) {
+        console.error("❌ Failed to create ticket or notification for:", empId, err);
+      }
+    }
+
+    Swal.fire({
+      icon: "success",
+      title: "Tickets and Notifications Created",
+      text: "Tickets and notifications successfully submitted.",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+
+    setShowModal(false);
+  };
 
   useEffect(() => {
     if (!dataLoaded) {
@@ -611,6 +720,46 @@ const ProjectTeamStakeholder = ({
         className="d-flex justify-content-end align-items-end"
         style={{ minHeight: "80px", marginTop: "20px" }}
       >
+        <Button className="btn-primary btn fs-14-600 bg-transparent text-primary border-0 border-radius-2"
+          onClick={async () => {
+            const roleKey = "HR"; // hardcoded since only "HR" role is required
+          
+            const { success, data } = await fetchAllEmployees();
+          
+            if (
+              !success ||
+              !data?.employeesByRole ||
+              !data.employeesByRole[roleKey] ||
+              data.employeesByRole[roleKey].length === 0
+            ) {
+              Swal.fire({
+                icon: "info",
+                title: "No Employees",
+                text: `No employees found in HR team.`,
+              });
+              return;
+            }
+          
+            setEmployees(data.employeesByRole[roleKey]);
+            setShowModal(true); // open the modal
+          }}
+          
+        >
+          <svg
+            className="me-2"
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M10 3.33464C9.22645 3.33464 8.48459 3.64193 7.93761 4.18891C7.39062 4.73589 7.08333 5.47775 7.08333 6.2513C7.08333 7.02485 7.39062 7.76672 7.93761 8.3137C8.48459 8.86068 9.22645 9.16797 10 9.16797C10.7735 9.16797 11.5154 8.86068 12.0624 8.3137C12.6094 7.76672 12.9167 7.02485 12.9167 6.2513C12.9167 5.47775 12.6094 4.73589 12.0624 4.18891C11.5154 3.64193 10.7735 3.33464 10 3.33464ZM5.41667 6.2513C5.41667 5.03573 5.89955 3.86994 6.75909 3.0104C7.61864 2.15085 8.78442 1.66797 10 1.66797C11.2156 1.66797 12.3814 2.15085 13.2409 3.0104C14.1004 3.86994 14.5833 5.03573 14.5833 6.2513C14.5833 7.46688 14.1004 8.63267 13.2409 9.49221C12.3814 10.3518 11.2156 10.8346 10 10.8346C8.78442 10.8346 7.61864 10.3518 6.75909 9.49221C5.89955 8.63267 5.41667 7.46688 5.41667 6.2513ZM2.5 15.8346C2.5 14.7296 2.93899 13.6698 3.72039 12.8884C4.50179 12.107 5.5616 11.668 6.66667 11.668H13.3333C14.4384 11.668 15.4982 12.107 16.2796 12.8884C17.061 13.6698 17.5 14.7296 17.5 15.8346V18.3346H2.5V15.8346ZM6.66667 13.3346C6.00363 13.3346 5.36774 13.598 4.8989 14.0669C4.43006 14.5357 4.16667 15.1716 4.16667 15.8346V16.668H15.8333V15.8346C15.8333 15.1716 15.5699 14.5357 15.1011 14.0669C14.6323 13.598 13.9964 13.3346 13.3333 13.3346H6.66667Z"
+              fill="#FF6F00"
+            />
+          </svg>
+          Send To
+        </Button>
         <Button
           className="btn-primary btn fs-14-600 bg-primary border-0 border-radius-2"
           onClick={async () => {
@@ -634,6 +783,48 @@ const ProjectTeamStakeholder = ({
           )}
         </Button>
       </div>
+
+      <Modal
+        show={showModal}
+        className="model-approvel-send"
+        onHide={() => setShowModal(false)}
+        centered
+      >
+        <Modal.Body>
+          {employee.map((user) => (
+            <div key={user.empId} className="d-flex align-items-center mb-3">
+              <Form.Check
+                type="checkbox"
+                className="me-3"
+                checked={selectedUsers.includes(user.empId)}
+                onChange={() => handleCheckboxChange(user.empId)}
+              />
+              <img
+                src={profile}
+                alt={`${user.employeeName}'s profile`}
+                className="rounded-circle me-3"
+                style={{ width: "50px", height: "50px", objectFit: "cover" }}
+              />
+              <p className="mb-0 fs-22-700 text-dark">
+                {user.employeeName}
+                <span className="d-block fs-14-400 text-dark-grey">
+                  {user.role}
+                </span>
+              </p>
+            </div>
+          ))}
+        </Modal.Body>
+        <Modal.Footer className="justify-content-center">
+          <Button
+            className={`d-flex justify-content-center ${selectedUsers.length > 0 ? "btn-allow" : "btn-not-allow"
+              }`}
+            onClick={handleTicketSubmission}
+            disabled={selectedUsers.length === 0}
+          >
+            Submit
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Form>
   );
 };

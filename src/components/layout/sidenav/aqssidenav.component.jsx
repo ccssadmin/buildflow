@@ -10,6 +10,7 @@ import IconDashboard from "../../../assets/images/menu/icon-dashboard.svg"
 import IconSettings from "../../../assets/images/menu/icon-settings.svg"
 import IconApprovals from "../../../assets/images/menu/icon-approvals.svg"
 import IconChat from "../../../assets/images/menu/icon-chat.svg"
+import IconVendor from "../../../assets/images/menu/icon-vendor.svg"
 
 
 const AqssideNav = ({ onChange }) => {
@@ -179,7 +180,7 @@ const AqssideNav = ({ onChange }) => {
                 {({ isActive, isPending }) => (
                   <>
                     <img
-                      src={IconChat}
+                      src={IconVendor}
                       alt={"Chat"} className="d-block"
                     />
                     <span>Vendors</span>
@@ -197,7 +198,7 @@ const AqssideNav = ({ onChange }) => {
                 {({ isActive, isPending }) => (
                   <>
                     <img
-                      src={IconChat}
+                      src={IconSettings}
                       alt={"Chat"} className="d-block"
                     />
                     <span>Settings</span>

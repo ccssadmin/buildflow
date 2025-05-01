@@ -187,7 +187,7 @@ const EngineerTicketDetails = () => {
       // Optionally redirect to login
     }
   }, []);
-  
+
   // At the top of TicketDetails.jsx
   useEffect(() => {
     const loadDepartments = async () => {
@@ -269,67 +269,62 @@ const EngineerTicketDetails = () => {
   };
 
   const handleSave = async () => {
-    if (!approvalStatus) {
-      showToastNotification("Please select Approve or Reject");
+  if (!approvalStatus) {
+    showToastNotification("Please select Approve or Reject");
+    return;
+  }
+
+  setIsLoading(true);
+
+  try {
+    // Get user data from localStorage
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    if (!userData) {
+      showToastNotification("User not found in localStorage");
+      setIsLoading(false);
       return;
     }
-  
-    setIsLoading(true);
-  
-    try {
-      // Get user data from localStorage
-      const userData = JSON.parse(localStorage.getItem("userData"));
-      const userId = userData?.userId ? parseInt(userData.userId) : null;
-  
-      if (!userId) {
-        showToastNotification("User not found in localStorage");
-        setIsLoading(false);
-        return;
-      }
-  
-      // Prepare moveTo array - include both department and employee if selected
-      const moveTo = [];
-      if (currentDepartment?.deptId) moveTo.push(currentDepartment.deptId);
-      if (currentEmployee?.id) moveTo.push(currentEmployee.id);
-  
-      // If nothing is selected for moveTo, keep it as empty array
-      // Or you might want to handle this case differently based on your requirements
-  
-      // Construct the payload
-      const payload = {
-        ticketId: ticketDetails?.ticket_id,
-        dueDate: dueDate ? dueDate.toISOString().split("T")[0] : null,
-        isApproved: approvalStatus === "Approved",
-        labelId: 0, // Assuming this is always 0 as per your requirement
-        updatedBy: userId,
-        moveTo: moveTo,
-        moveBy: userId
-      };
-  
-      console.log("Payload being sent:", payload); // For debugging
-  
-      // Dispatch the update action
-      const result = await dispatch(updateProjectApprovalAction(payload)).unwrap();
-  
-      if (result.success) {
-        showToastNotification("Ticket updated successfully");
-        // Update local state to reflect changes
-        setTicketDetails(prev => ({
-          ...prev,
-          isapproved: payload.isApproved,
-          approved_by: userData?.username || "You",
-          due_date: payload.dueDate
-        }));
-      } else {
-        showToastNotification(result.message || "Failed to update ticket");
-      }
-    } catch (error) {
-      console.error("Update error:", error);
-      showToastNotification(error.message || "An error occurred while saving");
-    } finally {
-      setIsLoading(false);
+
+    // Prepare moveTo array - include both department and employee if selected
+    const moveTo = [];
+    if (currentDepartment?.deptId) moveTo.push(currentDepartment.deptId);
+    if (currentEmployee?.id) moveTo.push(currentEmployee.id);
+
+    // Construct the payload
+    const payload = {
+      ticketId: ticketDetails?.ticket_id,
+      dueDate: dueDate ? dueDate.toISOString().split("T")[0] : null,
+      isApproved: approvalStatus === "Approved",
+      labelId: 0, // Assuming this is always 0 as per your requirement
+      updatedBy: userData.empId, // Use empId from userData
+      moveTo: moveTo.length > 0 ? moveTo : null, // Send null if empty array
+      moveBy: userData.empId // Use empId from userData
+    };
+
+    console.log("Payload being sent:", payload); // For debugging
+
+    // Dispatch the update action
+    const result = await dispatch(updateProjectApprovalAction(payload)).unwrap();
+
+    if (result.success) {
+      showToastNotification("Ticket updated successfully");
+      // Update local state to reflect changes
+      setTicketDetails(prev => ({
+        ...prev,
+        isapproved: payload.isApproved,
+        approved_by: userData.firstName + " " + (userData.lastName || ""), // Use user's name
+        due_date: payload.dueDate
+      }));
+    } else {
+      showToastNotification(result.message || "Failed to update ticket");
     }
-  };
+  } catch (error) {
+    console.error("Update error:", error);
+    showToastNotification(error.message || "An error occurred while saving");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleSendComment = () => {
     if (!commentText.trim()) {
