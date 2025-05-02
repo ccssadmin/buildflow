@@ -21,7 +21,7 @@ const createnotifySlice = createSlice({
         .addCase(createnotificationAction.fulfilled, (state, action)=>{
             state.loading = false;
             state.success = true;
-            state.createticket.push(action.payload);
+            state.createnotify.push(action.payload);
         })
         .addCase(createnotificationAction.rejected, (state, action)=>{
             state.loading = false;
