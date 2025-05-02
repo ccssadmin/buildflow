@@ -14,7 +14,7 @@ const FinanceLayout = lazy(() => import('./components/layout/finance-layout.comp
 const PmLayout = lazy(() => import('./components/layout/pm-layout.component'));
 const HrLayout = lazy(() => import('./components/layout/hr-layout.component'));
 const PurchasemanagerLayout = lazy(() => import('./components/layout/purchasemanager-layout.component'));
-const VendorLayout = lazy ( ( ) => import('./components/layout/vendor-layout.component');)
+const VendorLayout = lazy ( ( ) => import('./components/layout/vendor-layout.component'))
 
 /** PAGES */
 const Login = lazy(() => import("./pages/Login/Login"));
