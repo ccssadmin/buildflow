@@ -137,7 +137,10 @@ const HrSettings = lazy(() => import('./pages/hrFlow/Settings/index'));
 
 const PurchasemanagerDashboard = lazy(() => import('./pages/purchasemanagerFlow/Dashboard/index'));
 const PurchasemanagerVendor = lazy(() => import('./pages/purchasemanagerFlow/Vendors/index'));
+const PurchasemanagerVendorDetails = lazy(() => import('./pages/purchasemanagerFlow/Vendors/VendorDetails'));
+const PurchasemanagerVendorPriceDetails = lazy(() => import('./pages/purchasemanagerFlow/Vendors/VendorPriceDetails'));
 const PurchasemanagerPo = lazy(() => import('./pages/purchasemanagerFlow/Po/index'));
+const PurchasemanagerPoDetails = lazy(() => import('./pages/purchasemanagerFlow/Po/purchaseOrder'));
 const PurchasemanagerKanban = lazy(() => import('./pages/purchasemanagerFlow/KanbanBoard/index'));
 const PurchasemanagerKanbanTicketDetails = lazy(() => import('./pages/purchasemanagerFlow/KanbanBoard/TicketDetails'));
 const PurchasemanagerChat = lazy(() => import('./pages/purchasemanagerFlow/ChatPage/Chat/ChatApp'));
@@ -237,17 +240,29 @@ const App = () => {
     // },
   
 
+  // const ProtectedRoute = ({ childre6n, allowedRoleIds }) => {
+  //   if (!roleId) {
+  //     return <Navigate to="/login" replace />;
+  //   }
+
+  //   if (!allowedRoleIds.includes(roleId)) {
+  //     return <Navigate to={roleRoutes[roleId]?.default || "/login"} replace />;
+  //   }
+
+  //   return children;
+  // };
   const ProtectedRoute = ({ children, allowedRoleIds }) => {
     if (!roleId) {
       return <Navigate to="/login" replace />;
     }
-
+  
     if (!allowedRoleIds.includes(roleId)) {
       return <Navigate to={roleRoutes[roleId]?.default || "/login"} replace />;
     }
-
-    return children;
+  
+    return children; // ✅ correct
   };
+  
 
   useEffect(() => {
     const checkAuthStatus = () => {
@@ -499,7 +514,10 @@ const App = () => {
         >
           <Route path="dashboard" element={<PurchasemanagerDashboard />} />
           <Route path="vendors" element={<PurchasemanagerVendor />} />
+          <Route path="vendorsDetails" element={<PurchasemanagerVendorDetails/>} />
+          <Route path="vendorsPriceDetails" element={<PurchasemanagerVendorPriceDetails/>} />
           <Route path="po" element={<PurchasemanagerPo />} />
+          <Route path="poDetails" element={<PurchasemanagerPoDetails/>} />
           <Route path="approvals" element={<PurchasemanagerKanban />} />
           <Route path="hrticketdetails/:ticketId" element={<PurchasemanagerKanbanTicketDetails />} />
           <Route path="chats" element={<PurchasemanagerChat />} />

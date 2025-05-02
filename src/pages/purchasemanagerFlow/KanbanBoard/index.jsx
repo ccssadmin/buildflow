@@ -133,7 +133,7 @@ const KanbanBoard = () => {
   };
 
   const handleTaskClick = (task) => {
-    navigate(`/hr/hrticketdetails/${task.title}`, { state: { task } });
+    navigate(`../hrticketdetails/:ticketId/${task.title}`, { state: { task } });
   };
 
   const handleMenuClick = (columnIndex) => {
