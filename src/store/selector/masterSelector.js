@@ -522,3 +522,29 @@ export const getTicketsbyboardParticipantsSelector = createSelector(
   })
 );
 
+/** TO CREATE TICKET COMMENT */
+export const createTicketsDetailsSelector = createSelector(
+  [
+    state => state.master.createTicketDetails.data,
+    state => state.master.createTicketDetails.loading,
+    state => state.master.createTicketDetails.error,
+  ],
+  (data, loading, error) => ({
+    data,
+    loading,
+    error,
+  })
+);
+
+export const loginBoardDetailsSelector = createSelector(
+  [
+    state => state.master.loginBoardDetails.data,
+    state => state.master.loginBoardDetails.loading,
+    state => state.master.loginBoardDetails.error,
+  ],
+  (data, loading, error) => ({
+    data,
+    loading,
+    error,
+  })
+);

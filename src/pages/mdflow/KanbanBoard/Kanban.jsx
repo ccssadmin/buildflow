@@ -1,120 +1,129 @@
 import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { useTicket } from "../../../hooks/Ceo/useTicket";
+import { getticketbyidAction } from "../../../store/actions/Ceo/TicketCreateAction";
+import { loginBoardDetailsSelector } from "../../../store/selector/masterSelector";
+import { getLoginBoardDetailsdAction } from "../../../store/actions/kanbanAction";
 
 // Define tag colors
 const tagColors = {
   HR: "#D6FFCF",
   Finance: "#CFE2FF",
   PO: "#FFCFCF",
-  General: "#E0E0E0"
+  Open: "#D2F4FF",
+  "In Progress": "#FFEECF",
+  Review: "#E4CFFF",
+  Done: "#DAFFCF",
+  Approved: "#DAFFCF"
 };
-
-const columnColors = ["#D2F4FF", "#FFEECF", "#E4CFFF", "#DAFFCF"];
 
 const KanbanBoard = () => {
   const navigate = useNavigate();
-  
-  // Use our custom hook
-  const {
-    ticketsByLabel,
-    labels,
-    loading,
-    error,
-    fetchLabelsByEmployeeId,
-    fetchTicketById
-  } = useTicket();
-
+  const dispatch = useDispatch();
+  const [boardData, setBoardData] = useState(null);
   const [columns, setColumns] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Get board data from Redux store
+  const boardDetailsData = useSelector(loginBoardDetailsSelector);
+  
+  // Add debugging to check Redux response
+  console.log("Redux response:", boardDetailsData);
+  
+  // Try both data formats that might be coming from Redux
+  const data = boardDetailsData?.data || boardDetailsData;
+  
+  useEffect(() => {
+    const userDataString = localStorage.getItem("userData");
+    const userData = userDataString ? JSON.parse(userDataString) : null;
+    const empId = userData?.empId;
+
+    console.log("Employee ID found:", empId);
+
+    if (empId) {
+      console.log("Dispatching getLoginBoardDetailsdAction with empId:", empId);
+      dispatch(getLoginBoardDetailsdAction(empId));
+    } else {
+      console.warn("❌ empId not found in localStorage");
+      setError("User information not found. Please log in again.");
+      setLoading(false);
+    }
+  }, [dispatch]);
+  
+  // Process data when it arrives from Redux
+  useEffect(() => {
+    console.log("Data from Redux updated:", data);
+    
+    // Force data to hardcoded value for testing if nothing is coming from Redux
+    const testData = data && data.length > 0 ? data : JSON.parse(`[{"boardId":1,"boardName":"Development Board","boardDescription":"Board for tracking development tasks and progress","labels":[{"boardId":null,"labelId":1,"labelName":"Open","tickets":[{"ticketId":73,"ticketNo":"T73","ticketName":"New Project:New Site-Approval for Submit","ticketDescription":"Submit Approval","ticketCreatedDate":"2025-05-02T03:08:15.390033","boardId":0,"boardName":null,"boardDescription":null}]}]}]`);
+    
+    if (testData && testData.length > 0) {
+      try {
+        console.log("Processing board data:", testData[0]);
+        
+        // Set the first board as the current board data
+        setBoardData(testData[0]);
+        
+        // Transform the API response into our columns format
+        const transformedColumns = testData[0].labels.map(label => {
+          console.log("Processing label:", label.labelName, "with", label.tickets?.length || 0, "tickets");
+          
+          return {
+            title: label.labelName,
+            id: label.labelId,
+            count: label.tickets ? label.tickets.length : 0,
+            color: tagColors[label.labelName] || "#D2F4FF",
+            tasks: label.tickets ? label.tickets.map(ticket => ({
+              id: ticket.ticketId,
+              title: ticket.ticketName,
+              tags: ["PO"], // Example tag, could be dynamic based on ticket categories
+              description: ticket.ticketDescription,
+              date: new Date(ticket.ticketCreatedDate).toLocaleDateString('en-GB'),
+              comments: 0,
+              files: 0
+            })) : []
+          };
+        });
+        
+        console.log("Setting columns:", transformedColumns);
+        setColumns(transformedColumns);
+        setLoading(false);
+      } catch (err) {
+        console.error("❌ Error processing board data:", err);
+        setError("Failed to process board data. Please refresh the page.");
+        setLoading(false);
+      }
+    } else if (data && data.length === 0) {
+      console.warn("No boards found in the data");
+      setError("No boards found for this user.");
+      setLoading(false);
+    } else if (!data) {
+      console.warn("Data is undefined or null");
+      // Don't set error yet, might still be loading
+    }
+  }, [data]);
+
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [showTaskInput, setShowTaskInput] = useState(false);
   const [menuOpen, setMenuOpen] = useState({});
   const [editTaskTitle, setEditTaskTitle] = useState("");
   const [editColumnIndex, setEditColumnIndex] = useState(null);
 
-  // Fetch tickets by employee ID from localStorage when component mounts
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const userData = JSON.parse(localStorage.getItem("userData"));
-        
-        if (userData?.empId) {
-          await fetchLabelsByEmployeeId(userData.empId);
-        } else {
-          console.error("Employee ID not found in localStorage");
-        }
-      } catch (error) {
-        console.error("Error fetching ticket data:", error);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  // Update columns when labels or ticketsByLabel change
-  useEffect(() => {
-    if (loading) return;
-
-    if (Array.isArray(labels) && labels.length > 0) {
-      // Create a map of labelId to labelName for quick lookup
-      const labelMap = {};
-      labels.forEach(label => {
-        labelMap[label.labelId] = label.labelName;
-      });
-
-      // Create columns based on labels
-      const newColumns = labels.map((label, index) => {
-        // Get tickets for this specific label
-        const labelTickets = ticketsByLabel[label.labelId] || [];
-        
-        // Map tickets to tasks
-        const tasks = labelTickets.map(ticket => ({
-          id: ticket.ticketId,
-          title: ticket.ticketName || "Untitled Ticket",
-          description: ticket.ticketDescription || "",
-          date: ticket.ticketCreatedDate 
-            ? new Date(ticket.ticketCreatedDate).toLocaleDateString("en-GB")
-            : new Date().toLocaleDateString("en-GB"),
-          tags: ticket.tags || ["General"],
-          comments: ticket.commentsCount || 0,
-          files: ticket.attachmentsCount || 0
-        }));
-
-        return {
-          title: label.labelName || `Label ${index + 1}`,
-          count: tasks.length,
-          color: columnColors[index % columnColors.length],
-          tasks,
-          labelId: label.labelId
-        };
-      });
-
-      setColumns(newColumns);
-    } else {
-      // Fallback for empty labels
-      setColumns([
-        { title: "Open", count: 0, color: "#D2F4FF", tasks: [], labelId: "open" },
-        { title: "In Progress", count: 0, color: "#FFEECF", tasks: [], labelId: "in-progress" },
-        { title: "Done", count: 0, color: "#DAFFCF", tasks: [], labelId: "done" },
-      ]);
-    }
-  }, [labels, ticketsByLabel, loading]);
-
   const handleAddTask = () => {
     if (newTaskTitle.trim() === "") return;
 
-    const updatedColumns = columns.map((col) => {
-      if (col.title === "Open") {
+    const updatedColumns = columns.map((col, index) => {
+      if (index === 0) { // Add new tasks to the first column (usually "Open")
         return {
           ...col,
           tasks: [
             ...col.tasks,
             { 
-              id: Date.now(),
               title: newTaskTitle, 
-              tags: ["HR", "Finance"], 
-              description: "New task description.",
-              date: new Date().toLocaleDateString("en-GB"), 
+              tags: ["PO"], 
+              description: "New task description",
+              date: new Date().toLocaleDateString('en-GB'), 
               comments: 0, 
               files: 0 
             },
@@ -132,24 +141,19 @@ const KanbanBoard = () => {
 
   const handleTaskClick = async (task) => {
     try {
-      const result = await fetchTicketById(task.id);
-      
-      if (result?.success) {
-        navigate(`/ticket/${task.id}`, { 
-          state: { 
-            ticket: result.data,
-            from: 'kanban' 
-          } 
-        });
-      } else {
-        console.error("Failed to fetch ticket details:", result?.error);
-      }
+      const ticketDetails = await dispatch(getticketbyidAction(task.id)).unwrap();
+      navigate(`/ticket/${task.id}`, { 
+        state: { 
+          ticket: ticketDetails,
+          from: 'kanban' 
+        } 
+      });
     } catch (error) {
-      console.error("Error navigating to ticket details:", error);
+      console.error("Failed to fetch ticket details:", error);
+      // Optionally show an error message to the user
     }
   };
 
-  // Rest of the component remains the same...
   const handleMenuClick = (columnIndex) => {
     setMenuOpen({
       ...menuOpen,
@@ -158,14 +162,12 @@ const KanbanBoard = () => {
   };
 
   const handleEditColumn = (columnIndex) => {
-    setEditTaskTitle(columns[columnIndex]?.title || "");
+    setEditTaskTitle(columns[columnIndex].title);
     setEditColumnIndex(columnIndex);
     setMenuOpen({ ...menuOpen, [columnIndex]: false });
   };
 
   const handleSaveEdit = () => {
-    if (editColumnIndex === null) return;
-
     const updatedColumns = columns.map((col, colIndex) => {
       if (colIndex === editColumnIndex) {
         return { ...col, title: editTaskTitle };
@@ -185,29 +187,45 @@ const KanbanBoard = () => {
     setMenuOpen({ ...menuOpen, [columnIndex]: false });
   };
 
+  // Add a console log to check state at render time
+  console.log("Render state:", { loading, error, boardData, columnsCount: columns.length });
+
   if (loading) {
-    return <div className="loading-container">Loading kanban board...</div>;
+    return (
+      <div className="loading-spinner" style={{ padding: "20px", textAlign: "center" }}>
+        <div>Loading board data...</div>
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="error-container">Error loading ticket data: {error}</div>;
+    return (
+      <div className="error-message" style={{ padding: "20px", color: "red", textAlign: "center" }}>
+        {error}
+      </div>
+    );
+  }
+  
+  // If we're not loading but have no columns, something went wrong
+  if (!loading && columns.length === 0) {
+    return (
+      <div style={{ padding: "20px", color: "orange", textAlign: "center" }}>
+        <div>Board data loaded but no columns found. Please refresh the page.</div>
+        <div style={{ marginTop: "10px" }}>
+          <button 
+            onClick={() => window.location.reload()} 
+            style={{ padding: "8px 16px", backgroundColor: "#4CAF50", color: "white", border: "none", borderRadius: "4px" }}
+          >
+            Refresh
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="kanban-page-container">
       <div className="kanban-header-section">
-        <div className="kanban-project-info">
-          <h2 className="kanban-project-title">Ramnad RWSP Site</h2>
-          <div className="kanban-project-manager">
-            <div className="kanban-manager-avatar">
-              <h6 style={{textAlign:'center'}}>RR</h6>
-            </div>
-            <div className="kanban-manager-details">
-              <span className="kanban-manager-name">Ronald Richards</span>
-              <span className="kanban-manager-role">Project Manager</span>
-            </div>
-          </div>
-        </div>
         <div className="kanban-view-toggle">
           <button className="kanban-view-button active">
             <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" strokeWidth="2" fill="none">
@@ -222,17 +240,36 @@ const KanbanBoard = () => {
       </div>
 
       <div className="kanban-container">
-        <div className="kanban-board">
+        
+        <div className="kanban-board" style={{ display: "flex", gap: "16px", overflowX: "auto" }}>
           {columns.map((column, columnIndex) => (
-            <div key={column.labelId || columnIndex} className="kanban-column">
-              <div className="kanban-column-header" style={{ backgroundColor: column.color }}>
-                <div className="kanban-header-left">
-                  <span className="column-title">{column.title}</span>
-                  <span className="count-badge">{column.count}</span>
+            <div key={columnIndex} className="kanban-column" style={{ 
+              minWidth: "300px", 
+              backgroundColor: "#fff", 
+              borderRadius: "8px", 
+              boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+              display: "flex",
+              flexDirection: "column"
+            }}>
+              <div className="kanban-header" style={{ 
+                backgroundColor: column.color, 
+                padding: "12px", 
+                borderRadius: "8px 8px 0 0",
+                display: "flex",
+                justifyContent: "space-between"
+              }}>
+                <div className="kanban-header-left" style={{ display: "flex", alignItems: "center" }}>
+                  <span className="column-title" style={{ fontWeight: "bold", marginRight: "8px" }}>{column.title}</span>
+                  <span className="count-badge" style={{ 
+                    backgroundColor: "rgba(0,0,0,0.1)", 
+                    borderRadius: "12px", 
+                    padding: "2px 8px", 
+                    fontSize: "12px" 
+                  }}>{column.count}</span>
                 </div>
 
                 <div className="kanban-header-right">
-                  {column.title === "Open" && (
+                  {columnIndex === 0 && (
                     <button 
                       className="add-task-btn" 
                       onClick={() => setShowTaskInput(true)}
@@ -240,11 +277,7 @@ const KanbanBoard = () => {
                       Add +
                     </button>
                   )}
-                  <button 
-                    className="menu-button" 
-                    onClick={() => handleMenuClick(columnIndex)}
-                    aria-label="Column menu"
-                  >
+                  <button className="menu-button" onClick={() => handleMenuClick(columnIndex)}>
                     ⋮
                   </button>
                   {menuOpen[columnIndex] && (
@@ -256,7 +289,7 @@ const KanbanBoard = () => {
                 </div>
               </div>
 
-              {column.title === "Open" && showTaskInput && (
+              {columnIndex === 0 && showTaskInput && (
                 <div className="kanban-card add-task-card">
                   <input
                     type="text"
@@ -264,8 +297,6 @@ const KanbanBoard = () => {
                     placeholder="Enter task title"
                     value={newTaskTitle}
                     onChange={(e) => setNewTaskTitle(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleAddTask()}
-                    autoFocus
                   />
                   <div className="task-input-buttons">
                     <button className="cancel-button" onClick={() => setShowTaskInput(false)}>
@@ -279,90 +310,97 @@ const KanbanBoard = () => {
               )}
 
               {editColumnIndex === columnIndex ? (
-                <div className="kanban-card edit-column-card">
+                <div className="kanban-card">
                   <input
                     type="text"
                     value={editTaskTitle}
                     onChange={(e) => setEditTaskTitle(e.target.value)}
-                    className="column-edit-input"
-                    onKeyDown={(e) => e.key === 'Enter' && handleSaveEdit()}
-                    autoFocus
+                    style={{ width: '105px', marginRight: '5px' }}
                   />
-                  <button onClick={handleSaveEdit} className="save-edit-btn">Save</button>
+                  <button onClick={handleSaveEdit} style={{ backgroundColor: 'orange' }}>Save</button>
                   <button
                     onClick={() => {
                       setEditTaskTitle("");
                       setEditColumnIndex(null);
                     }}
-                    className="cancel-edit-btn"
+                    style={{ backgroundColor: 'white', marginLeft: '5px' }}
                   >
                     Cancel
                   </button>
                 </div>
               ) : (
-                <div className="task-list">
-                  {column.tasks?.map((task, taskIndex) => (
-                    <div
-                      key={`${task.id}-${taskIndex}`}
-                      className="kanban-card"
-                      onClick={() => handleTaskClick(task)}
-                      style={{ cursor: "pointer" }}
-                    >
-                      <h6 className="task-title">{task.title}</h6>
-                      <div className="task-tags">
-                        {task.tags?.map((tag, tagIndex) => (
-                          <span
-                            key={tagIndex}
-                            className="tag-badge"
-                            style={{ backgroundColor: tagColors[tag] || "#888" }}
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                      <p className="task-description">
-                        {task.description}
-                      </p>
-                      <div className="task-footer">
-                        <div className="task-metadata">
-                          <div className="task-time">
-                            <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none">
-                              <circle cx="12" cy="12" r="10"></circle>
-                              <polyline points="12 6 12 12 16 14"></polyline>
-                            </svg>
-                            <span>{task.date}</span>
-                          </div>
-                          <div className="task-actions">
-                            <div className="task-action-item">
+                <div className="task-list" style={{ padding: "12px", flex: 1, overflowY: "auto" }}>
+                  {column.tasks && column.tasks.length > 0 ? (
+                    column.tasks.map((task, taskIndex) => (
+                      <div
+                        key={taskIndex}
+                        className="kanban-card"
+                        onClick={() => handleTaskClick(task)}
+                        style={{ 
+                          cursor: "pointer",
+                          backgroundColor: "#fff",
+                          borderRadius: "6px",
+                          padding: "12px",
+                          marginBottom: "8px",
+                          boxShadow: "0 1px 3px rgba(0,0,0,0.12)",
+                          border: "1px solid #e0e0e0"
+                        }}
+                      >
+                        <h6 className="task-title">{task.title}</h6>
+                        <div className="task-tags">
+                          {task.tags && task.tags.map((tag, tagIndex) => (
+                            <span
+                              key={tagIndex}
+                              className="tag-badge"
+                              style={{ backgroundColor: tagColors[tag] || "#888" }}
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                        <p className="task-description">
+                          {task.description}
+                        </p>
+                        <div className="task-footer">
+                          <div className="task-metadata">
+                            <div className="task-time">
                               <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none">
-                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
                               </svg>
-                              <span>{task.comments} Comments</span>
+                              <span>{task.date}</span>
                             </div>
-                            <div className="task-action-item">
-                              <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none">
-                                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
-                              </svg>
-                              <span>{task.files} Files</span>
+                            <div className="task-actions">
+                              <div className="task-action-item">
+                                <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none">
+                                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                </svg>
+                                <span>Comment</span>
+                              </div>
+                              <div className="task-action-item">
+                                <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none">
+                                  <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                                </svg>
+                                <span>File Attached</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="task-assignees">
+                            <div className="assignee-avatars">
+                              <div className="assignee-avatar">
+                                <img src="/api/placeholder/24/24" alt="Assignee 1" />
+                              </div>
+                              <div className="assignee-avatar">
+                                <img src="/api/placeholder/24/24" alt="Assignee 2" />
+                              </div>
                             </div>
                           </div>
                         </div>
-                        <div className="task-assignees">
-                          <div className="assignee-avatars">
-                            <div className="assignee-avatar">
-                              <img src="/api/placeholder/24/24" alt="Assignee 1" />
-                            </div>
-                            <div className="assignee-avatar">
-                              <img src="/api/placeholder/24/24" alt="Assignee 2" />
-                            </div>
-                            <div className="assignee-avatar">
-                              <img src="/api/placeholder/24/24" alt="Assignee 3" />
-                            </div>
-                          </div>
-                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  ) : (
+                    <div className="empty-column-message">No tasks in this column</div>
+                  )}
                 </div>
               )}
             </div>

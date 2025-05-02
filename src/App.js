@@ -14,6 +14,7 @@ const FinanceLayout = lazy(() => import('./components/layout/finance-layout.comp
 const PmLayout = lazy(() => import('./components/layout/pm-layout.component'));
 const HrLayout = lazy(() => import('./components/layout/hr-layout.component'));
 const PurchasemanagerLayout = lazy(() => import('./components/layout/purchasemanager-layout.component'));
+const VendorLayout = lazy ( ( ) => import('./components/layout/vendor-layout.component'))
 
 /** PAGES */
 const Login = lazy(() => import("./pages/Login/Login"));
@@ -142,6 +143,18 @@ const PurchasemanagerKanbanTicketDetails = lazy(() => import('./pages/purchasema
 const PurchasemanagerChat = lazy(() => import('./pages/purchasemanagerFlow/ChatPage/Chat/ChatApp'));
 const PurchasemanagerSettings = lazy(() => import('./pages/purchasemanagerFlow/Settings/index'));
 
+
+//Vendor Flow
+
+const VendorDashboard = lazy( ( ) => import('./pages/vendorFlow/Dashboard/index'));
+const VendorPo = lazy( ( ) => import('./pages/vendorFlow/Po/index'));
+const VendorEditPo = lazy( ( ) => import('./pages/vendorFlow/Po/EditPurchaseOrder'));
+const VendorKanban = lazy( ( ) => import ('./pages/vendorFlow/KanbanBoard/index'));
+const VendorTicketDetails = lazy( ( ) => import ('./pages/vendorFlow/KanbanBoard/TicketDetails'));
+const VendorChat = lazy( ( ) => import('./pages/vendorFlow/ChatPage/Chat/ChatApp'));
+const VendorSettings = lazy( ( ) => import('./pages/vendorFlow/Settings/index'));
+
+
 const App = () => {
   const [roleId, setRoleId] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -216,7 +229,13 @@ const App = () => {
       default: "/purchasemanager/dashboard",
       layout: PurchasemanagerLayout,
     }
-  };
+      // layout: PurchasemanagerLayout
+    }
+    // "Vendor" : {
+    //   default:"/vendor/dashboard",
+    //   layout: VendorLayout
+    // },
+  
 
   const ProtectedRoute = ({ children, allowedRoleIds }) => {
     if (!roleId) {
@@ -487,6 +506,22 @@ const App = () => {
           <Route path="settings" element={<PurchasemanagerSettings />} />
         </Route>
 
+
+        {/* Vendor */}
+
+          <Route 
+          path="/vendor" 
+          element={<ProtectedRoute allowedRole="Vendor"><VendorLayout onLogout={handleLogout} /></ProtectedRoute>}
+          >
+
+            <Route  path="dashboard" element={<VendorDashboard />}/>
+            <Route path="po" element={<VendorPo />} />
+            <Route path="editpo" element={<VendorEditPo />} />
+            <Route path="approvals" element={<VendorKanban />} />
+            <Route path="vendorticketdetails/:ticketId" element={<VendorTicketDetails />} />
+            <Route path="chats" element={<VendorChat />} />
+            <Route path="settings" element={<VendorSettings />} />
+          </Route>
         {/* Catch all redirect */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>

@@ -28,6 +28,7 @@ export const getDepartmentsById = (id) => {
   return api.GET(`${endpoint}/${id}`);
 };
 
+
 /*Ceo Project */
 export const getProjectTypeSector = (params) => api.GET(API.Get_PROJECTTYPE_SECTOR,params);
 export const createceoproject = (params) => api.POST(API.CREATE_CEO_PROJECT,params);
@@ -35,6 +36,11 @@ export const createProjectBudget = (params) => api.POST(API.CREATE_PROJECT_BUDGE
 export const createProjectTeam = (params) => api.POST(API.CREATE_PROJECT_TEAM,params);
 export const crateFinanceApproved = (params) => api.POST(API.CREATE_FINACIAL_APPROVAL,params);
 export const createProjectMilestone = (params) => api.POST(API.CREATE_PROJECT_MILESTONE , params);
+
+/** Tickets Comments Create */
+export const createTicketsDetails = (params) => api.POST(API.CREATE_TICKET_DETAILS,params);
+
+
 //ticket
 export const getTicketById = (ticketId) => {
     if (!ticketId) {
@@ -54,7 +60,8 @@ export const getAllProjectByFilter = (params) => api.GET(API.GET_ALL_PROJECT_FIL
 export const getEmployeesByRoles = (params) => api.GET(API.GET_EMPLOYEES_BY_ROLES, params);
 //get role
 export const getroles = (params) => api.GET(API.GET_ROLE, params);
-
+/* get login board details  */
+export const loginBoardDetails = (params) => api.GET(API.LOGIN_BOARD_DETAILS+'/'+params);
 /* PM Project*/
 export const getPmProjectDetails = (params) =>api.GET(API.GET_PROJECT_DETAILS,params);
 //notification

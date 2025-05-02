@@ -16,7 +16,7 @@ export const API = {
   GET_PROJECT_DETAILS_BY_ID: "/api/Project/getProjectDetails",
   GET_ALL_PROJECT_FILTER : "/api/Project/get-projects-by-status",
   GET_TICKET_BY_ID : "/api/Ticket/get-ticket-by-id",
-  GET_TICKET_LABELS : "/api/Login/board-details",
+  GET_TICKET_LABELS : "/api/Login/labels-with-tickets",
   UPDATE_PROJECT_APPROVAL: '/api/Ticket/update-ticket-by-id',
 
 //department //
@@ -31,6 +31,8 @@ export const API = {
 
 //Notification
   CREATE_NOTIFICATION: "/api/Notification/create-notification",
+  //Ticket Comment Create
+  CREATE_TICKET_DETAILS: '/api/Ticket/add-comment-attachment',
 
   /** KANBAN */
   GET_ALL_BOARD: "/api/BoardManagement/boards",
@@ -45,7 +47,9 @@ export const API = {
   GET_TICKET_BY_BOARD_LABEL: "/api/BoardManagement/ticketsbyboardlabel",
   GET_FILTERED_BOARD_DATA: "/api/BoardManagement/boardfilter",
   GET_FILTERED_UPDATE_BOARD_DATA: "/api/UpdatesBoardList/boardfilter",
-  
+  // LOGIN BOARD DETAILS 
+  LOGIN_BOARD_DETAILS: '/api/Login/board-details',
+
   /** MASTER */
   GET_COLOR: "/api/CoreColor/corecolors",
   ADD_COLOR: "/api/CoreColor/add",
