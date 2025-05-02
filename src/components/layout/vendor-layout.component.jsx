@@ -66,4 +66,4 @@ const VendorLayout =({ onLogout })=> {
 
 
 
-export default AqsLayout;
+export default VendorLayout;

@@ -48,7 +48,7 @@ const VendorsideNav = ({ onChange }) => {
               title="Home"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/aqs/aqsdashboard" className="link-tag">
+              <NavLink to="/vendor/dashboard" className="link-tag">
                 {({ isActive, isPending }) => (
                   <>
                     <img
@@ -67,7 +67,7 @@ const VendorsideNav = ({ onChange }) => {
               title="Team"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/aqs/aqsmaterial" className="link-tag">
+              <NavLink to="/vendor/po" className="link-tag">
                 {({ isActive, isPending }) => (
                   <>
                     <img
@@ -86,7 +86,7 @@ const VendorsideNav = ({ onChange }) => {
               title="Team"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/aqs/aqsapprovals" className="link-tag">
+              <NavLink to="/vendor/approvals" className="link-tag">
                 {({ isActive, isPending }) => (
                   <>
                     <img
@@ -104,14 +104,14 @@ const VendorsideNav = ({ onChange }) => {
               title="Team"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/aqs/aqschats" className="link-tag">
+              <NavLink to="/vendor/chats" className="link-tag">
                 {({ isActive, isPending }) => (
                   <>
                     <img
                       src={IconApprovals}
                       alt={"Approval"}
                     />
-                    <span>Chats</span>
+                    <span>Chat</span>
                     {collaps && "Team"}
                   </>
                 )}
@@ -123,7 +123,7 @@ const VendorsideNav = ({ onChange }) => {
               title="Team"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/aqs/aqssetting" className="link-tag">
+              <NavLink to="/vendor/settings" className="link-tag">
                 {({ isActive, isPending }) => (
                   <>
                     <img
