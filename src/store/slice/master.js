@@ -43,7 +43,8 @@ getAllTimeZoneDetailAction,
 getTicketsbyboardParticipantsAction,
 addBoardAction,
 getBoardAction,
-editBoardAction
+editBoardAction,
+createTicketDetailsAction
 } from "../actions/masterAction";
 
 const initialState = {
@@ -233,6 +234,11 @@ const initialState = {
     error: null,
   },
   getTicketsbyboardParticipants: {
+    data: [],
+    loading: false,
+    error: null,
+  },
+  createTicketDetails: {
     data: [],
     loading: false,
     error: null,
@@ -869,6 +875,21 @@ const masterSlice = createSlice({
       state.fetchError = action.error;
       state.getTicketsbyboardParticipants.loading = false;
     });
+
+    /** create ticket commmet */
+    builder.addCase(createTicketDetailsAction.pending, (state, action) => {
+      state.createTicketDetails.loading = true;
+    });
+    builder.addCase(createTicketDetailsAction.fulfilled, (state, action) => {
+      const data = action.payload;
+      state.createTicketDetails.data = data;
+      state.createTicketDetails.loading = false;
+    });
+    builder.addCase(createTicketDetailsAction.rejected, (state, action) => {
+      state.fetchError = action.error;
+      state.createTicketDetails.loading = false;
+    });
+
   
   },
 });

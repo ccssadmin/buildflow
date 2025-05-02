@@ -1,120 +1,115 @@
 import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { useTicket } from "../../../hooks/Ceo/useTicket";
+import { getticketbyidAction } from "../../../store/actions/Ceo/TicketCreateAction";
+import { userInfoAction } from "../../../store/actions";
+import axios from "axios";
+import { getAuthToken } from "../../../utils/storage";
 
 // Define tag colors
 const tagColors = {
   HR: "#D6FFCF",
   Finance: "#CFE2FF",
   PO: "#FFCFCF",
-  General: "#E0E0E0"
+  Open: "#D2F4FF",
+  "In Progress": "#FFEECF",
+  Review: "#E4CFFF",
+  Done: "#DAFFCF",
+  Approved: "#DAFFCF"
 };
-
-const columnColors = ["#D2F4FF", "#FFEECF", "#E4CFFF", "#DAFFCF"];
 
 const KanbanBoard = () => {
   const navigate = useNavigate();
-  
-  // Use our custom hook
-  const {
-    ticketsByLabel,
-    labels,
-    loading,
-    error,
-    fetchLabelsByEmployeeId,
-    fetchTicketById
-  } = useTicket();
-
+  const dispatch = useDispatch();
+  const [boardData, setBoardData] = useState(null);
   const [columns, setColumns] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  useEffect(() => {
+    const fetchBoardDetails = async () => {
+      try {
+        setLoading(true);
+        // Get user info to get the employee ID
+        const userResponse = await dispatch(userInfoAction());
+        const userData = userResponse.payload;
+        
+        if (!userData || !userData.empId) {
+          throw new Error("Failed to get user information");
+        }
+        
+        // Get auth token from storage
+        const token = getAuthToken() || localStorage.getItem("accessToken");
+        
+        if (!token) {
+          throw new Error("Authentication token not found");
+        }
+        
+        // Fetch board details using the employee ID with authentication
+        const boardResponse = await axios.get(
+          `${process.env.REACT_APP_MASTER_API_BASE_URL}/api/Login/board-details/${userData.empId}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        );
+        
+        if (boardResponse.data && boardResponse.data.length > 0) {
+          setBoardData(boardResponse.data[0]); // Use the first board
+          
+          // Transform the API response into our columns format
+          const transformedColumns = boardResponse.data[0].labels.map(label => ({
+            title: label.labelName,
+            id: label.labelId,
+            count: label.tickets ? label.tickets.length : 0,
+            color: tagColors[label.labelName] || "#D2F4FF",
+            tasks: label.tickets ? label.tickets.map(ticket => ({
+              id: ticket.ticketId,
+              title: ticket.ticketName,
+              tags: ["PO"], // Example tag, could be dynamic based on ticket categories if available
+              description: ticket.ticketDescription,
+              date: new Date(ticket.ticketCreatedDate).toLocaleDateString('en-GB'),
+              comments: 0,
+              files: 0
+            })) : []
+          }));
+          
+          setColumns(transformedColumns);
+        } else {
+          throw new Error("No board data found");
+        }
+      } catch (error) {
+        console.error("❌ Failed to fetch board details:", error);
+        setError("Failed to load board data. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBoardDetails();
+  }, [dispatch]);
+
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [showTaskInput, setShowTaskInput] = useState(false);
   const [menuOpen, setMenuOpen] = useState({});
   const [editTaskTitle, setEditTaskTitle] = useState("");
   const [editColumnIndex, setEditColumnIndex] = useState(null);
 
-  // Fetch tickets by employee ID from localStorage when component mounts
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const userData = JSON.parse(localStorage.getItem("userData"));
-        
-        if (userData?.empId) {
-          await fetchLabelsByEmployeeId(userData.empId);
-        } else {
-          console.error("Employee ID not found in localStorage");
-        }
-      } catch (error) {
-        console.error("Error fetching ticket data:", error);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  // Update columns when labels or ticketsByLabel change
-  useEffect(() => {
-    if (loading) return;
-
-    if (Array.isArray(labels) && labels.length > 0) {
-      // Create a map of labelId to labelName for quick lookup
-      const labelMap = {};
-      labels.forEach(label => {
-        labelMap[label.labelId] = label.labelName;
-      });
-
-      // Create columns based on labels
-      const newColumns = labels.map((label, index) => {
-        // Get tickets for this specific label
-        const labelTickets = ticketsByLabel[label.labelId] || [];
-        
-        // Map tickets to tasks
-        const tasks = labelTickets.map(ticket => ({
-          id: ticket.ticketId,
-          title: ticket.ticketName || "Untitled Ticket",
-          description: ticket.ticketDescription || "",
-          date: ticket.ticketCreatedDate 
-            ? new Date(ticket.ticketCreatedDate).toLocaleDateString("en-GB")
-            : new Date().toLocaleDateString("en-GB"),
-          tags: ticket.tags || ["General"],
-          comments: ticket.commentsCount || 0,
-          files: ticket.attachmentsCount || 0
-        }));
-
-        return {
-          title: label.labelName || `Label ${index + 1}`,
-          count: tasks.length,
-          color: columnColors[index % columnColors.length],
-          tasks,
-          labelId: label.labelId
-        };
-      });
-
-      setColumns(newColumns);
-    } else {
-      // Fallback for empty labels
-      setColumns([
-        { title: "Open", count: 0, color: "#D2F4FF", tasks: [], labelId: "open" },
-        { title: "In Progress", count: 0, color: "#FFEECF", tasks: [], labelId: "in-progress" },
-        { title: "Done", count: 0, color: "#DAFFCF", tasks: [], labelId: "done" },
-      ]);
-    }
-  }, [labels, ticketsByLabel, loading]);
-
   const handleAddTask = () => {
     if (newTaskTitle.trim() === "") return;
 
-    const updatedColumns = columns.map((col) => {
-      if (col.title === "Open") {
+    const updatedColumns = columns.map((col, index) => {
+      if (index === 0) { // Add new tasks to the first column (usually "Open")
         return {
           ...col,
           tasks: [
             ...col.tasks,
             { 
-              id: Date.now(),
               title: newTaskTitle, 
-              tags: ["HR", "Finance"], 
-              description: "New task description.",
-              date: new Date().toLocaleDateString("en-GB"), 
+              tags: ["PO"], 
+              description: "New task description",
+              date: new Date().toLocaleDateString('en-GB'), 
               comments: 0, 
               files: 0 
             },
@@ -132,24 +127,19 @@ const KanbanBoard = () => {
 
   const handleTaskClick = async (task) => {
     try {
-      const result = await fetchTicketById(task.id);
-      
-      if (result?.success) {
-        navigate(`/ticket/${task.id}`, { 
-          state: { 
-            ticket: result.data,
-            from: 'kanban' 
-          } 
-        });
-      } else {
-        console.error("Failed to fetch ticket details:", result?.error);
-      }
+      const ticketDetails = await dispatch(getticketbyidAction(task.id)).unwrap();
+      navigate(`/ticket/${task.id}`, { 
+        state: { 
+          ticket: ticketDetails,
+          from: 'kanban' 
+        } 
+      });
     } catch (error) {
-      console.error("Error navigating to ticket details:", error);
+      console.error("Failed to fetch ticket details:", error);
+      // Optionally show an error message to the user
     }
   };
 
-  // Rest of the component remains the same...
   const handleMenuClick = (columnIndex) => {
     setMenuOpen({
       ...menuOpen,
@@ -158,14 +148,12 @@ const KanbanBoard = () => {
   };
 
   const handleEditColumn = (columnIndex) => {
-    setEditTaskTitle(columns[columnIndex]?.title || "");
+    setEditTaskTitle(columns[columnIndex].title);
     setEditColumnIndex(columnIndex);
     setMenuOpen({ ...menuOpen, [columnIndex]: false });
   };
 
   const handleSaveEdit = () => {
-    if (editColumnIndex === null) return;
-
     const updatedColumns = columns.map((col, colIndex) => {
       if (colIndex === editColumnIndex) {
         return { ...col, title: editTaskTitle };
@@ -186,19 +174,24 @@ const KanbanBoard = () => {
   };
 
   if (loading) {
-    return <div className="loading-container">Loading kanban board...</div>;
+    return <div className="loading-spinner">Loading board data...</div>;
   }
 
   if (error) {
-    return <div className="error-container">Error loading ticket data: {error}</div>;
+    return <div className="error-message">{error}</div>;
   }
 
   return (
     <div className="kanban-page-container">
       <div className="kanban-header-section">
         <div className="kanban-project-info">
-          <h2 className="kanban-project-title">Ramnad RWSP Site</h2>
-          <div className="kanban-project-manager">
+          {/* <h2 className="kanban-project-title">
+            {boardData ? boardData.boardName : "Loading Board..."}
+          </h2>
+          <div className="kanban-project-description">
+            {boardData ? boardData.boardDescription : ""}
+          </div> */}
+          {/* <div className="kanban-project-manager">
             <div className="kanban-manager-avatar">
               <h6 style={{textAlign:'center'}}>RR</h6>
             </div>
@@ -206,7 +199,7 @@ const KanbanBoard = () => {
               <span className="kanban-manager-name">Ronald Richards</span>
               <span className="kanban-manager-role">Project Manager</span>
             </div>
-          </div>
+          </div> */}
         </div>
         <div className="kanban-view-toggle">
           <button className="kanban-view-button active">
@@ -224,15 +217,15 @@ const KanbanBoard = () => {
       <div className="kanban-container">
         <div className="kanban-board">
           {columns.map((column, columnIndex) => (
-            <div key={column.labelId || columnIndex} className="kanban-column">
-              <div className="kanban-column-header" style={{ backgroundColor: column.color }}>
+            <div key={columnIndex} className="kanban-column">
+              <div className="kanban-header" style={{ backgroundColor: column.color }}>
                 <div className="kanban-header-left">
                   <span className="column-title">{column.title}</span>
                   <span className="count-badge">{column.count}</span>
                 </div>
 
                 <div className="kanban-header-right">
-                  {column.title === "Open" && (
+                  {columnIndex === 0 && (
                     <button 
                       className="add-task-btn" 
                       onClick={() => setShowTaskInput(true)}
@@ -240,11 +233,7 @@ const KanbanBoard = () => {
                       Add +
                     </button>
                   )}
-                  <button 
-                    className="menu-button" 
-                    onClick={() => handleMenuClick(columnIndex)}
-                    aria-label="Column menu"
-                  >
+                  <button className="menu-button" onClick={() => handleMenuClick(columnIndex)}>
                     ⋮
                   </button>
                   {menuOpen[columnIndex] && (
@@ -256,7 +245,7 @@ const KanbanBoard = () => {
                 </div>
               </div>
 
-              {column.title === "Open" && showTaskInput && (
+              {columnIndex === 0 && showTaskInput && (
                 <div className="kanban-card add-task-card">
                   <input
                     type="text"
@@ -264,8 +253,6 @@ const KanbanBoard = () => {
                     placeholder="Enter task title"
                     value={newTaskTitle}
                     onChange={(e) => setNewTaskTitle(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleAddTask()}
-                    autoFocus
                   />
                   <div className="task-input-buttons">
                     <button className="cancel-button" onClick={() => setShowTaskInput(false)}>
@@ -279,38 +266,36 @@ const KanbanBoard = () => {
               )}
 
               {editColumnIndex === columnIndex ? (
-                <div className="kanban-card edit-column-card">
+                <div className="kanban-card">
                   <input
                     type="text"
                     value={editTaskTitle}
                     onChange={(e) => setEditTaskTitle(e.target.value)}
-                    className="column-edit-input"
-                    onKeyDown={(e) => e.key === 'Enter' && handleSaveEdit()}
-                    autoFocus
+                    style={{ width: '105px', marginRight: '5px' }}
                   />
-                  <button onClick={handleSaveEdit} className="save-edit-btn">Save</button>
+                  <button onClick={handleSaveEdit} style={{ backgroundColor: 'orange' }}>Save</button>
                   <button
                     onClick={() => {
                       setEditTaskTitle("");
                       setEditColumnIndex(null);
                     }}
-                    className="cancel-edit-btn"
+                    style={{ backgroundColor: 'white', marginLeft: '5px' }}
                   >
                     Cancel
                   </button>
                 </div>
               ) : (
                 <div className="task-list">
-                  {column.tasks?.map((task, taskIndex) => (
+                  {column.tasks.map((task, taskIndex) => (
                     <div
-                      key={`${task.id}-${taskIndex}`}
+                      key={taskIndex}
                       className="kanban-card"
                       onClick={() => handleTaskClick(task)}
                       style={{ cursor: "pointer" }}
                     >
                       <h6 className="task-title">{task.title}</h6>
                       <div className="task-tags">
-                        {task.tags?.map((tag, tagIndex) => (
+                        {task.tags.map((tag, tagIndex) => (
                           <span
                             key={tagIndex}
                             className="tag-badge"
@@ -337,13 +322,13 @@ const KanbanBoard = () => {
                               <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none">
                                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                               </svg>
-                              <span>{task.comments} Comments</span>
+                              <span>Comment</span>
                             </div>
                             <div className="task-action-item">
                               <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none">
                                 <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
                               </svg>
-                              <span>{task.files} Files</span>
+                              <span>File Attached</span>
                             </div>
                           </div>
                         </div>
@@ -354,9 +339,6 @@ const KanbanBoard = () => {
                             </div>
                             <div className="assignee-avatar">
                               <img src="/api/placeholder/24/24" alt="Assignee 2" />
-                            </div>
-                            <div className="assignee-avatar">
-                              <img src="/api/placeholder/24/24" alt="Assignee 3" />
                             </div>
                           </div>
                         </div>

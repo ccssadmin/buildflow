@@ -3,9 +3,15 @@ import React from "react";
 const ProjectProgressBar = ({ progress }) => {
   // Normalize string values to 0
   const normalizedProgress =
-    progress === "Pending" || progress === "Planned" || progress === "NotApproved"
-      ? 0
-      : progress;
+  progress === "Pending" || 
+  progress === "Planned" || 
+  progress === "NotApproved" || 
+  progress === "OnHold"
+    ? 0
+    : progress === "Approved"
+    ? 5
+    : progress;
+
 
   return (
     <div className="progress-container mt-3 mb-2">

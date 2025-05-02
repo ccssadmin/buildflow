@@ -83,9 +83,11 @@ export default function Login({ onLoginSuccess }) {
           // Assuming role hierarchy: SuperAdmin > Admin > User
           const userData = {
             ...userDetails,
-            roleName: userDetails.roleName || userDetails.role_name || "ManagingDirector",
-            roleId: userDetails.roleId || userDetails.role_id || "1",
+            roleName: userDetails.roleName || "ManagingDirector",
+            roleId: userDetails.roleId || "1",
+            token: response.payload.token, // ✅ Add here
           };
+          localStorage.setItem("userData", JSON.stringify(userData));
           
           console.log("Processed user data:", userData); // Debug log
   

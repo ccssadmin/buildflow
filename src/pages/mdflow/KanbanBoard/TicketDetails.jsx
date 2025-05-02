@@ -9,10 +9,12 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { AiOutlineUser } from 'react-icons/ai';
 import { RiSaveFill } from "react-icons/ri";
 import { BsCalendar3 } from "react-icons/bs";
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useTicket } from '../../../hooks/Ceo/useTicket';
 import { getticketbyidAction, updateProjectApprovalAction } from '../../../store/actions/Ceo/TicketCreateAction';
 import { useDepartments } from '../../../hooks/Ceo/useDepartments';
+import { createTicketDetailsAction } from '../../../store/actions/masterAction';
+import { createTicketsDetailsSelector } from '../../../store/selector/masterSelector';
 
 const EngineerTicketDetails = () => {
   const [activeTab, setActiveTab] = useState('all');
@@ -35,7 +37,10 @@ const EngineerTicketDetails = () => {
   const [showDepartmentSelector, setShowDepartmentSelector] = useState(false);
   const [showEmployeeSelector, setShowEmployeeSelector] = useState(false);
   const [currentEmployees, setCurrentEmployees] = useState([]);
-
+    // File upload state
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [uploadedImages, setUploadedImages] = useState([]);
+  const { data, loading, error } = useSelector(createTicketsDetailsSelector);
 
   const {
     departments,
@@ -46,10 +51,6 @@ const EngineerTicketDetails = () => {
 
 
 
-
-  // File upload state
-  const [uploadedFiles, setUploadedFiles] = useState([]);
-  const [uploadedImages, setUploadedImages] = useState([]);
 
   const [comments, setComments] = useState([
     {
@@ -269,97 +270,140 @@ const EngineerTicketDetails = () => {
   };
 
   const handleSave = async () => {
-  if (!approvalStatus) {
-    showToastNotification("Please select Approve or Reject");
-    return;
-  }
-
-  setIsLoading(true);
-
-  try {
-    // Get user data from localStorage
-    const userData = JSON.parse(localStorage.getItem("userData"));
-    if (!userData) {
-      showToastNotification("User not found in localStorage");
-      setIsLoading(false);
+    if (!approvalStatus) {
+      showToastNotification("Please select Approve or Reject");
       return;
     }
-
-    // Prepare moveTo array - include both department and employee if selected
-    const moveTo = [];
-    if (currentDepartment?.deptId) moveTo.push(currentDepartment.deptId);
-    if (currentEmployee?.id) moveTo.push(currentEmployee.id);
-
-    // Construct the payload
-    const payload = {
-      ticketId: ticketDetails?.ticket_id,
-      dueDate: dueDate ? dueDate.toISOString().split("T")[0] : null,
-      isApproved: approvalStatus === "Approved",
-      labelId: 0, // Assuming this is always 0 as per your requirement
-      updatedBy: userData.empId, // Use empId from userData
-      moveTo: moveTo.length > 0 ? moveTo : null, // Send null if empty array
-      moveBy: userData.empId // Use empId from userData
-    };
-
-    console.log("Payload being sent:", payload); // For debugging
-
-    // Dispatch the update action
-    const result = await dispatch(updateProjectApprovalAction(payload)).unwrap();
-
-    if (result.success) {
-      showToastNotification("Ticket updated successfully");
-      // Update local state to reflect changes
-      setTicketDetails(prev => ({
-        ...prev,
-        isapproved: payload.isApproved,
-        approved_by: userData.firstName + " " + (userData.lastName || ""), // Use user's name
-        due_date: payload.dueDate
-      }));
-    } else {
-      showToastNotification(result.message || "Failed to update ticket");
+  
+    setIsLoading(true);
+  
+    try {
+      // Retrieve userData and token from localStorage
+      const userData = JSON.parse(localStorage.getItem("userData"));
+      const token = userData?.token || localStorage.getItem("accessToken"); // ✅ fallback
+  
+      if (!userData || !token) {
+        showToastNotification("User or token not found. Please login again.");
+        setIsLoading(false);
+        return;
+      }
+  
+      // Prepare moveTo array
+      const moveTo = [];
+      if (currentDepartment?.deptId) moveTo.push(currentDepartment.deptId);
+      if (currentEmployee?.id) moveTo.push(currentEmployee.id);
+  
+      // Construct the payload
+      const payload = {
+        ticketId: ticketDetails?.ticket_id,
+        dueDate: dueDate ? dueDate.toISOString().split("T")[0] : null,
+        isApproved: approvalStatus === "Approved",
+        labelId: 0,
+        updatedBy: userData.empId,
+        moveTo: moveTo.length > 0 ? moveTo : null,
+        moveBy: userData.empId
+      };
+  
+      console.log("Payload being sent:", payload);
+  
+      // Dispatch with token included
+      const result = await dispatch(updateProjectApprovalAction({ payload, token })).unwrap();
+  
+      if (result.success) {
+        showToastNotification("Ticket updated successfully");
+  
+        setTicketDetails(prev => ({
+          ...prev,
+          isapproved: payload.isApproved,
+          approved_by: `${userData.firstName} ${userData.lastName || ''}`,
+          due_date: payload.dueDate
+        }));
+      } else {
+        showToastNotification(result.message || "Failed to update ticket");
+      }
+    } catch (error) {
+      console.error("Update error:", error);
+      showToastNotification(error.message || "An error occurred while saving");
+    } finally {
+      setIsLoading(false);
     }
-  } catch (error) {
-    console.error("Update error:", error);
-    showToastNotification(error.message || "An error occurred while saving");
-  } finally {
-    setIsLoading(false);
-  }
-};
-
-  const handleSendComment = () => {
+  };
+  
+ const handleSendComment = async () => {
     if (!commentText.trim()) {
       showToastNotification("Please enter a comment.");
       return;
     }
+  
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    const empId = userData?.empId;
+    const ticketId = ticketDetails?.ticket_id;
 
-    const newComment = {
-      id: Date.now(),
-      user: "You",
-      role: "Commenter",
-      avatar: "Y",
-      avatarColor: "primary",
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      content: commentText,
-      files: uploadedFiles,
-      images: uploadedImages
-    };
+    console.log("Employee ID For Ticket Comment:", empId);
+  
+    if (!empId) {
+      showToastNotification("Employee ID is missing.");
+      return;
+    }
+  
+    if (!ticketId) {
+      showToastNotification("Ticket ID is missing.");
+      return;
+    }
+  
+    const formData = new FormData();
+    formData.append("TicketId", ticketId);
+    formData.append("Comment", commentText.trim());
+    formData.append("CreatedBy", empId);
+    
+    // Append each file as fileUpload
+    [...uploadedFiles, ...uploadedImages].forEach((fileObj) => {
+      if (fileObj?.file instanceof File) {
+        formData.append("File", fileObj.file); // ✅ correct name
 
-    setComments([newComment, ...comments]);
-    setCommentText('');
-    setUploadedFiles([]);
-    setUploadedImages([]);
-    showToastNotification("Comment sent");
+        console.log(fileObj.file instanceof File, fileObj.file);
+      }
+    });
+
+  
+    try {
+      await dispatch(createTicketDetailsAction(formData)).unwrap();
+      showToastNotification("Comment sent successfully!");
+  
+      // Update local state with the new comment
+      const newComment = {
+        id: Date.now(),
+        user: userData?.firstName || "You",
+        role: "Commenter",
+        avatar: "Y",
+        avatarColor: "primary",
+        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        content: commentText,
+        files: uploadedFiles,
+        images: uploadedImages,
+      };
+  
+      setComments((prev) => [newComment, ...prev]);
+      setCommentText("");
+      setUploadedFiles([]);
+      setUploadedImages([]);
+    } catch (error) {
+      console.error("Error sending comment:", error);
+      showToastNotification("Failed to send comment.");
+    }
   };
 
   // Handle file attachment
   const handleFileAttachment = (e) => {
     const files = Array.from(e.target.files);
-    const newFiles = files.map(file => ({
-      id: Date.now() + Math.random(),
-      name: file.name,
-      size: file.size,
-      type: file.type
-    }));
+
+ const newFiles = files.map(file => ({
+  id: Date.now() + Math.random(),
+  file, // ✅ include the File object
+  name: file.name,
+  size: file.size,
+  type: file.type
+  }));
 
     setUploadedFiles([...uploadedFiles, ...newFiles]);
     showToastNotification(`${files.length} file(s) attached`);
@@ -375,13 +419,15 @@ const EngineerTicketDetails = () => {
     const imageFiles = files.filter(file => file.type.startsWith('image/'));
 
     if (imageFiles.length > 0) {
-      const newImages = imageFiles.map(file => ({
-        id: Date.now() + Math.random(),
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        url: URL.createObjectURL(file)
-      }));
+
+   const newImages = imageFiles.map(file => ({
+  id: Date.now() + Math.random(),
+  file, // ✅ include the File object
+  name: file.name,
+  size: file.size,
+  type: file.type,
+  url: URL.createObjectURL(file)
+  }));
 
       setUploadedImages([...uploadedImages, ...newImages]);
       showToastNotification(`${imageFiles.length} image(s) attached`);
@@ -635,14 +681,7 @@ const EngineerTicketDetails = () => {
                         />
                       </Button>
                     </div>
-                    <Button
-                      variant="warning"
-                      className="text-white px-3 py-1 ms-auto"
-                      style={{ backgroundColor: "#FF6F00" }}
-                      onClick={handleSendComment}
-                    >
-                      Send
-                    </Button>
+                    <Button variant="warning"  className="text-white px-3 py-1 ms-auto" style={{ backgroundColor: "#FF6F00" }} onClick={handleSendComment}>Send</Button>
                   </div>
                 </Form>
               </div>
