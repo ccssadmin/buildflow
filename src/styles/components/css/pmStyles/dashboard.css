@@ -20,3 +20,74 @@
     height: 52px;
     border-radius: 10px;
 }
+.foundation-work-card {
+    width: 40%;
+}
+.foundation-work-card-inner {
+    background-color: #E7E7E7;
+    min-height: 66px;
+    width: 100%;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+}
+.timiline-summary-container {
+    width: 60%;
+}
+.timiline-summary-card {
+    width: 30%;
+    margin-right: 10px;
+}
+.timiline-summary-card {
+    width: #EEEEEE;
+}
+.timiline-summary-card .status {
+    color: #ffffff;
+    height: 14px;
+    font-size: 8px;
+    font-weight: 600;
+    border-radius: 4px;
+    width: fit-content;
+    padding: 0px 10px;
+    display: flex;
+    align-items: center;
+    margin-left: 5px;
+}
+.timiline-summary-card .status.cancelled {
+    background-color: #D00416;
+}
+.timiline-summary-card .status.completed {
+    background-color: #30A335;
+}
+.timiline-summary-card .status.in-progress {
+    background-color: #F1C300;
+}
+.timiline-summary-container .timiline-summary-card:nth-child(2) {
+    color: #FFEDED;
+}
+.timiline-summary-container .timiline-summary-card .timiline-summary-card-inner {
+    min-height: 66px;
+    align-items: center;
+    align-items: center;
+    display: flex;
+}
+body .page-pmdashboard .pending-approvel-conatiner .progress-indicator.large {
+    width: 40px;
+    height: 20px;
+}
+.timiline-summary-container .timiline-summary-card > div p {
+    height: 32px;
+    width: 100%;
+    padding: 0px 5px;
+}
+.timiline-summary-container .timiline-summary-card:first-child > div p {
+    background-color: #EEEEEE;
+    border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px;
+}
+.timiline-summary-container .timiline-summary-card:last-child > div p  {
+    background-color: #EEEEEE;
+}
+.timiline-summary-container .timiline-summary-card:nth-child(2) > div p {
+    background-color: #FFEDED;
+}

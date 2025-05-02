@@ -216,22 +216,22 @@ const App = () => {
       default: "/ceo/dashboard",
       layout: CeoLayout,
     },
-    14: { // HR
+    15: { // HR
       default: "/hr/dashboard",
       layout: HrLayout,
     },
-    15: { // General Manager (Operation)
+    16: { // General Manager (Operation)
       default: "/ceo/dashboard",
       layout: CeoLayout,
     },
-    16: { // Purchase Manager
+    17: { // Purchase Manager
       default: "/purchasemanager/dashboard",
       layout: PurchasemanagerLayout,
     },
-    17: { // Purchase Manager (duplicate in your DB?)
-      default: "/purchasemanager/dashboard",
-      layout: PurchasemanagerLayout,
-    }
+    // 17: { // Purchase Manager (duplicate in your DB?)
+    //   default: "/purchasemanager/dashboard",
+    //   layout: PurchasemanagerLayout,
+    // }
       // layout: PurchasemanagerLayout
     }
     // "Vendor" : {
