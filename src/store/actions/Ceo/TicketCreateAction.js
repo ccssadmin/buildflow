@@ -77,7 +77,7 @@ export const getticketbyidAction = createAsyncThunk(
 
 export const updateProjectApprovalAction = createAsyncThunk(
   'updateprojectapproval/submit',
-  async (approvalPayload, { rejectWithValue }) => {
+  async ({ payload, token }, { rejectWithValue }) => {
     try {
       const response = await fetch(
         `${process.env.REACT_APP_MASTER_API_BASE_URL}/api/Ticket/update-ticket-by-id`,
@@ -85,21 +85,18 @@ export const updateProjectApprovalAction = createAsyncThunk(
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${approvalPayload.token}`,
+            Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(approvalPayload),
+          body: JSON.stringify(payload),
         }
       );
 
       if (!response.ok) {
-        // Attempt to parse error response
         let errorMessage = 'Failed to update project approval';
         try {
           const error = await response.json();
           errorMessage = error.message || errorMessage;
-        } catch (err) {
-          // Do nothing; fallback to default error message
-        }
+        } catch (err) {}
         return rejectWithValue(errorMessage);
       }
 
@@ -107,8 +104,8 @@ export const updateProjectApprovalAction = createAsyncThunk(
       return data;
     } catch (error) {
       return rejectWithValue(error.message || 'An error occurred during the update');
-    }
-  }
+    }
+  }
 );
 
 // New action to update ticket status (drag and drop functionality)

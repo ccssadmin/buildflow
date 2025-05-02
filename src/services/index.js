@@ -28,6 +28,7 @@ export const getDepartmentsById = (id) => {
   return api.GET(`${endpoint}/${id}`);
 };
 
+
 /*Ceo Project */
 export const getProjectTypeSector = (params) => api.GET(API.Get_PROJECTTYPE_SECTOR,params);
 export const createceoproject = (params) => api.POST(API.CREATE_CEO_PROJECT,params);
@@ -35,6 +36,11 @@ export const createProjectBudget = (params) => api.POST(API.CREATE_PROJECT_BUDGE
 export const createProjectTeam = (params) => api.POST(API.CREATE_PROJECT_TEAM,params);
 export const crateFinanceApproved = (params) => api.POST(API.CREATE_FINACIAL_APPROVAL,params);
 export const createProjectMilestone = (params) => api.POST(API.CREATE_PROJECT_MILESTONE , params);
+
+/** Tickets Comments Create */
+export const createTicketsDetails = (params) => api.POST(API.CREATE_TICKET_DETAILS,params);
+
+
 //ticket
 export const getTicketById = (ticketId) => {
     if (!ticketId) {

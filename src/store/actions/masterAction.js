@@ -67,6 +67,7 @@ import {
   updateBoard,
   editBoard
 } from "../../services";
+import axios from "axios";
 
 const generateLabelCode = (name) => {
   if (!name) return '';
@@ -651,5 +652,30 @@ export const getTicketsbyboardParticipantsAction = createAsyncThunk(
   async (params) => {
     const response = await getTicketsbyboardParticipants(params);
     return response.data;
+  }
+);
+
+export const createTicketDetailsAction = createAsyncThunk(
+  'ticket/createDetails',
+  async (formData, thunkAPI) => {
+    try {
+      const user = JSON.parse(localStorage.getItem("userData"));
+      const token = user?.token;
+
+      const response = await axios.post(
+        'https://buildflowgraphql.crestclimbers.com/api/Ticket/add-comment-attachment',
+        formData,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data || error.message);
+    }
   }
 );
