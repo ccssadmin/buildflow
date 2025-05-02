@@ -116,44 +116,51 @@ const ProjectTeamStakeholder = ({
   const handleTicketSubmission = async () => {
     const projectId = formData.projectId || localProjectId || parseInt(localStorage.getItem("projectId"));
     const createdBy = parseInt(localStorage.getItem("userRoleId")); // This is CEO's user id (creator)
-
-    for (const empId of selectedUsers) {
-      const ticketPayload = {
-        projectId,
-        ticketType: "project team",
-        assignTo: [empId],
-        createdBy: createdBy,
-      };
-
-      try {
-        await createTicket(ticketPayload);
-        console.log("✅ Ticket created for:", empId);
-
-        const notificationPayload = {
-          empId: [empId],                         
-          notificationType: "Ticket Assigned",  
-          sourceEntityId: 0,             
-          message: "A new budget ticket has been assigned to you.", 
-        };
-
-        await createNotify(notificationPayload); 
-        console.log("🔔 Notification created for:", empId);
-
-      } catch (err) {
-        console.error("❌ Failed to create ticket or notification for:", empId, err);
-      }
+  
+    if (selectedUsers.length === 0) {
+      Swal.fire({
+        icon: "warning",
+        title: "No Employees Selected",
+        text: "Please select at least one employee to assign the ticket.",
+      });
+      return;
     }
-
-    Swal.fire({
-      icon: "success",
-      title: "Tickets and Notifications Created",
-      text: "Tickets and notifications successfully submitted.",
-      timer: 1500,
-      showConfirmButton: false,
-    });
-
-    setShowModal(false);
+  
+    const ticketPayload = {
+      projectId,
+      ticketType: "project team",
+      assignTo: selectedUsers,
+      createdBy: createdBy,
+    };
+  
+    try {
+      await createTicket(ticketPayload);
+      console.log("✅ Ticket created");
+  
+      const notificationPayload = {
+        empId: selectedUsers,
+        notificationType: "Ticket Assigned",
+        sourceEntityId: 0,
+        message: "A new budget ticket has been assigned to you.",
+      };
+  
+      await createNotify(notificationPayload);
+      console.log("🔔 Notification created");
+  
+      Swal.fire({
+        icon: "success",
+        title: "Tickets and Notifications Created",
+        text: "Tickets and notifications successfully submitted.",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+  
+      setShowModal(false);
+    } catch (err) {
+      console.error("❌ Failed to create ticket or notification:", err);
+    }
   };
+  
 
   useEffect(() => {
     if (!dataLoaded) {

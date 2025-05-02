@@ -495,7 +495,7 @@ const ProjectSummary = ({
                 const targetRoles = [
                   "Managing Director",
                   "Director",
-                  "Finance Head",
+                  "Head Finance",
                   "GM Technology",
                 ];
 
@@ -597,60 +597,70 @@ const ProjectSummary = ({
         </Modal.Body>
         <Modal.Footer className="justify-content-center">
           <Button
-            className={`d-flex justify-content-center ${
-              selectedUsers.length > 0 ? "btn-allow" : "btn-not-allow"
-            }`}
-            onClick={async () => {           
-              try {
-                for (const empId of selectedUsers) {
-                  const selectedEmployee = employeesByRole.find(emp => emp.empId === empId);
-                  if (!selectedEmployee) continue;
-            
-                  // 1. Create Ticket for THIS employee only
+            className={`d-flex justify-content-center ${selectedUsers.length > 0 ? "btn-allow" : "btn-not-allow"
+              }`}
+              onClick={async () => {
+                if (selectedUsers.length === 0) {
+                  Swal.fire({
+                    icon: "warning",
+                    title: "No Employees Selected",
+                    text: "Please select at least one employee.",
+                  });
+                  return;
+                }
+              
+                try {
+                  // 1. Create Ticket for all selected users at once
                   const ticketResponse = await createTicket({
                     projectId: formData.projectId,
                     ticketType: "submit",
-                    assignTo: selectedUsers,
-                    createdBy: 1
+                    assignTo: selectedUsers, // ✅ array of empIds
+                    createdBy: 1 // replace with actual logged-in user ID
                   });
-                  
-                  const ticketId = ticketResponse?.data?.ticketId; 
-            
-                  // 2. Create Notification for THIS employee only
+              
+                  const createdTicketId = ticketResponse?.data?.data?.ticketId;
+
+                  if (!createdTicketId) {
+                    console.warn("❌ ticketId missing in response:", ticketResponse);
+                  }
+              
+                  // 2. Create notification for all selected users
                   await createNotify({
-                    empId: [empId],  // ✅ Only this user's id
+                    empId: selectedUsers,
                     notificationType: "approval-request",
                     sourceEntityId: 0,
-                    message: `Approval requested for project ${formData.projectName}`
+                    message: `Approval requested for project ${formData.projectName}`,
                   });
-
-                  if (ticketId) {
-                    Swal.fire({
-                      icon: "success",
-                      title: "Tickets and Notifications Created",
-                      text: "Tickets and notifications successfully submitted.",
-                      timer: 1500,
-                      showConfirmButton: false,
-                    });
-                  
-                    setShowModal(false);
-                    navigate(`/ceo/ticketdetails/${ticketId}`);
+              
+                  Swal.fire({
+                    icon: "success",
+                    title: "Tickets and Notifications Created",
+                    text: "Successfully submitted.",
+                    timer: 1500,
+                    showConfirmButton: false,
+                  });
+              
+                  setShowModal(false);
+              
+                  // ✅ Navigate after short delay
+                  if (createdTicketId) {
+                    setTimeout(() => {
+                      navigate(`/ceo/ticketdetails/${createdTicketId}`);
+                    }, 100); // give UI time to cleanup modal
                   }
+              
+                } catch (error) {
+                  console.error("❌ Failed to create ticket/notification:", error);
+                  Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "Could not create ticket or notification.",
+                  });
                 }
-            
-                
-                
-              } catch (error) {
-                console.error("❌ Failed to create ticket/notification:", error);
-                Swal.fire({
-                  icon: "error",
-                  title: "Error",
-                  text: "Something went wrong. Please try again.",
-                });
-              }
-            }}
+              }}
+              
             disabled={selectedUsers.length === 0}
-            
+
           >
             Submit
           </Button>

@@ -19,7 +19,7 @@ const EngineerTicketDetails = () => {
   const imageInputRef = useRef(null);
   const navigate = useNavigate();
   const { ticketId } = useParams();
-  const {getTicketById} = useTicket(); 
+  const {fetchTicketById} = useTicket(); 
   const [ticketData, setTicketData] = useState("");
 
   // File upload state
@@ -28,7 +28,7 @@ const EngineerTicketDetails = () => {
 
   useEffect(() => {
       const fetchTicketDetails = async () => {
-        const response = await getTicketById(ticketId); // implement this
+        const response = await fetchTicketById(ticketId); // implement this
         setTicketData(response.data); // store in state and render
       };
     
