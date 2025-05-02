@@ -111,7 +111,7 @@ const VendorsideNav = ({ onChange }) => {
                       src={IconApprovals}
                       alt={"Approval"}
                     />
-                    <span>Chats</span>
+                    <span>Chat</span>
                     {collaps && "Team"}
                   </>
                 )}
