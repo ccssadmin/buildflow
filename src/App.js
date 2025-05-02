@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from "react";
-import { Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import Spinner from "./components/spinner/spinner.component";
 
 import "./styles/index.scss";
@@ -18,6 +18,9 @@ const VendorLayout = lazy ( ( ) => import('./components/layout/vendor-layout.com
 
 /** PAGES */
 const Login = lazy(() => import("./pages/Login/Login"));
+
+// [Keep all your existing page imports...]
+
 
 // SuperAdmin (MD Flow)
 const MdDashboard = lazy(() => import("./pages/mdflow/Dashboard/Home"));
@@ -153,75 +156,105 @@ const VendorSettings = lazy( ( ) => import('./pages/vendorFlow/Settings/index'))
 
 
 const App = () => {
-  const [role, setRole] = useState(null);
   const [roleId, setRoleId] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const location = useLocation();
 
-  // Define role-based routes and default paths
   const roleRoutes = {
-    "Managing Director": {
-      default: "/home",
-      layout: MdLayout,
-    },
-    "Site Engineer": {
-      default: "/admin/engineerdashboard",
-      layout: EngineerLayout,
-    },
-    "Assistant QS": {
-      default: "/aqs/aqsdashboard",
-      layout: AqsLayout,
-    },
-    CEO: {
+    1: { // CEO
       default: "/ceo/dashboard",
       layout: CeoLayout,
     },
-    "Finance Head": {
-      default: "/finance/dashboard",
-      layout: FinanceLayout,
+    2: { // Site Engineer
+      default: "/admin/engineerdashboard",
+      layout: EngineerLayout,
     },
-    "Project Manager": {
+    3: { // Assistant QS
+      default: "/aqs/aqsdashboard",
+      layout: AqsLayout,
+    },
+    4: { // QS
+      default: "/aqs/aqsdashboard",
+      layout: AqsLayout,
+    },
+    5: { // Site Supervisor
+      default: "/admin/engineerdashboard",
+      layout: EngineerLayout,
+    },
+    6: { // Lead Engineer
+      default: "/admin/engineerdashboard",
+      layout: EngineerLayout,
+    },
+    7: { // Assistant Project Manager
       default: "/pm/dashboard",
       layout: PmLayout,
     },
-    "HR": {
+    8: { // Project Manager
+      default: "/pm/dashboard",
+      layout: PmLayout,
+    },
+    9: { // Designer
+      default: "/admin/engineerdashboard",
+      layout: EngineerLayout,
+    },
+    10: { // Engineer
+      default: "/admin/engineerdashboard",
+      layout: EngineerLayout,
+    },
+    11: { // Managing Director
+      default: "/home",
+      layout: MdLayout,
+    },
+    12: { // Head Finance
+      default: "/finance/dashboard",
+      layout: FinanceLayout,
+    },
+    13: { // GM Technology
+      default: "/ceo/dashboard",
+      layout: CeoLayout,
+    },
+    14: { // HR
       default: "/hr/dashboard",
-      layout: HrLayout
+      layout: HrLayout,
     },
-    "Purchase Manager": {
+    15: { // General Manager (Operation)
+      default: "/ceo/dashboard",
+      layout: CeoLayout,
+    },
+    16: { // Purchase Manager
       default: "/purchasemanager/dashboard",
-      layout: PurchasemanagerLayout
+      layout: PurchasemanagerLayout,
     },
-    "Vendor" : {
-      default:"/vendor/dashboard",
-      layout: VendorLayout
-    },
-  };
+    17: { // Purchase Manager (duplicate in your DB?)
+      default: "/purchasemanager/dashboard",
+      layout: PurchasemanagerLayout,
+    }
+      // layout: PurchasemanagerLayout
+    }
+    // "Vendor" : {
+    //   default:"/vendor/dashboard",
+    //   layout: VendorLayout
+    // },
+  
 
-  // ProtectedRoute component
-  const ProtectedRoute = ({ children, allowedRole }) => {
-    if (!role) {
+  const ProtectedRoute = ({ children, allowedRoleIds }) => {
+    if (!roleId) {
       return <Navigate to="/login" replace />;
     }
 
-    if (role !== allowedRole) {
-      // Redirect to default path for user's role
-      return <Navigate to={roleRoutes[role]?.default || "/login"} replace />;
+    if (!allowedRoleIds.includes(roleId)) {
+      return <Navigate to={roleRoutes[roleId]?.default || "/login"} replace />;
     }
 
     return children;
   };
 
-  // Check for existing role on mount
   useEffect(() => {
     const checkAuthStatus = () => {
-      const storedRole = localStorage.getItem("userRole");
       const storedRoleId = localStorage.getItem("userRoleId");
       const accessToken = localStorage.getItem("accessToken");
 
-      if (accessToken && storedRole && storedRoleId) {
-        setRole(storedRole);
+      if (accessToken && storedRoleId) {
         setRoleId(Number(storedRoleId));
       } else {
         navigate("/login");
@@ -232,19 +265,14 @@ const App = () => {
     checkAuthStatus();
   }, [navigate]);
 
-
   // Handle successful login
   const handleLoginSuccess = (userData) => {
-    if (userData && userData.roleName) {
-      const userRole = userData.roleName;
-      const userRoleId = userData.roleId || "1";
+    if (userData && userData.roleId) {
+      const userRoleId = userData.roleId;
 
-      // Update state
-      setRole(userRole);
       setRoleId(userRoleId);
 
-      // Get default path for this role
-      const defaultPath = roleRoutes[userRole]?.default || "/login";
+      const defaultPath = roleRoutes[userRoleId]?.default || "/login";
       navigate(defaultPath, { replace: true });
     } else {
       console.error("Invalid user data received:", userData);
@@ -261,17 +289,21 @@ const App = () => {
     localStorage.removeItem('projectId');
 
     // Reset the state
-    setRole(null);
     setRoleId(null);
 
     // Redirect to login page
     navigate("/login", { replace: true });
   };
 
-
   if (loading) {
     return <Spinner />;
   }
+
+  // Helper function to render layout with role check
+  const renderLayout = (roleId) => {
+    const LayoutComponent = roleRoutes[roleId]?.layout;
+    return LayoutComponent ? <LayoutComponent onLogout={handleLogout} /> : null;
+  };
 
   return (
     <Suspense fallback={<Spinner />}>
@@ -280,8 +312,8 @@ const App = () => {
         <Route
           path="/login"
           element={
-            role ? (
-              <Navigate to={roleRoutes[role]?.default || "/login"} replace />
+            roleId ? (
+              <Navigate to={roleRoutes[roleId]?.default || "/login"} replace />
             ) : (
               <Login onLoginSuccess={handleLoginSuccess} />
             )
@@ -291,7 +323,11 @@ const App = () => {
         {/* SUPERADMIN ROUTES (MD Flow) */}
         <Route
           path="/"
-          element={<ProtectedRoute allowedRole="Managing Director"><MdLayout onLogout={handleLogout} /></ProtectedRoute>}
+          element={
+            <ProtectedRoute allowedRoleIds={[11]}>
+              {renderLayout(11)}
+            </ProtectedRoute>
+          }
         >
           <Route path="home" element={<MdDashboard />} />
           <Route path="approvals" element={<Kanban />} />
@@ -301,14 +337,17 @@ const App = () => {
           <Route path="task" element={<EngineerTask />} />
           <Route path="chat" element={<ChatApp />} />
           <Route path="settings" element={<Settings />} />
-
           <Route path="*" element={<NotFound />} />
         </Route>
 
         {/* ADMIN ROUTES (Engineering Flow) */}
         <Route
           path="/admin"
-          element={<ProtectedRoute allowedRole="Site Engineer"><EngineerLayout onLogout={handleLogout} /></ProtectedRoute>}
+          element={
+            <ProtectedRoute allowedRoleIds={[2, 5, 6, 9, 10]}>
+              {renderLayout(2)}
+            </ProtectedRoute>
+          }
         >
           <Route path="engineerdashboard" element={<EngineerDashboard />} />
           <Route path="engineerproject" element={<EngineerProject />} />
@@ -326,12 +365,14 @@ const App = () => {
           <Route path="*" element={<NotFound />} />
         </Route>
 
-
-        {/* AqsRoutes */}
-
+        {/* AQS ROUTES */}
         <Route
           path="/aqs"
-          element={<ProtectedRoute allowedRole="Assistant QS"><AqsLayout onLogout={handleLogout} /></ProtectedRoute>}
+          element={
+            <ProtectedRoute allowedRoleIds={[3, 4]}>
+              {renderLayout(3)}
+            </ProtectedRoute>
+          }
         >
           <Route path="aqsdashboard" element={<AqsDashboard />} />
           <Route path="aqsapprovals" element={<KanbanAqs />} />
@@ -351,12 +392,14 @@ const App = () => {
           <Route path="aqssetting" element={<AqsSetting />} />
         </Route>
 
-
-        {/* CEORoutes */}
-
+        {/* CEO ROUTES */}
         <Route
           path="/ceo"
-          element={<ProtectedRoute allowedRole="CEO"><CeoLayout onLogout={handleLogout} /></ProtectedRoute>}
+          element={
+            <ProtectedRoute allowedRoleIds={[1, 13, 15]}>
+              {renderLayout(1)}
+            </ProtectedRoute>
+          }
         >
           <Route path="dashboard" element={<CeoDashboard />} />
           <Route path="dashboard1" element={<CeoDashboard1 />} />
@@ -375,15 +418,15 @@ const App = () => {
           <Route path="settings" element={<CeoSettings />} />
         </Route>
 
-
-        {/* FinanceRoutes */}
-
-
+        {/* FINANCE ROUTES */}
         <Route
           path="/finance"
-          element={<ProtectedRoute allowedRole="Finance Head"><FinanceLayout onLogout={handleLogout} /></ProtectedRoute>}
+          element={
+            <ProtectedRoute allowedRoleIds={[12]}>
+              {renderLayout(12)}
+            </ProtectedRoute>
+          }
         >
-
           <Route path="dashboard" element={<FinanceDashboard />} />
           <Route path="budget" element={<FinanceBudget />} />
           <Route path="budgetcreate" element={<FinanceBudgetCreate />} />
@@ -399,15 +442,16 @@ const App = () => {
           <Route path="report" element={<FinanceReport />} />
           <Route path="reportcreate" element={<FinanceReportCreate />} />
           <Route path="settings" element={<FinanceSettings />} />
-
-
         </Route>
 
-        {/* PMRoutes */}
-
+        {/* PM ROUTES */}
         <Route
           path="/pm"
-          element={<ProtectedRoute allowedRole="Project Manager"><PmLayout onLogout={handleLogout} /></ProtectedRoute>}
+          element={
+            <ProtectedRoute allowedRoleIds={[7, 8]}>
+              {renderLayout(8)}
+            </ProtectedRoute>
+          }
         >
           <Route path="dashboard" element={<PmDashboard />} />
           <Route path="project" element={<PmProject />} />
@@ -425,11 +469,14 @@ const App = () => {
           <Route path="settings" element={<PmSettings />} />
         </Route>
 
-        {/* HR */}
-
+        {/* HR ROUTES */}
         <Route
           path="/hr"
-          element={<ProtectedRoute allowedRole="HR"><HrLayout onLogout={handleLogout} /></ProtectedRoute>}
+          element={
+            <ProtectedRoute allowedRoleIds={[14]}>
+              {renderLayout(14)}
+            </ProtectedRoute>
+          }
         >
           <Route path="dashboard" element={<HrDashboard />} />
           <Route path="employee" element={<HrEmployee />} />
@@ -440,9 +487,15 @@ const App = () => {
           <Route path="chats" element={<HrChat />} />
           <Route path="settings" element={<HrSettings />} />
         </Route>
-        {/* HR */}
 
-        <Route path="/purchasemanager" element={<ProtectedRoute allowedRole="Purchase Manager"><PurchasemanagerLayout onLogout={handleLogout} /></ProtectedRoute>}
+        {/* PURCHASE MANAGER ROUTES */}
+        <Route
+          path="/purchasemanager"
+          element={
+            <ProtectedRoute allowedRoleIds={[16, 17]}>
+              {renderLayout(16)}
+            </ProtectedRoute>
+          }
         >
           <Route path="dashboard" element={<PurchasemanagerDashboard />} />
           <Route path="vendors" element={<PurchasemanagerVendor />} />
