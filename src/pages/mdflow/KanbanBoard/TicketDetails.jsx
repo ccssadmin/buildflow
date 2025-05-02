@@ -9,9 +9,12 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { AiOutlineUser } from 'react-icons/ai';
 import { RiSaveFill } from "react-icons/ri";
 import { BsCalendar3 } from "react-icons/bs";
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useTicket } from '../../../hooks/Ceo/useTicket';
 import { getticketbyidAction, updateProjectApprovalAction } from '../../../store/actions/Ceo/TicketCreateAction';
+import { useDepartments } from '../../../hooks/Ceo/useDepartments';
+import { createTicketDetailsAction } from '../../../store/actions/masterAction';
+import { createTicketsDetailsSelector } from '../../../store/selector/masterSelector';
 
 const EngineerTicketDetails = () => {
   const [activeTab, setActiveTab] = useState('all');
@@ -27,12 +30,27 @@ const EngineerTicketDetails = () => {
   const { ticket } = location.state || {};
   const [ticketDetails, setTicketDetails] = useState(ticket);
   const [isLoading, setIsLoading] = useState(!ticket);
-  const [approvalStatus, setApprovalStatus] = useState(null);
-
-
-  // File upload state
+  const [approvalStatus, setApprovalStatus] = useState(null)
+  const [availableDepartments, setAvailableDepartments] = useState([]);
+  const [currentDepartment, setCurrentDepartment] = useState(null);
+  const [currentEmployee, setCurrentEmployee] = useState(null);
+  const [showDepartmentSelector, setShowDepartmentSelector] = useState(false);
+  const [showEmployeeSelector, setShowEmployeeSelector] = useState(false);
+  const [currentEmployees, setCurrentEmployees] = useState([]);
+    // File upload state
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [uploadedImages, setUploadedImages] = useState([]);
+  const { data, loading, error } = useSelector(createTicketsDetailsSelector);
+
+  const {
+    departments,
+    employees,
+    fetchDepartments,
+    fetchEmployeesByDepartment,
+  } = useDepartments();
+
+
+
 
   const [comments, setComments] = useState([
     {
@@ -152,20 +170,6 @@ const EngineerTicketDetails = () => {
   // Current assignee
   const [currentAssignee, setCurrentAssignee] = useState(null);
 
-  // Available departments for moving
-  const [availableDepartments, setAvailableDepartments] = useState([
-    { id: 1, name: 'Engineering' },
-    { id: 2, name: 'Finance' },
-    { id: 3, name: 'Operations' },
-    { id: 4, name: 'Sales' }
-  ]);
-
-  // Show department selector
-  const [showDepartmentSelector, setShowDepartmentSelector] = useState(false);
-
-  // Current department
-  const [currentDepartment, setCurrentDepartment] = useState(null);
-
   // Show participant selector
   const [showParticipantSelector, setShowParticipantSelector] = useState(false);
 
@@ -176,8 +180,63 @@ const EngineerTicketDetails = () => {
     { id: 6, name: 'Mohan Das', initials: 'MD', color: 'dark' }
   ]);
 
-  // At the top of TicketDetails.jsx
+  useEffect(() => {
+    // Check if user data exists in localStorage
+    const userData = localStorage.getItem("userData");
+    if (!userData) {
+      showToastNotification("User session not found. Please login again.");
+      // Optionally redirect to login
+    }
+  }, []);
 
+  // At the top of TicketDetails.jsx
+  useEffect(() => {
+    const loadDepartments = async () => {
+      setIsLoading(true);
+      try {
+        const result = await fetchDepartments();
+        if (result.success) {
+          setAvailableDepartments(result.data);
+        } else {
+          console.error("Failed to fetch departments");
+        }
+      } catch (error) {
+        console.error("Error loading departments:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadDepartments();
+  }, []);
+
+  // Handle department selection
+  const handleDepartmentChange = async (dept) => {
+    setCurrentDepartment(dept);
+    setShowDepartmentSelector(false);
+    setIsLoading(true);
+
+    try {
+      // Fetch employees for the selected department
+      const result = await fetchEmployeesByDepartment(dept.deptId);
+      if (result.success) {
+        setCurrentEmployees(result.data);
+        setShowEmployeeSelector(true); // Show employee dropdown
+      } else {
+        console.error("Failed to fetch employees for department:", dept.deptId);
+      }
+    } catch (error) {
+      console.error("Error fetching employees:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle employee selection
+  const handleEmployeeChange = (emp) => {
+    setCurrentEmployee(emp);
+    setShowEmployeeSelector(false);
+  };
 
   useEffect(() => {
     const fetchTicketDetails = async () => {
@@ -215,78 +274,136 @@ const EngineerTicketDetails = () => {
       showToastNotification("Please select Approve or Reject");
       return;
     }
-
-    if (!ticketDetails?.ticket_id) {
-      showToastNotification("Ticket information is incomplete");
-      return;
-    }
-
+  
     setIsLoading(true);
-
+  
     try {
-      const userData = JSON.parse(localStorage.getItem('userData'));
-      const approvalData = {
-        ticketId: ticketDetails.ticket_id, // Make sure this matches your API parameter name
-        isapproved: approvalStatus === "Approved", // Convert to boolean
-        token: userData?.token,
+      // Retrieve userData and token from localStorage
+      const userData = JSON.parse(localStorage.getItem("userData"));
+      const token = userData?.token || localStorage.getItem("accessToken"); // ✅ fallback
+  
+      if (!userData || !token) {
+        showToastNotification("User or token not found. Please login again.");
+        setIsLoading(false);
+        return;
+      }
+  
+      // Prepare moveTo array
+      const moveTo = [];
+      if (currentDepartment?.deptId) moveTo.push(currentDepartment.deptId);
+      if (currentEmployee?.id) moveTo.push(currentEmployee.id);
+  
+      // Construct the payload
+      const payload = {
+        ticketId: ticketDetails?.ticket_id,
+        dueDate: dueDate ? dueDate.toISOString().split("T")[0] : null,
+        isApproved: approvalStatus === "Approved",
+        labelId: 0,
+        updatedBy: userData.empId,
+        moveTo: moveTo.length > 0 ? moveTo : null,
+        moveBy: userData.empId
       };
-
-      const result = await dispatch(updateProjectApprovalAction(approvalData)).unwrap();
-
+  
+      console.log("Payload being sent:", payload);
+  
+      // Dispatch with token included
+      const result = await dispatch(updateProjectApprovalAction({ payload, token })).unwrap();
+  
       if (result.success) {
-        showToastNotification("Approval saved successfully!");
-        // Update the ticket details with the new approval status
+        showToastNotification("Ticket updated successfully");
+  
         setTicketDetails(prev => ({
           ...prev,
-          isapproved: approvalStatus === "Approved",
-          approved_by: userData?.username || "You"
+          isapproved: payload.isApproved,
+          approved_by: `${userData.firstName} ${userData.lastName || ''}`,
+          due_date: payload.dueDate
         }));
       } else {
-        showToastNotification(result.error || "Failed to save approval");
+        showToastNotification(result.message || "Failed to update ticket");
       }
     } catch (error) {
-      console.error("Error during save:", error);
-      showToastNotification("An error occurred while saving approval");
+      console.error("Update error:", error);
+      showToastNotification(error.message || "An error occurred while saving");
     } finally {
       setIsLoading(false);
     }
   };
-
-
-  const handleSendComment = () => {
+  
+ const handleSendComment = async () => {
     if (!commentText.trim()) {
       showToastNotification("Please enter a comment.");
       return;
     }
+  
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    const empId = userData?.empId;
+    const ticketId = ticketDetails?.ticket_id;
 
-    const newComment = {
-      id: Date.now(),
-      user: "You",
-      role: "Commenter",
-      avatar: "Y",
-      avatarColor: "primary",
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      content: commentText,
-      files: uploadedFiles,
-      images: uploadedImages
-    };
+    console.log("Employee ID For Ticket Comment:", empId);
+  
+    if (!empId) {
+      showToastNotification("Employee ID is missing.");
+      return;
+    }
+  
+    if (!ticketId) {
+      showToastNotification("Ticket ID is missing.");
+      return;
+    }
+  
+    const formData = new FormData();
+    formData.append("TicketId", ticketId);
+    formData.append("Comment", commentText.trim());
+    formData.append("CreatedBy", empId);
+    
+    // Append each file as fileUpload
+    [...uploadedFiles, ...uploadedImages].forEach((fileObj) => {
+      if (fileObj?.file instanceof File) {
+        formData.append("File", fileObj.file); // ✅ correct name
 
-    setComments([newComment, ...comments]);
-    setCommentText('');
-    setUploadedFiles([]);
-    setUploadedImages([]);
-    showToastNotification("Comment sent");
+        console.log(fileObj.file instanceof File, fileObj.file);
+      }
+    });
+
+  
+    try {
+      await dispatch(createTicketDetailsAction(formData)).unwrap();
+      showToastNotification("Comment sent successfully!");
+  
+      // Update local state with the new comment
+      const newComment = {
+        id: Date.now(),
+        user: userData?.firstName || "You",
+        role: "Commenter",
+        avatar: "Y",
+        avatarColor: "primary",
+        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        content: commentText,
+        files: uploadedFiles,
+        images: uploadedImages,
+      };
+  
+      setComments((prev) => [newComment, ...prev]);
+      setCommentText("");
+      setUploadedFiles([]);
+      setUploadedImages([]);
+    } catch (error) {
+      console.error("Error sending comment:", error);
+      showToastNotification("Failed to send comment.");
+    }
   };
 
   // Handle file attachment
   const handleFileAttachment = (e) => {
     const files = Array.from(e.target.files);
-    const newFiles = files.map(file => ({
-      id: Date.now() + Math.random(),
-      name: file.name,
-      size: file.size,
-      type: file.type
-    }));
+
+ const newFiles = files.map(file => ({
+  id: Date.now() + Math.random(),
+  file, // ✅ include the File object
+  name: file.name,
+  size: file.size,
+  type: file.type
+  }));
 
     setUploadedFiles([...uploadedFiles, ...newFiles]);
     showToastNotification(`${files.length} file(s) attached`);
@@ -302,13 +419,15 @@ const EngineerTicketDetails = () => {
     const imageFiles = files.filter(file => file.type.startsWith('image/'));
 
     if (imageFiles.length > 0) {
-      const newImages = imageFiles.map(file => ({
-        id: Date.now() + Math.random(),
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        url: URL.createObjectURL(file)
-      }));
+
+   const newImages = imageFiles.map(file => ({
+  id: Date.now() + Math.random(),
+  file, // ✅ include the File object
+  name: file.name,
+  size: file.size,
+  type: file.type,
+  url: URL.createObjectURL(file)
+  }));
 
       setUploadedImages([...uploadedImages, ...newImages]);
       showToastNotification(`${imageFiles.length} image(s) attached`);
@@ -385,12 +504,7 @@ const EngineerTicketDetails = () => {
     showToastNotification(`Ticket assigned to ${user.name}`);
   };
 
-  // Handle department change
-  const handleDepartmentChange = (department) => {
-    setCurrentDepartment(department);
-    setShowDepartmentSelector(false);
-    showToastNotification(`Moved to ${department.name} department`);
-  };
+
 
   // Format file size
   const formatFileSize = (bytes) => {
@@ -567,14 +681,7 @@ const EngineerTicketDetails = () => {
                         />
                       </Button>
                     </div>
-                    <Button
-                      variant="warning"
-                      className="text-white px-3 py-1 ms-auto"
-                      style={{ backgroundColor: "#FF6F00" }}
-                      onClick={handleSendComment}
-                    >
-                      Send
-                    </Button>
+                    <Button variant="warning"  className="text-white px-3 py-1 ms-auto" style={{ backgroundColor: "#FF6F00" }} onClick={handleSendComment}>Send</Button>
                   </div>
                 </Form>
               </div>
@@ -1006,38 +1113,112 @@ const EngineerTicketDetails = () => {
             </div>
 
             {/* Move To */}
-            <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
-              <span className="text-muted">Move To</span>
-              <div className="d-flex align-items-center position-relative">
-                <Button
-                  variant="link"
-                  className="p-0 d-flex align-items-center border-no-underline"
-                  style={{ color: '#FF6F00', textDecoration: 'none' }}
-                  onClick={() => setShowDepartmentSelector(!showDepartmentSelector)}
-                >
-                  <span style={{ color: '#FF6F00' }}>{currentDepartment ? currentDepartment.name : 'Move To'}</span>
-                  <AiOutlineUser className="ms-1" style={{ fill: '#FF6F00' }} />
-                </Button>
+            <div className="department-employee-selector">
+  {/* Move To Selector */}
+  <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
+    <span className="text-muted">Move To</span>
 
-                {showDepartmentSelector && (
-                  <div className="position-absolute end-0 top-100 bg-white shadow border rounded mt-1" style={{ zIndex: 1000, minWidth: '160px' }}>
-                    <div className="p-2 border-bottom">
-                      <small className="fw-bold">Select Department</small>
-                    </div>
-                    {availableDepartments.map(dept => (
-                      <div
-                        key={dept.id}
-                        className="p-2 hover-bg-light cursor-pointer"
-                        onClick={() => handleDepartmentChange(dept)}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        <div className="small">{dept.name}</div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+    <div className="d-flex align-items-center position-relative">
+      <Button
+        variant="link"
+        className="p-0 d-flex align-items-center border-no-underline"
+        style={{ color: "#FF6F00", textDecoration: "none" }}
+        onClick={() => setShowDepartmentSelector(!showDepartmentSelector)}
+        disabled={isLoading}
+      >
+        <span style={{ color: "#FF6F00" }}>
+          {currentDepartment ? currentDepartment.deptName : "Select Department"}
+        </span>
+        <AiOutlineUser className="ms-1" style={{ fill: "#FF6F00" }} />
+      </Button>
+
+      {showDepartmentSelector && (
+        <div
+          className="position-absolute end-0 top-100 bg-white shadow border rounded mt-1"
+          style={{ zIndex: 1000, minWidth: "160px" }}
+        >
+          <div className="p-2 border-bottom">
+            <small className="fw-bold">Select Department</small>
+          </div>
+          {isLoading ? (
+            <div className="p-2 text-muted small">Loading...</div>
+          ) : availableDepartments.length > 0 ? (
+            availableDepartments.map((dept) => (
+              <div
+                key={dept.deptId}
+                className="p-2 hover-bg-light cursor-pointer"
+                onClick={() => handleDepartmentChange(dept)}
+                style={{ cursor: "pointer" }}
+              >
+                <div className="small">{dept.deptName}</div>
               </div>
-            </div>
+            ))
+          ) : (
+            <div className="p-2 text-muted small">No departments available</div>
+          )}
+        </div>
+      )}
+
+      {/* Show employee selector when department is selected */}
+      {currentDepartment && !currentEmployee && (
+        <Button
+          variant="link"
+          className="p-0 d-flex align-items-center border-no-underline"
+          style={{ color: "#FF6F00", textDecoration: "none" }}
+          onClick={() => setShowEmployeeSelector(!showEmployeeSelector)}
+          disabled={isLoading}
+        >
+          <span style={{ color: "#FF6F00" }}>
+            {currentEmployee ? currentEmployee.employeeName : "Select Employee"}
+          </span>
+          <AiOutlineUser className="ms-1" style={{ fill: "#FF6F00" }} />
+        </Button>
+      )}
+
+      {/* Show employee selector only when the employee selector is toggled */}
+      {showEmployeeSelector && currentDepartment && (
+        <div
+          className="position-absolute end-0 top-100 bg-white shadow border rounded mt-1"
+          style={{ zIndex: 1000, minWidth: "160px" }}
+        >
+          <div className="p-2 border-bottom">
+            <small className="fw-bold">Select Employee</small>
+          </div>
+          {isLoading ? (
+            <div className="p-2 text-muted small">Loading...</div>
+          ) : currentEmployees.length > 0 ? (
+            currentEmployees.map((emp) => (
+              <div
+                key={emp.id}
+                className="p-2 hover-bg-light cursor-pointer"
+                onClick={() => handleEmployeeChange(emp)}
+                style={{ cursor: "pointer" }}
+              >
+                <div className="small">{emp.employeeName}</div>
+              </div>
+            ))
+          ) : (
+            <div className="p-2 text-muted small">No employees available</div>
+          )}
+        </div>
+      )}
+    </div>
+  </div>
+
+  {/* Display Selected Move To (Department or Employee) */}
+  {currentEmployee || currentDepartment ? (
+    <div className="mt-3 p-2 border rounded bg-light">
+      <h6 className="mb-1">Move To:</h6>
+      <p className="mb-0">
+        {currentEmployee
+          ? currentEmployee.employeeName
+          : currentDepartment
+          ? currentDepartment.deptName
+          : "Select Move To"}
+      </p>
+    </div>
+  ) : null}
+</div>
 
             {/* Approved By */}
             <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">

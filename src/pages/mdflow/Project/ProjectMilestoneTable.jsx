@@ -20,18 +20,34 @@ const getStatus = (completion) => {
 };
 
 // Function to get the corresponding status icon and text
-const getStatusIndicator = (completion) => {
-  const status = getStatus(completion);
+const getStatusIndicator = (status) => {
+  let normalizedStatus = "";
+  let label = "";
+  let icon = "";
+
   switch (status) {
     case "Completed":
-      return <span style={{  }}>✅ Completed</span>;
+      normalizedStatus = "Completed";
+      icon = "✅";
+      label = "Completed";
+      break;
     case "InProgress":
-      return <span style={{  }}>🟡 InProgress</span>;
+    case "In Progress":
+      normalizedStatus = "InProgress";
+      icon = "🟡";
+      label = "In Progress";
+      break;
+    case "Planned":
     case "Pending":
-      return <span style={{  }}>⚪ Pending</span>;
+    case "NotStarted":
     default:
-      return null;
+      normalizedStatus = "Planned";
+      icon = "⚪";
+      label = "Planned";
+      break;
   }
+
+  return <span className="text-dark-gray">{icon} {label}</span>;
 };
 
 // Function to export row data to Excel
@@ -42,7 +58,8 @@ const exportToExcel = (milestone) => {
   XLSX.writeFile(workbook, `${milestone.name.replace(/\s+/g, "_")}.xlsx`); // Save as file
 };
 
-const ProjectMilestoneTable = () => {
+const ProjectMilestoneTable = ({ milestoneDetails = [], projectId }) => {
+
   return (
       <div className="project-milestone-scroll">
         <table className="table table-bordered mb-0">
@@ -57,13 +74,13 @@ const ProjectMilestoneTable = () => {
             </tr>
             </thead>
             <tbody>
-            {milestones.map((milestone, index) => (
+            {milestoneDetails.map((milestone, index) => (
                 <tr key={index}>
-                    <td className="text-center">{milestone.name}</td>
-                    <td className="text-left">{milestone.description}</td>
-                    <td className="text-center">{milestone.dueDate}</td>
-                    <td className="text-center">{getStatusIndicator(milestone.completion)}</td>
-                    <td className="text-center">{milestone.completion}%</td>
+                   <td className="text-dark-gray text-center">{milestone.milestone_name}</td>
+                    <td className="text-left">{milestone.milestone_description}</td>
+                    <td className="text-dark-gray text-center">{milestone.milestone_end_date}</td>
+    <td className="text-dark-gray text-center"> {getStatusIndicator(milestone.milestone_status)}</td>
+                    <td className="text-dark fs-14-600 text-center">{milestone.completion}%</td>
                     <td className="text-center">
                         {milestone.completion > 0 ? (
                         <Link to="/task" 

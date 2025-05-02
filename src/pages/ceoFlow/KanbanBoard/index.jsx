@@ -1,101 +1,94 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { getticketbyidAction } from "../../../store/actions/Ceo/TicketCreateAction";
+import { userInfoAction } from "../../../store/actions";
+import axios from "axios";
+import { getAuthToken } from "../../../utils/storage";
 
 // Define tag colors
 const tagColors = {
   HR: "#D6FFCF",
   Finance: "#CFE2FF",
-  PO: "#FFCFCF"
+  PO: "#FFCFCF",
+  Open: "#D2F4FF",
+  "In Progress": "#FFEECF",
+  Review: "#E4CFFF",
+  Done: "#DAFFCF",
+  Approved: "#DAFFCF"
 };
 
 const KanbanBoard = () => {
   const navigate = useNavigate();
-  const [columns, setColumns] = useState([
-    {
-      title: "Open",
-      count: 6,
-      color: "#D2F4FF",
-      tasks: [
-        { 
-          title: "Resource Requirement", 
-          tags: ["HR", "Finance"], 
-          description: "Payroll, compliance, and employee engagement using HR software and best practices to ensure a productive workforce.",
-          date: "15 feb", 
-          comments: 0, 
-          files: 1 
-        },
-        { 
-          title: "Resource Requirement", 
-          tags: ["HR", "Finance"], 
-          description: "Payroll, compliance, and employee engagement using HR software and best practices to ensure a productive workforce.",
-          date: "15 feb", 
-          comments: 0, 
-          files: 1 
-        },
-        { 
-          title: "Resource Requirement", 
-          tags: ["HR", "Finance"], 
-          description: "Payroll, compliance, and employee engagement using HR software and best practices to ensure a productive workforce.",
-          date: "15 feb", 
-          comments: 0, 
-          files: 1 
-        },
-        { 
-          title: "Resource Requirement", 
-          tags: ["HR", "Finance"], 
-          description: "Payroll, compliance, and employee engagement using HR software and best practices to ensure a productive workforce.",
-          date: "15 feb", 
-          comments: 0, 
-          files: 1 
-        },
-      ],
-    },
-    {
-      title: "Work in Progress",
-      count: 1,
-      color: "#FFEECF",
-      tasks: [
-        { 
-          title: "Resource Requirement", 
-          tags: ["HR", "Finance", "PO"], 
-          description: "Payroll, compliance, and employee engagement using HR software and best practices to ensure a productive workforce.",
-          date: "15 feb", 
-          comments: 0, 
-          files: 1 
-        },
-      ],
-    },
-    {
-      title: "Review",
-      count: 6,
-      color: "#E4CFFF",
-      tasks: [
-        { 
-          title: "Resource Requirement", 
-          tags: ["HR", "Finance", "PO"], 
-          description: "Payroll, compliance, and employee engagement using HR software and best practices to ensure a productive workforce.",
-          date: "15 feb", 
-          comments: 0, 
-          files: 1 
-        },
-      ],
-    },
-    {
-      title: "Approved",
-      count: 6,
-      color: "#DAFFCF",
-      tasks: [
-        { 
-          title: "Resource Requirement", 
-          tags: ["HR", "Finance", "PO"], 
-          description: "Payroll, compliance, and employee engagement using HR software and best practices to ensure a productive workforce.",
-          date: "15 feb", 
-          comments: 0, 
-          files: 1 
-        },
-      ],
-    },
-  ]);
+  const dispatch = useDispatch();
+  const [boardData, setBoardData] = useState(null);
+  const [columns, setColumns] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  useEffect(() => {
+    const fetchBoardDetails = async () => {
+      try {
+        setLoading(true);
+        // Get user info to get the employee ID
+        const userResponse = await dispatch(userInfoAction());
+        const userData = userResponse.payload;
+        
+        if (!userData || !userData.empId) {
+          throw new Error("Failed to get user information");
+        }
+        
+        // Get auth token from storage
+        const token = getAuthToken() || localStorage.getItem("accessToken");
+        
+        if (!token) {
+          throw new Error("Authentication token not found");
+        }
+        
+        // Fetch board details using the employee ID with authentication
+        const boardResponse = await axios.get(
+          `${process.env.REACT_APP_MASTER_API_BASE_URL}/api/Login/board-details/${userData.empId}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        );
+        
+        if (boardResponse.data && boardResponse.data.length > 0) {
+          setBoardData(boardResponse.data[0]); // Use the first board
+          
+          // Transform the API response into our columns format
+          const transformedColumns = boardResponse.data[0].labels.map(label => ({
+            title: label.labelName,
+            id: label.labelId,
+            count: label.tickets ? label.tickets.length : 0,
+            color: tagColors[label.labelName] || "#D2F4FF",
+            tasks: label.tickets ? label.tickets.map(ticket => ({
+              id: ticket.ticketId,
+              title: ticket.ticketName,
+              tags: ["PO"], // Example tag, could be dynamic based on ticket categories if available
+              description: ticket.ticketDescription,
+              date: new Date(ticket.ticketCreatedDate).toLocaleDateString('en-GB'),
+              comments: 0,
+              files: 0
+            })) : []
+          }));
+          
+          setColumns(transformedColumns);
+        } else {
+          throw new Error("No board data found");
+        }
+      } catch (error) {
+        console.error("❌ Failed to fetch board details:", error);
+        setError("Failed to load board data. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBoardDetails();
+  }, [dispatch]);
 
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [showTaskInput, setShowTaskInput] = useState(false);
@@ -106,17 +99,17 @@ const KanbanBoard = () => {
   const handleAddTask = () => {
     if (newTaskTitle.trim() === "") return;
 
-    const updatedColumns = columns.map((col) => {
-      if (col.title === "Open") {
+    const updatedColumns = columns.map((col, index) => {
+      if (index === 0) { // Add new tasks to the first column (usually "Open")
         return {
           ...col,
           tasks: [
             ...col.tasks,
             { 
               title: newTaskTitle, 
-              tags: ["HR", "Finance"], 
-              description: "Payroll, compliance, and employee engagement using HR software and best practices to ensure a productive workforce.",
-              date: "15 feb", 
+              tags: ["PO"], 
+              description: "New task description",
+              date: new Date().toLocaleDateString('en-GB'), 
               comments: 0, 
               files: 0 
             },
@@ -132,8 +125,19 @@ const KanbanBoard = () => {
     setShowTaskInput(false);
   };
 
-  const handleTaskClick = (task) => {
-    navigate(`/ceo/ticketdetails/${task.title}`, { state: { task } });
+  const handleTaskClick = async (task) => {
+    try {
+      const ticketDetails = await dispatch(getticketbyidAction(task.id)).unwrap();
+      navigate(`/ticket/${task.id}`, { 
+        state: { 
+          ticket: ticketDetails,
+          from: 'kanban' 
+        } 
+      });
+    } catch (error) {
+      console.error("Failed to fetch ticket details:", error);
+      // Optionally show an error message to the user
+    }
   };
 
   const handleMenuClick = (columnIndex) => {
@@ -169,21 +173,33 @@ const KanbanBoard = () => {
     setMenuOpen({ ...menuOpen, [columnIndex]: false });
   };
 
+  if (loading) {
+    return <div className="loading-spinner">Loading board data...</div>;
+  }
+
+  if (error) {
+    return <div className="error-message">{error}</div>;
+  }
+
   return (
     <div className="kanban-page-container">
-      {/* <div className="kanban-header-section"> */}
-        {/* <div className="kanban-project-info">
-          <h2 className="kanban-project-title">Ramnad RWSP Site</h2>
-          <div className="kanban-project-manager">
+      <div className="kanban-header-section">
+        <div className="kanban-project-info">
+          {/* <h2 className="kanban-project-title">
+            {boardData ? boardData.boardName : "Loading Board..."}
+          </h2>
+          <div className="kanban-project-description">
+            {boardData ? boardData.boardDescription : ""}
+          </div> */}
+          {/* <div className="kanban-project-manager">
             <div className="kanban-manager-avatar">
-              <img src="/api/placeholder/40/40" alt="Manager" />
-            <h6 style={{textAlign:'center'}}>RR</h6>
+              <h6 style={{textAlign:'center'}}>RR</h6>
             </div>
             <div className="kanban-manager-details">
               <span className="kanban-manager-name">Ronald Richards</span>
               <span className="kanban-manager-role">Project Manager</span>
             </div>
-          </div>
+          </div> */}
         </div>
         <div className="kanban-view-toggle">
           <button className="kanban-view-button active">
@@ -195,8 +211,8 @@ const KanbanBoard = () => {
             </svg>
             Kanban
           </button>
-        </div> */}
-      {/* </div>  */}
+        </div>
+      </div>
 
       <div className="kanban-container">
         <div className="kanban-board">
@@ -209,7 +225,7 @@ const KanbanBoard = () => {
                 </div>
 
                 <div className="kanban-header-right">
-                  {column.title === "Open" && (
+                  {columnIndex === 0 && (
                     <button 
                       className="add-task-btn" 
                       onClick={() => setShowTaskInput(true)}
@@ -229,7 +245,7 @@ const KanbanBoard = () => {
                 </div>
               </div>
 
-              {column.title === "Open" && showTaskInput && (
+              {columnIndex === 0 && showTaskInput && (
                 <div className="kanban-card add-task-card">
                   <input
                     type="text"
@@ -323,9 +339,6 @@ const KanbanBoard = () => {
                             </div>
                             <div className="assignee-avatar">
                               <img src="/api/placeholder/24/24" alt="Assignee 2" />
-                            </div>
-                            <div className="assignee-avatar">
-                              <img src="/api/placeholder/24/24" alt="Assignee 3" />
                             </div>
                           </div>
                         </div>

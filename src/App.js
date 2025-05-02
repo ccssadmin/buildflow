@@ -4,16 +4,17 @@ import Spinner from "./components/spinner/spinner.component";
 
 import "./styles/index.scss";
 import "./styles/index.css";
-import TimelineContainer from "./pages/ceoFlow/Project/TimelineMilestonePlanning";
 
 /** LAYOUTS */
 const MdLayout = lazy(() => import("./components/layout/user-layout.component"));
 const EngineerLayout = lazy(() => import("./components/layout/engineer-layout.component"));
-const AqsLayout = lazy ( ( ) => import('./components/layout/aqs-layout.component'));
-const CeoLayout = lazy ( ( ) => import('./components/layout/ceo-layout.component'));
-const FinanceLayout = lazy ( ( ) => import('./components/layout/finance-layout.component'));
-const PmLayout = lazy ( ( ) => import('./components/layout/pm-layout.component'));
-const HrLayout = lazy ( ( ) => import('./components/layout/hr-layout.component'));
+const AqsLayout = lazy(() => import('./components/layout/aqs-layout.component'));
+const CeoLayout = lazy(() => import('./components/layout/ceo-layout.component'));
+const FinanceLayout = lazy(() => import('./components/layout/finance-layout.component'));
+const PmLayout = lazy(() => import('./components/layout/pm-layout.component'));
+const HrLayout = lazy(() => import('./components/layout/hr-layout.component'));
+const PurchasemanagerLayout = lazy(() => import('./components/layout/purchasemanager-layout.component'));
+const VendorLayout = lazy ( ( ) => import('./components/layout/vendor-layout.component'))
 
 /** PAGES */
 const Login = lazy(() => import("./pages/Login/Login"));
@@ -45,90 +46,110 @@ const EngineerSetting = lazy(() => import('./pages/engineerFlow/Settings/index')
 
 // AQS FLOW
 
-const AqsDashboard = lazy ( () => import ('./pages/aqsFlow/Dashboard/index'));
-const KanbanAqs = lazy ( () => import ('./pages/aqsFlow/KanbanBoard/index'));
-const AqsTicketDetails = lazy ( ( ) => import('./pages/aqsFlow/KanbanBoard/TicketDetails'));
-const AqsChat = lazy( ( ) => import('./pages/aqsFlow/ChatPage/Chat/ChatApp'));
-const AqsMaterial = lazy( ( ) => import('./pages/aqsFlow/Materials/index'));
-const AqsInventory = lazy ( ( ) => import('./pages/aqsFlow/Inventory/index'));
-const AqsBoq = lazy ( ( ) => import('./pages/aqsFlow/Boq/index'));
-const AqsBoqCreate = lazy ( ( ) => import ('./pages/aqsFlow/Boq/BoqCreate'));
-const AqsBoqOpen = lazy ( ( ) => import ('./pages/aqsFlow/Boq/BoqOpen'));
-const AqsCostEstimation = lazy ( ( ) => import('./pages/aqsFlow/CostEstimation/index'));
-const AqsCostEstimationCreate = lazy ( ( ) => import('./pages/aqsFlow/CostEstimation/CostEstimationCreate'));
-const AqsCostEstimationOpen = lazy ( ( ) => import('./pages/aqsFlow/CostEstimation/CostEstimationOpen'));
-const AqsVendor = lazy( ( ) => import('./pages/aqsFlow/Vendors/index'));
-const AqsVendorDetails = lazy ( ( ) => import ('./pages/aqsFlow/Vendors/VendorDetails'));
-const AqsVendorPriceDetails = lazy ( ( ) => import ('./pages/aqsFlow/Vendors/VendorPriceDetails'));
-const AqsSetting = lazy( ( ) => import ('./pages/aqsFlow/Settings/index'));
+const AqsDashboard = lazy(() => import('./pages/aqsFlow/Dashboard/index'));
+const KanbanAqs = lazy(() => import('./pages/aqsFlow/KanbanBoard/index'));
+const AqsTicketDetails = lazy(() => import('./pages/aqsFlow/KanbanBoard/TicketDetails'));
+const AqsChat = lazy(() => import('./pages/aqsFlow/ChatPage/Chat/ChatApp'));
+const AqsMaterial = lazy(() => import('./pages/aqsFlow/Materials/index'));
+const AqsInventory = lazy(() => import('./pages/aqsFlow/Inventory/index'));
+const AqsBoq = lazy(() => import('./pages/aqsFlow/Boq/index'));
+const AqsBoqCreate = lazy(() => import('./pages/aqsFlow/Boq/BoqCreate'));
+const AqsBoqOpen = lazy(() => import('./pages/aqsFlow/Boq/BoqOpen'));
+const AqsCostEstimation = lazy(() => import('./pages/aqsFlow/CostEstimation/index'));
+const AqsCostEstimationCreate = lazy(() => import('./pages/aqsFlow/CostEstimation/CostEstimationCreate'));
+const AqsCostEstimationOpen = lazy(() => import('./pages/aqsFlow/CostEstimation/CostEstimationOpen'));
+const AqsVendor = lazy(() => import('./pages/aqsFlow/Vendors/index'));
+const AqsVendorDetails = lazy(() => import('./pages/aqsFlow/Vendors/VendorDetails'));
+const AqsVendorPriceDetails = lazy(() => import('./pages/aqsFlow/Vendors/VendorPriceDetails'));
+const AqsSetting = lazy(() => import('./pages/aqsFlow/Settings/index'));
 
 
 // CEO FLOW
 
-const CeoDashboard = lazy ( () => import ('./pages/ceoFlow/Dashboard/index'));
-const CeoDashboard1 = lazy ( () => import ('./pages/ceoFlow/Dashboard/index1'));
-const CeoProject = lazy ( () => import ('./pages/ceoFlow/Project/index'));
+const CeoDashboard = lazy(() => import('./pages/ceoFlow/Dashboard/index'));
+const CeoDashboard1 = lazy(() => import('./pages/ceoFlow/Dashboard/index1'));
+const CeoProject = lazy(() => import('./pages/ceoFlow/Project/index'));
 const CeoProjectDetails = lazy(() => import('./pages/ceoFlow/Project/ProjectDeatils'));
 const CeoCreateProject = lazy(() => import('./pages/ceoFlow/Project/CreateProject'));
-const CeoTicketDetails = lazy ( () => import ('./pages/ceoFlow/KanbanBoard/TicketDetails'));
-const CeoChat = lazy ( () => import ('./pages/ceoFlow/ChatPage/Chat/ChatApp'));
-const KanbanCeo = lazy ( () => import ('./pages/ceoFlow/KanbanBoard/index'));
-const CeoResources = lazy ( () => import ('./pages/ceoFlow/Resources/index'));
-const CeoFinance = lazy ( () => import ('./pages/ceoFlow/Finance/index'));
-const Ceodepartments = lazy ( () => import ('./pages/ceoFlow/Departments/index'));
-const CeoReport = lazy ( () => import ('./pages/ceoFlow/Reports/index'));
-const CeoReportView = lazy ( () => import ('./pages/ceoFlow/Reports/ViewReport'));
-const CeoSettings = lazy ( () => import ('./pages/ceoFlow/Settings/index'));
-const ProjectTimeline = lazy( () => import('./pages/ceoFlow/Project/TimelineMilestonePlanning'));
+const CeoTicketDetails = lazy(() => import('./pages/ceoFlow/KanbanBoard/TicketDetails'));
+const CeoChat = lazy(() => import('./pages/ceoFlow/ChatPage/Chat/ChatApp'));
+const KanbanCeo = lazy(() => import('./pages/ceoFlow/KanbanBoard/index'));
+const CeoResources = lazy(() => import('./pages/ceoFlow/Resources/index'));
+const CeoFinance = lazy(() => import('./pages/ceoFlow/Finance/index'));
+const Ceodepartments = lazy(() => import('./pages/ceoFlow/Departments/index'));
+const CeoReport = lazy(() => import('./pages/ceoFlow/Reports/index'));
+const CeoReportView = lazy(() => import('./pages/ceoFlow/Reports/ViewReport'));
+const CeoSettings = lazy(() => import('./pages/ceoFlow/Settings/index'));
+const ProjectTimeline = lazy(() => import('./pages/ceoFlow/Project/TimelineMilestonePlanning'));
 // Not Found
 const NotFound = lazy(() => import("./pages/ceoFlow/NotFound/NotFound"));
 
 
 // Finance Flow
 
-const FinanceDashboard = lazy (  ( ) => import('./pages/financeFlow/Dashboard/index'));
-const FinanceBudget = lazy ( ( ) => import('./pages/financeFlow/Budget/index'));
-const FinanceBudgetCreate = lazy( ( ) => import('./pages/financeFlow/Budget/BudgetCreate'));
-const FinanceBudgetDetails = lazy( ( ) => import('./pages/financeFlow/Budget/BudgetDetails'));
-const KanbanFinance = lazy ( () => import ('./pages/financeFlow/KanbanBoard/index'));
-const FinanceTicketDetails = lazy ( ( ) => import('./pages/financeFlow/KanbanBoard/TicketDetails'));
-const FinanceChat = lazy( ( ) => import('./pages/financeFlow/ChatPage/Chat/ChatApp'));
-const FinanceInvoice = lazy( ( ) => import('./pages/financeFlow/Invoices/index'));
-const FinanceInvoiceDetails = lazy( ( ) => import('./pages/financeFlow/Invoices/InvoiceDetails'));
-const FinanceCashFlow = lazy( ( ) => import('./pages/financeFlow/CashFlow/index'));
-const FinanceVendorAndPo = lazy ( ( ) => import ('./pages/financeFlow/VendorAndPo/index'));
-const FinanceTax = lazy ( ( ) => import ('./pages/financeFlow/Tax/index'));
-const FinanceReport = lazy ( ( ) => import('./pages/financeFlow/Reports/index'));
-const FinanceReportCreate = lazy( ( ) => import('./pages/financeFlow/Reports/ReportCreate'));
-const FinanceSettings = lazy( ( ) => import ('./pages/financeFlow/Settings/index'));
+const FinanceDashboard = lazy(() => import('./pages/financeFlow/Dashboard/index'));
+const FinanceBudget = lazy(() => import('./pages/financeFlow/Budget/index'));
+const FinanceBudgetCreate = lazy(() => import('./pages/financeFlow/Budget/BudgetCreate'));
+const FinanceBudgetDetails = lazy(() => import('./pages/financeFlow/Budget/BudgetDetails'));
+const KanbanFinance = lazy(() => import('./pages/financeFlow/KanbanBoard/index'));
+const FinanceTicketDetails = lazy(() => import('./pages/financeFlow/KanbanBoard/TicketDetails'));
+const FinanceChat = lazy(() => import('./pages/financeFlow/ChatPage/Chat/ChatApp'));
+const FinanceInvoice = lazy(() => import('./pages/financeFlow/Invoices/index'));
+const FinanceInvoiceDetails = lazy(() => import('./pages/financeFlow/Invoices/InvoiceDetails'));
+const FinanceCashFlow = lazy(() => import('./pages/financeFlow/CashFlow/index'));
+const FinanceVendorAndPo = lazy(() => import('./pages/financeFlow/VendorAndPo/index'));
+const FinanceTax = lazy(() => import('./pages/financeFlow/Tax/index'));
+const FinanceReport = lazy(() => import('./pages/financeFlow/Reports/index'));
+const FinanceReportCreate = lazy(() => import('./pages/financeFlow/Reports/ReportCreate'));
+const FinanceSettings = lazy(() => import('./pages/financeFlow/Settings/index'));
 
 // PM FLOW
 
-const PmDashboard = lazy ( () => import ('./pages/pmFlow/Dashboard/index'));
-const PmProject = lazy ( () => import ('./pages/pmFlow/Project/index'));
-const PmTicketDetails = lazy ( () => import ('./pages/pmFlow/KanbanBoard/TicketDetails'));
-const PmChat = lazy ( () => import ('./pages/pmFlow/ChatPage/Chat/ChatApp'));
-const KanbanPm = lazy ( () => import ('./pages/pmFlow/KanbanBoard/index'));
-const PmTask = lazy ( () => import ('./pages/pmFlow/Task/index'));
-const PmResources = lazy ( () => import ('./pages/pmFlow/Resources/index'));
-const PmMaterial = lazy ( () => import ('./pages/pmFlow/Material/index'));
-const PmVendor = lazy( ( ) => import('./pages/pmFlow/Vendors/index'));
-const PmVendorDetails = lazy ( ( ) => import ('./pages/pmFlow/Vendors/VendorDetails'));
-const PmVendorPriceDetails = lazy ( ( ) => import ('./pages/pmFlow/Vendors/VendorPriceDetails'));
-const PmReport = lazy ( () => import ('./pages/pmFlow/Reports/index'));
-const PmReportView = lazy ( () => import ('./pages/pmFlow/Reports/ViewReport'));
-const PmSettings = lazy ( () => import ('./pages/pmFlow/Settings/index'));
+const PmDashboard = lazy(() => import('./pages/pmFlow/Dashboard/index'));
+const PmProject = lazy(() => import('./pages/pmFlow/Project/index'));
+const PmTicketDetails = lazy(() => import('./pages/pmFlow/KanbanBoard/TicketDetails'));
+const PmChat = lazy(() => import('./pages/pmFlow/ChatPage/Chat/ChatApp'));
+const KanbanPm = lazy(() => import('./pages/pmFlow/KanbanBoard/index'));
+const PmTask = lazy(() => import('./pages/pmFlow/Task/index'));
+const PmResources = lazy(() => import('./pages/pmFlow/Resources/index'));
+const PmMaterial = lazy(() => import('./pages/pmFlow/Material/index'));
+const PmVendor = lazy(() => import('./pages/pmFlow/Vendors/index'));
+const PmVendorDetails = lazy(() => import('./pages/pmFlow/Vendors/VendorDetails'));
+const PmVendorPriceDetails = lazy(() => import('./pages/pmFlow/Vendors/VendorPriceDetails'));
+const PmReport = lazy(() => import('./pages/pmFlow/Reports/index'));
+const PmReportView = lazy(() => import('./pages/pmFlow/Reports/ViewReport'));
+const PmSettings = lazy(() => import('./pages/pmFlow/Settings/index'));
 
 //Hr Flow
 
-const HrDashboard = lazy( ( ) => import('./pages/hrFlow/Dashboard/index'));
-const HrEmployee = lazy( ( ) => import ('./pages/hrFlow/Employee/index'));
-const AddHrEmployee = lazy ( ( ) => import('./pages/hrFlow/Employee/AddEmployee'));
-const HrEmployeeDetail = lazy( ( ) => import('./pages/hrFlow/Employee/EmployeeDetail'));
-const HrKanban = lazy( () => import('./pages/hrFlow/KanbanBoard/index'));
-const HrKanbanTicketDetails = lazy( ( ) => import('./pages/hrFlow/KanbanBoard/TicketDetails'));
-const HrChat = lazy( ( ) => import('./pages/hrFlow/ChatPage/Chat/ChatApp'));
-const HrSettings = lazy( ( ) => import('./pages/hrFlow/Settings/index'));
+const HrDashboard = lazy(() => import('./pages/hrFlow/Dashboard/index'));
+const HrEmployee = lazy(() => import('./pages/hrFlow/Employee/index'));
+const AddHrEmployee = lazy(() => import('./pages/hrFlow/Employee/AddEmployee'));
+const HrEmployeeDetail = lazy(() => import('./pages/hrFlow/Employee/EmployeeDetail'));
+const HrKanban = lazy(() => import('./pages/hrFlow/KanbanBoard/index'));
+const HrKanbanTicketDetails = lazy(() => import('./pages/hrFlow/KanbanBoard/TicketDetails'));
+const HrChat = lazy(() => import('./pages/hrFlow/ChatPage/Chat/ChatApp'));
+const HrSettings = lazy(() => import('./pages/hrFlow/Settings/index'));
+//Purchasemanager Flow
+
+const PurchasemanagerDashboard = lazy(() => import('./pages/purchasemanagerFlow/Dashboard/index'));
+const PurchasemanagerVendor = lazy(() => import('./pages/purchasemanagerFlow/Vendors/index'));
+const PurchasemanagerPo = lazy(() => import('./pages/purchasemanagerFlow/Po/index'));
+const PurchasemanagerKanban = lazy(() => import('./pages/purchasemanagerFlow/KanbanBoard/index'));
+const PurchasemanagerKanbanTicketDetails = lazy(() => import('./pages/purchasemanagerFlow/KanbanBoard/TicketDetails'));
+const PurchasemanagerChat = lazy(() => import('./pages/purchasemanagerFlow/ChatPage/Chat/ChatApp'));
+const PurchasemanagerSettings = lazy(() => import('./pages/purchasemanagerFlow/Settings/index'));
+
+
+//Vendor Flow
+
+const VendorDashboard = lazy( ( ) => import('./pages/vendorFlow/Dashboard/index'));
+const VendorPo = lazy( ( ) => import('./pages/vendorFlow/Po/index'));
+const VendorEditPo = lazy( ( ) => import('./pages/vendorFlow/Po/EditPurchaseOrder'));
+const VendorKanban = lazy( ( ) => import ('./pages/vendorFlow/KanbanBoard/index'));
+const VendorTicketDetails = lazy( ( ) => import ('./pages/vendorFlow/KanbanBoard/TicketDetails'));
+const VendorChat = lazy( ( ) => import('./pages/vendorFlow/ChatPage/Chat/ChatApp'));
+const VendorSettings = lazy( ( ) => import('./pages/vendorFlow/Settings/index'));
 
 
 const App = () => {
@@ -148,26 +169,34 @@ const App = () => {
       default: "/admin/engineerdashboard",
       layout: EngineerLayout,
     },
-    "Assistant QS" : {
-      default : "/aqs/aqsdashboard",
-      layout : AqsLayout,
+    "Assistant QS": {
+      default: "/aqs/aqsdashboard",
+      layout: AqsLayout,
     },
-    CEO : {
-      default : "/ceo/dashboard",
-      layout : CeoLayout,
+    CEO: {
+      default: "/ceo/dashboard",
+      layout: CeoLayout,
     },
-    "Finance Head" : {
-      default : "/finance/dashboard",
-      layout : FinanceLayout,
+    "Finance Head": {
+      default: "/finance/dashboard",
+      layout: FinanceLayout,
     },
-    "Project Manager" : {
-      default : "/pm/dashboard",
-      layout : PmLayout,
+    "Project Manager": {
+      default: "/pm/dashboard",
+      layout: PmLayout,
     },
-    "HR" : {
-      default:"/hr/dashboard",
-      layout : HrLayout
-    }
+    "HR": {
+      default: "/hr/dashboard",
+      layout: HrLayout
+    },
+    "Purchase Manager": {
+      default: "/purchasemanager/dashboard",
+      layout: PurchasemanagerLayout
+    },
+    "Vendor" : {
+      default:"/vendor/dashboard",
+      layout: VendorLayout
+    },
   };
 
   // ProtectedRoute component
@@ -190,7 +219,7 @@ const App = () => {
       const storedRole = localStorage.getItem("userRole");
       const storedRoleId = localStorage.getItem("userRoleId");
       const accessToken = localStorage.getItem("accessToken");
-  
+
       if (accessToken && storedRole && storedRoleId) {
         setRole(storedRole);
         setRoleId(Number(storedRoleId));
@@ -199,10 +228,10 @@ const App = () => {
       }
       setLoading(false);
     };
-  
+
     checkAuthStatus();
   }, [navigate]);
-  
+
 
   // Handle successful login
   const handleLoginSuccess = (userData) => {
@@ -229,16 +258,16 @@ const App = () => {
     localStorage.removeItem("userRole");
     localStorage.removeItem("userRoleId");
     localStorage.removeItem("userData");
-    localStorage.removeItem('projectId'); 
-  
+    localStorage.removeItem('projectId');
+
     // Reset the state
     setRole(null);
     setRoleId(null);
-  
+
     // Redirect to login page
     navigate("/login", { replace: true });
   };
-  
+
 
   if (loading) {
     return <Spinner />;
@@ -272,7 +301,7 @@ const App = () => {
           <Route path="task" element={<EngineerTask />} />
           <Route path="chat" element={<ChatApp />} />
           <Route path="settings" element={<Settings />} />
-          
+
           <Route path="*" element={<NotFound />} />
         </Route>
 
@@ -304,23 +333,23 @@ const App = () => {
           path="/aqs"
           element={<ProtectedRoute allowedRole="Assistant QS"><AqsLayout onLogout={handleLogout} /></ProtectedRoute>}
         >
-          <Route path="aqsdashboard" element={ <AqsDashboard />} />
-          <Route path="aqsapprovals" element={ <KanbanAqs />} />
-          <Route path="aqsticketdetails/:ticketId" element={ <AqsTicketDetails />} />
+          <Route path="aqsdashboard" element={<AqsDashboard />} />
+          <Route path="aqsapprovals" element={<KanbanAqs />} />
+          <Route path="aqsticketdetails/:ticketId" element={<AqsTicketDetails />} />
           <Route path="aqschats" element={<AqsChat />} />
-          <Route path="aqsmaterial" element={ <AqsMaterial />} />
-          <Route path="aqsinventory" element={ <AqsInventory />} />
-          <Route path="aqsboq" element={ <AqsBoq />} />
-          <Route path="aqsboqcreate" element={ <AqsBoqCreate />} />
-          <Route path="aqsboqopen" element= { <AqsBoqOpen />} />
-          <Route path="aqscostestimation" element={ <AqsCostEstimation />} />
-          <Route path="aqscostestimationcreate" element={ <AqsCostEstimationCreate />} />
-          <Route path="aqscostestimationopen" element={ <AqsCostEstimationOpen />} />
-          <Route path="aqsvendor" element={ <AqsVendor />} />
-          <Route path="aqsvendordetails" element={ <AqsVendorDetails />} />
-          <Route path="aqsvendorpricedetails" element = {<AqsVendorPriceDetails />} />
-          <Route path="aqssetting" element={ <AqsSetting />} />
-          </Route>
+          <Route path="aqsmaterial" element={<AqsMaterial />} />
+          <Route path="aqsinventory" element={<AqsInventory />} />
+          <Route path="aqsboq" element={<AqsBoq />} />
+          <Route path="aqsboqcreate" element={<AqsBoqCreate />} />
+          <Route path="aqsboqopen" element={<AqsBoqOpen />} />
+          <Route path="aqscostestimation" element={<AqsCostEstimation />} />
+          <Route path="aqscostestimationcreate" element={<AqsCostEstimationCreate />} />
+          <Route path="aqscostestimationopen" element={<AqsCostEstimationOpen />} />
+          <Route path="aqsvendor" element={<AqsVendor />} />
+          <Route path="aqsvendordetails" element={<AqsVendorDetails />} />
+          <Route path="aqsvendorpricedetails" element={<AqsVendorPriceDetails />} />
+          <Route path="aqssetting" element={<AqsSetting />} />
+        </Route>
 
 
         {/* CEORoutes */}
@@ -329,12 +358,12 @@ const App = () => {
           path="/ceo"
           element={<ProtectedRoute allowedRole="CEO"><CeoLayout onLogout={handleLogout} /></ProtectedRoute>}
         >
-          <Route path="dashboard" element={ <CeoDashboard />} />
-          <Route path="dashboard1" element={ <CeoDashboard1 />} />
+          <Route path="dashboard" element={<CeoDashboard />} />
+          <Route path="dashboard1" element={<CeoDashboard1 />} />
           <Route path="project" element={<CeoProject />} />
           <Route path="projectdetails" element={<CeoProjectDetails />} />
           <Route path="createproject" element={<CeoCreateProject />} />
-          <Route path="projectmilestone" element={ <ProjectTimeline />} />
+          <Route path="projectmilestone" element={<ProjectTimeline />} />
           <Route path="approvals" element={<KanbanCeo />} />
           <Route path="ticketdetails/:ticketId" element={<CeoTicketDetails />} />
           <Route path="chats" element={<CeoChat />} />
@@ -351,8 +380,8 @@ const App = () => {
 
 
         <Route
-        path="/finance"
-        element={<ProtectedRoute allowedRole="Finance Head"><FinanceLayout onLogout={handleLogout}/></ProtectedRoute>}
+          path="/finance"
+          element={<ProtectedRoute allowedRole="Finance Head"><FinanceLayout onLogout={handleLogout} /></ProtectedRoute>}
         >
 
           <Route path="dashboard" element={<FinanceDashboard />} />
@@ -380,7 +409,7 @@ const App = () => {
           path="/pm"
           element={<ProtectedRoute allowedRole="Project Manager"><PmLayout onLogout={handleLogout} /></ProtectedRoute>}
         >
-          <Route path="dashboard" element={ <PmDashboard />} />
+          <Route path="dashboard" element={<PmDashboard />} />
           <Route path="project" element={<PmProject />} />
           <Route path="approvals" element={<KanbanPm />} />
           <Route path="ticketdetails/:ticketId" element={<PmTicketDetails />} />
@@ -388,9 +417,9 @@ const App = () => {
           <Route path="task" element={<PmTask />} />
           <Route path="resources" element={<PmResources />} />
           <Route path="material" element={<PmMaterial />} />
-          <Route path="vendor" element={ <PmVendor />} />
-          <Route path="vendordetails" element={ <PmVendorDetails />} />
-          <Route path="vendorpricedetails" element = {<PmVendorPriceDetails />} />
+          <Route path="vendor" element={<PmVendor />} />
+          <Route path="vendordetails" element={<PmVendorDetails />} />
+          <Route path="vendorpricedetails" element={<PmVendorPriceDetails />} />
           <Route path="reports" element={<PmReport />} />
           <Route path="reportview" element={<PmReportView />} />
           <Route path="settings" element={<PmSettings />} />
@@ -400,19 +429,46 @@ const App = () => {
 
         <Route
           path="/hr"
-          element={<ProtectedRoute allowedRole="HR"><HrLayout onLogout={handleLogout} /></ProtectedRoute>}        
+          element={<ProtectedRoute allowedRole="HR"><HrLayout onLogout={handleLogout} /></ProtectedRoute>}
         >
-          <Route path="dashboard" element={ <HrDashboard />} />
-          <Route path="employee" element ={ <HrEmployee />} />
-          <Route path="addemployee" element ={ <AddHrEmployee />} />
-          <Route path="employeedetail" element={ <HrEmployeeDetail />} />
-          <Route path="approvals" element={ <HrKanban />} />
-          <Route path="hrticketdetails/:ticketId" element={ <HrKanbanTicketDetails />}/>
-          <Route path="chats" element={ <HrChat />} />
-          <Route path="settings" element={ <HrSettings />}/>
+          <Route path="dashboard" element={<HrDashboard />} />
+          <Route path="employee" element={<HrEmployee />} />
+          <Route path="addemployee" element={<AddHrEmployee />} />
+          <Route path="employeedetail" element={<HrEmployeeDetail />} />
+          <Route path="approvals" element={<HrKanban />} />
+          <Route path="hrticketdetails/:ticketId" element={<HrKanbanTicketDetails />} />
+          <Route path="chats" element={<HrChat />} />
+          <Route path="settings" element={<HrSettings />} />
+        </Route>
+        {/* HR */}
+
+        <Route path="/purchasemanager" element={<ProtectedRoute allowedRole="Purchase Manager"><PurchasemanagerLayout onLogout={handleLogout} /></ProtectedRoute>}
+        >
+          <Route path="dashboard" element={<PurchasemanagerDashboard />} />
+          <Route path="vendors" element={<PurchasemanagerVendor />} />
+          <Route path="po" element={<PurchasemanagerPo />} />
+          <Route path="approvals" element={<PurchasemanagerKanban />} />
+          <Route path="hrticketdetails/:ticketId" element={<PurchasemanagerKanbanTicketDetails />} />
+          <Route path="chats" element={<PurchasemanagerChat />} />
+          <Route path="settings" element={<PurchasemanagerSettings />} />
         </Route>
 
 
+        {/* Vendor */}
+
+          <Route 
+          path="/vendor" 
+          element={<ProtectedRoute allowedRole="Vendor"><VendorLayout onLogout={handleLogout} /></ProtectedRoute>}
+          >
+
+            <Route  path="dashboard" element={<VendorDashboard />}/>
+            <Route path="po" element={<VendorPo />} />
+            <Route path="editpo" element={<VendorEditPo />} />
+            <Route path="approvals" element={<VendorKanban />} />
+            <Route path="vendorticketdetails/:ticketId" element={<VendorTicketDetails />} />
+            <Route path="chats" element={<VendorChat />} />
+            <Route path="settings" element={<VendorSettings />} />
+          </Route>
         {/* Catch all redirect */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>

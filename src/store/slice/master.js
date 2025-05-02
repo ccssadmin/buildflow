@@ -43,8 +43,10 @@ getAllTimeZoneDetailAction,
 getTicketsbyboardParticipantsAction,
 addBoardAction,
 getBoardAction,
-editBoardAction
+editBoardAction,
+createTicketDetailsAction
 } from "../actions/masterAction";
+import { getLoginBoardDetailsdAction } from "../actions/kanbanAction";
 
 const initialState = {
   color: {
@@ -236,6 +238,17 @@ const initialState = {
     data: [],
     loading: false,
     error: null,
+  },
+  createTicketDetails: {
+    data: [],
+    loading: false,
+    error: null,
+  },
+  loginBoardDetails: {
+    data: [],
+    loading: false,
+    error: null,
+    message: "",
   },
 };
 
@@ -869,6 +882,34 @@ const masterSlice = createSlice({
       state.fetchError = action.error;
       state.getTicketsbyboardParticipants.loading = false;
     });
+
+    /** create ticket commmet */
+    builder.addCase(createTicketDetailsAction.pending, (state, action) => {
+      state.createTicketDetails.loading = true;
+    });
+    builder.addCase(createTicketDetailsAction.fulfilled, (state, action) => {
+      const data = action.payload;
+      state.createTicketDetails.data = data;
+      state.createTicketDetails.loading = false;
+    });
+    builder.addCase(createTicketDetailsAction.rejected, (state, action) => {
+      state.fetchError = action.error;
+      state.createTicketDetails.loading = false;
+    });
+    /** USED TO GET LOGIN BOARD DETAILS */
+    builder.addCase(getLoginBoardDetailsdAction.pending, (state, action) => {
+      state.loginBoardDetails.loading = true;
+    });
+    builder.addCase(getLoginBoardDetailsdAction.fulfilled, (state, action) => {
+      const data = action.payload;
+      state.loginBoardDetails.data = data;
+      state.loginBoardDetails.loading = false;
+    });
+    builder.addCase(getLoginBoardDetailsdAction.rejected, (state, action) => {
+      state.fetchError = action.error;
+      state.loginBoardDetails.loading = false;
+    });
+
   
   },
 });

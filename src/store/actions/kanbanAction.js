@@ -26,6 +26,7 @@ import {
   createAgencyTicket,
   getAgencyBoard,
   updateAgencyTicketDetail,
+  loginBoardDetails,
 } from "../../services";
 
 /** KANBAN */
@@ -247,6 +248,15 @@ export const updateAgencyTicketDetailAction = createAsyncThunk(
   "updateAgencyTicketDetail",
   async (params) => {
     const response = await updateAgencyTicketDetail(params);
+    return response.data;
+  }
+);
+
+/** LOGIN BOARD DETAILS BY ID */
+export const getLoginBoardDetailsdAction = createAsyncThunk(
+  "getLoginBoardDetails",
+  async (params) => {
+    const response = await loginBoardDetails(params);
     return response.data;
   }
 );
