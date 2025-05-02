@@ -536,3 +536,15 @@ export const createTicketsDetailsSelector = createSelector(
   })
 );
 
+export const loginBoardDetailsSelector = createSelector(
+  [
+    state => state.master.loginBoardDetails.data,
+    state => state.master.loginBoardDetails.loading,
+    state => state.master.loginBoardDetails.error,
+  ],
+  (data, loading, error) => ({
+    data,
+    loading,
+    error,
+  })
+);

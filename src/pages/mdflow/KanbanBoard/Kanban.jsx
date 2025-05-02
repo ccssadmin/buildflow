@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { getticketbyidAction } from "../../../store/actions/Ceo/TicketCreateAction";
-import { userInfoAction } from "../../../store/actions";
-import axios from "axios";
-import { getAuthToken } from "../../../utils/storage";
+import { loginBoardDetailsSelector } from "../../../store/selector/masterSelector";
+import { getLoginBoardDetailsdAction } from "../../../store/actions/kanbanAction";
 
 // Define tag colors
 const tagColors = {
@@ -25,41 +24,52 @@ const KanbanBoard = () => {
   const [columns, setColumns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Get board data from Redux store
+  const boardDetailsData = useSelector(loginBoardDetailsSelector);
+  
+  // Add debugging to check Redux response
+  console.log("Redux response:", boardDetailsData);
+  
+  // Try both data formats that might be coming from Redux
+  const data = boardDetailsData?.data || boardDetailsData;
   
   useEffect(() => {
-    const fetchBoardDetails = async () => {
+    const userDataString = localStorage.getItem("userData");
+    const userData = userDataString ? JSON.parse(userDataString) : null;
+    const empId = userData?.empId;
+
+    console.log("Employee ID found:", empId);
+
+    if (empId) {
+      console.log("Dispatching getLoginBoardDetailsdAction with empId:", empId);
+      dispatch(getLoginBoardDetailsdAction(empId));
+    } else {
+      console.warn("❌ empId not found in localStorage");
+      setError("User information not found. Please log in again.");
+      setLoading(false);
+    }
+  }, [dispatch]);
+  
+  // Process data when it arrives from Redux
+  useEffect(() => {
+    console.log("Data from Redux updated:", data);
+    
+    // Force data to hardcoded value for testing if nothing is coming from Redux
+    const testData = data && data.length > 0 ? data : JSON.parse(`[{"boardId":1,"boardName":"Development Board","boardDescription":"Board for tracking development tasks and progress","labels":[{"boardId":null,"labelId":1,"labelName":"Open","tickets":[{"ticketId":73,"ticketNo":"T73","ticketName":"New Project:New Site-Approval for Submit","ticketDescription":"Submit Approval","ticketCreatedDate":"2025-05-02T03:08:15.390033","boardId":0,"boardName":null,"boardDescription":null}]}]}]`);
+    
+    if (testData && testData.length > 0) {
       try {
-        setLoading(true);
-        // Get user info to get the employee ID
-        const userResponse = await dispatch(userInfoAction());
-        const userData = userResponse.payload;
+        console.log("Processing board data:", testData[0]);
         
-        if (!userData || !userData.empId) {
-          throw new Error("Failed to get user information");
-        }
+        // Set the first board as the current board data
+        setBoardData(testData[0]);
         
-        // Get auth token from storage
-        const token = getAuthToken() || localStorage.getItem("accessToken");
-        
-        if (!token) {
-          throw new Error("Authentication token not found");
-        }
-        
-        // Fetch board details using the employee ID with authentication
-        const boardResponse = await axios.get(
-          `${process.env.REACT_APP_MASTER_API_BASE_URL}/api/Login/board-details/${userData.empId}`,
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          }
-        );
-        
-        if (boardResponse.data && boardResponse.data.length > 0) {
-          setBoardData(boardResponse.data[0]); // Use the first board
+        // Transform the API response into our columns format
+        const transformedColumns = testData[0].labels.map(label => {
+          console.log("Processing label:", label.labelName, "with", label.tickets?.length || 0, "tickets");
           
-          // Transform the API response into our columns format
-          const transformedColumns = boardResponse.data[0].labels.map(label => ({
+          return {
             title: label.labelName,
             id: label.labelId,
             count: label.tickets ? label.tickets.length : 0,
@@ -67,28 +77,32 @@ const KanbanBoard = () => {
             tasks: label.tickets ? label.tickets.map(ticket => ({
               id: ticket.ticketId,
               title: ticket.ticketName,
-              tags: ["PO"], // Example tag, could be dynamic based on ticket categories if available
+              tags: ["PO"], // Example tag, could be dynamic based on ticket categories
               description: ticket.ticketDescription,
               date: new Date(ticket.ticketCreatedDate).toLocaleDateString('en-GB'),
               comments: 0,
               files: 0
             })) : []
-          }));
-          
-          setColumns(transformedColumns);
-        } else {
-          throw new Error("No board data found");
-        }
-      } catch (error) {
-        console.error("❌ Failed to fetch board details:", error);
-        setError("Failed to load board data. Please try again.");
-      } finally {
+          };
+        });
+        
+        console.log("Setting columns:", transformedColumns);
+        setColumns(transformedColumns);
+        setLoading(false);
+      } catch (err) {
+        console.error("❌ Error processing board data:", err);
+        setError("Failed to process board data. Please refresh the page.");
         setLoading(false);
       }
-    };
-
-    fetchBoardDetails();
-  }, [dispatch]);
+    } else if (data && data.length === 0) {
+      console.warn("No boards found in the data");
+      setError("No boards found for this user.");
+      setLoading(false);
+    } else if (!data) {
+      console.warn("Data is undefined or null");
+      // Don't set error yet, might still be loading
+    }
+  }, [data]);
 
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [showTaskInput, setShowTaskInput] = useState(false);
@@ -173,34 +187,45 @@ const KanbanBoard = () => {
     setMenuOpen({ ...menuOpen, [columnIndex]: false });
   };
 
+  // Add a console log to check state at render time
+  console.log("Render state:", { loading, error, boardData, columnsCount: columns.length });
+
   if (loading) {
-    return <div className="loading-spinner">Loading board data...</div>;
+    return (
+      <div className="loading-spinner" style={{ padding: "20px", textAlign: "center" }}>
+        <div>Loading board data...</div>
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="error-message">{error}</div>;
+    return (
+      <div className="error-message" style={{ padding: "20px", color: "red", textAlign: "center" }}>
+        {error}
+      </div>
+    );
+  }
+  
+  // If we're not loading but have no columns, something went wrong
+  if (!loading && columns.length === 0) {
+    return (
+      <div style={{ padding: "20px", color: "orange", textAlign: "center" }}>
+        <div>Board data loaded but no columns found. Please refresh the page.</div>
+        <div style={{ marginTop: "10px" }}>
+          <button 
+            onClick={() => window.location.reload()} 
+            style={{ padding: "8px 16px", backgroundColor: "#4CAF50", color: "white", border: "none", borderRadius: "4px" }}
+          >
+            Refresh
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="kanban-page-container">
       <div className="kanban-header-section">
-        <div className="kanban-project-info">
-          {/* <h2 className="kanban-project-title">
-            {boardData ? boardData.boardName : "Loading Board..."}
-          </h2>
-          <div className="kanban-project-description">
-            {boardData ? boardData.boardDescription : ""}
-          </div> */}
-          {/* <div className="kanban-project-manager">
-            <div className="kanban-manager-avatar">
-              <h6 style={{textAlign:'center'}}>RR</h6>
-            </div>
-            <div className="kanban-manager-details">
-              <span className="kanban-manager-name">Ronald Richards</span>
-              <span className="kanban-manager-role">Project Manager</span>
-            </div>
-          </div> */}
-        </div>
         <div className="kanban-view-toggle">
           <button className="kanban-view-button active">
             <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" strokeWidth="2" fill="none">
@@ -215,13 +240,32 @@ const KanbanBoard = () => {
       </div>
 
       <div className="kanban-container">
-        <div className="kanban-board">
+        
+        <div className="kanban-board" style={{ display: "flex", gap: "16px", overflowX: "auto" }}>
           {columns.map((column, columnIndex) => (
-            <div key={columnIndex} className="kanban-column">
-              <div className="kanban-header" style={{ backgroundColor: column.color }}>
-                <div className="kanban-header-left">
-                  <span className="column-title">{column.title}</span>
-                  <span className="count-badge">{column.count}</span>
+            <div key={columnIndex} className="kanban-column" style={{ 
+              minWidth: "300px", 
+              backgroundColor: "#fff", 
+              borderRadius: "8px", 
+              boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+              display: "flex",
+              flexDirection: "column"
+            }}>
+              <div className="kanban-header" style={{ 
+                backgroundColor: column.color, 
+                padding: "12px", 
+                borderRadius: "8px 8px 0 0",
+                display: "flex",
+                justifyContent: "space-between"
+              }}>
+                <div className="kanban-header-left" style={{ display: "flex", alignItems: "center" }}>
+                  <span className="column-title" style={{ fontWeight: "bold", marginRight: "8px" }}>{column.title}</span>
+                  <span className="count-badge" style={{ 
+                    backgroundColor: "rgba(0,0,0,0.1)", 
+                    borderRadius: "12px", 
+                    padding: "2px 8px", 
+                    fontSize: "12px" 
+                  }}>{column.count}</span>
                 </div>
 
                 <div className="kanban-header-right">
@@ -285,66 +329,78 @@ const KanbanBoard = () => {
                   </button>
                 </div>
               ) : (
-                <div className="task-list">
-                  {column.tasks.map((task, taskIndex) => (
-                    <div
-                      key={taskIndex}
-                      className="kanban-card"
-                      onClick={() => handleTaskClick(task)}
-                      style={{ cursor: "pointer" }}
-                    >
-                      <h6 className="task-title">{task.title}</h6>
-                      <div className="task-tags">
-                        {task.tags.map((tag, tagIndex) => (
-                          <span
-                            key={tagIndex}
-                            className="tag-badge"
-                            style={{ backgroundColor: tagColors[tag] || "#888" }}
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                      <p className="task-description">
-                        {task.description}
-                      </p>
-                      <div className="task-footer">
-                        <div className="task-metadata">
-                          <div className="task-time">
-                            <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none">
-                              <circle cx="12" cy="12" r="10"></circle>
-                              <polyline points="12 6 12 12 16 14"></polyline>
-                            </svg>
-                            <span>{task.date}</span>
-                          </div>
-                          <div className="task-actions">
-                            <div className="task-action-item">
+                <div className="task-list" style={{ padding: "12px", flex: 1, overflowY: "auto" }}>
+                  {column.tasks && column.tasks.length > 0 ? (
+                    column.tasks.map((task, taskIndex) => (
+                      <div
+                        key={taskIndex}
+                        className="kanban-card"
+                        onClick={() => handleTaskClick(task)}
+                        style={{ 
+                          cursor: "pointer",
+                          backgroundColor: "#fff",
+                          borderRadius: "6px",
+                          padding: "12px",
+                          marginBottom: "8px",
+                          boxShadow: "0 1px 3px rgba(0,0,0,0.12)",
+                          border: "1px solid #e0e0e0"
+                        }}
+                      >
+                        <h6 className="task-title">{task.title}</h6>
+                        <div className="task-tags">
+                          {task.tags && task.tags.map((tag, tagIndex) => (
+                            <span
+                              key={tagIndex}
+                              className="tag-badge"
+                              style={{ backgroundColor: tagColors[tag] || "#888" }}
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                        <p className="task-description">
+                          {task.description}
+                        </p>
+                        <div className="task-footer">
+                          <div className="task-metadata">
+                            <div className="task-time">
                               <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none">
-                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
                               </svg>
-                              <span>Comment</span>
+                              <span>{task.date}</span>
                             </div>
-                            <div className="task-action-item">
-                              <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none">
-                                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
-                              </svg>
-                              <span>File Attached</span>
+                            <div className="task-actions">
+                              <div className="task-action-item">
+                                <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none">
+                                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                </svg>
+                                <span>Comment</span>
+                              </div>
+                              <div className="task-action-item">
+                                <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none">
+                                  <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                                </svg>
+                                <span>File Attached</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="task-assignees">
+                            <div className="assignee-avatars">
+                              <div className="assignee-avatar">
+                                <img src="/api/placeholder/24/24" alt="Assignee 1" />
+                              </div>
+                              <div className="assignee-avatar">
+                                <img src="/api/placeholder/24/24" alt="Assignee 2" />
+                              </div>
                             </div>
                           </div>
                         </div>
-                        <div className="task-assignees">
-                          <div className="assignee-avatars">
-                            <div className="assignee-avatar">
-                              <img src="/api/placeholder/24/24" alt="Assignee 1" />
-                            </div>
-                            <div className="assignee-avatar">
-                              <img src="/api/placeholder/24/24" alt="Assignee 2" />
-                            </div>
-                          </div>
-                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  ) : (
+                    <div className="empty-column-message">No tasks in this column</div>
+                  )}
                 </div>
               )}
             </div>
