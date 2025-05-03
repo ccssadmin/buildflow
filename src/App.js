@@ -208,21 +208,13 @@ const App = () => {
       default: "/home",
       layout: MdLayout,
     },
-    12: { // Head Finance
+    13: { // finance head
       default: "/finance/dashboard",
       layout: FinanceLayout,
-    },
-    13: { // GM Technology
-      default: "/ceo/dashboard",
-      layout: CeoLayout,
     },
     15: { // HR
       default: "/hr/dashboard",
       layout: HrLayout,
-    },
-    16: { // Purchase Manager
-      default: "/purchasemanager/dashboard",
-      layout: PurchasemanagerLayout,
     },
     17: { // Purchase Manager (duplicate in your DB?)
       default: "/purchasemanager/dashboard",
@@ -407,7 +399,7 @@ const App = () => {
         <Route
           path="/ceo"
           element={
-            <ProtectedRoute allowedRoleIds={[1, 13, 15]}>
+            <ProtectedRoute allowedRoleIds={[1, 15]}>
               {renderLayout(1)}
             </ProtectedRoute>
           }
@@ -433,8 +425,8 @@ const App = () => {
         <Route
           path="/finance"
           element={
-            <ProtectedRoute allowedRoleIds={[12]}>
-              {renderLayout(12)}
+            <ProtectedRoute allowedRoleIds={[13]}>
+              {renderLayout(13)}
             </ProtectedRoute>
           }
         >
