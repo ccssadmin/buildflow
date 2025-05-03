@@ -1,88 +1,181 @@
-import React, { useState, Fragment } from 'react';
-import AqsNotificationTab from './NotificationTab';
+import React from "react";
 
-const AqsMaterials = () => {
-    const [selectedSite, setSelectedSite] = useState('MRM Site');
+const MaterialScreen = () => {
+  const tableStyle = {
+    marginBottom: "2rem",
+    border: "1px solid #dee2e6",
+  };
 
-    const sites = ['MRM Site', 'ABC Site', 'XYZ Site'];
+  const headerStyle = {
+    fontWeight: "bold",
+    marginBottom: "1rem",
+    fontSize: "20px",
+  };
 
-    // Sample data for the table
-    const materials = [
-        { id: '01', name: 'Cement (50kg)', inStock: '500 Bags', required: '200 Bags' },
-        { id: '02', name: 'PVC Pipes', inStock: '56 Unit', required: '28 Unit' },
-        { id: '03', name: 'Wire (4mm)', inStock: '220 Meter', required: '0 Meter' },
-        { id: '04', name: 'Oil-Based Paints (Interior)', inStock: '45 L', required: '92 L' },
-        { id: '05', name: 'Cement (50kg)', inStock: '500 Bags', required: '200 Bags' },
-        { id: '06', name: 'Cement (50kg)', inStock: '500 Bags', required: '200 Bags' },
-        { id: '07', name: 'Cement (50kg)', inStock: '500 Bags', required: '200 Bags' },
-        { id: '08', name: 'Cement (50kg)', inStock: '500 Bags', required: '200 Bags' },
-        { id: '09', name: 'Cement (50kg)', inStock: '500 Bags', required: '200 Bags' },
-        { id: '10', name: 'Cement (50kg)', inStock: '500 Bags', required: '200 Bags' },
-        { id: '11', name: 'Cement (50kg)', inStock: '500 Bags', required: '200 Bags' },
-        { id: '12', name: 'Cement (50kg)', inStock: '500 Bags', required: '200 Bags' },
-        { id: '13', name: 'Cement (50kg)', inStock: '500 Bags', required: '200 Bags' },
-        { id: '14', name: 'Cement (50kg)', inStock: '500 Bags', required: '200 Bags' },
-    ];
+  const approvedStyle = { color: "green", fontWeight: "bold" };
+  const pendingStyle = { color: "orange", fontWeight: "bold" };
 
-    return (
-        <Fragment>
-            <main className="page-home d-flex">
-                <div className="container-fluid">
-                    <div className="row">
-                        {/* Left Panel - Table */}
-                        <div className="col-md-7 p-3">  {/* Added padding */}
-                            <div className="d-flex justify-content-between align-items-center mb-3">
-                                <select
-                                    className="form-select select-custom"
-                                    style={{ backgroundColor: '#E8E8E8' }}
-                                    value={selectedSite}
-                                    onChange={(e) => setSelectedSite(e.target.value)}
-                                >
-                                    {sites.map((site, index) => (
-                                        <option key={index} value={site}>{site}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div>
-                                <table className="tbl">
-                                    <thead>
-                                        <tr>
-                                            <th>S.No</th>
-                                            <th>Material Ordered</th>
-                                            <th>In Stock Quantity</th>
-                                            <th>Required Quantity</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {materials.map((material) => (
-                                            <tr key={material.id}>
-                                                <td>{material.id}</td>
-                                                <td>{material.name}</td>
-                                                <td>{material.inStock}</td>
-                                                <td
-                                                    className={`required-quantity ${material.required === '0 Meter' ? 'zero-required' : ''}`}
-                                                >
-                                                    {material.required}
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
+  const cardStyle = {
+    padding: "20px",
+    borderRadius: "5px",
+    backgroundColor: "#fff",
+  };
 
-                                </table>
-                            </div>
-                        </div>
+  const topBarStyle = {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "1.5rem",
+  };
 
-                        {/* Right Panel - Notifications */}
-                        <div className="col-md-5 p-0">
-                            <div className="right-container">
-                                <AqsNotificationTab />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </main>
-        </Fragment>
-    );
+  const indentRequests = [
+    { material: "Cement (OPC 43)", unit: "Bags", qty: "100 Bags", status: "Approved" },
+    { material: "TMT Bar 16mm", unit: "Tons", qty: "2 Tons", status: "Pending" },
+  ];
+
+  const materialsIssued = [
+    {
+      material: "Cement (OPC 43)",
+      qty: "100 Bags",
+      date: "16–04–2025",
+      issuedBy: "Store In–Charge",
+      issuedPerson: "Savannah Nguyen",
+      receivedPerson: "Esther Howard",
+    },
+    {
+      material: "TMT Bar 16mm",
+      qty: "1.5 Tons",
+      date: "16–04–2025",
+      issuedBy: "Store In–Charge",
+      issuedPerson: "Cody Fisher",
+      receivedPerson: "Ralph Edwards",
+    },
+  ];
+
+  const returnLogs = [
+    { material: "Shuttering Ply", qty: "10 Sheets", reason: "Not used today" },
+  ];
+
+  const shortages = [
+    { material: "TMT Bar 16mm", qty: "0.5 Tons", remark: "Partial Delivery" },
+  ];
+
+  return (
+    <div className="container mt-4" style={{ fontFamily: "sans-serif" }}>
+      <div style={topBarStyle}>
+        <h4 className="fw-bold">MRM Site</h4>
+        <div className="d-flex align-items-center gap-2">
+          <input
+            id="report-date"
+            type="date"
+            className="form-control"
+            style={{ width: "160px", marginRight: "10px" }}
+          />
+          <button
+            className="btn fw-bold"
+            style={{ backgroundColor: "#FF6F00", color: "#FFFFFF" }}
+          >
+            Generate Report
+          </button>
+        </div>
+      </div>
+
+      <div style={cardStyle}>
+        <div style={headerStyle}>Indent Requests</div>
+        <table className="table table-bordered" style={tableStyle}>
+          <thead className="thead-light">
+            <tr>
+              <th className="text-center">Material</th>
+              <th className="text-center">Unit</th>
+              <th className="text-center">Required Qty</th>
+              <th className="text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {indentRequests.map((item, idx) => (
+              <tr key={idx}>
+                <td className="text-center">{item.material}</td>
+                <td className="text-center">{item.unit}</td>
+                <td className="text-center">{item.qty}</td>
+                <td
+                  className="text-center"
+                  style={item.status === "Approved" ? approvedStyle : pendingStyle}
+                >
+                  {item.status}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <div style={headerStyle}>Material Issued</div>
+        <table className="table table-bordered" style={tableStyle}>
+          <thead className="thead-light">
+            <tr>
+              <th className="text-center">Material</th>
+              <th className="text-center">Qty Issued</th>
+              <th className="text-center">Date</th>
+              <th className="text-center">Issued By</th>
+              <th className="text-center">Issued Person</th>
+              <th className="text-center">Received Person</th>
+            </tr>
+          </thead>
+          <tbody>
+            {materialsIssued.map((item, idx) => (
+              <tr key={idx}>
+                <td className="text-center">{item.material}</td>
+                <td className="text-center">{item.qty}</td>
+                <td className="text-center">{item.date}</td>
+                <td className="text-center">{item.issuedBy}</td>
+                <td className="text-center">{item.issuedPerson}</td>
+                <td className="text-center">{item.receivedPerson}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <div style={headerStyle}>Return Log</div>
+        <table className="table table-bordered" style={tableStyle}>
+          <thead className="thead-light">
+            <tr>
+              <th className="text-center">Material</th>
+              <th className="text-center">Qty Returned</th>
+              <th className="text-center">Reason</th>
+            </tr>
+          </thead>
+          <tbody>
+            {returnLogs.map((item, idx) => (
+              <tr key={idx}>
+                <td className="text-center">{item.material}</td>
+                <td className="text-center">{item.qty}</td>
+                <td className="text-center">{item.reason}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <div style={headerStyle}>Shortage / Pending Deliveries</div>
+        <table className="table table-bordered" style={tableStyle}>
+          <thead className="thead-light">
+            <tr>
+              <th className="text-center">Material</th>
+              <th className="text-center">Qty Short</th>
+              <th className="text-center">Remark</th>
+            </tr>
+          </thead>
+          <tbody>
+            {shortages.map((item, idx) => (
+              <tr key={idx}>
+                <td className="text-center">{item.material}</td>
+                <td className="text-center">{item.qty}</td>
+                <td className="text-center">{item.remark}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 };
 
-export default AqsMaterials;
+export default MaterialScreen;

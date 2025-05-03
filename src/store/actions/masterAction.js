@@ -68,6 +68,7 @@ import {
   editBoard
 } from "../../services";
 import axios from "axios";
+import { getAuthToken } from "../../utils/storage";
 
 const generateLabelCode = (name) => {
   if (!name) return '';
@@ -659,9 +660,31 @@ export const createTicketDetailsAction = createAsyncThunk(
   'ticket/createDetails',
   async (formData, thunkAPI) => {
     try {
-      const user = JSON.parse(localStorage.getItem("userData"));
-      const token = user?.token;
-
+      // Try to get token from multiple possible sources
+      let token;
+      
+      // Option 1: Get from userData.token (primary source based on your Login.jsx)
+      const userData = JSON.parse(localStorage.getItem("userData"));
+      token = userData?.token;
+      
+      // Option 2: If not found, try accessing directly from accessToken
+      if (!token) {
+        token = localStorage.getItem("accessToken");
+      }
+      
+      // Option 3: Try getting from your auth utility if available
+      if (!token && typeof getAuthToken === 'function') {
+        token = getAuthToken();
+      }
+      
+      // If still no token, return error
+      if (!token) {
+        console.error('Authentication token not found');
+        return thunkAPI.rejectWithValue('Authentication token not found. Please log in again.');
+      }
+      
+      console.log('Using token:', token.substring(0, 10) + '...'); // Log first part of token for debugging
+      
       const response = await axios.post(
         'https://buildflowgraphql.crestclimbers.com/api/Ticket/add-comment-attachment',
         formData,
@@ -675,6 +698,31 @@ export const createTicketDetailsAction = createAsyncThunk(
 
       return response.data;
     } catch (error) {
+      console.error('API request failed:', error);
+      
+      // Provide more detailed error information
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        console.error('Response status:', error.response.status);
+        console.error('Response data:', error.response.data);
+        console.error('Response headers:', error.response.headers);
+        
+        // If token expired (common 401 reason), suggest re-login
+        if (error.response.status === 401) {
+          return thunkAPI.rejectWithValue({
+            message: 'Your session has expired. Please log in again.',
+            originalError: error.response.data
+          });
+        }
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.error('No response received:', error.request);
+      } else {
+        // Something happened in setting up the request
+        console.error('Request setup error:', error.message);
+      }
+      
       return thunkAPI.rejectWithValue(error.response?.data || error.message);
     }
   }

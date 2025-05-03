@@ -84,7 +84,7 @@ const BudgetFinancialAllocation = ({
         console.log("Roles fetched in BudgetFinancialAllocation:", data); // Add this log
         if (success && data) {
           const filtered = data.filter(
-            (r) => r.roleName === "QS" || r.roleName === "Assistant QS" || r.roleName === "Finance Head"
+            (r) => r.roleName === "QS" || r.roleName === "Assistant QS" || r.roleName === "Head Finance"
           );
           setFilteredRoles(filtered);
         }
@@ -126,45 +126,50 @@ const BudgetFinancialAllocation = ({
     const projectId = formData.projectId || localProjectId || parseInt(localStorage.getItem("projectId"));
     const createdBy = parseInt(localStorage.getItem("userRoleId")); // This is CEO's user id (creator)
   
-    for (const empId of selectedUsers) {
-      const ticketPayload = {
-        projectId,
-        ticketType: "budget",
-        assignTo: [empId],
-        createdBy: createdBy,
-      };
-  
-      try {
-        await createTicket(ticketPayload); // First create the ticket
-        console.log("✅ Ticket created for:", empId);
-  
-        // After successful ticket creation, create notification
-        const notificationPayload = {
-          empId: [empId],                         // Assigned employee
-          notificationType: "Ticket Assigned",  // Default message
-          sourceEntityId: 0,             // Use projectId as the source entity (or ticket id if available)
-          message: "A new budget ticket has been assigned to you.", // Customizable message
-        };
-  
-        await createNotify(notificationPayload); // Create notification
-        console.log("🔔 Notification created for:", empId);
-  
-      } catch (err) {
-        console.error("❌ Failed to create ticket or notification for:", empId, err);
-      }
+    if (selectedUsers.length === 0) {
+      Swal.fire({
+        icon: "warning",
+        title: "No Employees Selected",
+        text: "Please select at least one employee to assign the ticket.",
+      });
+      return;
     }
   
-    Swal.fire({
-      icon: "success",
-      title: "Tickets and Notifications Created",
-      text: "Tickets and notifications successfully submitted.",
-      timer: 1500,
-      showConfirmButton: false,
-    });
+    const ticketPayload = {
+      projectId,
+      ticketType: "budget",
+      assignTo: selectedUsers,
+      createdBy: createdBy,
+    };
   
-    setShowModal(false);
-  };
-
+    try {
+      await createTicket(ticketPayload);
+      console.log("✅ Ticket created");
+  
+      const notificationPayload = {
+        empId: selectedUsers,
+        notificationType: "Ticket Assigned",
+        sourceEntityId: 0,
+        message: "A new budget ticket has been assigned to you.",
+      };
+  
+      await createNotify(notificationPayload);
+      console.log("🔔 Notification created");
+  
+      Swal.fire({
+        icon: "success",
+        title: "Tickets and Notifications Created",
+        text: "Tickets and notifications successfully submitted.",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+  
+      setShowModal(false);
+    } catch (err) {
+      console.error("❌ Failed to create ticket or notification:", err);
+    }
+  };
+  
   const calculateTotalBudget = () => {
     const totalApprovedBudget = formData.budgetBreakdown.reduce((acc, item) => {
       const approved = parseFloat(item.approvedBudget) || 0;
@@ -296,7 +301,7 @@ const BudgetFinancialAllocation = ({
       <div className="row mb-4">
         <div className="col-md-6">
           <Form.Group>
-            <Form.Label>
+            <Form.Label className="fs-26-700 text-dark">
               Total Project Budget <span className="required">*</span>
             </Form.Label>
             <Form.Control
@@ -313,7 +318,7 @@ const BudgetFinancialAllocation = ({
 
         <div className="col-md-6">
           <Form.Group>
-            <Form.Label>
+            <Form.Label  className="fs-26-700 text-dark">
               Send To <span className="required">*</span>
             </Form.Label>
             <Form.Select
@@ -332,15 +337,15 @@ const BudgetFinancialAllocation = ({
         </div>
       </div>
 
-      <div className="budget-breakdown mt-4">
-        <h4>Budget Breakdown</h4>
+      <div className="budget-breakdown">
+        <h4 className="text-dark-gray fs-22-700 mt-4 mb-4">Budget Breakdown</h4>
         <table className="table table-bordered">
           <thead>
             <tr>
-              <th>S.No</th>
-              <th>Expense Category</th>
-              <th>Estimated Cost (₹)</th>
-              <th>Approved Budget (₹)</th>
+              <th className="text-center text-dark fs-18-500">S.No</th>
+              <th className="text-center text-dark fs-18-500">Expense Category</th>
+              <th className="text-center text-dark fs-18-500">Estimated Cost (₹)</th>
+              <th className="text-center text-dark fs-18-500">Approved Budget (₹)</th>
             </tr>
           </thead>
           <tbody>

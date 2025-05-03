@@ -48,7 +48,9 @@ export const API = {
   GET_TICKET_BY_BOARD_LABEL: "/api/BoardManagement/ticketsbyboardlabel",
   GET_FILTERED_BOARD_DATA: "/api/BoardManagement/boardfilter",
   GET_FILTERED_UPDATE_BOARD_DATA: "/api/UpdatesBoardList/boardfilter",
-  
+  // LOGIN BOARD DETAILS 
+  LOGIN_BOARD_DETAILS: '/api/Login/board-details',
+
   /** MASTER */
   GET_COLOR: "/api/CoreColor/corecolors",
   ADD_COLOR: "/api/CoreColor/add",

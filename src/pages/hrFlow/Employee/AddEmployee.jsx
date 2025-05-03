@@ -1,28 +1,58 @@
 import React, { useEffect, useState } from "react";
+import "../../../styles/components/css/hr/hrms.css";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchDepartments } from "../../../store/actions/Department/departmentaction";
-import { fetchRoles } from "../../../store/actions/Designation/designationaction";
-import { fetchProjects } from "../../../store/actions/Project/projectaction";
+import { useLocation } from "react-router-dom";
+import { fetchDepartments } from "../../../store/actions/hr/departmentaction";
+import { createEmployee, createOrUpdateEmployee } from "../../../store/actions/hr/createemployeaction";
+import { fetchRolesByDepartment } from "../../../store/actions/hr/designationaction";
+import { fetchProjects } from "../../../store/actions/hr/projectaction";
 
-const AddEmployee = () => {const dispatch = useDispatch();
+
+const AddEmployee = () => {
+
+  const dispatch = useDispatch();
   const { departments = [], loading, error } = useSelector((state) => state.department || {});
   const { roles = [] } = useSelector((state) => state.role || {});
   const { projects = [] } = useSelector((state) => state.project);
+  const [validationErrors, setValidationErrors] = useState({});
+  const location = useLocation();
+const editingEmployee = location.state?.employeeData;
+
+  
+const [employee, setEmployee] = useState({
+  name: "",
+  dob: "",
+  gender: "",
+  mobile: "",
+  email: "",
+  EmployeeCode: "",
+  department: "",
+  designation: "",
+  project: "",
+});
+useEffect(() => {
+  if (editingEmployee) {
+    setEmployee({
+      name: editingEmployee.firstName || "",
+      dob: editingEmployee.dateOfBirth || "",
+      gender: editingEmployee.gender || "",
+      mobile: editingEmployee.phone || "",
+      email: editingEmployee.email || "",
+      EmployeeCode: editingEmployee.employeeCode || "",
+      department: editingEmployee.deptId?.toString() || "",
+      designation: editingEmployee.roleId?.toString() || "",
+      project: editingEmployee.project_id?.toString() || "",
+    });
+  }
+}, [editingEmployee]);
 
 
-      const [employee, setEmployee] = useState({
-    name: "",
-    dob: "",
-    gender: "",
-    mobile: "",
-    email: "",
-    employeeId: "",
-    department: "",
-    designation: "",
-    project: "",
-  });
+  
 
+
+
+  
 
 
   useEffect(() => {
@@ -30,8 +60,15 @@ const AddEmployee = () => {const dispatch = useDispatch();
   }, [dispatch]);
 
   useEffect(() => {
-    dispatch(fetchRoles());
-  }, [dispatch]);
+    if (employee.department) {
+      dispatch(fetchRolesByDepartment(employee.department));
+    }
+  }, [employee.department, dispatch]);
+
+  useEffect(() => {
+    console.log("Roles for department", employee.department, ":", roles);
+  }, [roles]);
+  
   
   useEffect(() => {
     dispatch(fetchProjects());
@@ -46,31 +83,87 @@ const AddEmployee = () => {const dispatch = useDispatch();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setEmployee((prev) => ({ ...prev, [name]: value }));
+  
+    setEmployee((prev) => ({
+      ...prev,
+      [name]: name === "designation" || name === "project" || name === "department"
+        ? Number(value)
+        : value,
+      ...(name === "department" ? { designation: "" } : {}),
+    }));
   };
-
+  
+  
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Submitted Employee:", employee);
-
-    setSuccessMessage("Employee added successfully!");
-
-    // Reset form
-    setEmployee({
-      name: "",
-      dob: "",
-      gender: "",
-      mobile: "",
-      email: "",
-      employeeId: "",
-      department: "",
-      designation: "",
-      project: "",
-    });
-
-    // Clear message after 3 seconds
-    setTimeout(() => setSuccessMessage(""), 3000);
+  
+    const errors = {};
+    if (!employee.name.trim()) {
+      errors.name = "Name is required";
+    } else if (!/^[A-Za-z\s]+$/.test(employee.name)) {
+      errors.name = "Name must contain only letters";
+    }
+    if (!employee.dob) errors.dob = "Date of birth is required";
+    if (!employee.gender) errors.gender = "Gender is required";
+    if (!/^\d{10}$/.test(employee.mobile)) {
+      errors.mobile = "Enter valid 10-digit mobile number";
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(employee.email)) {
+      errors.email = "Invalid email format";
+    }
+    if (!employee.department) errors.department = "Department is required";
+    if (!employee.designation) errors.designation = "Designation is required";
+    if (!employee.project) errors.project = "Project is required";
+  
+    setValidationErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+  
+    const formattedData = {
+      empId: editingEmployee?.empId || 0,
+      firstName: employee.name,
+      middleName: employee.name,
+      lastName: employee.name,
+      dateOfBirth: employee.dob,
+      gender: employee.gender,
+      phone: employee.mobile,
+      email: employee.email,
+      department: Number(employee.department),
+      designation: Number(employee.designation),
+      project: Number(employee.project),
+      employeeCode: employee.EmployeeCode,
+    };
+    
+    const action = editingEmployee ? createOrUpdateEmployee : createEmployee;
+  
+    dispatch(createOrUpdateEmployee(formattedData))      .unwrap()
+      .then(() => {
+        setSuccessMessage(
+          editingEmployee ? "Employee updated successfully!" : "Employee added successfully!"
+        );
+        setValidationErrors({});
+        setTimeout(() => setSuccessMessage(""), 3000);
+        if (!editingEmployee) {
+          setEmployee({
+            name: "",
+            dob: "",
+            gender: "",
+            mobile: "",
+            email: "",
+            EmployeeCode: "",
+            department: "",
+            designation: "",
+            project: "",
+          });
+        }
+        
+      })
+      .catch(() => {
+        setSuccessMessage("Operation failed. Try again.");
+      });
   };
+  
+  
+  
 
   const handleCancel = () => {
     setEmployee({
@@ -79,10 +172,10 @@ const AddEmployee = () => {const dispatch = useDispatch();
       gender: "",
       mobile: "",
       email: "",
-      employeeId: "",
+      EmployeeCode: "",
       department: "",
       designation: "",
-      project: "",
+      project: 0,
     });
   };
 
@@ -102,22 +195,27 @@ const AddEmployee = () => {const dispatch = useDispatch();
         <div className="addemployee-form-row">
           <div className="addemployee-form-group">
             <label>Name <span className="addemployee-required">*</span></label>
-            <input type="text" name="name" placeholder="Employee Name" value={employee.name} onChange={handleChange} required />
+         
+            <input type="text" name="name" placeholder="Employee Name" value={employee.name} onChange={handleChange}  />
+            {validationErrors.name && <p className="error-text">{validationErrors.name}</p>}
           </div>
 
           <div className="addemployee-form-group">
             <label>Date of Birth <span className="addemployee-required">*</span></label>
-            <input type="date" name="dob" value={employee.dob} onChange={handleChange} required />
+            <input type="date" name="dob" value={employee.dob} onChange={handleChange}  />
+            {validationErrors.dob && <p className="error-text">{validationErrors.dob}</p>}
           </div>
 
           <div className="addemployee-form-group">
             <label>Gender <span className="addemployee-required">*</span></label>
-            <select name="gender" value={employee.gender} onChange={handleChange} required>
+            <select name="gender" value={employee.gender} onChange={handleChange} >
               <option value="">Select Gender</option>
               <option value="Male">Male</option>
               <option value="Female">Female</option>
               <option value="Other">Other</option>
+
             </select>
+            {validationErrors.gender && <p className="error-text">{validationErrors.gender}</p>}
           </div>
 
           <div className="addemployee-form-group">
@@ -137,10 +235,11 @@ const AddEmployee = () => {const dispatch = useDispatch();
       placeholder="92xxx xxxxx"
       className="mobile-input"
     />
+    {validationErrors.mobile && <p className="error-text">{validationErrors.mobile}</p>}
       </div>
           </div>
 
-          <div className="addemployee-form-group">
+          <div className="addemployee-form-group-email">
           <label>Email ID</label>
   <input
     type="email"
@@ -150,6 +249,8 @@ const AddEmployee = () => {const dispatch = useDispatch();
     placeholder="Enter Email Id"
     className="email-input"
   />
+      {validationErrors.email && <p className="error-text">{validationErrors.email}</p>}
+
 </div>
         </div>
 
@@ -158,30 +259,33 @@ const AddEmployee = () => {const dispatch = useDispatch();
         <div className="addemployee-form-row">
           <div className="addemployee-form-group">
             <label>Employee ID</label>
-            <input type="text" placeholder="EMP001025" name="employeeId" value={employee.employeeId} onChange={handleChange} />
+            <input type="text" placeholder="EMP001025" name="EmployeeCode" value={employee.EmployeeCode} onChange={handleChange} />
           </div>
 
 
           <div className="addemployee-form-group">
             <label>Department <span className="addemployee-required">*</span></label>
             <select
-              name="department"
-              value={employee.department}
-              onChange={handleChange}
-              required
-            >
-              {loading ? (
-                <option disabled>Loading departments...</option>
-              ) : Array.isArray(departments) && departments.length > 0 ? (
-                departments.map((dept) => (
-                  <option key={dept.deptId} value={dept.deptName.trim()}>
-                    {dept.deptName.trim()}
-                  </option>
-                ))
-              ) : (
-                <option disabled>No departments available</option>
-              )}
-            </select>
+  name="department"
+  value={employee.department}
+  onChange={handleChange}
+  
+>
+
+  <option value="">Select Department</option>
+  {loading ? (
+    <option disabled>Loading departments...</option>
+  ) : Array.isArray(departments) && departments.length > 0 ? (
+    departments.map((dept) => (
+      <option key={dept.deptId} value={dept.deptId}>
+        {dept.deptName.trim()}
+      </option>
+    ))
+  ) : (
+    <option disabled>No departments available</option>
+  )}
+</select>
+{validationErrors.department && <p className="error-text">{validationErrors.department}</p>}
           </div>
 
 
@@ -190,31 +294,45 @@ const AddEmployee = () => {const dispatch = useDispatch();
     Designation <span className="addemployee-required">*</span>
   </label>
   <select
-    name="designation"
-    value={employee.designation}
-    onChange={handleChange}
-    required
-  >
+  name="designation"
+  value={employee.designation}
+  onChange={handleChange}
+  disabled={!employee.department}
+>
+
+  
     <option value="">Select Designation</option>
-    {roles.map((role) => (
-      <option key={role.roleId} value={role.roleName}>
-        {role.roleName}
-      </option>
-    ))}
+    {Array.isArray(roles) ? (
+  roles.map((roles) => (
+    <option key={roles.roleId} value={roles.roleId}>
+    {roles.roleName}
+  </option>
+  ))
+) : (
+  <option disabled>Loading roles...</option>
+)}
+
+  
   </select>
+  {validationErrors.designation && <p className="error-text">{validationErrors.designation}</p>}
+
 </div>
 
 
           <div className="addemployee-form-group">
             <label >Projects <span className="addemployee-required">*</span></label>
-            <select name="project" value={employee.project} onChange={handleChange} required>
+            <select  className="project"  name="project" value={employee.project} onChange={handleChange} >
   <option value="">Select Project</option>
   {projects.map((proj) => (
-    <option key={proj.project_id} value={proj.project_name}>
-      {proj.project_name}
+    <option key={proj.project_id} value={proj.project_id}>
+    {proj.project_name}
     </option>
+    
   ))}
 </select>
+{validationErrors.project && <p className="error-text">{validationErrors.project}</p>}
+
+
           </div>
         </div>
 
@@ -226,6 +344,5 @@ const AddEmployee = () => {const dispatch = useDispatch();
     </div>
   );
 };
-
 
 export default AddEmployee;

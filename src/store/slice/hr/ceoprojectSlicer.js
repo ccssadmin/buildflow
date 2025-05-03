@@ -9,7 +9,7 @@ import {
   getProjectDetailsAction,
   getProjectTypeSectorAction,
 } from "../../actions/Ceo/ceoprojectAction";
-import { fetchProjects } from "../../actions/hr/projectaction";
+import { fetchProjects } from "../../actions/Ceo/projectaction";
 
 const initialState = {
   projects: [],

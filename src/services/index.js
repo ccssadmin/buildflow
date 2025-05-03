@@ -60,7 +60,8 @@ export const getAllProjectByFilter = (params) => api.GET(API.GET_ALL_PROJECT_FIL
 export const getEmployeesByRoles = (params) => api.GET(API.GET_EMPLOYEES_BY_ROLES, params);
 //get role
 export const getroles = (params) => api.GET(API.GET_ROLE, params);
-
+/* get login board details  */
+export const loginBoardDetails = (params) => api.GET(API.LOGIN_BOARD_DETAILS+'/'+params);
 /* PM Project*/
 export const getPmProjectDetails = (params) =>api.GET(API.GET_PROJECT_DETAILS,params);
 //notification

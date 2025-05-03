@@ -54,7 +54,7 @@ const AqsVendor = () => {
 
       <div className="row"
         style={{ cursor: 'pointer' }}
-        onClick={() => navigate('/aqs/aqsvendordetails')}>
+        onClick={() => navigate('../vendorsDetails')}>
         {vendors.map((vendor, index) => (
           <div key={index} className="col-md-6 mb-3">
             <div className="card p-3 shadow-sm">
