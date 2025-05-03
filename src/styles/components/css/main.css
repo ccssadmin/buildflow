@@ -406,9 +406,6 @@ h5.sidenav-content__headings-lists--title {
         width: 100%;
         max-width: 100%;
     }
-    .card-conatiner {
-        max-width: 200px;
-    }
     .card-row-1 {
         padding: 0px 0px;
     }
@@ -419,24 +416,9 @@ h5.sidenav-content__headings-lists--title {
 @media (max-width: 1366px) {
     .sidenav-content {
         height: 100%;
-    }    
-    .header-content {
-        height: 60px;
-    }
-    .search-icon {
-        top: 8px;
-    }
-    .header-search-input {
-        height: 40px;
-    }
-    .sidenav-content {
-        top : 60px;
-    }
+    }  
     .notifications-list {
         top: 250px !important;
-    }
-    .project-employees-list {
-        top: 110px !important;
     }
     .project-employees-list {
         height: 100% !important;
