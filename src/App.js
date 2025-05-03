@@ -467,7 +467,7 @@ const App = () => {
           <Route path="dashboard" element={<PmDashboard />} />
           <Route path="project" element={<PmProject />} />
           <Route path="approvals" element={<KanbanPm />} />
-          <Route path="ticket/:ticketId" element={<PmTicketDetails />} />
+          <Route path="pmticket/:ticketId" element={<PmTicketDetails />} />
           <Route path="chats" element={<PmChat />} />
           <Route path="task" element={<PmTask />} />
           <Route path="resources" element={<PmResources />} />

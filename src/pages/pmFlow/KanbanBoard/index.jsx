@@ -27,9 +27,7 @@ const KanbanBoard = () => {
   const [columns, setColumns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   
-
   // Get board data from Redux store
   const boardDetailsData = useSelector(loginBoardDetailsSelector);
   
@@ -39,6 +37,14 @@ const KanbanBoard = () => {
   // Try both data formats that might be coming from Redux
   const data = boardDetailsData?.data || boardDetailsData;
   
+  // Get the current user role from localStorage
+  const getUserRole = () => {
+    const userRoleId = localStorage.getItem("userRoleId");
+    return userRoleId ? parseInt(userRoleId) : null;
+  };
+  
+  const userRoleId = getUserRole();
+  console.log("Current user role ID:", userRoleId);
 
   // get the emp details
   useEffect(() => {
@@ -55,7 +61,6 @@ const KanbanBoard = () => {
     
     const empId = getEmpId();
     
-
     if (empId) {
       console.log("Dispatching getLoginBoardDetailsdAction with empId:", empId);
       dispatch(getLoginBoardDetailsdAction(empId));
@@ -154,21 +159,54 @@ const KanbanBoard = () => {
     setShowTaskInput(false);
   };
 
+  // Helper function to determine the correct route based on user role
+  const getTicketRoute = (ticketId) => {
+    // Map role IDs to their respective routes
+    const roleRoutes = {
+      1: `/ceo/ticket/${ticketId}`, // CEO
+      2: `/admin/engineerticketdetails/${ticketId}`, // Site Engineer
+      3: `/aqs/aqsticketdetails/${ticketId}`, // Assistant QS
+      4: `/aqs/aqsticketdetails/${ticketId}`, // QS
+      5: `/admin/engineerticketdetails/${ticketId}`, // Site Supervisor
+      6: `/admin/engineerticketdetails/${ticketId}`, // Lead Engineer
+      7: `/pm/pmticket/${ticketId}`, // Assistant Project Manager
+      8: `/pm/pmticket/${ticketId}`, // Project Manager
+      9: `/admin/engineerticketdetails/${ticketId}`, // Designer
+      10: `/admin/engineerticketdetails/${ticketId}`, // Engineer
+      11: `/ticket/${ticketId}`, // Managing Director
+      12: `/finance/financeticketdetails/${ticketId}`, // Head Finance
+      13: `/ceo/ticket/${ticketId}`, // GM Technology
+      15: `/hr/hrticketdetails/${ticketId}`, // HR
+      16: `/purchasemanager/hrticketdetails/${ticketId}`, // Purchase Manager
+      17: `/purchasemanager/hrticketdetails/${ticketId}`, // Purchase Manager (duplicate)
+    };
+
+    return roleRoutes[userRoleId] || `/ticket/${ticketId}`;
+  };
+
   const handleTaskClick = async (task) => {
     try {
+      console.log("Clicked on task with ID:", task.id);
       const ticketDetails = await dispatch(getticketbyidAction(task.id)).unwrap();
-      navigate(`/ticket/${task.id}`, { 
+      console.log("Fetched ticket details:", ticketDetails);
+      
+      // Get the correct route based on user role
+      const ticketRoute = getTicketRoute(task.id);
+      console.log("Navigating to route:", ticketRoute);
+      
+      navigate(ticketRoute, {  
         state: { 
           ticket: ticketDetails,
-          from: 'kanban' 
+          from: 'index' 
         } 
       });
     } catch (error) {
       console.error("Failed to fetch ticket details:", error);
-      // Optionally show an error message to the user
+      // Show an error message to the user
+      alert("Failed to fetch ticket details. Please try again.");
     }
   };
-
+   
   const handleMenuClick = (columnIndex) => {
     setMenuOpen({
       ...menuOpen,
@@ -203,7 +241,7 @@ const KanbanBoard = () => {
   };
 
   // Add a console log to check state at render time
-  console.log("Render state:", { loading, error, boardData, columnsCount: columns.length });
+  console.log("Render state:", { loading, error, boardData, columnsCount: columns.length, userRoleId });
 
   if (loading) {
     return (
@@ -239,10 +277,6 @@ const KanbanBoard = () => {
   }
 
   return (
-    
-
-
-    
     <div className="kanban-page-container">
       <div className="kanban-header-section">
         <div className="kanban-view-toggle">
