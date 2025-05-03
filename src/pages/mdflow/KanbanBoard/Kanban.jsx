@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { getticketbyidAction } from "../../../store/actions/Ceo/TicketCreateAction";
 import { loginBoardDetailsSelector } from "../../../store/selector/masterSelector";
 import { getLoginBoardDetailsdAction } from "../../../store/actions/kanbanAction";
+import { useLocation } from 'react-router-dom';
 
 // Define tag colors
 const tagColors = {
@@ -20,10 +21,14 @@ const tagColors = {
 const KanbanBoard = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const location = useLocation();
+  const state = location.state;
   const [boardData, setBoardData] = useState(null);
   const [columns, setColumns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  
 
   // Get board data from Redux store
   const boardDetailsData = useSelector(loginBoardDetailsSelector);
@@ -34,12 +39,22 @@ const KanbanBoard = () => {
   // Try both data formats that might be coming from Redux
   const data = boardDetailsData?.data || boardDetailsData;
   
-  useEffect(() => {
-    const userDataString = localStorage.getItem("userData");
-    const userData = userDataString ? JSON.parse(userDataString) : null;
-    const empId = userData?.empId;
 
-    console.log("Employee ID found:", empId);
+  // get the emp details
+  useEffect(() => {
+    console.log("Received state on Approvals page:", state);
+  }, []);
+  
+  useEffect(() => {
+    const getEmpId = () => {
+      if (state?.emp_id) return state.emp_id;
+      const userDataString = localStorage.getItem("userData");
+      const userData = userDataString ? JSON.parse(userDataString) : null;
+      return userData?.empId;
+    };
+    
+    const empId = getEmpId();
+    
 
     if (empId) {
       console.log("Dispatching getLoginBoardDetailsdAction with empId:", empId);
@@ -224,6 +239,10 @@ const KanbanBoard = () => {
   }
 
   return (
+    
+
+
+    
     <div className="kanban-page-container">
       <div className="kanban-header-section">
         <div className="kanban-view-toggle">
@@ -238,6 +257,14 @@ const KanbanBoard = () => {
           </button>
         </div>
       </div>
+      <div>
+      {state?.emp_name && state?.role && (
+  <div>
+    <p><strong>Name:</strong> {state.emp_name}</p>
+    <p><strong>Role:</strong> {state.role}</p>
+  </div>
+)}
+    </div>
 
       <div className="kanban-container">
         
