@@ -280,7 +280,7 @@ const EngineerTicketDetails = () => {
     try {
       // Retrieve userData and token from localStorage
       const userData = JSON.parse(localStorage.getItem("userData"));
-      const token = userData?.token || localStorage.getItem("accessToken"); // ✅ fallback
+      const token = userData?.token || localStorage.getItem("accessToken");
   
       if (!userData || !token) {
         showToastNotification("User or token not found. Please login again.");
@@ -298,7 +298,6 @@ const EngineerTicketDetails = () => {
         ticketId: ticketDetails?.ticket_id,
         dueDate: dueDate ? dueDate.toISOString().split("T")[0] : null,
         isApproved: approvalStatus === "Approved",
-        labelId: 0,
         updatedBy: userData.empId,
         moveTo: moveTo.length > 0 ? moveTo : null,
         moveBy: userData.empId
@@ -312,12 +311,17 @@ const EngineerTicketDetails = () => {
       if (result.success) {
         showToastNotification("Ticket updated successfully");
   
-        setTicketDetails(prev => ({
-          ...prev,
-          isapproved: payload.isApproved,
-          approved_by: `${userData.firstName} ${userData.lastName || ''}`,
-          due_date: payload.dueDate
-        }));
+        // ✅ Refetch the updated ticket
+        const updatedData = await dispatch(getticketbyidAction(payload.ticketId)).unwrap();
+        setTicketDetails(updatedData);
+  
+        // Optionally update the dates if needed
+        if (updatedData.create_date) {
+          setOrderDate(new Date(updatedData.create_date));
+        }
+        if (updatedData.due_date) {
+          setDueDate(new Date(updatedData.due_date));
+        }
       } else {
         showToastNotification(result.message || "Failed to update ticket");
       }
@@ -328,6 +332,7 @@ const EngineerTicketDetails = () => {
       setIsLoading(false);
     }
   };
+  
   
  const handleSendComment = async () => {
     if (!commentText.trim()) {

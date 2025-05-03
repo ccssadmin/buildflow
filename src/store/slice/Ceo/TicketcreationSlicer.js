@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { 
+  createNewTicketTaskAction,
   createticketAction, 
   getticketbyidAction, 
   getTicketLabelsAction, 
@@ -12,6 +13,7 @@ const initialState = {
   createticket: [],
   labels: [],
   ticketsByLabel: {},
+  newTicketTasks: [],
   loading: false,
   error: null,
   success: false,
@@ -140,7 +142,22 @@ const ticketSlice = createSlice({
         state.loading = false;
         state.error = action.payload || 'Failed to update ticket status';
         state.success = false;
+      })
+      .addCase(createNewTicketTaskAction.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createNewTicketTaskAction.fulfilled, (state, action) => {
+        state.loading = false;
+        state.success = true;
+        state.newTicketTasks.push(action.payload); // payload contains newtasktitle & generated ticketId
+      })
+      .addCase(createNewTicketTaskAction.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Failed to create new ticket task";
+        state.success = false;
       });
+      
   },
 });
 
