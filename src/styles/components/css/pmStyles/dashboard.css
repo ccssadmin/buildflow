@@ -20,10 +20,10 @@
     height: 52px;
     border-radius: 10px;
 }
-.foundation-work-card {
+.page-pmdashboard .foundation-work-card {
     width: 40%;
 }
-.foundation-work-card-inner {
+.page-pmdashboard .foundation-work-card-inner {
     background-color: #E7E7E7;
     min-height: 66px;
     width: 100%;
@@ -31,17 +31,17 @@
     display: flex;
     align-items: center;
 }
-.timiline-summary-container {
+.page-pmdashboard .timiline-summary-container {
     width: 60%;
 }
-.timiline-summary-card {
+.page-pmdashboard .timiline-summary-card {
     width: 30%;
     margin-right: 10px;
 }
-.timiline-summary-card {
+.page-pmdashboard .timiline-summary-card {
     width: #EEEEEE;
 }
-.timiline-summary-card .status {
+.page-pmdashboard .timiline-summary-card .status {
     color: #ffffff;
     height: 14px;
     font-size: 8px;
@@ -53,19 +53,19 @@
     align-items: center;
     margin-left: 5px;
 }
-.timiline-summary-card .status.cancelled {
-    background-color: #D00416;
+.page-pmdashboard .timiline-summary-card .status.cancelled {
+    background-color: var(--text-crimson-red);
 }
-.timiline-summary-card .status.completed {
-    background-color: #30A335;
+.page-pmdashboard .timiline-summary-card .status.completed {
+    background-color: var(--green);
 }
-.timiline-summary-card .status.in-progress {
-    background-color: #F1C300;
+.page-pmdashboard .timiline-summary-card .status.in-progress {
+    background-color: var(--golden-yellow);
 }
 .timiline-summary-container .timiline-summary-card:nth-child(2) {
     color: #FFEDED;
 }
-.timiline-summary-container .timiline-summary-card .timiline-summary-card-inner {
+.page-pmdashboard .timiline-summary-container .timiline-summary-card .timiline-summary-card-inner {
     min-height: 66px;
     align-items: center;
     align-items: center;
@@ -74,20 +74,48 @@
 body .page-pmdashboard .pending-approvel-conatiner .progress-indicator.large {
     width: 40px;
     height: 20px;
+    font-size: 10px;
 }
-.timiline-summary-container .timiline-summary-card > div p {
+body .page-pmdashboard .pending-approvel-conatiner .progress-container {
+    margin-top: 50px !important;
+}
+.page-pmdashboard .timiline-summary-container .timiline-summary-card > div p {
     height: 32px;
     width: 100%;
     padding: 0px 5px;
 }
-.timiline-summary-container .timiline-summary-card:first-child > div p {
+.page-pmdashboard .timiline-summary-container .timiline-summary-card:first-child > div p {
     background-color: #EEEEEE;
     border-top-left-radius: 6px;
     border-bottom-left-radius: 6px;
 }
-.timiline-summary-container .timiline-summary-card:last-child > div p  {
+.page-pmdashboard .timiline-summary-container .timiline-summary-card:last-child > div p  {
     background-color: #EEEEEE;
 }
-.timiline-summary-container .timiline-summary-card:nth-child(2) > div p {
+.page-pmdashboard .timiline-summary-container .timiline-summary-card:nth-child(2) > div p {
     background-color: #FFEDED;
+}
+.page-pmdashboard .emp-data-conatiner .emp-data {
+    width: 50%;
+}
+.page-pmdashboard .emp-data-conatiner .emp-data:last-child {
+    border-left: 1px solid var(--gray-color) ;
+    padding-left: 40px;
+}
+body .page-pmdashboard .budget-usage-conatiner .progress-container {
+    margin-top: 20px !important;
+}
+.page-pmdashboard .budget-usage-conatiner .custom-progress-bar {
+    height: 48px;
+}
+.page-pmdashboard span.quick-alert-priority {
+    height: 20px;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 17px;
+}
+.page-pmdashboard .quickalert-max-height {
+    height: 380px;
 }

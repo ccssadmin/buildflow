@@ -537,7 +537,15 @@
     background-color: #BBBBBB !important;
     color: #8E8E8E !important;
 }
-
+.page-ceo-createproject  .budget-breakdown td .form-control {
+    border: 0px !important;
+    text-align: center;
+}
+.page-ceo-createproject  .budget-breakdown table td {
+    padding-top: 0px;
+    padding-bottom: 0px;
+    text-align: center;
+}
 /* Responsive Styles */
 @media (max-width: 768px) {
     .page-ceo-createproject .progress-steps {

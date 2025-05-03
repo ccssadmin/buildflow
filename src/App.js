@@ -220,18 +220,14 @@ const App = () => {
       default: "/hr/dashboard",
       layout: HrLayout,
     },
-    16: { // General Manager (Operation)
-      default: "/ceo/dashboard",
-      layout: CeoLayout,
-    },
-    17: { // Purchase Manager
+    16: { // Purchase Manager
       default: "/purchasemanager/dashboard",
       layout: PurchasemanagerLayout,
     },
-    // 17: { // Purchase Manager (duplicate in your DB?)
-    //   default: "/purchasemanager/dashboard",
-    //   layout: PurchasemanagerLayout,
-    // }
+    17: { // Purchase Manager (duplicate in your DB?)
+      default: "/purchasemanager/dashboard",
+      layout: PurchasemanagerLayout,
+    }
       // layout: PurchasemanagerLayout
     }
     // "Vendor" : {
@@ -423,7 +419,7 @@ const App = () => {
           <Route path="createproject" element={<CeoCreateProject />} />
           <Route path="projectmilestone" element={<ProjectTimeline />} />
           <Route path="approvals" element={<KanbanCeo />} />
-          <Route path="ticketdetails/:ticketId" element={<CeoTicketDetails />} />
+          <Route path="ticket/:ticketId" element={<CeoTicketDetails />} />
           <Route path="chats" element={<CeoChat />} />
           <Route path="finance" element={<CeoFinance />} />
           <Route path="resources" element={<CeoResources />} />
@@ -488,8 +484,8 @@ const App = () => {
         <Route
           path="/hr"
           element={
-            <ProtectedRoute allowedRoleIds={[14]}>
-              {renderLayout(14)}
+            <ProtectedRoute allowedRoleIds={[15]}>
+              {renderLayout(15)}
             </ProtectedRoute>
           }
         >

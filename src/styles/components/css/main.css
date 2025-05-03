@@ -67,6 +67,9 @@ body .bg-primary {
 .bg-green {
     background-color: var(--green) !important;
 }
+.bg-crimson-red {
+    background-color: var(--crimson-red) !important;
+}
 .bg-platinum-gray-dark {
     background-color: var(--platinum-gray-dark) !important;
 }
