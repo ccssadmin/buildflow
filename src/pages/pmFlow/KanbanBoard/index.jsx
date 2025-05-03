@@ -460,7 +460,7 @@ const KanbanBoard = () => {
                       </div>
                     ))
                   ) : (
-                    <div className="empty-column-message">No tasks in this column</div>
+                    <div className="empty-column-message">No tasks in  this column</div>
                   )}
                 </div>
               )}
