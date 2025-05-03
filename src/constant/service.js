@@ -17,6 +17,7 @@ export const API = {
   GET_ALL_PROJECT_FILTER : "/api/Project/get-projects-by-status",
   GET_TICKET_BY_ID : "/api/Ticket/get-ticket-by-id",
   GET_TICKET_LABELS : "/api/Login/labels-with-tickets",
+  CREATE_NEW_TICKET_TASK : "/api/Ticket/createTicket",
   UPDATE_PROJECT_APPROVAL: '/api/Ticket/update-ticket-by-id',
 
 //department //

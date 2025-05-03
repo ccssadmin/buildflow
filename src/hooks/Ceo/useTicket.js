@@ -6,13 +6,15 @@ import {
   selectTicketLabels, 
   selectTicketsByLabel, 
   selectLabelsLoading, 
-  selectLabelsError 
+  selectLabelsError, 
+  selectNewTicketTasks
 } from "../../store/selector/ceo/ticketSelector";
 import { 
   updateProjectApprovalAction, 
   createticketAction, 
   getticketbyidAction, 
-  getTicketLabelsAction 
+  getTicketLabelsAction, 
+  createNewTicketTaskAction
 } from "../../store/actions/Ceo/TicketCreateAction";
 
 export const useTicket = () => {
@@ -25,6 +27,7 @@ export const useTicket = () => {
   const ticketsByLabel = useSelector(selectTicketsByLabel);
   const loading = useSelector(selectLabelsLoading);
   const error = useSelector(selectLabelsError);
+  const newTicketTasks = useSelector(selectNewTicketTasks);
 
   const createTicket = async (ticketData) => {
     try {
@@ -66,6 +69,19 @@ export const useTicket = () => {
     }
   };
 
+ 
+
+const createNewTicketTaskHook = async (newtasktitle) => {
+  try {
+    const result = await dispatch(createNewTicketTaskAction({ newtasktitle })).unwrap();
+    return { success: true, data: result };
+  } catch (error) {
+    console.error("Failed to create new ticket task:", error);
+    return { success: false, error };
+  }
+};
+
+
   return {
     ticket,
     ticketDetails,
@@ -74,9 +90,11 @@ export const useTicket = () => {
     ticketsByLabel,
     loading,
     error,
+    newTicketTasks,
     createTicket,
     fetchTicketById,
     updateProjectApprovalHook,
     fetchLabelsByEmployeeId,
+    createNewTicketTaskHook,
   };
 };
