@@ -39,7 +39,7 @@ export const createProjectMilestone = (params) => api.POST(API.CREATE_PROJECT_MI
 
 /** Tickets Comments Create */
 export const createTicketsDetails = (params) => api.POST(API.CREATE_TICKET_DETAILS,params);
-
+export const createNewTicketTask = (params) => api.POST(API.CREATE_NEW_TICKET_TASK,params);
 
 //ticket
 export const getTicketById = (ticketId) => {

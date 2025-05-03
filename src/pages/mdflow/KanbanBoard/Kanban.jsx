@@ -26,105 +26,112 @@ const KanbanBoard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
-  useEffect(() => {
-    const fetchBoardDetails = async () => {
-      try {
-        setLoading(true);
-        // Get user info to get the employee ID
-        const userResponse = await dispatch(userInfoAction());
-        const userData = userResponse.payload;
-        
-        if (!userData || !userData.empId) {
-          throw new Error("Failed to get user information");
-        }
-        
-        // Get auth token from storage
-        const token = getAuthToken() || localStorage.getItem("accessToken");
-        
-        if (!token) {
-          throw new Error("Authentication token not found");
-        }
-        
-        // Fetch board details using the employee ID with authentication
-        const boardResponse = await axios.get(
-          `${process.env.REACT_APP_MASTER_API_BASE_URL}/api/Login/board-details/${userData.empId}`,
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          }
-        );
-        
-        if (boardResponse.data && boardResponse.data.length > 0) {
-          setBoardData(boardResponse.data[0]); // Use the first board
-          
-          // Transform the API response into our columns format
-          const transformedColumns = boardResponse.data[0].labels.map(label => ({
-            title: label.labelName,
-            id: label.labelId,
-            count: label.tickets ? label.tickets.length : 0,
-            color: tagColors[label.labelName] || "#D2F4FF",
-            tasks: label.tickets ? label.tickets.map(ticket => ({
-              id: ticket.ticketId,
-              title: ticket.ticketName,
-              tags: ["PO"], // Example tag, could be dynamic based on ticket categories if available
-              description: ticket.ticketDescription,
-              date: new Date(ticket.ticketCreatedDate).toLocaleDateString('en-GB'),
-              comments: 0,
-              files: 0
-            })) : []
-          }));
-          
-          setColumns(transformedColumns);
-        } else {
-          throw new Error("No board data found");
-        }
-      } catch (error) {
-        console.error("❌ Failed to fetch board details:", error);
-        setError("Failed to load board data. Please try again.");
-      } finally {
-        setLoading(false);
+  const fetchBoardDetails = async () => {
+    try {
+      setLoading(true);
+  
+      const userResponse = await dispatch(userInfoAction());
+      const userData = userResponse.payload;
+  
+      if (!userData || !userData.empId) {
+        throw new Error("Failed to get user information");
       }
-    };
-
+  
+      const token = getAuthToken() || localStorage.getItem("accessToken");
+  
+      if (!token) {
+        throw new Error("Authentication token not found");
+      }
+  
+      const boardResponse = await axios.get(
+        `${process.env.REACT_APP_MASTER_API_BASE_URL}/api/Login/board-details/${userData.empId}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+  
+      if (boardResponse.data && boardResponse.data.length > 0) {
+        setBoardData(boardResponse.data[0]);
+  
+        const transformedColumns = boardResponse.data[0].labels.map(label => ({
+          title: label.labelName,
+          id: label.labelId,
+          count: label.tickets ? label.tickets.length : 0,
+          color: tagColors[label.labelName] || "#D2F4FF",
+          tasks: label.tickets?.map(ticket => ({
+            id: ticket.ticketId,
+            title: ticket.ticketName,
+            tags: ["PO"],
+            description: ticket.ticketDescription,
+            date: new Date(ticket.ticketCreatedDate).toLocaleDateString('en-GB'),
+            comments: 0,
+            files: 0
+          })) || []
+        }));
+  
+        setColumns(transformedColumns);
+      } else {
+        throw new Error("No board data found");
+      }
+    } catch (error) {
+      console.error("❌ Failed to fetch board details:", error);
+      setError("Failed to load board data. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // useEffect to call it on mount
+  useEffect(() => {
     fetchBoardDetails();
   }, [dispatch]);
-
+  
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [showTaskInput, setShowTaskInput] = useState(false);
   const [menuOpen, setMenuOpen] = useState({});
   const [editTaskTitle, setEditTaskTitle] = useState("");
   const [editColumnIndex, setEditColumnIndex] = useState(null);
 
-  const handleAddTask = () => {
+  const handleAddTask = async () => {
     if (newTaskTitle.trim() === "") return;
-
-    const updatedColumns = columns.map((col, index) => {
-      if (index === 0) { // Add new tasks to the first column (usually "Open")
-        return {
-          ...col,
-          tasks: [
-            ...col.tasks,
-            { 
-              title: newTaskTitle, 
-              tags: ["PO"], 
-              description: "New task description",
-              date: new Date().toLocaleDateString('en-GB'), 
-              comments: 0, 
-              files: 0 
-            },
-          ],
-          count: col.count + 1,
-        };
+  
+    try {
+      const token = getAuthToken() || localStorage.getItem("accessToken");
+      const userData = JSON.parse(localStorage.getItem("userData"));
+      const projectId = userData?.projects?.[0]?.projectId;
+  
+      const payload = {
+        projectId: projectId, 
+        ticketName: newTaskTitle,
+        ticketDescription: "Optional description",
+        labelId: columns[0]?.id,
+        createdBy: userData.empId
+      };
+  
+      const response = await axios.post(
+        `${process.env.REACT_APP_MASTER_API_BASE_URL}/api/Ticket/createTicket`,
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+  
+      if (response.data.success) {
+        fetchBoardDetails();
+        setNewTaskTitle("");
+        setShowTaskInput(false);
+      } else {
+        console.error("Ticket creation failed:", response.data.message);
       }
-      return col;
-    });
-
-    setColumns(updatedColumns);
-    setNewTaskTitle("");
-    setShowTaskInput(false);
+    } catch (error) {
+      console.error("Error creating ticket:", error);
+    }
   };
-
+  
   const handleTaskClick = async (task) => {
     try {
       const ticketDetails = await dispatch(getticketbyidAction(task.id)).unwrap();

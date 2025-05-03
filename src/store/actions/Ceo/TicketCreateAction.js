@@ -1,7 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { addTicket, createprojectapproval, getTicketById, getTicketLabels, updateprojectapproval } from "../../../services";
-import api from "../../../services/api";
-import { API } from "../../../constant/service";
+import { addTicket, createNewTicketTask, createprojectapproval, getTicketById, getTicketLabels, updateprojectapproval } from "../../../services";
+
 
 export const createticketAction = createAsyncThunk(
   "createTicket",
@@ -10,6 +9,19 @@ export const createticketAction = createAsyncThunk(
     return response.data;
   }
 );
+
+export const createNewTicketTaskAction = createAsyncThunk(
+  "ticket/createNewTicketTask",
+  async (params, thunkAPI) => {
+    try {
+      const response = await createNewTicketTask(params); // directly pass full object
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data || "Task creation failed");
+    }
+  }
+);
+
 
 export const getTicketLabelsAction = createAsyncThunk(
   "ticketLabels/getLabels",
