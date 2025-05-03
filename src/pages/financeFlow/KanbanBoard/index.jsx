@@ -175,7 +175,7 @@ const KanbanBoard = () => {
       10: `/admin/engineerticketdetails/${ticketId}`, // Engineer
       11: `/ticket/${ticketId}`, // Managing Director
       12: `/finance/financeticketdetails/${ticketId}`, // Head Finance
-      13: `/ceo/ticket/${ticketId}`, // GM Technology
+      13: `/finance/financeticketdetails/${ticketId}`, // GM Technology
       15: `/hr/hrticketdetails/${ticketId}`, // HR
       16: `/purchasemanager/hrticketdetails/${ticketId}`, // Purchase Manager
       17: `/purchasemanager/hrticketdetails/${ticketId}`, // Purchase Manager (duplicate)
