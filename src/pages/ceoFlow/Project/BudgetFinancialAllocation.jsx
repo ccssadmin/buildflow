@@ -301,7 +301,7 @@ const BudgetFinancialAllocation = ({
       <div className="row mb-4">
         <div className="col-md-6">
           <Form.Group>
-            <Form.Label>
+            <Form.Label className="fs-26-700 text-dark">
               Total Project Budget <span className="required">*</span>
             </Form.Label>
             <Form.Control
@@ -318,7 +318,7 @@ const BudgetFinancialAllocation = ({
 
         <div className="col-md-6">
           <Form.Group>
-            <Form.Label>
+            <Form.Label  className="fs-26-700 text-dark">
               Send To <span className="required">*</span>
             </Form.Label>
             <Form.Select
@@ -337,15 +337,15 @@ const BudgetFinancialAllocation = ({
         </div>
       </div>
 
-      <div className="budget-breakdown mt-4">
-        <h4>Budget Breakdown</h4>
+      <div className="budget-breakdown">
+        <h4 className="text-dark-gray fs-22-700 mt-4 mb-4">Budget Breakdown</h4>
         <table className="table table-bordered">
           <thead>
             <tr>
-              <th>S.No</th>
-              <th>Expense Category</th>
-              <th>Estimated Cost (₹)</th>
-              <th>Approved Budget (₹)</th>
+              <th className="text-center text-dark fs-18-500">S.No</th>
+              <th className="text-center text-dark fs-18-500">Expense Category</th>
+              <th className="text-center text-dark fs-18-500">Estimated Cost (₹)</th>
+              <th className="text-center text-dark fs-18-500">Approved Budget (₹)</th>
             </tr>
           </thead>
           <tbody>
