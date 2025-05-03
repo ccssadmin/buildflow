@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { getticketbyidAction } from "../../../store/actions/Ceo/TicketCreateAction";
+import { getticketbyidAction, createNewTicketTaskAction } from "../../../store/actions/Ceo/TicketCreateAction";
 import { loginBoardDetailsSelector } from "../../../store/selector/masterSelector";
 import { getLoginBoardDetailsdAction } from "../../../store/actions/kanbanAction";
 import { useLocation } from 'react-router-dom';
 import { getAuthToken } from "../../../utils/storage";
-import axios from "axios";
 import { userInfoAction } from "../../../store/actions";
 
 // Define tag colors
@@ -30,28 +29,19 @@ const KanbanBoard = () => {
   const [columns, setColumns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  
+  const [newTaskTitle, setNewTaskTitle] = useState("");
+  const [showTaskInput, setShowTaskInput] = useState(false);
+  const [menuOpen, setMenuOpen] = useState({});
+  const [editTaskTitle, setEditTaskTitle] = useState("");
+  const [editColumnIndex, setEditColumnIndex] = useState(null);
 
   // Get board data from Redux store
   const boardDetailsData = useSelector(loginBoardDetailsSelector);
-  
-  // Add debugging to check Redux response
-  console.log("Redux response:", boardDetailsData);
-  
-  // Try both data formats that might be coming from Redux
   const data = boardDetailsData?.data || boardDetailsData;
-  
 
-  // get the emp details
-  useEffect(() => {
-    console.log("Received state on Approvals page:", state);
-  }, []);
-  
   const fetchBoardDetails = async () => {
     try {
       setLoading(true);
-  
       const userResponse = await dispatch(userInfoAction());
       const userData = userResponse.payload;
   
@@ -65,35 +55,10 @@ const KanbanBoard = () => {
         throw new Error("Authentication token not found");
       }
   
-      const boardResponse = await axios.get(
-        `${process.env.REACT_APP_MASTER_API_BASE_URL}/api/Login/board-details/${userData.empId}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        }
-      );
-  
-      if (boardResponse.data && boardResponse.data.length > 0) {
-        setBoardData(boardResponse.data[0]);
-  
-        const transformedColumns = boardResponse.data[0].labels.map(label => ({
-          title: label.labelName,
-          id: label.labelId,
-          count: label.tickets ? label.tickets.length : 0,
-          color: tagColors[label.labelName] || "#D2F4FF",
-          tasks: label.tickets?.map(ticket => ({
-            id: ticket.ticketId,
-            title: ticket.ticketName,
-            tags: ["PO"],
-            description: ticket.ticketDescription,
-            date: new Date(ticket.ticketCreatedDate).toLocaleDateString('en-GB'),
-            comments: 0,
-            files: 0
-          })) || []
-        }));
-  
-        setColumns(transformedColumns);
+      const response = await dispatch(getLoginBoardDetailsdAction(userData.empId));
+      
+      if (response.payload && response.payload.length > 0) {
+        processBoardData(response.payload);
       } else {
         throw new Error("No board data found");
       }
@@ -104,130 +69,66 @@ const KanbanBoard = () => {
       setLoading(false);
     }
   };
-  
-  // useEffect to call it on mount
-  useEffect(() => {
-    fetchBoardDetails();
-  }, [dispatch]);
-  
-  useEffect(() => {
-    const getEmpId = () => {
-      if (state?.emp_id) return state.emp_id;
-      const userDataString = localStorage.getItem("userData");
-      const userData = userDataString ? JSON.parse(userDataString) : null;
-      return userData?.empId;
-    };
-    
-    const empId = getEmpId();
-    
 
-    if (empId) {
-      console.log("Dispatching getLoginBoardDetailsdAction with empId:", empId);
-      dispatch(getLoginBoardDetailsdAction(empId));
-    } else {
-      console.warn("❌ empId not found in localStorage");
-      setError("User information not found. Please log in again.");
-      setLoading(false);
-    }
-  }, [dispatch]);
-  
-  // Process data when it arrives from Redux
-  useEffect(() => {
-    console.log("Data from Redux updated:", data);
-    
-    // Force data to hardcoded value for testing if nothing is coming from Redux
-    const testData = data && data.length > 0 ? data : JSON.parse(`[{"boardId":1,"boardName":"Development Board","boardDescription":"Board for tracking development tasks and progress","labels":[{"boardId":null,"labelId":1,"labelName":"Open","tickets":[{"ticketId":73,"ticketNo":"T73","ticketName":"New Project:New Site-Approval for Submit","ticketDescription":"Submit Approval","ticketCreatedDate":"2025-05-02T03:08:15.390033","boardId":0,"boardName":null,"boardDescription":null}]}]}]`);
-    
-    if (testData && testData.length > 0) {
-      try {
-        console.log("Processing board data:", testData[0]);
-        
-        // Set the first board as the current board data
-        setBoardData(testData[0]);
-        
-        // Transform the API response into our columns format
-        const transformedColumns = testData[0].labels.map(label => {
-          console.log("Processing label:", label.labelName, "with", label.tickets?.length || 0, "tickets");
-          
-          return {
-            title: label.labelName,
-            id: label.labelId,
-            count: label.tickets ? label.tickets.length : 0,
-            color: tagColors[label.labelName] || "#D2F4FF",
-            tasks: label.tickets ? label.tickets.map(ticket => ({
-              id: ticket.ticketId,
-              title: ticket.ticketName,
-              tags: ["PO"], // Example tag, could be dynamic based on ticket categories
-              description: ticket.ticketDescription,
-              date: new Date(ticket.ticketCreatedDate).toLocaleDateString('en-GB'),
-              comments: 0,
-              files: 0
-            })) : []
-          };
-        });
-        
-        console.log("Setting columns:", transformedColumns);
-        setColumns(transformedColumns);
-        setLoading(false);
-      } catch (err) {
-        console.error("❌ Error processing board data:", err);
-        setError("Failed to process board data. Please refresh the page.");
-        setLoading(false);
-      }
-    } else if (data && data.length === 0) {
-      console.warn("No boards found in the data");
-      setError("No boards found for this user.");
-      setLoading(false);
-    } else if (!data) {
-      console.warn("Data is undefined or null");
-      // Don't set error yet, might still be loading
-    }
-  }, [data]);
-
-  const [newTaskTitle, setNewTaskTitle] = useState("");
-  const [showTaskInput, setShowTaskInput] = useState(false);
-  const [menuOpen, setMenuOpen] = useState({});
-  const [editTaskTitle, setEditTaskTitle] = useState("");
-  const [editColumnIndex, setEditColumnIndex] = useState(null);
-
-  const handleAddTask = async () => {
-    if (newTaskTitle.trim() === "") return;
-  
+  const processBoardData = (boardData) => {
     try {
-      const token = getAuthToken() || localStorage.getItem("accessToken");
-      const userData = JSON.parse(localStorage.getItem("userData"));
-      const projectId = userData?.projects?.[0]?.projectId;
-  
-      const payload = {
-        projectId: projectId, 
-        ticketName: newTaskTitle,
-        ticketDescription: "Optional description",
-        labelId: columns[0]?.id,
-        createdBy: userData.empId
-      };
-  
-      const response = await axios.post(
-        `${process.env.REACT_APP_MASTER_API_BASE_URL}/api/Ticket/createTicket`,
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
-  
-      if (response.data.success) {
-        fetchBoardDetails();
-        setNewTaskTitle("");
-        setShowTaskInput(false);
-      } else {
-        console.error("Ticket creation failed:", response.data.message);
-      }
-    } catch (error) {
-      console.error("Error creating ticket:", error);
+      const firstBoard = boardData[0];
+      setBoardData(firstBoard);
+      
+      const transformedColumns = firstBoard.labels.map(label => ({
+        title: label.labelName,
+        id: label.labelId,
+        count: label.tickets ? label.tickets.length : 0,
+        color: tagColors[label.labelName] || "#D2F4FF",
+        tasks: label.tickets?.map(ticket => ({
+          id: ticket.ticketId,
+          title: ticket.ticketName,
+          tags: ["PO"],
+          description: ticket.ticketDescription,
+          date: new Date(ticket.ticketCreatedDate).toLocaleDateString('en-GB'),
+          comments: 0,
+          files: 0
+        })) || []
+      }));
+      
+      setColumns(transformedColumns);
+    } catch (err) {
+      console.error("❌ Error processing board data:", err);
+      setError("Failed to process board data. Please refresh the page.");
     }
   };
-  
+
+  const handleAddTask = async () => {
+    if (!newTaskTitle.trim()) return;
+
+    try {
+      setLoading(true);
+      const userData = JSON.parse(localStorage.getItem("userData"));
+      
+      if (!userData?.empId) {
+        throw new Error("User information not found");
+      }
+
+      const result = await dispatch(
+        createNewTicketTaskAction({ 
+          ticketName: newTaskTitle,
+          createdBy: userData.empId 
+        })
+      ).unwrap();
+
+      if (result) {
+        await fetchBoardDetails();
+        setNewTaskTitle("");
+        setShowTaskInput(false);
+      }
+    } catch (error) {
+      console.error("Error creating task:", error);
+      setError("Failed to create task. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleTaskClick = async (task) => {
     try {
       const ticketDetails = await dispatch(getticketbyidAction(task.id)).unwrap();
@@ -239,7 +140,6 @@ const KanbanBoard = () => {
       });
     } catch (error) {
       console.error("Failed to fetch ticket details:", error);
-      // Optionally show an error message to the user
     }
   };
 
@@ -270,14 +170,14 @@ const KanbanBoard = () => {
 
   const handleDeleteColumn = (columnIndex) => {
     if (columnIndex === 0) return;
-
     const updatedColumns = columns.filter((_, index) => index !== columnIndex);
     setColumns(updatedColumns);
     setMenuOpen({ ...menuOpen, [columnIndex]: false });
   };
 
-  // Add a console log to check state at render time
-  console.log("Render state:", { loading, error, boardData, columnsCount: columns.length });
+  useEffect(() => {
+    fetchBoardDetails();
+  }, [dispatch]);
 
   if (loading) {
     return (
@@ -294,29 +194,22 @@ const KanbanBoard = () => {
       </div>
     );
   }
-  
-  // If we're not loading but have no columns, something went wrong
+
   if (!loading && columns.length === 0) {
     return (
       <div style={{ padding: "20px", color: "orange", textAlign: "center" }}>
-        <div>Board data loaded but no columns found. Please refresh the page.</div>
-        <div style={{ marginTop: "10px" }}>
-          <button 
-            onClick={() => window.location.reload()} 
-            style={{ padding: "8px 16px", backgroundColor: "#4CAF50", color: "white", border: "none", borderRadius: "4px" }}
-          >
-            Refresh
-          </button>
-        </div>
+        <div>No tasks found. Create your first task!</div>
+        <button 
+          onClick={() => setShowTaskInput(true)}
+          style={{ marginTop: "10px", padding: "8px 16px", backgroundColor: "#4CAF50", color: "white" }}
+        >
+          Add Task
+        </button>
       </div>
     );
   }
 
   return (
-    
-
-
-    
     <div className="kanban-page-container">
       <div className="kanban-header-section">
         <div className="kanban-view-toggle">
@@ -331,17 +224,15 @@ const KanbanBoard = () => {
           </button>
         </div>
       </div>
-      <div>
+
       {state?.emp_name && state?.role && (
-  <div>
-    <p><strong>Name:</strong> {state.emp_name}</p>
-    <p><strong>Role:</strong> {state.role}</p>
-  </div>
-)}
-    </div>
+        <div style={{ padding: "10px" }}>
+          <p><strong>Name:</strong> {state.emp_name}</p>
+          <p><strong>Role:</strong> {state.role}</p>
+        </div>
+      )}
 
       <div className="kanban-container">
-        
         <div className="kanban-board" style={{ display: "flex", gap: "16px", overflowX: "auto" }}>
           {columns.map((column, columnIndex) => (
             <div key={columnIndex} className="kanban-column" style={{ 
@@ -360,150 +251,204 @@ const KanbanBoard = () => {
                 justifyContent: "space-between"
               }}>
                 <div className="kanban-header-left" style={{ display: "flex", alignItems: "center" }}>
-                  <span className="column-title" style={{ fontWeight: "bold", marginRight: "8px" }}>{column.title}</span>
-                  <span className="count-badge" style={{ 
-                    backgroundColor: "rgba(0,0,0,0.1)", 
-                    borderRadius: "12px", 
-                    padding: "2px 8px", 
-                    fontSize: "12px" 
-                  }}>{column.count}</span>
+                  {editColumnIndex === columnIndex ? (
+                    <input
+                      type="text"
+                      value={editTaskTitle}
+                      onChange={(e) => setEditTaskTitle(e.target.value)}
+                      onBlur={handleSaveEdit}
+                      onKeyPress={(e) => e.key === 'Enter' && handleSaveEdit()}
+                      autoFocus
+                      style={{ width: "100px", marginRight: "8px" }}
+                    />
+                  ) : (
+                    <>
+                      <span className="column-title" style={{ fontWeight: "bold", marginRight: "8px" }}>
+                        {column.title}
+                      </span>
+                      <span className="count-badge" style={{ 
+                        backgroundColor: "rgba(0,0,0,0.1)", 
+                        borderRadius: "12px", 
+                        padding: "2px 8px", 
+                        fontSize: "12px" 
+                      }}>
+                        {column.count}
+                      </span>
+                    </>
+                  )}
                 </div>
 
-                <div className="kanban-header-right">
+                <div className="kanban-header-right" style={{ position: "relative" }}>
                   {columnIndex === 0 && (
                     <button 
                       className="add-task-btn" 
                       onClick={() => setShowTaskInput(true)}
+                      style={{ marginRight: "8px" }}
                     >
                       Add +
                     </button>
                   )}
-                  <button className="menu-button" onClick={() => handleMenuClick(columnIndex)}>
+                  <button 
+                    className="menu-button" 
+                    onClick={() => handleMenuClick(columnIndex)}
+                    style={{ background: "none", border: "none", cursor: "pointer" }}
+                  >
                     ⋮
                   </button>
                   {menuOpen[columnIndex] && (
-                    <div className="menu-actions">
-                      <button onClick={() => handleEditColumn(columnIndex)}>Edit</button>
-                      {columnIndex !== 0 && <button onClick={() => handleDeleteColumn(columnIndex)}>Delete</button>}
+                    <div className="menu-actions" style={{
+                      position: "absolute",
+                      right: 0,
+                      top: "100%",
+                      backgroundColor: "white",
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                      borderRadius: "4px",
+                      zIndex: 100
+                    }}>
+                      <button 
+                        onClick={() => handleEditColumn(columnIndex)}
+                        style={{ display: "block", width: "100%", textAlign: "left", padding: "8px 12px" }}
+                      >
+                        Edit
+                      </button>
+                      {columnIndex !== 0 && (
+                        <button 
+                          onClick={() => handleDeleteColumn(columnIndex)}
+                          style={{ display: "block", width: "100%", textAlign: "left", padding: "8px 12px", color: "red" }}
+                        >
+                          Delete
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>
               </div>
 
               {columnIndex === 0 && showTaskInput && (
-                <div className="kanban-card add-task-card">
+                <div className="kanban-card add-task-card" style={{ 
+                  padding: "12px", 
+                  margin: "12px",
+                  backgroundColor: "#f5f5f5",
+                  borderRadius: "6px"
+                }}>
                   <input
                     type="text"
                     className="form-control"
                     placeholder="Enter task title"
                     value={newTaskTitle}
                     onChange={(e) => setNewTaskTitle(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleAddTask()}
+                    style={{
+                      width: "100%",
+                      padding: "8px",
+                      marginBottom: "8px",
+                      borderRadius: "4px",
+                      border: "1px solid #ddd"
+                    }}
                   />
-                  <div className="task-input-buttons">
-                    <button className="cancel-button" onClick={() => setShowTaskInput(false)}>
+                  <div className="task-input-buttons" style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
+                    <button 
+                      className="cancel-button" 
+                      onClick={() => setShowTaskInput(false)}
+                      style={{
+                        padding: "6px 12px",
+                        backgroundColor: "#f0f0f0",
+                        border: "1px solid #ddd",
+                        borderRadius: "4px"
+                      }}
+                    >
                       Cancel
                     </button>
-                    <button className="create-button" onClick={handleAddTask}>
-                      Create
+                    <button 
+                      className="create-button" 
+                      onClick={handleAddTask}
+                      disabled={loading}
+                      style={{
+                        padding: "6px 12px",
+                        backgroundColor: "#4CAF50",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: loading ? "not-allowed" : "pointer"
+                      }}
+                    >
+                      {loading ? 'Creating...' : 'Create'}
                     </button>
                   </div>
                 </div>
               )}
 
-              {editColumnIndex === columnIndex ? (
-                <div className="kanban-card">
-                  <input
-                    type="text"
-                    value={editTaskTitle}
-                    onChange={(e) => setEditTaskTitle(e.target.value)}
-                    style={{ width: '105px', marginRight: '5px' }}
-                  />
-                  <button onClick={handleSaveEdit} style={{ backgroundColor: 'orange' }}>Save</button>
-                  <button
-                    onClick={() => {
-                      setEditTaskTitle("");
-                      setEditColumnIndex(null);
-                    }}
-                    style={{ backgroundColor: 'white', marginLeft: '5px' }}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              ) : (
-                <div className="task-list" style={{ padding: "12px", flex: 1, overflowY: "auto" }}>
-                  {column.tasks && column.tasks.length > 0 ? (
-                    column.tasks.map((task, taskIndex) => (
-                      <div
-                        key={taskIndex}
-                        className="kanban-card"
-                        onClick={() => handleTaskClick(task)}
-                        style={{ 
-                          cursor: "pointer",
-                          backgroundColor: "#fff",
-                          borderRadius: "6px",
-                          padding: "12px",
-                          marginBottom: "8px",
-                          boxShadow: "0 1px 3px rgba(0,0,0,0.12)",
-                          border: "1px solid #e0e0e0"
-                        }}
-                      >
-                        <h6 className="task-title">{task.title}</h6>
-                        <div className="task-tags">
-                          {task.tags && task.tags.map((tag, tagIndex) => (
-                            <span
-                              key={tagIndex}
-                              className="tag-badge"
-                              style={{ backgroundColor: tagColors[tag] || "#888" }}
-                            >
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                        <p className="task-description">
-                          {task.description}
-                        </p>
-                        <div className="task-footer">
-                          <div className="task-metadata">
-                            <div className="task-time">
-                              <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <polyline points="12 6 12 12 16 14"></polyline>
-                              </svg>
-                              <span>{task.date}</span>
-                            </div>
-                            <div className="task-actions">
-                              <div className="task-action-item">
-                                <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none">
-                                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                                </svg>
-                                <span>Comment</span>
-                              </div>
-                              <div className="task-action-item">
-                                <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none">
-                                  <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
-                                </svg>
-                                <span>File Attached</span>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="task-assignees">
-                            <div className="assignee-avatars">
-                              <div className="assignee-avatar">
-                                <img src="/api/placeholder/24/24" alt="Assignee 1" />
-                              </div>
-                              <div className="assignee-avatar">
-                                <img src="/api/placeholder/24/24" alt="Assignee 2" />
-                              </div>
-                            </div>
-                          </div>
+              <div className="task-list" style={{ padding: "12px", flex: 1, overflowY: "auto" }}>
+                {column.tasks && column.tasks.length > 0 ? (
+                  column.tasks.map((task, taskIndex) => (
+                    <div
+                      key={taskIndex}
+                      className="kanban-card"
+                      onClick={() => handleTaskClick(task)}
+                      style={{ 
+                        cursor: "pointer",
+                        backgroundColor: "#fff",
+                        borderRadius: "6px",
+                        padding: "12px",
+                        marginBottom: "8px",
+                        boxShadow: "0 1px 3px rgba(0,0,0,0.12)",
+                        border: "1px solid #e0e0e0"
+                      }}
+                    >
+                      <h6 className="task-title" style={{ margin: "0 0 8px 0" }}>{task.title}</h6>
+                      <div className="task-tags" style={{ marginBottom: "8px" }}>
+                        {task.tags && task.tags.map((tag, tagIndex) => (
+                          <span
+                            key={tagIndex}
+                            className="tag-badge"
+                            style={{ 
+                              backgroundColor: tagColors[tag] || "#888",
+                              padding: "2px 8px",
+                              borderRadius: "12px",
+                              fontSize: "12px",
+                              marginRight: "4px",
+                              color: "#333"
+                            }}
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                      <p className="task-description" style={{ 
+                        margin: "0 0 8px 0",
+                        fontSize: "14px",
+                        color: "#666"
+                      }}>
+                        {task.description}
+                      </p>
+                      <div className="task-footer" style={{ 
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        fontSize: "12px",
+                        color: "#888"
+                      }}>
+                        <div className="task-time" style={{ display: "flex", alignItems: "center" }}>
+                          <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" style={{ marginRight: "4px" }}>
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                          </svg>
+                          <span>{task.date}</span>
                         </div>
                       </div>
-                    ))
-                  ) : (
-                    <div className="empty-column-message">No tasks in this column</div>
-                  )}
-                </div>
-              )}
+                    </div>
+                  ))
+                ) : (
+                  <div className="empty-column-message" style={{ 
+                    textAlign: "center", 
+                    padding: "16px",
+                    color: "#888",
+                    fontSize: "14px"
+                  }}>
+                    No tasks in this column
+                  </div>
+                )}
+              </div>
             </div>
           ))}
         </div>
