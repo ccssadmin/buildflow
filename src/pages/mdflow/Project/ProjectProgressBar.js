@@ -6,13 +6,7 @@ const ProjectProgressBar = ({ progress }) => {
   progress === "Pending" || 
   progress === "Planned" || 
   progress === "NotApproved" || 
-  progress === "OnHold"
-    ? 0
-    : progress === "Approved" 
-    ? 5
-    : progress === "InProgress" 
-    ? 20
-    : progress;
+  progress === "OnHold" ? 0 : progress === "Approved"  ? 5 : progress === "InProgress" ? 50 : progress;
 
 
   return (
