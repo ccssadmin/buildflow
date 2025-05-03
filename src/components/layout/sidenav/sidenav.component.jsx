@@ -23,6 +23,9 @@ const SideNav = ({ onChange }) => {
   };
   const location = useLocation();
   const isProjectActive = location.pathname === "/projects" || location.pathname === "/projectdetails";
+  const isApprovelActive =
+    location.pathname === "/approvals" ||
+    location.pathname.startsWith("/ticket");
 
   return (
     <>
@@ -78,7 +81,7 @@ const SideNav = ({ onChange }) => {
               title="Team"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/approvals" className="link-tag">
+              <NavLink to="/approvals" className={`link-tag ${isApprovelActive ? "active" : ""}`}>
                 {({ isActive, isPending }) => (
                   <>
                     <img

@@ -5,10 +5,14 @@ import kanbanSlice from './slice/kanban';
 import masterSlice from './slice/master';
 import ceoProjectReducer from './slice/Ceo/ceoprojectSlicer'; 
 import rolebasedemp from "./slice/Ceo/RoleBasedEmpSlice";
-import createticketReducer from "./slice/Ceo/TicketcreationSlicer";
 import createNotifyReducer from "./slice/Ceo/notificationSlicer";
 import departmentReducer from "./slice/Ceo/DepartmentSlicer";
-import riskReducer from "./slice/Ceo/riskSlice"
+import riskReducer from "./slice/Ceo/riskSlice";
+import roleReducer from "./slice/hr/designationslice"
+import employeeReducer from "./slice/hr/createemployeeslice";
+
+
+
 export const rootReducer = combineReducers({
   auth: authSlice.reducer,
   toast: toastSlice.reducer,
@@ -16,8 +20,10 @@ export const rootReducer = combineReducers({
   master: masterSlice.reducer,
   project: ceoProjectReducer,
   rolebasedemp: rolebasedemp,
-  createticket: createticketReducer,
   createnotify: createNotifyReducer,
   departments: departmentReducer,
   risk: riskReducer,
+  department: departmentReducer,
+  role: roleReducer,
+  employee: employeeReducer,
 });
