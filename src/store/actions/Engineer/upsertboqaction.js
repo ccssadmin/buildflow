@@ -14,3 +14,18 @@ export const upsertBoq = createAsyncThunk(
     }
   }
 );
+
+
+
+
+export const getNewBoqId = createAsyncThunk(
+  "boq/getNewBoqId",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.GET("/api/Project/getNewBoqId");
+      return response.data; // should return something like "BOQ#1"
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
