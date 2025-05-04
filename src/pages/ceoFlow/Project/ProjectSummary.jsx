@@ -645,7 +645,7 @@ const ProjectSummary = ({
                   // ✅ Navigate after short delay
                   if (createdTicketId) {
                     setTimeout(() => {
-                      navigate(`/ceo/ticketdetails/${createdTicketId}`);
+                      navigate(`../ticket/${createdTicketId}`);
                     }, 100); // give UI time to cleanup modal
                   }
               
