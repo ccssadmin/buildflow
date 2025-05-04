@@ -504,3 +504,18 @@ padding-left: 20px;
 }
 
 
+
+/* Dash Board */
+.page-hrmsdashboard .recharts-wrapper {
+  max-height: 300px !important;
+}
+.page-hrmsdashboard .recharts-responsive-container {
+  height: 300px !important;
+}
+.page-hrmsdashboard .recentactivitie .recentactivitie-card {
+  border-bottom: 1px solid #C7C7C7;
+  padding: 8px 0px;
+}
+.page-hrmsdashboard .recentactivitie .recentactivitie-card:last-child {
+  border-bottom: 0px !important;
+}
