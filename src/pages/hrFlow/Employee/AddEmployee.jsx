@@ -37,11 +37,11 @@ useEffect(() => {
       name: editingEmployee.firstName || "",
       dob: editingEmployee.dateOfBirth || "",
       gender: editingEmployee.gender || "",
-            mobile: editingEmployee.phone || "",
+                  mobile: editingEmployee.phone || "",
       email: editingEmployee.email || "",
       EmployeeCode: editingEmployee.employeeCode || "",
       department: editingEmployee.deptId?.toString() || "",
-      designation: editingEmployee.roleName ? 
+      designation: editingEmployee.designation ? 
       editingEmployee.roleId.toString() : "",
             project: editingEmployee.project_id?.toString() || "",
     });
@@ -144,8 +144,6 @@ useEffect(() => {
     const formattedData = {
       empId: editingEmployee?.empId || 0,
       firstName: employee.name,
-      middleName: employee.name,
-      lastName: employee.name,
       dateOfBirth: employee.dob,
       gender: employee.gender,
       phone: employee.mobile,
@@ -155,6 +153,7 @@ useEffect(() => {
       project: Number(employee.project),
       employeeCode: employee.EmployeeCode,
     };
+    
 
     
     
@@ -234,13 +233,13 @@ useEffect(() => {
 
           <div className="addemployee-form-group">
             <label>Gender <span className="addemployee-required">*</span></label>
-            <select name="gender" value={employee.gender} onChange={handleChange} >
-              <option value="">Select Gender</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
+            <select name="gender" value={employee.gender} onChange={handleChange}>
+  <option value="">Select Gender</option>
+  <option value="Male">Male</option>
+  <option value="Female">Female</option>
+  <option value="Other">Other</option>
+</select>
 
-            </select>
             {validationErrors.gender && <p className="error-text">{validationErrors.gender}</p>}
           </div>
 
@@ -295,9 +294,8 @@ useEffect(() => {
   name="department"
   value={employee.department}
   onChange={handleChange}
-  
+  disabled={!!editingEmployee} // Disable in edit mode
 >
-
   <option value="">Select Department</option>
   {loading ? (
     <option disabled>Loading departments...</option>
@@ -311,6 +309,7 @@ useEffect(() => {
     <option disabled>No departments available</option>
   )}
 </select>
+
 {validationErrors.department && <p className="error-text">{validationErrors.department}</p>}
           </div>
 
@@ -323,23 +322,20 @@ useEffect(() => {
   name="designation"
   value={employee.designation}
   onChange={handleChange}
-  disabled={!employee.department}
+  disabled={!!editingEmployee} // Disable in edit mode
 >
+  <option value="">Select Designation</option>
+  {Array.isArray(roles) ? (
+    roles.map((role) => (
+      <option key={role.roleId} value={role.roleId}>
+        {role.roleName}
+      </option>
+    ))
+  ) : (
+    <option disabled>Loading roles...</option>
+  )}
+</select>
 
-  
-    <option value="0">Select Designation</option>
-    {Array.isArray(roles) ? (
-  roles.map((roles) => (
-    <option key={roles.roleId} value={roles.roleId}>
-    {roles.roleName}
-  </option>
-  ))
-) : (
-  <option disabled>Loading roles...</option>
-)}
-
-  
-  </select>
   {validationErrors.designation && <p className="error-text">{validationErrors.designation}</p>}
 
 </div>
@@ -347,13 +343,18 @@ useEffect(() => {
 
           <div className="addemployee-form-group">
             <label >Projects <span className="addemployee-required">*</span></label>
-            <select  className="project"  name="project" value={employee.project} onChange={handleChange} >
+            <select
+  className="project"
+  name="project"
+  value={employee.project}
+  onChange={handleChange}
+  disabled={!!editingEmployee} // Disable in edit mode
+>
   <option value="">Select Project</option>
   {projects.map((proj) => (
     <option key={proj.project_id} value={proj.project_id}>
-    {proj.project_name}
+      {proj.project_name}
     </option>
-    
   ))}
 </select>
 {validationErrors.project && <p className="error-text">{validationErrors.project}</p>}
