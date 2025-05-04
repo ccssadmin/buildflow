@@ -1,6 +1,5 @@
-// Example slice: roleSlice.js
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchRolesByDepartment } from "../../actions/hr/designationaction";
+import { fetchRoles, fetchRolesByDepartment } from "../../actions/hr/designationaction";
 
 const initialState = {
   roles: [],
@@ -14,17 +13,32 @@ const roleSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
+      // Fetch roles (all)
+      .addCase(fetchRoles.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchRoles.fulfilled, (state, action) => {
+        state.loading = false;
+        state.roles = action.payload.roles || action.payload;
+      })
+      .addCase(fetchRoles.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Failed to fetch roles";
+      })
+
+      // Fetch roles by department
       .addCase(fetchRolesByDepartment.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchRolesByDepartment.fulfilled, (state, action) => {
         state.loading = false;
-        state.roles = action.payload.roles || action.payload; // <- make sure this matches API response shape
+        state.roles = action.payload.roles || action.payload;
       })
       .addCase(fetchRolesByDepartment.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || "Failed to fetch roles";
+        state.error = action.payload || "Failed to fetch roles by department";
       });
   },
 });
