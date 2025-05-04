@@ -179,7 +179,7 @@ const ProjectTeamStakeholder = ({
       };
       loadAllData();
     }
-  }, [dataLoaded, fetchAllEmployees, fetchVendorsAndSubcontractors]);
+  }, [dataLoaded]);
 
   const generateFinanceApprovalRoles = () => {
     const newPermissionData = [];
