@@ -1,139 +1,372 @@
-import React from 'react';
-import { Chart } from "react-google-charts";
-import "../../../styles/components/css/hr/hrms.css";
+import React, { Fragment } from "react";
+import { Link } from "react-router-dom";
+import { profile } from "../../../assets/images";
+import Notification from "../../../components/common/NotificationTab";
+import AttendancePieChart from "./AttendancePieChart";
+export const roleCheck = { role: "admin" };
 
-const data = [
-  ["Status", "Percentage"],
-  ["Present", 90],
-  ["Absent", 7],
-  ["On Leave", 3],
+const recentActivities = [
+  {
+    id: 1,
+    name: "Ronald Richards",
+    role: "Site Engineer",
+    status: "Request Leave",
+  },
+  {
+    id: 2,
+    name: "Ronald Richards",
+    role: "Site Engineer",
+    status: "Request Leave",
+  },
+  {
+    id: 3,
+    name: "Ronald Richards",
+    role: "Site Engineer",
+    day: "Last Day",
+  },
+  {
+    id: 4,
+    name: "Ronald Richards",
+    role: "Site Engineer",
+    day: "Last Day",
+  },
+  {
+    id: 5,
+    name: "Ronald Richards",
+    role: "Site Engineer",
+    day: "Last Day",
+  },
+  {
+    id: 6,
+    name: "Ronald Richards",
+    role: "Site Engineer",
+    day: "Last Day",
+  },
+  {
+    id: 7,
+    name: "Ronald Richards",
+    role: "Site Engineer",
+    day: "Last Day",
+  },
+  {
+    id: 8,
+    name: "Ronald Richards",
+    role: "Site Engineer",
+    day: "Last Day",
+  },
+  {
+    id: 9,
+    name: "Ronald Richards",
+    role: "Site Engineer",
+    day: "Last Day",
+  },
+  {
+    id: 10,
+    name: "Ronald Richards",
+    role: "Site Engineer",
+    day: "Last Day",
+  },
+  {
+    id: 11,
+    name: "Ronald Richards",
+    role: "Site Engineer",
+    day: "Last Day",
+  },
+  {
+    id: 12,
+    name: "Ronald Richards",
+    role: "Site Engineer",
+    day: "Last Day",
+  },
+  {
+    id: 13,
+    name: "Ronald Richards",
+    role: "Site Engineer",
+    day: "Last Day",
+  },
+];
+const newJoiners = [
+  {
+    id: 1,
+    name: "Ronald Richards",
+    role: "Site Engineer",
+    day: "Today",
+  },
+  {
+    id: 2,
+    name: "Ronald Richards",
+    role: "Site Engineer",
+    day: "Last Day",
+  },
+  {
+    id: 3,
+    name: "Ronald Richards",
+    role: "Site Engineer",
+    day: "Last Day",
+  },
+  {
+    id: 4,
+    name: "Ronald Richards",
+    role: "Site Engineer",
+    day: "Last Day",
+  },
+  {
+    id: 5,
+    name: "Ronald Richards",
+    role: "Site Engineer",
+    day: "Last Day",
+  },
+  {
+    id: 6,
+    name: "Ronald Richards",
+    role: "Site Engineer",
+    day: "Last Day",
+  },
+  {
+    id: 7,
+    name: "Ronald Richards",
+    role: "Site Engineer",
+    day: "Last Day",
+  },
+  {
+    id: 8,
+    name: "Ronald Richards",
+    role: "Site Engineer",
+    day: "Last Day",
+  },
+  {
+    id: 9,
+    name: "Ronald Richards",
+    role: "Site Engineer",
+    day: "Last Day",
+  },
+  {
+    id: 10,
+    name: "Ronald Richards",
+    role: "Site Engineer",
+    day: "Last Day",
+  },
+  {
+    id: 11,
+    name: "Ronald Richards",
+    role: "Site Engineer",
+    day: "Last Day",
+  },
+  {
+    id: 12,
+    name: "Ronald Richards",
+    role: "Site Engineer",
+    day: "Last Day",
+  },
+  {
+    id: 13,
+    name: "Ronald Richards",
+    role: "Site Engineer",
+    day: "Last Day",
+  },
+];
+const leaveStatus = [
+  { id: 1, name: "Devon Lane", department: "Civil", type: "Casual", date: "7/5/2026", status: "Approved" },
+  { id: 2, name: "Courtney Henry", department: "Civil", type: "Casual", date: "7/5/2026", status: "Rejected" },
+  { id: 3, name: "Eleanor Pena", department: "Civil", type: "Sick", date: "7/5/2026", status: "Approved" },
+  { id: 4, name: "Bessie Cooper", department: "Civil", type: "Casual", date: "7/5/2026", status: "Approved" },
 ];
 
-const options = {
-  legend: "none",
-  pieSliceText: "none",
-  colors: ["#9BB7F0", "#FDE187", "#F8A6B7"],
-  pieStartAngle: 100,
-};
-
-function HRDashboard() {
+const HRDashboard = () => {
   return (
-    <div className="dashboard-container container mt-4">
-
-      {/* Top Cards */}
-      <div className="row dashboard-top-cards mb-4">
-        {[
-          { title: "Total Employees", value: "132" },
-          { title: "Active Employees", value: "124" },
-          { title: "On Leave Today", value: "08" },
-          { title: "Pending Approvals", value: "03" },
-        ].map((card, idx) => (
-          <div className="col-md-3" key={idx}>
-            <div className="dashboard-card text-center p-3 border rounded shadow-sm">
-              <p>{card.title}</p>
-              <h3>{card.value}</h3>
+    <Fragment>
+      <main className="page-hrmsdashboard d-flex">
+        <div className="left-container">
+          <div className="row">
+            <div className="col-sm-12 col-md-6 col-lg-3 col-xl-3  mb-4">
+              <div className="card-conatiner">
+                <h2>
+                  <span className="text-dark-gray">Total Employees</span>132
+                </h2>
+              </div>
+            </div>
+            <div className="col-sm-12 col-md-6 col-lg-3 col-xl-3  mb-4">
+              <div className="card-conatiner">
+                <h2>
+                  <span className="text-dark-gray">Active Employees</span>112
+                </h2>
+              </div>
+            </div>
+            <div className="col-sm-12 col-md-6 col-lg-3 col-xl-3  mb-4">
+              <div className="card-conatiner">
+                <h2>
+                  <span className="text-dark-gray">On Leave Today</span>24
+                </h2>
+              </div>
+            </div>
+            <div className="col-sm-12 col-md-6 col-lg-3 col-xl-3">
+              <div className="card-conatiner">
+                <h2>
+                  <span className="text-dark-gray">Pending Approvals</span>12
+                </h2>
+              </div>
             </div>
           </div>
-        ))}
-      </div>
-
-      {/* Chart & Joiners */}
-      <div className="row mb-4">
-        <div className="col-md-6 dashboard-chart-section">
-          <Chart
-          className='piechart-design'
-            chartType="PieChart"
-            data={data}
-            options={options}
-            width={"100%"}
-            height={"250px"}
-
-            
-          />
-          <ul className="dashboard-legend list-unstyled mt-3">
-            <li><span className="legend-dot present"></span> Present: 90%</li>
-            <li><span className="legend-dot absent"></span> Absent: 7%</li>
-            <li><span className="legend-dot leave"></span> On Leave: 3%</li>
-          </ul>
-        </div>
-        <div className="col-md-3 dashboard-joiners-section">
-          <h6>New Joiners Carousel <span className="badge bg-warning text-dark ms-2">3</span></h6>
-          <ul className="list-group mt-2">
-            <li className="list-group-item d-flex justify-content-between">
-              <div className='namedashboard'>
-                <strong>Jacob Jones</strong>
-                <small>Site Engineer</small><br />
+          <div className="row">
+            <div className="mt-4 col-sm-12 col-md-12 col-lg-8 col-xl-8">
+              <div className="row">
+                <div className="col-sm-12 col-md-12 col-lg-6 col-xl-6">
+                  <div className="pending-approvel-conatiner pt-0">
+                    <AttendancePieChart />
+                  </div>
+                </div>
+                <div className="col-sm-12 col-md-12 col-lg-6 col-xl-6">
+                  <div className="pending-approvel-conatiner">
+                    <div className="justify-content-between d-flex mb-4">
+                      <h4 className="title-2 fs-18-500 mb-0 justify-content-start align-items-center d-flex">
+                        New Joiners Carousel{" "}
+                        <span className="pending-approvel-count ms-2">
+                          {newJoiners.length}
+                        </span>
+                      </h4>
+                    </div>
+                    <div className="height-540px scrollbar-none recentactivitie" style={{ height: "362px" }}>
+                      {newJoiners.map((newjoiner) => (
+                        <div
+                          className="recentactivitie-card"
+                          key={newjoiner.id}
+                        >
+                          <div className="d-flex justify-content-between align-items-center">
+                            <div className="d-flex justify-content-between align-items-center">
+                              <img
+                                src={profile}
+                                className="me-2"
+                                alt="profileimg"
+                              />
+                              <h4 className="title-3 m-0 fs-14-400 text-dark">
+                                {" "}
+                                {newjoiner.name}
+                                <span className="role mb-0 mt-1 fs-10-400 text-neutral-gray">
+                                  {newjoiner.role}
+                                </span>
+                              </h4>
+                            </div>
+                            <div className="d-flex justify-content-between align-items-center">
+                              <h6 className="mb-0 ms-1 fs-10-600">
+                                {newjoiner.day}
+                              </h6>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
-              <span className="spandashboard badge bg-dark">Joined Today</span>
-            </li>
-            <li className="list-group-item d-flex justify-content-between">
-              <div>
-                <strong>Albert Flores</strong><br />
-                <small>Survey Engineer</small>
+              <div className="row">
+                <div className="mt-4 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                  <div className="pending-approvel-conatiner">
+                    <div className="justify-content-between d-flex mb-4">
+                      <h4 className="title-2 mb-0 justify-content-start align-items-center d-flex">
+                        Leave Management
+                      </h4>
+                    </div>
+
+                    <div className="scrollbar-none">
+                      <div className="tbl-conatiner scrollbar-none">
+                        <table className="tbl w-100">
+                          <thead>
+                            <tr>
+                              <th className="fs-16-500 text-dark text-center">
+                              Employee Name
+                              </th>
+                              <th className="fs-16-500 text-dark text-center">
+                              Department
+                              </th>
+                              <th className="fs-16-500 text-dark text-center">
+                              Leave Type
+                              </th>
+                              <th className="fs-16-500 text-dark text-center">
+                              Date
+                              </th>
+                              <th className="fs-16-500 text-dark text-center">
+                              Status
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody className="scrollbar-none">
+                            {leaveStatus.map((item) => (
+                              <tr key={item.id}>
+                                <td className="fs-16-500 text-dark-gray text-center">
+                                  {item.name}
+                                </td>
+                                <td className="fs-14-400 text-dark-gray text-center">
+                                  {item.department}
+                                </td>
+                                <td className="fs-14-400 text-dark-gray text-center">
+                                  {item.type}
+                                </td>
+                                <td className="fs-14-400 text-dark-gray text-center">
+                                  {item.date}
+                                </td>
+                                <td className="fs-14-400 text-dark-gray text-center">
+                                  {item.status}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <span className="spandashboard badge bg-secondary">Joined Last day</span>
-            </li>
-          </ul>
+            </div>
+            <div className="mt-4 col-sm-12 col-md-12 col-lg-4 col-xl-4">
+              <div className="pending-approvel-conatiner">
+                <div className="justify-content-between d-flex mb-4">
+                  <h4 className="title-2 fs-18-500 mb-0 justify-content-start align-items-center d-flex">
+                    Recent Activities{" "}
+                    <span className="pending-approvel-count ms-2">
+                      {recentActivities.length}
+                    </span>
+                  </h4>
+                </div>
+                <div className="height-540px scrollbar-none recentactivitie">
+                  {recentActivities.map((recentactivitie) => (
+                    <div
+                      className="recentactivitie-card"
+                      key={recentactivitie.id}
+                    >
+                      <div className="d-flex justify-content-between align-items-center">
+                        <div className="d-flex justify-content-between align-items-center">
+                          <img
+                            src={profile}
+                            className="me-2"
+                            alt="profileimg"
+                          />
+                          <h4 className="title-3 m-0 fs-14-400 text-dark">
+                            {" "}
+                            {recentactivitie.name}
+                            <span className="role mb-0 mt-1 fs-10-400 text-neutral-gray">
+                              {recentactivitie.role}
+                            </span>
+                          </h4>
+                        </div>
+                        <div className="d-flex justify-content-between align-items-center">
+                          <h6 className="mb-0 ms-1 fs-10-600">
+                            {recentactivitie.status}
+                          </h6>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-
-        <div className="col-md-3 dashboard-activities-section">
-          <h6>Recent Activities <span className="badge bg-warning text-dark ms-2">10</span></h6>
-          <ul className="list-group mt-2">
-            <li className="list-group-item d-flex justify-content-between">
-              <div>Ronald Richards<br /><small>Site Engineer</small></div>
-              <span className="text-danger">Request Leave</span>
-            </li>
-            <li className="list-group-item d-flex justify-content-between">
-              <div>Cody Fisher<br /><small>Site Engineer</small></div>
-              <span className="text-success">Approved Leave</span>
-            </li>
-            <li className="list-group-item d-flex justify-content-between">
-              <div>Kathryn Murphy<br /><small>Site Engineer</small></div>
-              <span className="text-success">Salary Credited</span>
-            </li>
-            <li className="list-group-item d-flex justify-content-between">
-              <div>Ralph Edwards<br /><small>Site Engineer</small></div>
-              <span className="text-danger">Today Leave</span>
-            </li>
-            <li className="list-group-item d-flex justify-content-between">
-              <div>Guy Hawkins<br /><small>Site Engineer</small></div>
-              <span className="text-success">Approved Leave</span>
-            </li>
-            <li className="list-group-item d-flex justify-content-between">
-              <div>Bessie Cooper<br /><small>Site Engineer</small></div>
-              <span className="text-success">Approved Leave</span>
-            </li>
-            <li className="list-group-item d-flex justify-content-between">
-              <div>Darrell Steward<br /><small>Site Engineer</small></div>
-              <span className="text-success">Approved Leave</span>
-            </li>
-          </ul>
+        <div className="right-container">
+          <Notification />
         </div>
-      </div>
-
-      {/* Leave Management Table */}
-      <div className="dashboard-leave-section">
-        <h6>Leave Management</h6>
-        <table className="table table-bordered mt-2">
-          <thead className="table-light">
-            <tr>
-              <th>Employee Name</th>
-              <th>Department</th>
-              <th>Leave Type</th>
-              <th>Date</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td>Courtney Henry</td><td>Civil</td><td>Casual</td><td>7/11/19</td><td className="text-success">Approved</td></tr>
-            <tr><td>Devon Lane</td><td>Civil</td><td>Sick</td><td>5/27/15</td><td className="text-danger">Rejected</td></tr>
-            <tr><td>Eleanor Pena</td><td>Civil</td><td>Casual</td><td>7/27/13</td><td className="text-success">Approved</td></tr>
-            <tr><td>Bessie Cooper</td><td>Civil</td><td>Casual</td><td>1/28/17</td><td className="text-success">Approved</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+      </main>
+    </Fragment>
   );
-}
+};
 
 export default HRDashboard;

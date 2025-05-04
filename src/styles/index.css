@@ -48,3 +48,7 @@
 
 /*PM FLOW STYLES */
 @import './components/css/pmStyles/dashboard.css';
+
+
+/*HR FLOW STYLES */
+@import './components/css/hr/hrms.css';
