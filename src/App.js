@@ -495,8 +495,8 @@ const App = () => {
         <Route
           path="/purchasemanager"
           element={
-            <ProtectedRoute allowedRoleIds={[16, 17]}>
-              {renderLayout(16)}
+            <ProtectedRoute allowedRoleIds={[17]}>
+              {renderLayout(17)}
             </ProtectedRoute>
           }
         >
