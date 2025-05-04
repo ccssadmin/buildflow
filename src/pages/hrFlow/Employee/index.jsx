@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import "../../../styles/components/css/hr/hrms.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteEmployee, getEmployees } from "../../../store/actions/hr/createemployeaction";
+import { getEmployees } from "../../../store/actions/hr/createemployeaction";
 import { FileEdit } from "lucide-react";
 
 const EmployeeTable = () => {
@@ -10,33 +10,10 @@ const EmployeeTable = () => {
   const { employeeList = [], loading, error } = useSelector((state) => state.employee);
   const navigate = useNavigate();
 
-  console.log("employee:",employeeList);
-
   useEffect(() => {
     dispatch(getEmployees());
   }, [dispatch]);
 
-
-  const handleDelete = (empId) => {
-    if (window.confirm("Are you sure you want to delete this employee?")) {
-      dispatch(deleteEmployee(empId))
-        .unwrap()
-        .then((res) => {
-          console.log("Delete success:", res);
-          alert("Employee deleted successfully.");
-        })
-        .catch((err) => {
-          console.error("Delete failed:", err);
-          alert("Failed to delete employee.");
-        });
-        
-    }
-    
-  };
-  
-  
-  
-  
   return (
     <div className="hrms-container">
       <div className="hrms-header">
@@ -101,22 +78,23 @@ const EmployeeTable = () => {
                 </td>
                 <td>{emp.phone || "N/A"}</td>
                 <td>
+  
+
   <button
-    className="edit-btn"
+    
     onClick={() => navigate("/hr/addemployee", { state: { employeeData: emp } })}
+    style={{
+      background: "none",
+      border: "none",
+      color: "#0456D0", // same blue as in your image
+      cursor: "pointer",
+      textDecoration: "underline",
+      paddingLeft: "10px",
+    }}
   >
-    <FileEdit />
+    Edit
   </button>
-  <button
-  className=""
-  onClick={() => handleDelete(emp.empId)}
->
-  Delete
-</button>
-
 </td>
-
-
               </tr>
             ))}
         </tbody>

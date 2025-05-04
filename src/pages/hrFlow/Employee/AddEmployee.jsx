@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { fetchDepartments } from "../../../store/actions/hr/departmentaction";
-import { createEmployee, createOrUpdateEmployee } from "../../../store/actions/hr/createemployeaction";
+import { createEmployee, createOrUpdateEmployee, deleteEmployee } from "../../../store/actions/hr/createemployeaction";
 import { fetchRolesByDepartment } from "../../../store/actions/hr/designationaction";
 import { fetchProjects } from "../../../store/actions/hr/projectaction";
 
@@ -37,12 +37,13 @@ useEffect(() => {
       name: editingEmployee.firstName || "",
       dob: editingEmployee.dateOfBirth || "",
       gender: editingEmployee.gender || "",
-      mobile: editingEmployee.phone || "",
+            mobile: editingEmployee.phone || "",
       email: editingEmployee.email || "",
       EmployeeCode: editingEmployee.employeeCode || "",
       department: editingEmployee.deptId?.toString() || "",
-      designation: editingEmployee.roleId?.toString() || "",
-      project: editingEmployee.project_id?.toString() || "",
+      designation: editingEmployee.roleName ? 
+      editingEmployee.roleId.toString() : "",
+            project: editingEmployee.project_id?.toString() || "",
     });
   }
 }, [editingEmployee]);
@@ -60,15 +61,37 @@ useEffect(() => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (employee.department) {
+    if (employee.department && employee.department !== "0") {
       dispatch(fetchRolesByDepartment(employee.department));
     }
   }, [employee.department, dispatch]);
+  
 
   useEffect(() => {
     console.log("Roles for department", employee.department, ":", roles);
   }, [roles]);
   
+
+  useEffect(() => {
+    console.log("Editing Employee: ", editingEmployee);
+    console.log("Employee state set to: ", employee);
+  }, [employee]);
+  
+  
+  const handleDelete = () => {
+    if (window.confirm("Are you sure you want to delete this employee?")) {
+      // dispatch delete action here (you need to implement or import it)
+      dispatch(deleteEmployee(editingEmployee.empId))
+        .then(() => {
+          alert("Employee deleted successfully.");
+          navigate("/hr/employee"); // redirect after deletion
+        })
+        .catch(() => {
+          alert("Failed to delete employee. Please try again.");
+        });
+    }
+  };
+
   
   useEffect(() => {
     dispatch(fetchProjects());
@@ -132,29 +155,32 @@ useEffect(() => {
       project: Number(employee.project),
       employeeCode: employee.EmployeeCode,
     };
+
+    
     
     const action = editingEmployee ? createOrUpdateEmployee : createEmployee;
   
-    dispatch(createOrUpdateEmployee(formattedData))      .unwrap()
-      .then(() => {
+    dispatch(action(formattedData))      .then(() => {
         setSuccessMessage(
           editingEmployee ? "Employee updated successfully!" : "Employee added successfully!"
         );
         setValidationErrors({});
         setTimeout(() => setSuccessMessage(""), 3000);
-        if (!editingEmployee) {
-          setEmployee({
-            name: "",
-            dob: "",
-            gender: "",
-            mobile: "",
-            email: "",
-            EmployeeCode: "",
-            department: "",
-            designation: "",
-            project: "",
-          });
-        }
+        setEmployee({
+          name: "",
+          dob: "",
+          gender: "",
+          mobile: "",
+          email: "",
+          EmployeeCode: "",
+          department: "",
+          designation: "",
+          project: "",
+        });
+        
+        // Optional: clear location.state to remove edit context
+      
+        
         
       })
       .catch(() => {
@@ -182,7 +208,7 @@ useEffect(() => {
   return (
     <div className="addemployee-container">
       <div className="addemployee-breadcrumb">
-        <span className="addemployee-link" onClick={() => navigate("/ceo/hrms")}>Employee</span>
+        <span className="addemployee-link" onClick={() => navigate("/hr/employee")}>Employee</span>
         <span className="addemployee-separator">&gt;</span>
         <span className="addemployee-current">Add Employee</span>
       </div>
@@ -240,7 +266,7 @@ useEffect(() => {
           </div>
 
           <div className="addemployee-form-group-email">
-          <label>Email ID</label>
+          <label className="addemployee-form-group-label">Email ID</label>
   <input
     type="email"
     name="email"
@@ -301,7 +327,7 @@ useEffect(() => {
 >
 
   
-    <option value="">Select Designation</option>
+    <option value="0">Select Designation</option>
     {Array.isArray(roles) ? (
   roles.map((roles) => (
     <option key={roles.roleId} value={roles.roleId}>
@@ -335,11 +361,26 @@ useEffect(() => {
 
           </div>
         </div>
+        {editingEmployee && (
+  <div className="addemployee-form-actions">
+    <button
+      type="button"
+      className="addemployee-btn-delete"
+      onClick={handleDelete}
+      
+    >
+      Delete
+    </button>
+  </div>
+)}
+
+
 
         <div className="addemployee-form-actions">
           <button type="button" className="addemployee-btn-cancel" onClick={handleCancel}>Cancel</button>
           <button type="submit" className="addemployee-btn-save">Save</button>
         </div>
+        
       </form>
     </div>
   );
