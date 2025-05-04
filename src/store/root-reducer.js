@@ -10,8 +10,8 @@ import departmentReducer from "./slice/Ceo/DepartmentSlicer";
 import riskReducer from "./slice/Ceo/riskSlice";
 import roleReducer from "./slice/hr/designationslice"
 import employeeReducer from "./slice/hr/createemployeeslice";
-
-
+import boqReducer from "./slice/Engineer/upsertboqslice"
+import vendorReducer from "./slice/Vendor/getvendorslice"
 
 export const rootReducer = combineReducers({
   auth: authSlice.reducer,
@@ -26,4 +26,6 @@ export const rootReducer = combineReducers({
   department: departmentReducer,
   role: roleReducer,
   employee: employeeReducer,
+  boq: boqReducer,
+  vendor: vendorReducer, 
 });
