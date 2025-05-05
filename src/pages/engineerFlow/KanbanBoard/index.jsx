@@ -163,22 +163,22 @@ const KanbanBoard = () => {
   const getTicketRoute = (ticketId) => {
     // Map role IDs to their respective routes
     const roleRoutes = {
-      1: `/ceo/ticket/${ticketId}`, // CEO
-      2: `/admin/engineerticketdetails/${ticketId}`, // Site Engineer
-      3: `/aqs/aqsticketdetails/${ticketId}`, // Assistant QS
-      4: `/aqs/aqsticketdetails/${ticketId}`, // QS
-      5: `/admin/engineerticketdetails/${ticketId}`, // Site Supervisor
-      6: `/admin/engineerticketdetails/${ticketId}`, // Lead Engineer
-      7: `/pm/pmticket/${ticketId}`, // Assistant Project Manager
-      8: `/pm/pmticket/${ticketId}`, // Project Manager
-      9: `/admin/engineerticketdetails/${ticketId}`, // Designer
-      10: `/admin/engineerticketdetails/${ticketId}`, // Engineer
-      11: `/ticket/${ticketId}`, // Managing Director
-      12: `/finance/financeticketdetails/${ticketId}`, // Head Finance
-      13: `/ceo/ticket/${ticketId}`, // GM Technology
-      15: `/hr/hrticketdetails/${ticketId}`, // HR
-      16: `/purchasemanager/hrticketdetails/${ticketId}`, // Purchase Manager
-      17: `/purchasemanager/hrticketdetails/${ticketId}`, // Purchase Manager (duplicate)
+      1: `/ticketdetails/${ticketId}`, // CEO
+      2: `/ticketdetails/${ticketId}`, // Site Engineer
+      3: `/ticketdetails/${ticketId}`, // Assistant QS
+      4: `/ticketdetails/${ticketId}`, // QS
+      5: `/ticketdetails/${ticketId}`, // Site Supervisor
+      6: `/ticketdetails/${ticketId}`, // Lead Engineer
+      7: `/ticketdetails/${ticketId}`, // Assistant Project Manager
+      8: `/ticketdetails/${ticketId}`, // Project Manager
+      9: `/ticketdetails/${ticketId}`, // Designer
+      10: `/ticketdetails/${ticketId}`, // Engineer
+      11: `/ticketdetails/${ticketId}`, // Managing Director
+      12: `/ticketdetails/${ticketId}`, // Head Finance
+      13: `/ticketdetails/${ticketId}`, // GM Technology
+      15: `/ticketdetails/${ticketId}`, // HR
+      16: `/ticketdetails/${ticketId}`, // Purchase Manager
+      17: `/ticketdetails/${ticketId}`, // Purchase Manager (duplicate)
     };
 
     return roleRoutes[userRoleId] || `/ticket/${ticketId}`;
