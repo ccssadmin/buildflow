@@ -27,14 +27,14 @@ import { AiOutlineUser } from "react-icons/ai";
 import { RiSaveFill } from "react-icons/ri";
 import { BsCalendar3 } from "react-icons/bs";
 import { useDispatch, useSelector } from "react-redux";
-import { useTicket } from "../../../hooks/Ceo/useTicket";
+import { useTicket } from "../../hooks/Ceo/useTicket";
 import {
   getticketbyidAction,
   updateProjectApprovalAction,
-} from "../../../store/actions/Ceo/TicketCreateAction";
-import { useDepartments } from "../../../hooks/Ceo/useDepartments";
-import { createTicketDetailsAction } from "../../../store/actions/masterAction";
-import { createTicketsDetailsSelector } from "../../../store/selector/masterSelector";
+} from "../../store/actions/Ceo/TicketCreateAction";
+import { useDepartments } from "../../hooks/Ceo/useDepartments";
+import { createTicketDetailsAction } from "../../store/actions/masterAction";
+import { createTicketsDetailsSelector } from "../../store/selector/masterSelector";
 import { GrAttachment } from "react-icons/gr";
 
 const EngineerTicketDetails = () => {
@@ -590,14 +590,14 @@ const EngineerTicketDetails = () => {
       .toUpperCase();
   };
 
-  const get_boq_Ticket = async () => {
-    const ticketId = await dispatch(
-      getticketbyidAction(ticket?.ticket_id)
-    ).unwrap();
-
-    navigate(`../engineermaterialview/${location?.state?.boqId || ticketId?.transaction_id}`);
+  const get_boq_Ticket = (ticket) => {
+    if (!ticket || !ticket.transaction_id) {
+      console.error("Invalid ticket object:", ticket);
+      return;
+    }
+  
+    navigate(`../engineermaterialview/${ticket.transaction_id}`);
   };
-
   return (
     <Container fluid className="">
       {/* Toast notification */}
@@ -809,7 +809,7 @@ const EngineerTicketDetails = () => {
               <h3 className="fs-18-500">Boq Details</h3>
               <button
                 className="btn border-primary px-4 border-2 mt-2"
-                onClick={() => get_boq_Ticket()}
+                onClick={() => get_boq_Ticket(ticket)}
               >
                 <GrAttachment />
               </button>

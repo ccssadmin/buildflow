@@ -71,7 +71,7 @@ const Material = () => {
           </select>
         </div>
         <Button className="create-button"
-          onClick={() => navigate('/admin/engineermaterialcreate')}
+          onClick={() => navigate('/admin/engineermaterialcreate',{state:{boqId:123}})}
         >Create</Button>
       </div>
 
