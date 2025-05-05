@@ -472,4 +472,4 @@ const KanbanBoard = () => {
   );
 };
 
-export default KanbanBoard;6
+export default KanbanBoard;
