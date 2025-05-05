@@ -262,6 +262,7 @@ const MaterialCreateScreen = () => {
                 data={initialApproverArray}
                 isSearchable={true}
                 placeholder={"Select Approver"}
+                isMulti={true}
               />
             </Form.Group>
           </div>
