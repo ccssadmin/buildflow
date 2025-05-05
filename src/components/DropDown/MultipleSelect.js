@@ -9,6 +9,7 @@ const MultipleSelect = ({
   placeholder,
   handleSelected,
   selectedOptions,
+  isMulti
 }) => {
   const selectStyles = {
     control: (provided) => ({
@@ -48,7 +49,7 @@ const MultipleSelect = ({
     menu: (provided) => ({
       ...provided,
       zIndex: 100, // Increase the z-index to a high value
-      backgroundColor: "transparent",  
+      backgroundColor: "transparent",
       border: "1px solid #fff",
     }),
   };
@@ -56,7 +57,7 @@ const MultipleSelect = ({
     <div className="dropdown-grid w-100">
       <Select
         options={data}
-        isMulti
+        isMulti={isMulti ? true : false}
         styles={selectStyles}
         closeMenuOnSelect={false}
         placeholder={placeholder ? placeholder : "Select"}

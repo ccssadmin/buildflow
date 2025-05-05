@@ -20,6 +20,8 @@ import {
   BsChevronDown,
   BsX,
 } from "react-icons/bs";
+import { IoMdClose } from "react-icons/io";
+
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -36,6 +38,7 @@ import { useDepartments } from "../../hooks/Ceo/useDepartments";
 import { createTicketDetailsAction } from "../../store/actions/masterAction";
 import { createTicketsDetailsSelector } from "../../store/selector/masterSelector";
 import { GrAttachment } from "react-icons/gr";
+import MultipleSelect from "../DropDown/MultipleSelect";
 
 const EngineerTicketDetails = () => {
   const [activeTab, setActiveTab] = useState("all");
@@ -595,8 +598,8 @@ const EngineerTicketDetails = () => {
       console.error("Invalid ticket object:", ticket);
       return;
     }
-  
-    navigate(`../materialview/${ticket.transaction_id}`);
+    // console.log("ticket"  , ticket)
+    navigate(`../materialview/${ticket.transaction_id}`, { state: ticket });
   };
   return (
     <Container fluid className="">
@@ -1424,28 +1427,50 @@ const EngineerTicketDetails = () => {
             {/* Move To */}
             <div className="department-employee-selector">
               {/* Move To Selector */}
-              <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
+              <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3 flex-wrap">
                 <span className="text-muted">Move To</span>
 
-                <div className="d-flex align-items-center position-relative">
+                <div
+                  className="d-flex align-items-center position-relative flex-wrap"
+                  style={{ justifyContent: "end" }}
+                >
                   <Button
                     variant="link"
-                    className="p-0 d-flex align-items-center border-no-underline"
-                    style={{ color: "#FF6F00", textDecoration: "none" }}
+                    className="d-flex align-items-center border-no-underline"
+                    style={{
+                      color: "#FF6F00",
+                      textDecoration: "none",
+                      backgroundColor: currentDepartment ? "#DDDF" : "white",
+                      padding: currentDepartment ? "5px 10px" : 0,
+                    }}
                     onClick={() =>
                       setShowDepartmentSelector(!showDepartmentSelector)
                     }
                     disabled={isLoading}
                   >
-                    <span style={{ color: "#FF6F00" }}>
+                    <span
+                      style={{ color: currentDepartment ? "#000" : "#FF6F00" }}
+                    >
                       {currentDepartment
                         ? currentDepartment.deptName
                         : "Select Department"}
                     </span>
-                    <AiOutlineUser
-                      className="ms-1"
-                      style={{ fill: "#FF6F00" }}
-                    />
+                    {currentDepartment ? (
+                      <button
+                        className="btn btn-0 border-0"
+                        onClick={() => {
+                          setCurrentDepartment("");
+                          setCurrentEmployee("");
+                        }}
+                      >
+                        <IoMdClose className="ms-1" />
+                      </button>
+                    ) : (
+                      <AiOutlineUser
+                        className="ms-1"
+                        style={{ fill: "#FF6F00" }}
+                      />
+                    )}
                   </Button>
 
                   {showDepartmentSelector && (
@@ -1481,8 +1506,12 @@ const EngineerTicketDetails = () => {
                   {currentDepartment && !currentEmployee && (
                     <Button
                       variant="link"
-                      className="p-0 d-flex align-items-center border-no-underline"
-                      style={{ color: "#FF6F00", textDecoration: "none" }}
+                      className="p-0 d-flex align-items-center border-no-underline w-100"
+                      style={{
+                        color: "#FF6F00",
+                        textDecoration: "none",
+                        justifyContent: "end",
+                      }}
                       onClick={() =>
                         setShowEmployeeSelector(!showEmployeeSelector)
                       }
@@ -1548,7 +1577,7 @@ const EngineerTicketDetails = () => {
             </div>
 
             {/* Approved By */}
-            <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
+            <div className="mb-3 mt-3 d-flex justify-content-between align-items-center border-bottom pb-3">
               <span className="text-muted">Action</span>
               <div className="d-flex align-items-center">
                 <button
