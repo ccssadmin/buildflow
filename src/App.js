@@ -14,12 +14,11 @@ const FinanceLayout = lazy(() => import('./components/layout/finance-layout.comp
 const PmLayout = lazy(() => import('./components/layout/pm-layout.component'));
 const HrLayout = lazy(() => import('./components/layout/hr-layout.component'));
 const PurchasemanagerLayout = lazy(() => import('./components/layout/purchasemanager-layout.component'));
-const VendorLayout = lazy(() => import('./components/layout/vendor-layout.component'));
+const VendorLayout = lazy ( ( ) => import('./components/layout/vendor-layout.component'))
 
 /** PAGES */
 const Login = lazy(() => import("./pages/Login/Login"));
-const TicketDetail = lazy(() => import("./components/common/TicketDetails"));
-const MaterialView = lazy(() => import('./components/common/MaterialViewScreen'));
+
 // [Keep all your existing page imports...]
 
 
@@ -41,7 +40,7 @@ const EngineerReport = lazy(() => import('./pages/engineerFlow/Report/index'));
 const EngineerReportView = lazy(() => import('./pages/engineerFlow/Report/ReportViewScreen'));
 const EngineerReportCreate = lazy(() => import('./pages/engineerFlow/Report/ReportCreateScreen'));
 const EngineerMaterial = lazy(() => import('./pages/engineerFlow/Material/index'));
-const EngineerMaterialView = lazy(() => import('./components/common/MaterialViewScreen'));
+const EngineerMaterialView = lazy(() => import('./pages/engineerFlow/Material/MaterialViewScreen'));
 const EngineerMaterialCreate = lazy(() => import('./pages/engineerFlow/Material/MaterialCreateScreen'));
 const EngineerChat = lazy(() => import('./pages/engineerFlow/ChatPage/Chat/ChatApp'));
 const EngineerTask = lazy(() => import('./pages/engineerFlow/Task/index'));
@@ -142,23 +141,23 @@ const PurchasemanagerVendorDetails = lazy(() => import('./pages/purchasemanagerF
 const PurchasemanagerVendorPriceDetails = lazy(() => import('./pages/purchasemanagerFlow/Vendors/VendorPriceDetails'));
 const PurchasemanagerPo = lazy(() => import('./pages/purchasemanagerFlow/Po/index'));
 const PurchasemanagerPoDetails = lazy(() => import('./pages/purchasemanagerFlow/Po/purchaseOrder'));
-const PurchasemanagerPoCreate = lazy(() => import('./pages/purchasemanagerFlow/Po/purchaseOrderCreate'));
+const PurchasemanagerPoCreate = lazy( ( ) => import('./pages/purchasemanagerFlow/Po/purchaseOrderCreate'));
 const PurchasemanagerKanban = lazy(() => import('./pages/purchasemanagerFlow/KanbanBoard/index'));
 const PurchasemanagerKanbanTicketDetails = lazy(() => import('./pages/purchasemanagerFlow/KanbanBoard/TicketDetails'));
 const PurchasemanagerChat = lazy(() => import('./pages/purchasemanagerFlow/ChatPage/Chat/ChatApp'));
 const PurchasemanagerSettings = lazy(() => import('./pages/purchasemanagerFlow/Settings/index'));
-const PurchaseBoq = lazy(() => import('./pages/purchasemanagerFlow/BoqView/MaterialViewScreen'));
+const PurchaseBoq = lazy( ( ) => import('./pages/purchasemanagerFlow/BoqView/MaterialViewScreen'));
 
 
 //Vendor Flow
 
-const VendorDashboard = lazy(() => import('./pages/vendorFlow/Dashboard/index'));
-const VendorPo = lazy(() => import('./pages/vendorFlow/Po/index'));
-const VendorEditPo = lazy(() => import('./pages/vendorFlow/Po/EditPurchaseOrder'));
-const VendorKanban = lazy(() => import('./pages/vendorFlow/KanbanBoard/index'));
-const VendorTicketDetails = lazy(() => import('./pages/vendorFlow/KanbanBoard/TicketDetails'));
-const VendorChat = lazy(() => import('./pages/vendorFlow/ChatPage/Chat/ChatApp'));
-const VendorSettings = lazy(() => import('./pages/vendorFlow/Settings/index'));
+const VendorDashboard = lazy( ( ) => import('./pages/vendorFlow/Dashboard/index'));
+const VendorPo = lazy( ( ) => import('./pages/vendorFlow/Po/index'));
+const VendorEditPo = lazy( ( ) => import('./pages/vendorFlow/Po/EditPurchaseOrder'));
+const VendorKanban = lazy( ( ) => import ('./pages/vendorFlow/KanbanBoard/index'));
+const VendorTicketDetails = lazy( ( ) => import ('./pages/vendorFlow/KanbanBoard/TicketDetails'));
+const VendorChat = lazy( ( ) => import('./pages/vendorFlow/ChatPage/Chat/ChatApp'));
+const VendorSettings = lazy( ( ) => import('./pages/vendorFlow/Settings/index'));
 
 
 const App = () => {
@@ -222,29 +221,36 @@ const App = () => {
     17: { // Purchase Manager (duplicate in your DB?)
       default: "/purchasemanager/dashboard",
       layout: PurchasemanagerLayout,
-    },
-    "Vendor": {
-      default: "/vendor/dashboard",
-      layout: VendorLayout
-    },
-  }
+    }
+      // layout: PurchasemanagerLayout
+    }
+    // "Vendor" : {
+    //   default:"/vendor/dashboard",
+    //   layout: VendorLayout
+    // },
   
-  // Fixed ProtectedRoute component to handle both numeric roleIds and string roles like "Vendor"
-  const ProtectedRoute = ({ children, allowedRoleIds, allowedRole }) => {
+
+  // const ProtectedRoute = ({ childre6n, allowedRoleIds }) => {
+  //   if (!roleId) {
+  //     return <Navigate to="/login" replace />;
+  //   }
+
+  //   if (!allowedRoleIds.includes(roleId)) {
+  //     return <Navigate to={roleRoutes[roleId]?.default || "/login"} replace />;
+  //   }
+
+  //   return children;
+  // };
+  const ProtectedRoute = ({ children, allowedRoleIds }) => {
     if (!roleId) {
       return <Navigate to="/login" replace />;
     }
-
-    // Handle both numeric roleIds and string roles
-    if (allowedRoleIds && !allowedRoleIds.includes(roleId)) {
+  
+    if (!allowedRoleIds.includes(roleId)) {
       return <Navigate to={roleRoutes[roleId]?.default || "/login"} replace />;
     }
-
-    if (allowedRole && roleId !== allowedRole) {
-      return <Navigate to={roleRoutes[roleId]?.default || "/login"} replace />;
-    }
-
-    return children;
+  
+    return children; // ✅ correct
   };
   
 
@@ -254,12 +260,7 @@ const App = () => {
       const accessToken = localStorage.getItem("accessToken");
 
       if (accessToken && storedRoleId) {
-        // Check if it's a Vendor role (special case)
-        if (storedRoleId === "Vendor") {
-          setRoleId("Vendor");
-        } else {
-          setRoleId(Number(storedRoleId));
-        }
+        setRoleId(Number(storedRoleId));
       } else {
         navigate("/login");
       }
@@ -312,31 +313,18 @@ const App = () => {
   return (
     <Suspense fallback={<Spinner />}>
       <Routes>
-     
         {/* LOGIN PAGE */}
         <Route
           path="/login"
           element={
             roleId ? (
               <Navigate to={roleRoutes[roleId]?.default || "/login"} replace />
-              
             ) : (
               <Login onLoginSuccess={handleLoginSuccess} />
             )
           }
         />
-      <Route
-          path="/"
-          element={
-            <ProtectedRoute allowedRoleIds={[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]}>
-              {renderLayout(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20)}
-              
-            </ProtectedRoute>
-          }
-        >
-           <Route path="/materialview/:boqId" element={<MaterialView />} />
-           <Route path="/ticketdetails/:ticketId" element={<TicketDetail />} />
-        </Route>
+
         {/* SUPERADMIN ROUTES (MD Flow) */}
         <Route
           path="/"
@@ -511,7 +499,7 @@ const App = () => {
         <Route
           path="/purchasemanager"
           element={
-            <ProtectedRoute allowedRoleIds={[17]}>
+            <ProtectedRoute allowedRoleIds={[ 17]}>
               {renderLayout(17)}
             </ProtectedRoute>
           }
@@ -521,7 +509,7 @@ const App = () => {
           <Route path="vendorsDetails" element={<PurchasemanagerVendorDetails/>} />
           <Route path="vendorsPriceDetails" element={<PurchasemanagerVendorPriceDetails/>} />
           <Route path="po" element={<PurchasemanagerPo />} />
-          <Route path="poDetails/:purchaseOrderId" element={<PurchasemanagerPoDetails/>} />
+          <Route path="poDetails" element={<PurchasemanagerPoDetails/>} />
           <Route path="poCreate" element={<PurchasemanagerPoCreate />} />
           <Route path="boqDetails/:boqId" element={<PurchaseBoq />} />
           <Route path="approvals" element={<PurchasemanagerKanban />} />
@@ -533,22 +521,19 @@ const App = () => {
 
         {/* Vendor */}
 
-        <Route 
+          <Route 
           path="/vendor" 
-          element={
-            <ProtectedRoute allowedRole="Vendor">
-              {renderLayout("Vendor")}
-            </ProtectedRoute>
-          }
-        >
-          <Route path="dashboard" element={<VendorDashboard />}/>
-          <Route path="po" element={<VendorPo />} />
-          <Route path="editpo" element={<VendorEditPo />} />
-          <Route path="approvals" element={<VendorKanban />} />
-          <Route path="vendorticketdetails/:ticketId" element={<VendorTicketDetails />} />
-          <Route path="chats" element={<VendorChat />} />
-          <Route path="settings" element={<VendorSettings />} />
-        </Route>
+          element={<ProtectedRoute allowedRole="Vendor"><VendorLayout onLogout={handleLogout} /></ProtectedRoute>}
+          >
+
+            <Route  path="dashboard" element={<VendorDashboard />}/>
+            <Route path="po" element={<VendorPo />} />
+            <Route path="editpo" element={<VendorEditPo />} />
+            <Route path="approvals" element={<VendorKanban />} />
+            <Route path="vendorticketdetails/:ticketId" element={<VendorTicketDetails />} />
+            <Route path="chats" element={<VendorChat />} />
+            <Route path="settings" element={<VendorSettings />} />
+          </Route>
         {/* Catch all redirect */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
