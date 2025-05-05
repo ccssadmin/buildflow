@@ -95,7 +95,6 @@ const MaterialViewScreen = () => {
     console.log("route_route", route);
   }, [route]);
 
-  console.log("boqData", boqData);
   const getBOQDetails = async (boqId) => {
     console.log("boqId", typeof boqId, boqId);
     const response = await getBoqDetails(Number(boqId));
