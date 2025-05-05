@@ -51,6 +51,8 @@ export const API = {
   // LOGIN BOARD DETAILS 
   LOGIN_BOARD_DETAILS: '/api/Login/board-details',
 
+  //** BOQ Get DATA ***/
+  GET_BOQ_DETAILS: "/api/Project/getBoqDetails",
   /** MASTER */
   GET_COLOR: "/api/CoreColor/corecolors",
   ADD_COLOR: "/api/CoreColor/add",

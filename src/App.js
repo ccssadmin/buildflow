@@ -361,7 +361,7 @@ const App = () => {
           <Route path="engineerreportview" element={<EngineerReportView />} />
           <Route path="engineerreportcreate" element={<EngineerReportCreate />} />
           <Route path="engineermaterial" element={<EngineerMaterial />} />
-          <Route path="engineermaterialview" element={<EngineerMaterialView />} />
+          <Route path="engineermaterialview/:boqId" element={<EngineerMaterialView />} />
           <Route path="engineermaterialcreate" element={<EngineerMaterialCreate />} />
           <Route path="engineertask" element={<EngineerTask />} />
           <Route path="engineersetting" element={<EngineerSetting />} />
@@ -393,6 +393,8 @@ const App = () => {
           <Route path="aqsvendordetails" element={<AqsVendorDetails />} />
           <Route path="aqsvendorpricedetails" element={<AqsVendorPriceDetails />} />
           <Route path="aqssetting" element={<AqsSetting />} />
+          <Route path="engineermaterialview/:boqId" element={<EngineerMaterialView />} />
+
         </Route>
 
         {/* CEO ROUTES */}
@@ -495,7 +497,7 @@ const App = () => {
         <Route
           path="/purchasemanager"
           element={
-            <ProtectedRoute allowedRoleIds={[17]}>
+            <ProtectedRoute allowedRoleIds={[ 17]}>
               {renderLayout(17)}
             </ProtectedRoute>
           }
