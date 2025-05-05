@@ -38,7 +38,10 @@ export default function PurchaseOrdersPage() {
                 <option>Pending</option>
               </select>
             </div>
-            <button className="btn" style={{ backgroundColor: "#ff6600", color: "white", fontWeight: "500" }}>
+            <button 
+            className="btn" style={{ backgroundColor: "#ff6600", color: "white", fontWeight: "500" }}
+            onClick={() => navigate('/purchasemanager/poCreate')}
+            >
               + Create PO
             </button>
           </div>
@@ -74,7 +77,7 @@ export default function PurchaseOrdersPage() {
                     href="#"
                     
                     style={{ color: "#0d6efd", textDecoration: "none" }}
-                    onClick={() => navigate('../poDetails')}
+                    onClick={() => navigate('/purchasemanager/poDetails')}
                   >
                     View
                   </a>

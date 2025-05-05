@@ -141,10 +141,12 @@ const PurchasemanagerVendorDetails = lazy(() => import('./pages/purchasemanagerF
 const PurchasemanagerVendorPriceDetails = lazy(() => import('./pages/purchasemanagerFlow/Vendors/VendorPriceDetails'));
 const PurchasemanagerPo = lazy(() => import('./pages/purchasemanagerFlow/Po/index'));
 const PurchasemanagerPoDetails = lazy(() => import('./pages/purchasemanagerFlow/Po/purchaseOrder'));
+const PurchasemanagerPoCreate = lazy( ( ) => import('./pages/purchasemanagerFlow/Po/purchaseOrderCreate'));
 const PurchasemanagerKanban = lazy(() => import('./pages/purchasemanagerFlow/KanbanBoard/index'));
 const PurchasemanagerKanbanTicketDetails = lazy(() => import('./pages/purchasemanagerFlow/KanbanBoard/TicketDetails'));
 const PurchasemanagerChat = lazy(() => import('./pages/purchasemanagerFlow/ChatPage/Chat/ChatApp'));
 const PurchasemanagerSettings = lazy(() => import('./pages/purchasemanagerFlow/Settings/index'));
+const PurchaseBoq = lazy( ( ) => import('./pages/purchasemanagerFlow/BoqView/MaterialViewScreen'));
 
 
 //Vendor Flow
@@ -508,8 +510,10 @@ const App = () => {
           <Route path="vendorsPriceDetails" element={<PurchasemanagerVendorPriceDetails/>} />
           <Route path="po" element={<PurchasemanagerPo />} />
           <Route path="poDetails" element={<PurchasemanagerPoDetails/>} />
+          <Route path="poCreate" element={<PurchasemanagerPoCreate />} />
+          <Route path="boqDetails/:boqId" element={<PurchaseBoq />} />
           <Route path="approvals" element={<PurchasemanagerKanban />} />
-          <Route path="hrticketdetails/:ticketId" element={<PurchasemanagerKanbanTicketDetails />} />
+          <Route path="purchaseticketdetails/:ticketId" element={<PurchasemanagerKanbanTicketDetails />} />
           <Route path="chats" element={<PurchasemanagerChat />} />
           <Route path="settings" element={<PurchasemanagerSettings />} />
         </Route>
