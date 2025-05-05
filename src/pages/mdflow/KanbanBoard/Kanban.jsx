@@ -34,7 +34,13 @@ const KanbanBoard = () => {
   const [menuOpen, setMenuOpen] = useState({});
   const [editTaskTitle, setEditTaskTitle] = useState("");
   const [editColumnIndex, setEditColumnIndex] = useState(null);
-
+  const getUserRole = () => {
+    const userRoleId = localStorage.getItem("userRoleId");
+    return userRoleId ? parseInt(userRoleId) : null;
+  };
+  
+  const userRoleId = getUserRole();
+  console.log("Current user role ID:", userRoleId);
   // Get board data from Redux store
   const boardDetailsData = useSelector(loginBoardDetailsSelector);
   const data = boardDetailsData?.data || boardDetailsData;
@@ -128,11 +134,33 @@ const KanbanBoard = () => {
       setLoading(false);
     }
   };
+  const getTicketRoute = (ticketId) => {
+    // Map role IDs to their respective routes
+    const roleRoutes = {
+      1: `/ticketdetails/${ticketId}`, // CEO
+      2: `/ticketdetails/${ticketId}`, // Site Engineer
+      3: `/ticketdetails/${ticketId}`, // Assistant QS
+      4: `/ticketdetails/${ticketId}`, // QS
+      5: `/ticketdetails/${ticketId}`, // Site Supervisor
+      6: `/ticketdetails/${ticketId}`, // Lead Engineer
+      7: `/ticketdetails/${ticketId}`, // Assistant Project Manager
+      8: `/ticketdetails/${ticketId}`, // Project Manager
+      9: `/ticketdetails/${ticketId}`, // Designer
+      10: `/ticketdetails/${ticketId}`, // Engineer
+      11: `/ticketdetails/${ticketId}`, // Managing Director
+      12: `/ticketdetails/${ticketId}`, // Head Finance
+      13: `/ticketdetails/${ticketId}`, // GM Technology
+      15: `/ticketdetails/${ticketId}`, // HR
+      16: `/ticketdetails/${ticketId}`, // Purchase Manager
+      17: `/ticketdetails/${ticketId}`, // Purchase Manager (duplicate)
+    };
 
+    return roleRoutes[userRoleId] || `/ticket/${ticketId}`;
+  };
   const handleTaskClick = async (task) => {
     try {
       const ticketDetails = await dispatch(getticketbyidAction(task.id)).unwrap();
-      navigate(`/ticketdetails/${task.id}`, { 
+      navigate(`/ticket/${task.id}`, { 
         state: { 
           ticket: ticketDetails,
           from: 'kanban' 
