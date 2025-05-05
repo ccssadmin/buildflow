@@ -10,11 +10,11 @@ import { toast } from "react-toastify";
 
 const MaterialViewScreen = () => {
   const navigate = useNavigate();
-  const route = useParams();
+  const params = useParams();
   const location = useLocation();
   const { ticket } = location.state || {};
   const [boqDetails, setboqDetails] = useState("");
-  console.log("route_route", route);
+  
   const boqData = [
     {
       id: "01",
@@ -90,37 +90,40 @@ const MaterialViewScreen = () => {
     },
   ];
 
-  const get_boq_Ticket = (ticket) => {
-    if (!ticket || !ticket.transaction_id) {
-      console.error("Invalid ticket object:", ticket);
-      return;
+  const handleConvertToPO = () => {
+    // Navigate to PO create page with boqDetails and ticket data
+    if (boqDetails) {
+      navigate("/purchasemanager/poCreate", { 
+        state: { 
+          boqData: boqDetails,
+          ticket: ticket 
+        }
+      });
+    } else {
+      toast.warning("No BOQ details available to convert");
     }
-  
-    navigate(`../boqDetails/${ticket.transaction_id}`);
   };
 
   useEffect(() => {
-    if (route?.boqId) {
-      getBOQDetails(route.boqId);
+    if (params?.boqId) {
+      getBOQDetails(params.boqId);
     }
-    console.log("route_route", route);
-  }, [route]);
+  }, [params]);
 
-  console.log("boqData", boqData);
   const getBOQDetails = async (boqId) => {
-    console.log("boqId", typeof boqId, boqId);
-    const response = await getBoqDetails(Number(boqId));
-    if (response?.status === 204 || response?.status === 500) {
-      toast.warning("No Data Found");
-      return;
+    try {
+      const response = await getBoqDetails(Number(boqId));
+      if (response?.status === 204 || response?.status === 500) {
+        toast.warning("No Data Found");
+        return;
+      }
+      if (response?.data) {
+        setboqDetails(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching BOQ details:", error);
+      toast.error("Failed to fetch BOQ details");
     }
-    if (response?.data) {
-      console.log("response.data", response.data);
-      setboqDetails(response.data);
-    }
-    // Fetch the BOQ details using the boqId
-    // You can use an API call here to get the details based on the boqId
-    console.log("response:", response);
   };
 
   return (
@@ -155,10 +158,9 @@ const MaterialViewScreen = () => {
               type="text"
               placeholder="BOQ ID"
               value={boqDetails?.boqCode}
-              // onChange={(e) => setBoqId(e.target.value)}
               required
               disabled
-            />{" "}
+            />
           </Form.Group>
         </div>
         <div className="col-md-6">
@@ -170,6 +172,7 @@ const MaterialViewScreen = () => {
               type="text"
               placeholder="BOQ TITLE"
               value={boqDetails?.boqName}
+              disabled
             />
           </Form.Group>
         </div>
@@ -244,20 +247,21 @@ const MaterialViewScreen = () => {
       >
         <div>Total</div>
         <div>
-          {boqData.reduce((acc, item) => acc + item.total, 0).toLocaleString()}
+          {boqDetails?.boqItems?.reduce((acc, item) => acc + (item.total || 0), 0).toLocaleString() || 
+           boqData.reduce((acc, item) => acc + item.total, 0).toLocaleString()}
         </div>
       </div>
 
       <div className="d-flex justify-content-end align-items-center mt-3 gap-2">
-      <button
+        <button
           className="btn text-black d-flex align-items-center"
           style={{ background: "transparent", border: "none" }}
-          onClick={() => get_boq_Ticket(ticket)}
+          onClick={handleConvertToPO}
         >
           <FontAwesomeIcon
             icon={faClipboardCheck}
             className="me-2"
-            color="white"
+            color="black"
           />
           Convert To PO
         </button>
@@ -268,7 +272,7 @@ const MaterialViewScreen = () => {
           <FontAwesomeIcon
             icon={faClipboardCheck}
             className="me-2"
-            color="white"
+            color="black"
           />
           Go Approval
         </button>
