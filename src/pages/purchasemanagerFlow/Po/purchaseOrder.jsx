@@ -1,5 +1,5 @@
 "use client"
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import "bootstrap/dist/css/bootstrap.min.css"
 
@@ -7,6 +7,10 @@ export default function POViewPage({ params }) {
   
   
    const navigate = useNavigate();
+
+   const { purchaseOrderId } = useParams();
+
+   console.log("Received Purchase Order ID:", purchaseOrderId);
 
   // Sample line items data
   const lineItems = [

@@ -596,7 +596,7 @@ const EngineerTicketDetails = () => {
       return;
     }
   
-    navigate(`../engineermaterialview/${ticket.transaction_id}`);
+    navigate(`../materialview/${ticket.transaction_id}`);
   };
   return (
     <Container fluid className="">

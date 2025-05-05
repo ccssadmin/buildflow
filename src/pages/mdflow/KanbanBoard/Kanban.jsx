@@ -132,7 +132,7 @@ const KanbanBoard = () => {
   const handleTaskClick = async (task) => {
     try {
       const ticketDetails = await dispatch(getticketbyidAction(task.id)).unwrap();
-      navigate(`/ticket/${task.id}`, { 
+      navigate(`/ticketdetails/${task.id}`, { 
         state: { 
           ticket: ticketDetails,
           from: 'kanban' 

@@ -28,6 +28,10 @@ export const getDepartmentsById = (id) => {
   const endpoint = API.GET_DEPARTMENTS_BY_ID.replace(/\/+$/, "");
   return api.GET(`${endpoint}/${id}`);
 };
+/** GET PURCHASE ORDER DETAILS */
+export const getPurchaseOrderDetails = (purchaseOrderId) =>
+  api.GET(`${API.GET_PURCHASE_ORDER_DETAILS}/${purchaseOrderId}`);
+
 
 // boq apis
 

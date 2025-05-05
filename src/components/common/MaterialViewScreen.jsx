@@ -5,7 +5,7 @@ import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClipboardCheck } from "@fortawesome/free-solid-svg-icons";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";
-import { getBoqDetails } from "../../../services";
+import { getBoqDetails } from "../../services";
 import { toast } from "react-toastify";
 
 const MaterialViewScreen = () => {
