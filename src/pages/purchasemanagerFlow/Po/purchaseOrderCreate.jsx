@@ -1,262 +1,192 @@
-"use client"
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Form, Table } from "react-bootstrap";
+import { useLocation } from "react-router-dom";
 
-import "bootstrap/dist/css/bootstrap.min.css"
-import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useState } from "react";
-import { getNewPoId } from "../../../store/actions/Purchase/purcharseorderidaction";
+const PurchasemanagerPoCreate = () => {
+  const location = useLocation();
+  const { boqData, ticket } = location.state || {};
+  const [poData, setPoData] = useState({
+    poNumber: "",
+    poDate: new Date().toISOString().split('T')[0],
+    vendorName: boqData?.vendorName || "",
+    items: []
+  });
 
-export default function POViewPage({ params }) {
-  
-  
-   const navigate = useNavigate();
-   const { poId, loading } = useSelector((state) => state.purchase);
-   const dispatch = useDispatch();
-  
+  useEffect(() => {
+    // Initialize PO data from BOQ data if available
+    if (boqData) {
+      setPoData(prev => ({
+        ...prev,
+        vendorName: boqData.vendorName || "",
+        items: boqData.boqItems?.map(item => ({
+          itemId: item.boqItemsId,
+          itemName: item.itemName,
+          unit: item.unit,
+          price: item.price,
+          quantity: item.quantity,
+          total: item.total
+        })) || []
+      }));
+    }
+  }, [boqData]);
 
-   useEffect(() => {
-    dispatch(getNewPoId());
-  }, [dispatch]);
-
-  // Sample line items data
-  const [lineItems, setLineItems] = useState([]);
-
-
-  const handleInputChange = (index, field, value) => {
-    const updatedItems = [...lineItems];
-    updatedItems[index][field] = value;
-  
-    const rate = parseFloat(updatedItems[index].rate) || 0;
-    const quantity = parseFloat(updatedItems[index].quantity) || 0;
-  
-    updatedItems[index].total = rate * quantity;
-  
-    setLineItems(updatedItems);
-  };
-  
-
-
-  const handleAddRow = () => {
-    const newId = lineItems.length + 1;
-    const newRow = {
-      id: newId,
-      name: "",
-      unit: "",
-      rate: "",
-      quantity: "",
-      total: "",
+  // Generate a PO number when component mounts
+  useEffect(() => {
+    const generatePoNumber = () => {
+      const prefix = "PO";
+      const timestamp = Date.now().toString().slice(-6);
+      return `${prefix}-${timestamp}`;
     };
-    setLineItems([...lineItems, newRow]);
-  };
+
+    setPoData(prev => ({
+      ...prev,
+      poNumber: generatePoNumber()
+    }));
+  }, []);
 
   return (
-    <div className="container mt-4 mb-5">
-      <h1 style={{ fontSize: "28px", fontWeight: "bold", color: "#333", marginBottom: "24px" }}>Purchase Order</h1>
+    <div className="container mt-4">
+      <div
+        style={{
+          paddingTop: "20px",
+          paddingBottom: "20px",
+          borderBottom: "1px solid #ddd",
+          marginBottom: "20px",
+        }}
+      >
+        <h2 style={{ margin: 0, fontSize: "16px", color: "#333" }}>
+          Purchase Order &gt; <span style={{ color: "#FF6F00" }}>Create PO</span>
+        </h2>
+      </div>
 
-      <div className="row mb-4">
-        <div className="col-md-6 mb-3">
-        <div className="form-group">
-            <label style={{ fontWeight: "500", marginBottom: "8px" }}>
-              PO Id <span style={{ color: "red" }}>*</span>
-            </label>
-            <input
+      <h3 className="mt-3">Create Purchase Order</h3>
+
+      {/* Display message if no BOQ data was passed */}
+      {!boqData && (
+        <div className="alert alert-warning">
+          No BOQ data found. Please select a BOQ to convert to a PO.
+        </div>
+      )}
+
+      {/* Form Section */}
+      <div className="row">
+        <div className="col-md-4">
+          <Form.Group className="mb-3">
+            <Form.Label className="text-black fs-5">PO Number</Form.Label>
+            <Form.Control
               type="text"
-              className="form-control"
-              value={loading ? "Loading..." : poId || ""}
-              readOnly
-              style={{
-                padding: "10px 12px",
-                border: "1px solid #ced4da",
-                borderRadius: "4px",
-              }}
+              value={poData.poNumber}
+              disabled
             />
-          </div>
-
+          </Form.Group>
         </div>
-        <div className="col-md-6 mb-3">
-          <div className="form-group">
-            <label style={{ fontWeight: "500", marginBottom: "8px" }}>Project</label>
-            <div className="input-group">
-              <input
-                type="text"
-                className="form-control"
-                
-                readOnly
-                style={{ padding: "10px 12px", border: "1px solid #ced4da", borderRadius: "4px" }}
-              />
-              <span className="input-group-text" style={{ backgroundColor: "white" }}>
-                <i className="bi bi-chevron-down"></i>
-              </span>
-            </div>
-          </div>
+        <div className="col-md-4">
+          <Form.Group className="mb-3">
+            <Form.Label className="text-black fs-5">PO Date</Form.Label>
+            <Form.Control
+              type="date"
+              value={poData.poDate}
+              onChange={(e) => setPoData({...poData, poDate: e.target.value})}
+            />
+          </Form.Group>
         </div>
-      </div>
-
-      <div className="row mb-4">
-        <div className="col-md-6 mb-3">
-          <div className="form-group">
-            <label style={{ fontWeight: "500", marginBottom: "8px" }}>
-              Title <span style={{ color: "red" }}>*</span>
-            </label>
-            <input
+        <div className="col-md-4">
+          <Form.Group className="mb-3">
+            <Form.Label className="text-black fs-5">Vendor</Form.Label>
+            <Form.Control
               type="text"
-              className="form-control"
-             
-              readOnly
-              style={{ padding: "10px 12px", border: "1px solid #ced4da", borderRadius: "4px" }}
+              value={poData.vendorName}
+              onChange={(e) => setPoData({...poData, vendorName: e.target.value})}
             />
-          </div>
-        </div>
-        <div className="col-md-6 mb-3">
-          <div className="form-group">
-            <label style={{ fontWeight: "500", marginBottom: "8px" }}>Description</label>
-            <textarea
-              className="form-control"
-               readOnly
-              style={{ padding: "10px 12px", border: "1px solid #ced4da", borderRadius: "4px", minHeight: "38px" }}
-            />
-          </div>
+          </Form.Group>
         </div>
       </div>
 
-      <div className="row mb-4">
-        <div className="col-md-6 mb-3">
-          <div className="form-group">
-            <label style={{ fontWeight: "500", marginBottom: "8px" }}>Vendor</label>
-            <div className="input-group">
-              <input
+      {boqData && (
+        <div className="row">
+          <div className="col-md-6">
+            <Form.Group className="mb-3">
+              <Form.Label className="text-black fs-5">BOQ Reference</Form.Label>
+              <Form.Control
                 type="text"
-                className="form-control"
-              
-                readOnly
-                style={{ paddingLeft: "40px", padding: "10px 12px", border: "1px solid #ced4da", borderRadius: "4px" }}
+                value={boqData?.boqCode || ""}
+                disabled
               />
-              <div style={{ position: "absolute", left: "12px", top: "10px", zIndex: "5" }}>
-                <span
-                  style={{
-                    display: "inline-block",
-                    width: "20px",
-                    height: "20px",
-                    backgroundColor: "#ff6666",
-                    borderRadius: "50%",
-                    color: "white",
-                    textAlign: "center",
-                    lineHeight: "20px",
-                    fontSize: "12px",
-                  }}
-                >
-                  R
-                </span>
-              </div>
-             
-            </div>
+            </Form.Group>
+          </div>
+          <div className="col-md-6">
+            <Form.Group className="mb-3">
+              <Form.Label className="text-black fs-5">BOQ Title</Form.Label>
+              <Form.Control
+                type="text"
+                value={boqData?.boqName || ""}
+                disabled
+              />
+            </Form.Group>
           </div>
         </div>
-        <div className="col-md-6 mb-3">
-          <div className="form-group">
-            <label style={{ fontWeight: "500", marginBottom: "8px" }}>Send Approve</label>
-            <div className="input-group">
-              <input
-                type="text"
-                className="form-control"
-              
-                readOnly
-                style={{ padding: "10px 12px", border: "1px solid #ced4da", borderRadius: "4px" }}
-              />
-              <span className="input-group-text" style={{ backgroundColor: "white" }}>
-                <i className="bi bi-chevron-down"></i>
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
+      )}
 
+      {/* Table Section */}
       <div className="table-responsive mt-4">
-        <table className="table table-bordered">
-          <thead style={{ backgroundColor: "#f0f0f0" }}>
+        <Table bordered>
+          <thead className="table-light">
             <tr>
-              <th className="text-center" style={{ padding: "12px 16px", fontWeight: "500", color: "#555", width: "80px" }}>S. No</th>
-              <th className="text-center" style={{ padding: "12px 16px", fontWeight: "500", color: "#555" }}>Item Name</th>
-              <th className="text-center" style={{ padding: "12px 16px", fontWeight: "500", color: "#555", width: "120px" }}>Unit</th>
-              <th className="text-center" style={{ padding: "12px 16px", fontWeight: "500", color: "#555", width: "120px" }}>Rate ₹</th>
-              <th className="text-center" style={{ padding: "12px 16px", fontWeight: "500", color: "#555", width: "120px" }}>Quantity</th>
-              <th className="text-center" style={{ padding: "12px 16px", fontWeight: "500", color: "#555", width: "120px" }}>Total</th>
+              <th style={{ textAlign: "center" }}>S. No</th>
+              <th style={{ textAlign: "center" }}>Item Name</th>
+              <th style={{ textAlign: "center" }}>Unit</th>
+              <th style={{ textAlign: "center" }}>Rate ₹</th>
+              <th style={{ textAlign: "center" }}>Quantity</th>
+              <th style={{ textAlign: "center" }}>Total</th>
             </tr>
           </thead>
           <tbody>
-  {lineItems.map((item, index) => (
-    <tr key={item.id} style={{ borderBottom: "1px solid #dee2e6" }}>
-      <td className="text-center" style={{ padding: "12px 16px" }}>{item.id}</td>
-
-      <td className="text-center">
-        <input
-          type="text"
-          className="form-control"
-          value={item.name}
-          onChange={(e) => handleInputChange(index, "name", e.target.value)}
-        />
-      </td>
-
-      <td className="text-center">
-        <input
-          type="text"
-          className="form-control"
-          value={item.unit}
-          onChange={(e) => handleInputChange(index, "unit", e.target.value)}
-        />
-      </td>
-
-      <td className="text-center">
-        <input
-          type="number"
-          className="form-control"
-          value={item.rate}
-          onChange={(e) => handleInputChange(index, "rate", e.target.value)}
-        />
-      </td>
-
-      <td className="text-center">
-        <input
-          type="number"
-          className="form-control"
-          value={item.quantity}
-          onChange={(e) => handleInputChange(index, "quantity", e.target.value)}
-        />
-      </td>
-
-      <td className="text-center" style={{ padding: "12px 16px" }}>
-        ₹ {(item.total || 0).toLocaleString()}
-      </td>
-    </tr>
-  ))}
-</tbody>
-
-      </table>
-      
-      <button
-        className="btn"
-        onClick={handleAddRow}
-        style={{
-          backgroundColor: "#007bff",
-          color: "white",
-          fontWeight: "500",
-          marginBottom: "10px",
-        }}
-      >
-        + Add New Row
-      </button>
+            {poData.items.map((item, index) => (
+              <tr key={index}>
+                <td style={{ textAlign: "center" }}>{index + 1}</td>
+                <td style={{ textAlign: "center" }}>{item.itemName}</td>
+                <td style={{ textAlign: "center" }}>{item.unit}</td>
+                <td style={{ textAlign: "center" }}>{item.price}</td>
+                <td style={{ textAlign: "center" }}>
+                  <Form.Control
+                    type="number"
+                    size="sm"
+                    value={item.quantity}
+                    onChange={(e) => {
+                      const updatedItems = [...poData.items];
+                      updatedItems[index].quantity = Number(e.target.value);
+                      updatedItems[index].total = updatedItems[index].price * Number(e.target.value);
+                      setPoData({...poData, items: updatedItems});
+                    }}
+                  />
+                </td>
+                <td style={{ textAlign: "center" }}>{item.total}</td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
       </div>
 
-      <div className="row mt-4">
-        <div className="col-12 d-flex justify-content-end">
-          <button className="btn btn-secondary me-2" onClick={() => navigate('../po')} style={{ padding: "8px 16px" }}>
-            Back
-          </button>
-          <button className="btn" style={{ backgroundColor: "#ff6600", color: "white", padding: "8px 16px" }}>
-            Save
-          </button>
+      {/* Total Section */}
+      <div
+        className="d-flex justify-content-between align-items-center text-white p-3 mt-3"
+        style={{ backgroundColor: "#ff6600" }}
+      >
+        <div>Total</div>
+        <div>
+          {poData.items.reduce((acc, item) => acc + (item.total || 0), 0).toLocaleString()}
         </div>
       </div>
+
+      {/* Action Buttons */}
+      <div className="d-flex justify-content-end mt-4">
+        <button className="btn btn-secondary me-2">Cancel</button>
+        <button className="btn text-white" style={{ backgroundColor: "#ff6600" }}>
+          Create PO
+        </button>
+      </div>
     </div>
-  )
-}
+  );
+};
+
+export default PurchasemanagerPoCreate;
