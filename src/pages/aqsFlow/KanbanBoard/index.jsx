@@ -165,8 +165,8 @@ const KanbanBoard = () => {
     const roleRoutes = {
       1: `/ceo/ticket/${ticketId}`, // CEO
       2: `/admin/engineerticketdetails/${ticketId}`, // Site Engineer
-      3: `/aqs/aqsticketdetails/${ticketId}`, // Assistant QS
-      4: `/aqs/aqsticketdetails/${ticketId}`, // QS
+      3: `/ticketdetails/${ticketId}`, // Assistant QS
+      4: `/ticketdetails/${ticketId}`, // QS
       5: `/admin/engineerticketdetails/${ticketId}`, // Site Supervisor
       6: `/admin/engineerticketdetails/${ticketId}`, // Lead Engineer
       7: `/pm/pmticket/${ticketId}`, // Assistant Project Manager

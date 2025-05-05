@@ -13,6 +13,20 @@ export const colorSelector = createSelector(
       error,
     })
 );
+/** USE TO GET PURCHASE ORDER DETAILS  */
+export const getPurchaseOrderDetailsSelector = createSelector(
+  [
+    state => state.master.purchaseOrderDetails.data,
+    state => state.master.purchaseOrderDetails.loading,
+    state => state.master.purchaseOrderDetails.error,
+  ],
+  (data, loading, error) => ({
+    data,
+    loading,
+    error,
+  })
+);
+
 
 /** COUNTRY */
 export const countrySelector = createSelector(

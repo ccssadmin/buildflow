@@ -18,7 +18,8 @@ const VendorLayout = lazy(() => import('./components/layout/vendor-layout.compon
 
 /** PAGES */
 const Login = lazy(() => import("./pages/Login/Login"));
-
+const TicketDetail = lazy(() => import("./components/common/TicketDetails"));
+const MaterialView = lazy(() => import('./components/common/MaterialViewScreen'));
 // [Keep all your existing page imports...]
 
 
@@ -40,7 +41,7 @@ const EngineerReport = lazy(() => import('./pages/engineerFlow/Report/index'));
 const EngineerReportView = lazy(() => import('./pages/engineerFlow/Report/ReportViewScreen'));
 const EngineerReportCreate = lazy(() => import('./pages/engineerFlow/Report/ReportCreateScreen'));
 const EngineerMaterial = lazy(() => import('./pages/engineerFlow/Material/index'));
-const EngineerMaterialView = lazy(() => import('./pages/engineerFlow/Material/MaterialViewScreen'));
+const EngineerMaterialView = lazy(() => import('./components/common/MaterialViewScreen'));
 const EngineerMaterialCreate = lazy(() => import('./pages/engineerFlow/Material/MaterialCreateScreen'));
 const EngineerChat = lazy(() => import('./pages/engineerFlow/ChatPage/Chat/ChatApp'));
 const EngineerTask = lazy(() => import('./pages/engineerFlow/Task/index'));
@@ -311,18 +312,31 @@ const App = () => {
   return (
     <Suspense fallback={<Spinner />}>
       <Routes>
+     
         {/* LOGIN PAGE */}
         <Route
           path="/login"
           element={
             roleId ? (
               <Navigate to={roleRoutes[roleId]?.default || "/login"} replace />
+              
             ) : (
               <Login onLoginSuccess={handleLoginSuccess} />
             )
           }
         />
-
+      <Route
+          path="/"
+          element={
+            <ProtectedRoute allowedRoleIds={[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]}>
+              {renderLayout(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20)}
+              
+            </ProtectedRoute>
+          }
+        >
+           <Route path="/materialview/:boqId" element={<MaterialView />} />
+           <Route path="/ticketdetails/:ticketId" element={<TicketDetail />} />
+        </Route>
         {/* SUPERADMIN ROUTES (MD Flow) */}
         <Route
           path="/"
@@ -507,7 +521,7 @@ const App = () => {
           <Route path="vendorsDetails" element={<PurchasemanagerVendorDetails/>} />
           <Route path="vendorsPriceDetails" element={<PurchasemanagerVendorPriceDetails/>} />
           <Route path="po" element={<PurchasemanagerPo />} />
-          <Route path="poDetails" element={<PurchasemanagerPoDetails/>} />
+          <Route path="poDetails/:purchaseOrderId" element={<PurchasemanagerPoDetails/>} />
           <Route path="poCreate" element={<PurchasemanagerPoCreate />} />
           <Route path="boqDetails/:boqId" element={<PurchaseBoq />} />
           <Route path="approvals" element={<PurchasemanagerKanban />} />

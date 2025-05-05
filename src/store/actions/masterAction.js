@@ -65,7 +65,8 @@ import {
   addBoard,
   getBoard,
   updateBoard,
-  editBoard
+  editBoard,
+  getPurchaseOrderDetails
 } from "../../services";
 import axios from "axios";
 import { getAuthToken } from "../../utils/storage";
@@ -652,6 +653,14 @@ export const getTicketsbyboardParticipantsAction = createAsyncThunk(
   "getTicketsbyboardParticipants",
   async (params) => {
     const response = await getTicketsbyboardParticipants(params);
+    return response.data;
+  }
+);
+/** USED TO GET ROLES RESTRICTIONS SETTING */
+export const getPurchaseOrderDetailsAction = createAsyncThunk(
+  "getPurchaseOrderDetails",
+  async (params) => {
+    const response = await getPurchaseOrderDetails(params);
     return response.data;
   }
 );
