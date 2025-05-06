@@ -78,10 +78,10 @@ const PurchasemanagerPoCreate = () => {
     if (response?.payload?.success) {
       toast.success("PO Created Successfully");
       const ticketResponse = await createTicket({
-        purchaseOrderId: response?.payload?.data?.purchaseOrderId,
+        poId: response?.payload?.data?.purchaseOrderId,
         ticketType: "PO_APPROVAL",
         assignTo: [1,2,7], // ✅ array of empIds
-        createdBy: empId?.empId, // replace with actual logged-in user ID
+        createdBy: userData?.empId, // replace with actual logged-in user ID
       });
 
       console.log("ticketResponse", ticketResponse);

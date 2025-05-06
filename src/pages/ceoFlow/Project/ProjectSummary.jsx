@@ -610,12 +610,14 @@ const ProjectSummary = ({
                 }
               
                 try {
+                  const userData = JSON.parse(localStorage.getItem("userData"));
+                  const token = userData?.token || localStorage.getItem("accessToken");
                   // 1. Create Ticket for all selected users at once
                   const ticketResponse = await createTicket({
                     projectId: formData.projectId,
                     ticketType: "submit",
                     assignTo: selectedUsers, // ✅ array of empIds
-                    createdBy: 1 // replace with actual logged-in user ID
+                    createdBy: userData.empId // replace with actual logged-in user ID
                   });
               
                   const createdTicketId = ticketResponse?.data?.data?.ticketId;
