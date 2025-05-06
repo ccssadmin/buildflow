@@ -23,7 +23,7 @@ const Login = lazy(() => import("./pages/Login/Login"));
 // common Ticket Details for all flows
 
 const CommonTicketDetails = lazy(() => import('./components/common/TicketDetails'));
-const CommonBOQDetails =  lazy(() => import('./components/common/MaterialViewScreen'));
+const CommonBOQDetails = lazy(() => import('./components/common/MaterialViewScreen'));
 
 // SuperAdmin (MD Flow)
 const MdDashboard = lazy(() => import("./pages/mdflow/Dashboard/Home"));
@@ -230,7 +230,7 @@ const App = () => {
       layout: VendorLayout
     },
   }
-  
+
   // Fixed ProtectedRoute component to handle both numeric roleIds and string roles like "Vendor"
   const ProtectedRoute = ({ children, allowedRoleIds, allowedRole }) => {
     if (!roleId) {
@@ -248,7 +248,7 @@ const App = () => {
 
     return children;
   };
-  
+
 
   useEffect(() => {
     const checkAuthStatus = () => {
@@ -511,10 +511,10 @@ const App = () => {
         >
           <Route path="dashboard" element={<PurchasemanagerDashboard />} />
           <Route path="vendors" element={<PurchasemanagerVendor />} />
-          <Route path="vendorsDetails" element={<PurchasemanagerVendorDetails/>} />
-          <Route path="vendorsPriceDetails" element={<PurchasemanagerVendorPriceDetails/>} />
+          <Route path="vendorsDetails" element={<PurchasemanagerVendorDetails />} />
+          <Route path="vendorsPriceDetails" element={<PurchasemanagerVendorPriceDetails />} />
           <Route path="po" element={<PurchasemanagerPo />} />
-          <Route path="poDetails" element={<PurchasemanagerPoDetails/>} />
+          <Route path="poDetails" element={<PurchasemanagerPoDetails />} />
           <Route path="poCreate" element={<PurchasemanagerPoCreate />} />
           <Route path="boqDetails/:boqId" element={<PurchaseBoq />} />
           <Route path="approvals" element={<PurchasemanagerKanban />} />
@@ -527,21 +527,23 @@ const App = () => {
 
         {/* Vendor */}
 
-        <Route 
-          path="/vendor" 
+        <Route
+          path="/vendor"
           element={
             <ProtectedRoute allowedRole="Vendor">
-              {renderLayout("Vendor")}
+              <VendorLayout />
             </ProtectedRoute>
           }
         >
-          <Route path="dashboard" element={<VendorDashboard />}/>
+
+          <Route path="dashboard" element={<VendorDashboard />} />
           <Route path="po" element={<VendorPo />} />
           <Route path="editpo" element={<VendorEditPo />} />
           <Route path="approvals" element={<VendorKanban />} />
-          <Route path="vendorticketdetails/:ticketId" element={<VendorTicketDetails />} />
+          <Route path="vendorticketdetails/:ticketId" element={<CommonTicketDetails />} />
           <Route path="chats" element={<VendorChat />} />
           <Route path="settings" element={<VendorSettings />} />
+
         </Route>
         {/* Catch all redirect */}
         <Route path="*" element={<Navigate to="/login" replace />} />
