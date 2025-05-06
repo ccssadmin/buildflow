@@ -314,11 +314,7 @@ const EngineerTicketDetails = () => {
     setApprovalStatus(status);
     showToastNotification(`Status set to ${status}`);
   };
-  const handleEmployeeSelect = (employee) => {
-    setCurrentEmployee(employee); // employee should be the full object
-  };
 
-  // In the handleSave function, modify the moveTo array construction:
   const handleSave = async () => {
     if (!approvalStatus) {
       showToastNotification("Please select Approve or Reject");
@@ -328,6 +324,7 @@ const EngineerTicketDetails = () => {
     setIsLoading(true);
 
     try {
+      // Retrieve userData and token from localStorage
       const userData = JSON.parse(localStorage.getItem("userData"));
       const token = userData?.token || localStorage.getItem("accessToken");
 
@@ -337,14 +334,12 @@ const EngineerTicketDetails = () => {
         return;
       }
 
-      // Prepare moveTo array - prioritize employee over department
+      // Prepare moveTo array
       const moveTo = [];
-      if (currentEmployee?.id) {
-        moveTo.push(currentEmployee.id); // Employee ID takes priority
-      } else if (currentDepartment?.deptId) {
-        moveTo.push(currentDepartment.deptId); // Fall back to department
-      }
+      if (currentDepartment?.deptId) moveTo.push(currentDepartment.deptId);
+      if (currentEmployee?.id) moveTo.push(currentEmployee.id);
 
+      // Construct the payload
       const payload = {
         ticketId: ticketDetails?.ticket_id,
         dueDate: dueDate ? dueDate.toISOString().split("T")[0] : null,
@@ -356,17 +351,21 @@ const EngineerTicketDetails = () => {
 
       console.log("Payload being sent:", payload);
 
+      // Dispatch with token included
       const result = await dispatch(
         updateProjectApprovalAction({ payload, token })
       ).unwrap();
 
       if (result.success) {
         showToastNotification("Ticket updated successfully");
+
+        // ✅ Refetch the updated ticket
         const updatedData = await dispatch(
           getticketbyidAction(payload.ticketId)
         ).unwrap();
         setTicketDetails(updatedData);
 
+        // Optionally update the dates if needed
         if (updatedData.create_date) {
           setOrderDate(new Date(updatedData.create_date));
         }
@@ -760,7 +759,7 @@ const EngineerTicketDetails = () => {
                       <Button
                         variant="link"
                         className="text-muted p-1"
-                        onClick={() => { }}
+                        onClick={() => {}}
                       >
                         <BsLink />
                       </Button>
@@ -827,8 +826,9 @@ const EngineerTicketDetails = () => {
               >
                 <Nav.Item>
                   <Nav.Link
-                    className={`px-3 py-2 ${activeTab === "all" ? "text-white" : "text-dark"
-                      }`}
+                    className={`px-3 py-2 ${
+                      activeTab === "all" ? "text-white" : "text-dark"
+                    }`}
                     onClick={() => handleTabChange("all")}
                     style={{
                       borderRadius: "4px 4px 0 0",
@@ -841,10 +841,11 @@ const EngineerTicketDetails = () => {
                 </Nav.Item>
                 <Nav.Item>
                   <Nav.Link
-                    className={`px-3 py-2 ${activeTab === "approvalstatus"
-                      ? "text-white"
-                      : "text-dark"
-                      }`}
+                    className={`px-3 py-2 ${
+                      activeTab === "approvalstatus"
+                        ? "text-white"
+                        : "text-dark"
+                    }`}
                     onClick={() => handleTabChange("approvalstatus")}
                     style={{
                       borderRadius: "4px 4px 0 0",
@@ -860,8 +861,9 @@ const EngineerTicketDetails = () => {
                 </Nav.Item>
                 <Nav.Item>
                   <Nav.Link
-                    className={`px-3 py-2 ${activeTab === "comments" ? "text-white" : "text-dark"
-                      }`}
+                    className={`px-3 py-2 ${
+                      activeTab === "comments" ? "text-white" : "text-dark"
+                    }`}
                     onClick={() => handleTabChange("comments")}
                     style={{
                       borderRadius: "4px 4px 0 0",
@@ -874,8 +876,9 @@ const EngineerTicketDetails = () => {
                 </Nav.Item>
                 <Nav.Item>
                   <Nav.Link
-                    className={`px-3 py-2 ${activeTab === "files" ? "text-white" : "text-dark"
-                      }`}
+                    className={`px-3 py-2 ${
+                      activeTab === "files" ? "text-white" : "text-dark"
+                    }`}
                     onClick={() => handleTabChange("files")}
                     style={{
                       borderRadius: "4px 4px 0 0",
@@ -888,8 +891,9 @@ const EngineerTicketDetails = () => {
                 </Nav.Item>
                 <Nav.Item>
                   <Nav.Link
-                    className={`px-3 py-2 ${activeTab === "history" ? "text-white" : "text-dark"
-                      }`}
+                    className={`px-3 py-2 ${
+                      activeTab === "history" ? "text-white" : "text-dark"
+                    }`}
                     onClick={() => handleTabChange("history")}
                     style={{
                       borderRadius: "4px 4px 0 0",
@@ -1068,19 +1072,19 @@ const EngineerTicketDetails = () => {
 
                 {comments.flatMap((comment) => comment.files || []).length ===
                   0 && (
-                    <div className="text-center py-5 text-muted">
-                      <BsPaperclip size={32} />
-                      <p className="mt-2">No files attached yet</p>
-                      <Button
-                        variant="outline-warning"
-                        style={{ backgroundColor: "#FF6F00", color: "white" }}
-                        size="sm"
-                        onClick={() => fileInputRef.current.click()}
-                      >
-                        Upload File
-                      </Button>
-                    </div>
-                  )}
+                  <div className="text-center py-5 text-muted">
+                    <BsPaperclip size={32} />
+                    <p className="mt-2">No files attached yet</p>
+                    <Button
+                      variant="outline-warning"
+                      style={{ backgroundColor: "#FF6F00", color: "white" }}
+                      size="sm"
+                      onClick={() => fileInputRef.current.click()}
+                    >
+                      Upload File
+                    </Button>
+                  </div>
+                )}
 
                 <div className="row">
                   {comments
@@ -1117,19 +1121,19 @@ const EngineerTicketDetails = () => {
 
                 {comments.flatMap((comment) => comment.images || []).length ===
                   0 && (
-                    <div className="text-center py-5 text-muted">
-                      <BsImage size={32} />
-                      <p className="mt-2">No images attached yet</p>
-                      <Button
-                        variant="outline-warning"
-                        style={{ backgroundColor: "#FF6F00", color: "white" }}
-                        size="sm"
-                        onClick={() => imageInputRef.current.click()}
-                      >
-                        Upload Image
-                      </Button>
-                    </div>
-                  )}
+                  <div className="text-center py-5 text-muted">
+                    <BsImage size={32} />
+                    <p className="mt-2">No images attached yet</p>
+                    <Button
+                      variant="outline-warning"
+                      style={{ backgroundColor: "#FF6F00", color: "white" }}
+                      size="sm"
+                      onClick={() => imageInputRef.current.click()}
+                    >
+                      Upload Image
+                    </Button>
+                  </div>
+                )}
 
                 <div className="row">
                   {comments
@@ -1420,29 +1424,59 @@ const EngineerTicketDetails = () => {
               </div>
             </div>
 
-            {/* Move To Section */}
+            {/* Move To */}
             <div className="department-employee-selector">
-              {/* Department Dropdown */}
-              <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
+              {/* Move To Selector */}
+              <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3 flex-wrap">
                 <span className="text-muted">Move To</span>
-                <div className="d-flex align-items-center position-relative">
+
+                <div
+                  className="d-flex align-items-center position-relative flex-wrap"
+                  style={{ justifyContent: "end" }}
+                >
                   <Button
                     variant="link"
-                    className="p-0 d-flex align-items-center border-no-underline"
-                    style={{ color: "#FF6F00", textDecoration: "none" }}
-                    onClick={() => setShowDepartmentSelector(!showDepartmentSelector)}
+                    className="d-flex align-items-center border-no-underline"
+                    style={{
+                      color: "#FF6F00",
+                      textDecoration: "none",
+                      backgroundColor: currentDepartment ? "#DDDF" : "white",
+                      padding: currentDepartment ? "5px 10px" : 0,
+                    }}
+                    onClick={() =>
+                      setShowDepartmentSelector(!showDepartmentSelector)
+                    }
                     disabled={isLoading}
                   >
-                    <span style={{ color: "#FF6F00" }}>
-                      {currentDepartment ? currentDepartment.deptName : "Select Department"}
+                    <span
+                      style={{ color: currentDepartment ? "#000" : "#FF6F00" }}
+                    >
+                      {currentDepartment
+                        ? currentDepartment.deptName
+                        : "Select Department"}
                     </span>
-                    <AiOutlineUser className="ms-1" style={{ fill: "#FF6F00" }} />
+                    {currentDepartment ? (
+                      <button
+                        className="btn btn-0 border-0"
+                        onClick={() => {
+                          setCurrentDepartment("");
+                          setCurrentEmployee("");
+                        }}
+                      >
+                        <IoMdClose className="ms-1" />
+                      </button>
+                    ) : (
+                      <AiOutlineUser
+                        className="ms-1"
+                        style={{ fill: "#FF6F00" }}
+                      />
+                    )}
                   </Button>
 
                   {showDepartmentSelector && (
                     <div
                       className="position-absolute end-0 top-100 bg-white shadow border rounded mt-1"
-                      style={{ zIndex: 1000, minWidth: "200px" }}
+                      style={{ zIndex: 1000, minWidth: "160px" }}
                     >
                       <div className="p-2 border-bottom">
                         <small className="fw-bold">Select Department</small>
@@ -1454,81 +1488,92 @@ const EngineerTicketDetails = () => {
                           <div
                             key={dept.deptId}
                             className="p-2 hover-bg-light cursor-pointer"
-                            onClick={() => {
-                              handleDepartmentChange(dept);
-                              setShowEmployeeSelector(true); // Show employee selector immediately
-                            }}
+                            onClick={() => handleDepartmentChange(dept)}
                             style={{ cursor: "pointer" }}
                           >
                             <div className="small">{dept.deptName}</div>
                           </div>
                         ))
                       ) : (
-                        <div className="p-2 text-muted small">No departments available</div>
+                        <div className="p-2 text-muted small">
+                          No departments available
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Show employee selector when department is selected */}
+                  {currentDepartment && !currentEmployee && (
+                    <Button
+                      variant="link"
+                      className="p-0 d-flex align-items-center border-no-underline w-100"
+                      style={{
+                        color: "#FF6F00",
+                        textDecoration: "none",
+                        justifyContent: "end",
+                      }}
+                      onClick={() =>
+                        setShowEmployeeSelector(!showEmployeeSelector)
+                      }
+                      disabled={isLoading}
+                    >
+                      <span style={{ color: "#FF6F00" }}>
+                        {currentEmployee
+                          ? currentEmployee.employeeName
+                          : "Select Employee"}
+                      </span>
+                      <AiOutlineUser
+                        className="ms-1"
+                        style={{ fill: "#FF6F00" }}
+                      />
+                    </Button>
+                  )}
+
+                  {/* Show employee selector only when the employee selector is toggled */}
+                  {showEmployeeSelector && currentDepartment && (
+                    <div
+                      className="position-absolute end-0 top-100 bg-white shadow border rounded mt-1"
+                      style={{ zIndex: 1000, minWidth: "160px" }}
+                    >
+                      <div className="p-2 border-bottom">
+                        <small className="fw-bold">Select Employee</small>
+                      </div>
+                      {isLoading ? (
+                        <div className="p-2 text-muted small">Loading...</div>
+                      ) : currentEmployees.length > 0 ? (
+                        currentEmployees.map((emp) => (
+                          <div
+                            key={emp.id}
+                            className="p-2 hover-bg-light cursor-pointer"
+                            onClick={() => handleEmployeeChange(emp)}
+                            style={{ cursor: "pointer" }}
+                          >
+                            <div className="small">{emp.employeeName}</div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="p-2 text-muted small">
+                          No employees available
+                        </div>
                       )}
                     </div>
                   )}
                 </div>
               </div>
 
-              {/* Employee Checkbox Selector */}
-              {currentDepartment && showEmployeeSelector && (
-                <div className="mb-3 border-bottom pb-3">
-                  <div className="d-flex justify-content-between align-items-center mb-2">
-                    <span className="text-muted">Select Employees</span>
-                    <Button
-                      variant="link"
-                      size="sm"
-                      onClick={() => setShowEmployeeSelector(false)}
-                    >
-                      Close
-                    </Button>
-                  </div>
-
-                  {isLoading ? (
-                    <div className="text-center py-2">
-                      <span className="spinner-border spinner-border-sm"></span>
-                      <span className="ms-2">Loading employees...</span>
-                    </div>
-                  ) : currentEmployees.length > 0 ? (
-                    <div className="bg-light p-2 rounded">
-                      {currentEmployees.map((emp) => (
-                        <Form.Check
-                          key={emp.id}
-                          type="checkbox"
-                          id={`employee-${emp.id}`}
-                          label={emp.employeeName}
-                          checked={currentEmployee?.id === emp.id}
-                          onChange={() => {
-                            if (currentEmployee?.id === emp.id) {
-                              setCurrentEmployee(null); // Unselect if already selected
-                            } else {
-                              setCurrentEmployee(emp); // Select new employee
-                            }
-                          }}
-                          className="mb-2"
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-muted small">No employees in this department</div>
-                  )}
-                </div>
-              )}
-
-              {/* Selected Move To Display */}
-              {(currentEmployee || currentDepartment) && (
+              {/* Display Selected Move To (Department or Employee) */}
+              {currentEmployee || currentDepartment ? (
                 <div className="mt-3 p-2 border rounded bg-light">
                   <h6 className="mb-1">Move To:</h6>
                   <p className="mb-0">
                     {currentEmployee
-                      ? `${currentEmployee.employeeName} (Employee)`
+                      ? currentEmployee.employeeName
                       : currentDepartment
-                        ? `${currentDepartment.deptName} (Department)`
-                        : "None selected"}
+                      ? currentDepartment.deptName
+                      : "Select Move To"}
                   </p>
                 </div>
-              )}
+              ) : null}
             </div>
 
             {/* Approved By */}
@@ -1536,20 +1581,22 @@ const EngineerTicketDetails = () => {
               <span className="text-muted">Action</span>
               <div className="d-flex align-items-center">
                 <button
-                  className={`btn me-2 ${approvalStatus === "Rejected"
-                    ? "btn-danger"
-                    : "btn-outline-danger"
-                    }`}
+                  className={`btn me-2 ${
+                    approvalStatus === "Rejected"
+                      ? "btn-danger"
+                      : "btn-outline-danger"
+                  }`}
                   onClick={() => handleApproval("Rejected")}
                   disabled={isLoading}
                 >
                   Reject
                 </button>
                 <button
-                  className={`btn ${approvalStatus === "Approved"
-                    ? "btn-success"
-                    : "btn-outline-success"
-                    }`}
+                  className={`btn ${
+                    approvalStatus === "Approved"
+                      ? "btn-success"
+                      : "btn-outline-success"
+                  }`}
                   onClick={() => handleApproval("Approved")}
                   disabled={isLoading}
                 >
