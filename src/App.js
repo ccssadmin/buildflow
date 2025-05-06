@@ -20,10 +20,7 @@ const VendorLayout = lazy(() => import('./components/layout/vendor-layout.compon
 const Login = lazy(() => import("./pages/Login/Login"));
 
 // [Keep all your existing page imports...]
-// common Ticket Details for all flows
 
-const CommonTicketDetails = lazy(() => import('./components/common/TicketDetails'));
-const CommonBOQDetails =  lazy(() => import('./components/common/MaterialViewScreen'));
 
 // SuperAdmin (MD Flow)
 const MdDashboard = lazy(() => import("./pages/mdflow/Dashboard/Home"));
@@ -337,14 +334,13 @@ const App = () => {
         >
           <Route path="home" element={<MdDashboard />} />
           <Route path="approvals" element={<Kanban />} />
-          <Route path="ticket/:ticketId" element={<CommonTicketDetails />} />
+          <Route path="ticket/:ticketId" element={<TicketDetails />} />
           <Route path="projects" element={<Projects />} />
           <Route path="projectdetails" element={<ProjectDetails />} />
           <Route path="task" element={<EngineerTask />} />
           <Route path="chat" element={<ChatApp />} />
           <Route path="settings" element={<Settings />} />
           <Route path="*" element={<NotFound />} />
-          <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
         </Route>
 
         {/* ADMIN ROUTES (Engineering Flow) */}
@@ -359,13 +355,13 @@ const App = () => {
           <Route path="engineerdashboard" element={<EngineerDashboard />} />
           <Route path="engineerproject" element={<EngineerProject />} />
           <Route path="engineerapprovals" element={<KanbanEngineer />} />
-          <Route path="engineerticketdetails/:ticketId" element={<CommonTicketDetails />} />
+          <Route path="engineerticketdetails/:ticketId" element={<EngineerTicketDetails />} />
           <Route path="engineerchats" element={<EngineerChat />} />
           <Route path="engineerreport" element={<EngineerReport />} />
           <Route path="engineerreportview" element={<EngineerReportView />} />
           <Route path="engineerreportcreate" element={<EngineerReportCreate />} />
           <Route path="engineermaterial" element={<EngineerMaterial />} />
-          <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
+          <Route path="engineermaterialview/:boqId" element={<EngineerMaterialView />} />
           <Route path="engineermaterialcreate" element={<EngineerMaterialCreate />} />
           <Route path="engineertask" element={<EngineerTask />} />
           <Route path="engineersetting" element={<EngineerSetting />} />
@@ -383,7 +379,7 @@ const App = () => {
         >
           <Route path="aqsdashboard" element={<AqsDashboard />} />
           <Route path="aqsapprovals" element={<KanbanAqs />} />
-          <Route path="aqsticketdetails/:ticketId" element={<CommonTicketDetails />} />
+          <Route path="aqsticketdetails/:ticketId" element={<AqsTicketDetails />} />
           <Route path="aqschats" element={<AqsChat />} />
           <Route path="aqsmaterial" element={<AqsMaterial />} />
           <Route path="aqsinventory" element={<AqsInventory />} />
@@ -397,7 +393,7 @@ const App = () => {
           <Route path="aqsvendordetails" element={<AqsVendorDetails />} />
           <Route path="aqsvendorpricedetails" element={<AqsVendorPriceDetails />} />
           <Route path="aqssetting" element={<AqsSetting />} />
-          <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
+          <Route path="engineermaterialview/:boqId" element={<EngineerMaterialView />} />
 
         </Route>
 
@@ -417,7 +413,7 @@ const App = () => {
           <Route path="createproject" element={<CeoCreateProject />} />
           <Route path="projectmilestone" element={<ProjectTimeline />} />
           <Route path="approvals" element={<KanbanCeo />} />
-          <Route path="ticket/:ticketId" element={<CommonTicketDetails />} />
+          <Route path="ticket/:ticketId" element={<CeoTicketDetails />} />
           <Route path="chats" element={<CeoChat />} />
           <Route path="finance" element={<CeoFinance />} />
           <Route path="resources" element={<CeoResources />} />
@@ -425,7 +421,6 @@ const App = () => {
           <Route path="reports" element={<CeoReport />} />
           <Route path="reportview" element={<CeoReportView />} />
           <Route path="settings" element={<CeoSettings />} />
-          <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
         </Route>
 
         {/* FINANCE ROUTES */}
@@ -442,7 +437,7 @@ const App = () => {
           <Route path="budgetcreate" element={<FinanceBudgetCreate />} />
           <Route path="budgetdetails" element={<FinanceBudgetDetails />} />
           <Route path="approvals" element={<KanbanFinance />} />
-          <Route path="financeticketdetails/:ticketId" element={<CommonTicketDetails />} />
+          <Route path="financeticketdetails/:ticketId" element={<FinanceTicketDetails />} />
           <Route path="chats" element={<FinanceChat />} />
           <Route path="invoice" element={<FinanceInvoice />} />
           <Route path="invoicedetails" element={<FinanceInvoiceDetails />} />
@@ -452,7 +447,6 @@ const App = () => {
           <Route path="report" element={<FinanceReport />} />
           <Route path="reportcreate" element={<FinanceReportCreate />} />
           <Route path="settings" element={<FinanceSettings />} />
-          <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
         </Route>
 
         {/* PM ROUTES */}
@@ -467,7 +461,7 @@ const App = () => {
           <Route path="dashboard" element={<PmDashboard />} />
           <Route path="project" element={<PmProject />} />
           <Route path="approvals" element={<KanbanPm />} />
-          <Route path="pmticket/:ticketId" element={<CommonTicketDetails />} />
+          <Route path="pmticket/:ticketId" element={<PmTicketDetails />} />
           <Route path="chats" element={<PmChat />} />
           <Route path="task" element={<PmTask />} />
           <Route path="resources" element={<PmResources />} />
@@ -478,7 +472,6 @@ const App = () => {
           <Route path="reports" element={<PmReport />} />
           <Route path="reportview" element={<PmReportView />} />
           <Route path="settings" element={<PmSettings />} />
-          <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
         </Route>
 
         {/* HR ROUTES */}
@@ -495,7 +488,7 @@ const App = () => {
           <Route path="addemployee" element={<AddHrEmployee />} />
           <Route path="employeedetail" element={<HrEmployeeDetail />} />
           <Route path="approvals" element={<HrKanban />} />
-          <Route path="hrticketdetails/:ticketId" element={<CommonTicketDetails />} />
+          <Route path="hrticketdetails/:ticketId" element={<HrKanbanTicketDetails />} />
           <Route path="chats" element={<HrChat />} />
           <Route path="settings" element={<HrSettings />} />
         </Route>
@@ -518,10 +511,9 @@ const App = () => {
           <Route path="poCreate" element={<PurchasemanagerPoCreate />} />
           <Route path="boqDetails/:boqId" element={<PurchaseBoq />} />
           <Route path="approvals" element={<PurchasemanagerKanban />} />
-          <Route path="purchaseticketdetails/:ticketId" element={<CommonTicketDetails />} />
+          <Route path="purchaseticketdetails/:ticketId" element={<PurchasemanagerKanbanTicketDetails />} />
           <Route path="chats" element={<PurchasemanagerChat />} />
           <Route path="settings" element={<PurchasemanagerSettings />} />
-          <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
         </Route>
 
 
