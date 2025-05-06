@@ -218,6 +218,7 @@ const ProjectTeamStakeholder = ({
           role: role,
           employee: empData.employeeName,
           employeeId: empData.employeeId,
+
           amount: "",
         });
         roleMap.delete(role);
@@ -417,6 +418,7 @@ const ProjectTeamStakeholder = ({
           employees.projectManagerEmployees?.map((emp) => ({
             id: emp.empId,
             name: emp.employeeName,
+            value: emp.isAllocated,
           })) || []
         );
       case "assistantProjectManager":
@@ -573,6 +575,9 @@ const ProjectTeamStakeholder = ({
                 className="selected-item d-inline-block bg-light p-1 me-2 mb-1 rounded"
               >
                 <span>{item.name}</span>
+                <span className="badge bg-info ms-2">
+                  {item.isAllocated ? "Allocated" : "Not Allocated"}
+                </span>
                 <button
                   type="button"
                   className="remove-btn ms-1 border-0 bg-transparent text-danger"
@@ -609,14 +614,19 @@ const ProjectTeamStakeholder = ({
               {getFilteredItems(field).length > 0 ? (
                 getFilteredItems(field).map((item) => (
                   <div
-                    key={item.id}
-                    className={`dropdown-item ${isItemSelected(field, item.id) ? "active" : ""
-                      }`}
-                    onClick={() => handleItemClick(item)}
-                    style={{ cursor: "pointer" }}
-                  >
-                    {item.name}
+                  key={item.id}
+                  className={`dropdown-item ${isItemSelected(field, item.id) ? "active" : ""}`}
+                  onClick={() => handleItemClick(item)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <div className="d-flex justify-content-between">
+                    <span>{item.name}</span>
+                    <span className="text-muted small">
+                      {item.value ? "Allocated" : "Not Allocated"}
+                    </span>
                   </div>
+                </div>
+                
                 ))
               ) : (
                 <div className="dropdown-item text-muted">No results found</div>

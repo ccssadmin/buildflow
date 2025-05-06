@@ -62,7 +62,7 @@ const Projects = () => {
               Project Manager</p></h4>
             <h6 className="site-category">{project.siteCategory}</h6>
           </div>
-          <div><span className="project-status">{project.project_status}</span></div>
+          <div><span className="project-status text-uppercase">{project.project_status}</span></div>
         </div>
         <div className="d-flex justify-content-between project-date">
           <h4 className="title-5 text-start">
