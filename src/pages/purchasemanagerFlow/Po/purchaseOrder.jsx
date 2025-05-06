@@ -1,67 +1,208 @@
 "use client"
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import "bootstrap/dist/css/bootstrap.min.css"
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { getVendorsAndSubcontractors } from "../../../store/actions/vendor/getvendoraction";
+import { getNewPoId, upsertPurchaseOrder } from "../../../store/actions/Purchase/purcharseorderidaction";
+import { Dropdown, Form } from "react-bootstrap";
+import { RiArrowDropDownLine } from "react-icons/ri";
+import MultipleSelect from "../../../components/DropDown/MultipleSelect";
+import { fetchRoles } from "../../../store/actions/hr/designationaction";
+import { getAllEmployeesByRolesAction } from "../../../store/actions/Ceo/RoleBasedEmpAction";
+
+import { fetchProjects } from "../../../store/actions/hr/projectaction";
+
 
 export default function POViewPage({ params }) {
   
-  
+  const location = useLocation();
+
    const navigate = useNavigate();
+   const { poId, loading } = useSelector((state) => state.purchase);
+   const dispatch = useDispatch();
+   const { vendors } = useSelector((state) => state.vendor);
+   const [selectedProjectId, setSelectedProjectId] = useState("");
+     const { projects = [] } = useSelector((state) => state.project);
+   
+  const [selectedVendorId, setSelectedVendorId] = useState("");
+    const [selectedApprover, setSelectedApprover] = useState([]);
+   const [initialApproverArray, setInitialApproverArray] = useState([]);
+  const { boqData, ticket } = location.state || {};
+ const [poData, setPoData] = useState({
+    poNumber: "",
+    poDate: new Date().toISOString().split("T")[0],
+    vendorName: boqData?.vendorName || "",
+    items: [],
+  });
+  
 
-   const { purchaseOrderId } = useParams();
+   useEffect(() => {
+      const fetchEmployees = async () => {
+        try {
+          const result = await dispatch(getAllEmployeesByRolesAction()).unwrap();
+          const firstEmployees = Object.entries(result.employeesByRole).map(
+            ([role, employees]) => ({
+              role,
+              employee: employees[0], // Only the first employee
+            })
+          );
+          const approverRoles = firstEmployees
+            ?.filter((role) =>
+              [
+                "CEO",
+                "Head Finance",
+                "Managing Director",
+              
+              ].includes(role.role)
+            )
+            .map((role) => ({
+              ...role.employee,
+              value: role.role,
+              label: role.role,
+            }));
+  
+          setInitialApproverArray(approverRoles);
+        } catch (error) {
+          console.error("Failed to fetch employees:", error);
+        }
+      };
+  
+      fetchEmployees();
+    }, [dispatch]);
 
-   console.log("Received Purchase Order ID:", purchaseOrderId);
+
+
+    useEffect(() => {
+      dispatch(upsertPurchaseOrder());
+
+    }, [dispatch]);
+    
+
+      useEffect(() => {
+        dispatch(fetchProjects());
+      }, [dispatch]);
+      
+
+      const handleProjectChange = (e) => {
+        const selected = projects.find(
+          (proj) => proj.project_id === parseInt(e.target.value)
+        );
+        setSelectedProjectId(selected);
+      };
+
+    useEffect(() => {
+      dispatch(fetchRoles());
+    }, [dispatch]);
+
+   useEffect(() => {
+    dispatch(getNewPoId());
+  }, [dispatch]);
 
   // Sample line items data
-  const lineItems = [
-    { id: "01", name: "Dalmia Cements", unit: "Bag", rate: 321, quantity: 12, total: 3852 },
-    { id: "02", name: "MTR TMT Rod", unit: "", rate: 86, quantity: 54, total: 4644 },
-    { id: "03", name: "Engineer Helmet", unit: "Piece", rate: 300, quantity: 12, total: 3600 },
-    { id: "04", name: "Engineer Helmet", unit: "Piece", rate: 300, quantity: 12, total: 3600 },
-    { id: "05", name: "Engineer Helmet", unit: "Piece", rate: 300, quantity: 12, total: 3600 },
-    { id: "06", name: "Engineer Helmet", unit: "Piece", rate: 300, quantity: 12, total: 3600 },
-    { id: "07", name: "Engineer Helmet", unit: "Piece", rate: 300, quantity: 12, total: 3600 },
-    { id: "08", name: "Engineer Helmet", unit: "Piece", rate: 300, quantity: 12, total: 3600 },
-  ]
+  const [lineItems, setLineItems] = useState([]);
 
+
+  const handleInputChange = (index, field, value) => {
+    const updatedItems = [...lineItems];
+    updatedItems[index][field] = value;
+  
+    const rate = parseFloat(updatedItems[index].rate) || 0;
+    const quantity = parseFloat(updatedItems[index].quantity) || 0;
+  
+    updatedItems[index].total = rate * quantity;
+  
+    setLineItems(updatedItems);
+  };
+  
+
+  useEffect(() => {
+    dispatch(getVendorsAndSubcontractors());
+  }, [dispatch]);
+
+
+
+
+  const handleSubmit = () => {
+    const payload = {
+      poId,
+      projectId: selectedProjectId,
+      vendorId: selectedVendorId,
+      approvers: selectedApprover.map((a) => a.id),
+      items: lineItems.map(item => ({
+        ItemName: item.name,
+        Unit: item.unit,
+        Rate: parseFloat(item.rate),
+        Quantity: parseFloat(item.quantity),
+        Total: item.total,
+      })),
+      boqId: boqData?.boqId,
+      title: boqData?.boqName,
+    };
+  
+    dispatch(upsertPurchaseOrder(payload));
+  };
+  
+  
+  const handleAddRow = () => {
+    const newId = lineItems.length + 1;
+    const newRow = {
+      id: newId,
+      name: "",
+      unit: "",
+      rate: "",
+      quantity: "",
+      total: "",
+    };
+    setLineItems([...lineItems, newRow]);
+  };
+
+  
   return (
     <div className="container mt-4 mb-5">
       <h1 style={{ fontSize: "28px", fontWeight: "bold", color: "#333", marginBottom: "24px" }}>Purchase Order</h1>
 
       <div className="row mb-4">
         <div className="col-md-6 mb-3">
-          <div className="form-group">
+        <div className="form-group">
             <label style={{ fontWeight: "500", marginBottom: "8px" }}>
               PO Id <span style={{ color: "red" }}>*</span>
             </label>
             <input
               type="text"
               className="form-control"
-              value="PO-10234"
+              value={loading ? "Loading..." : poId || ""}
               readOnly
-              style={{ padding: "10px 12px", border: "1px solid #ced4da", borderRadius: "4px" }}
+              style={{
+                padding: "10px 12px",
+                border: "1px solid #ced4da",
+                borderRadius: "4px",
+              }}
             />
           </div>
-        </div>
-        <div className="col-md-6 mb-3">
-          <div className="form-group">
-            <label style={{ fontWeight: "500", marginBottom: "8px" }}>Project</label>
-            <div className="input-group">
-              <input
-                type="text"
-                className="form-control"
-                value="NRM Site"
-                readOnly
-                style={{ padding: "10px 12px", border: "1px solid #ced4da", borderRadius: "4px" }}
-              />
-              <span className="input-group-text" style={{ backgroundColor: "white" }}>
-                <i className="bi bi-chevron-down"></i>
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
 
+        </div>
+        <div className="form-group">
+  <label>
+    Projects <span className="addemployee-required">*</span>
+  </label>
+  <select
+    className="form-control"
+    name="project"
+    value={selectedProjectId}
+    onChange={(e) => setSelectedProjectId(e.target.value)}
+  >
+    <option value="">Select Project</option>
+    {projects.map((proj) => (
+      <option key={proj.project_id} value={proj.project_id}>
+        {proj.project_name}
+      </option>
+    ))}
+  </select>
+</div>
+</div>
+    
       <div className="row mb-4">
         <div className="col-md-6 mb-3">
           <div className="form-group">
@@ -71,19 +212,18 @@ export default function POViewPage({ params }) {
             <input
               type="text"
               className="form-control"
-              value="BOQ TITLE"
-              readOnly
+              value={boqData?.boqName || ""}
+            
               style={{ padding: "10px 12px", border: "1px solid #ced4da", borderRadius: "4px" }}
             />
           </div>
         </div>
         <div className="col-md-6 mb-3">
           <div className="form-group">
-            <label style={{ fontWeight: "500", marginBottom: "8px" }}>Description</label>
+            <label style={{ fontWeight: "500", marginBottom: "8px" }}>Attach BOQ</label>
             <textarea
               className="form-control"
-              value="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do"
-              readOnly
+               
               style={{ padding: "10px 12px", border: "1px solid #ced4da", borderRadius: "4px", minHeight: "38px" }}
             />
           </div>
@@ -91,56 +231,41 @@ export default function POViewPage({ params }) {
       </div>
 
       <div className="row mb-4">
-        <div className="col-md-6 mb-3">
-          <div className="form-group">
-            <label style={{ fontWeight: "500", marginBottom: "8px" }}>Vendor</label>
-            <div className="input-group">
-              <input
-                type="text"
-                className="form-control"
-                value="RK Enterprises"
-                readOnly
-                style={{ paddingLeft: "40px", padding: "10px 12px", border: "1px solid #ced4da", borderRadius: "4px" }}
-              />
-              <div style={{ position: "absolute", left: "12px", top: "10px", zIndex: "5" }}>
-                <span
-                  style={{
-                    display: "inline-block",
-                    width: "20px",
-                    height: "20px",
-                    backgroundColor: "#ff6666",
-                    borderRadius: "50%",
-                    color: "white",
-                    textAlign: "center",
-                    lineHeight: "20px",
-                    fontSize: "12px",
-                  }}
-                >
-                  R
-                </span>
-              </div>
-             
-            </div>
-          </div>
-        </div>
-        <div className="col-md-6 mb-3">
-          <div className="form-group">
-            <label style={{ fontWeight: "500", marginBottom: "8px" }}>Send Approve</label>
-            <div className="input-group">
-              <input
-                type="text"
-                className="form-control"
-                value="CEO"
-                readOnly
-                style={{ padding: "10px 12px", border: "1px solid #ced4da", borderRadius: "4px" }}
-              />
-              <span className="input-group-text" style={{ backgroundColor: "white" }}>
-                <i className="bi bi-chevron-down"></i>
-              </span>
-            </div>
-          </div>
+      <div className="col-md-6 mb-3">
+        <div className="form-group">
+          <label style={{ fontWeight: "500", marginBottom: "8px" }}>Vendor</label>
+          <select
+            className="form-control"
+            value={selectedVendorId}
+            onChange={(e) => setSelectedVendorId(e.target.value)}
+            style={{ padding: "10px 12px", border: "1px solid #ced4da", borderRadius: "4px" }}
+          >
+            <option value="">Select Vendor</option>
+            {vendors.map((vendor) => (
+              <option key={vendor.id} value={vendor.id}>
+                {vendor.vendorName}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
+      <div className="col-md-6">
+            <Form.Group className="mb-3">
+              <Form.Label className="text-black fs-5">Approved By</Form.Label>
+              <MultipleSelect
+                selectedOptions={selectedApprover}
+                handleSelected={setSelectedApprover}
+                data={initialApproverArray}
+                isSearchable={true}
+                placeholder={"Select Approver"}
+                isMulti={true}
+              />
+            </Form.Group>
+          </div>
+        </div>
+        
+       
+     
 
       <div className="table-responsive mt-4">
         <table className="table table-bordered">
@@ -155,18 +280,67 @@ export default function POViewPage({ params }) {
             </tr>
           </thead>
           <tbody>
-            {lineItems.map((item) => (
-              <tr key={item.id} style={{ borderBottom: "1px solid #dee2e6" }}>
-                <td className="text-center" style={{ padding: "12px 16px" }}>{item.id}</td>
-                <td className="text-center" style={{ padding: "12px 16px" }}>{item.name}</td>
-                <td className="text-center" style={{ padding: "12px 16px" }}>{item.unit}</td>
-                <td className="text-center" style={{ padding: "12px 16px" }}>{item.rate}</td>
-                <td className="text-center" style={{ padding: "12px 16px" }}>{item.quantity}</td>
-                <td className="text-center" style={{ padding: "12px 16px" }}>{item.total.toLocaleString()}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+  {lineItems.map((item, index) => (
+    <tr key={item.id} style={{ borderBottom: "1px solid #dee2e6" }}>
+      <td className="text-center" style={{ padding: "12px 16px" }}>{item.id}</td>
+
+      <td className="text-center">
+        <input
+          type="text"
+          className="form-control"
+          value={item.name}
+          onChange={(e) => handleInputChange(index, "name", e.target.value)}
+        />
+      </td>
+
+      <td className="text-center">
+        <input
+          type="text"
+          className="form-control"
+          value={item.unit}
+          onChange={(e) => handleInputChange(index, "unit", e.target.value)}
+        />
+      </td>
+
+      <td className="text-center">
+        <input
+          type="number"
+          className="form-control"
+          value={item.rate}
+          onChange={(e) => handleInputChange(index, "rate", e.target.value)}
+        />
+      </td>
+
+      <td className="text-center">
+        <input
+          type="number"
+          className="form-control"
+          value={item.quantity}
+          onChange={(e) => handleInputChange(index, "quantity", e.target.value)}
+        />
+      </td>
+
+      <td className="text-center" style={{ padding: "12px 16px" }}>
+        ₹ {(item.total || 0).toLocaleString()}
+      </td>
+    </tr>
+  ))}
+</tbody>
+
+      </table>
+      
+      <button
+        className="btn"
+        onClick={handleAddRow}
+        style={{
+          backgroundColor: "#007bff",
+          color: "white",
+          fontWeight: "500",
+          marginBottom: "10px",
+        }}
+      >
+        + Add New Row
+      </button>
       </div>
 
       <div className="row mt-4">
@@ -174,7 +348,7 @@ export default function POViewPage({ params }) {
           <button className="btn btn-secondary me-2" onClick={() => navigate('../po')} style={{ padding: "8px 16px" }}>
             Back
           </button>
-          <button className="btn" style={{ backgroundColor: "#ff6600", color: "white", padding: "8px 16px" }}>
+          <button className="btn" onClick={handleSubmit}  style={{ backgroundColor: "#ff6600", color: "white", padding: "8px 16px" }}>
             Save
           </button>
         </div>
