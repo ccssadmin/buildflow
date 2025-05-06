@@ -28,6 +28,7 @@ const MaterialCreateScreen = () => {
   const [selectedApprover, setSelectedApprover] = useState([]);
   const { boqId } = useSelector((state) => state.boq);
   const { createTicket } = useTicket();
+  const [initialApproverArray, setInitialApproverArray] = useState([]);
 
   const { vendors, loading, error } = useSelector((state) => state.vendor);
 
@@ -47,21 +48,33 @@ const MaterialCreateScreen = () => {
     setApprovedBy(selectedOptions);
   };
 
-  const approverRoles = roles.filter((role) =>
-    [
-      "CEO",
-      "Head Finance",
-      "Managing Director",
-      "Project Manager",
-      "Assistant QS",
-    ].includes(role.roleName)
-  );
-
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
         const result = await dispatch(getAllEmployeesByRolesAction()).unwrap();
-        console.log("Employee Details", result);
+        const firstEmployees = Object.entries(result.employeesByRole).map(
+          ([role, employees]) => ({
+            role,
+            employee: employees[0], // Only the first employee
+          })
+        );
+        const approverRoles = firstEmployees
+          ?.filter((role) =>
+            [
+              "CEO",
+              "Head Finance",
+              "Managing Director",
+              "Project Manager",
+              "Assistant QS",
+            ].includes(role.role)
+          )
+          .map((role) => ({
+            ...role.employee,
+            value: role.role,
+            label: role.role,
+          }));
+
+        setInitialApproverArray(approverRoles);
       } catch (error) {
         console.error("Failed to fetch employees:", error);
       }
@@ -116,13 +129,12 @@ const MaterialCreateScreen = () => {
     const getResponse = await dispatch(upsertBoq(data));
     if (getResponse?.payload?.success) {
       toast.success("BOQ created successfully.");
-      // setTitle("");
-      // setSelectedVendorId("");
-      // setSelectedApprover([]);
+
+      const AssignTo = selectedApprover.map((item) => item.empId);
       const ticketResponse = await createTicket({
         boqId: getResponse?.payload?.data?.boqId,
         ticketType: "BOQ_APPROVAL",
-        assignTo: [1, 2, 6, 10, 11], // ✅ array of empIds
+        assignTo: AssignTo, // ✅ array of empIds
         createdBy: empId?.empId, // replace with actual logged-in user ID
       });
       if (ticketResponse?.data?.success) {
@@ -143,8 +155,10 @@ const MaterialCreateScreen = () => {
           );
         }, 1000);
       }
-      console.log("ticketResponse_ticketResponse", ticketResponse);
-      // setRows([{ itemName: "", unit: "", rate: "", quantity: "", total: "" }]);
+      setRows([{ itemName: "", unit: "", rate: "", quantity: "", total: "" }]);
+      setTitle("");
+      setSelectedVendorId("");
+      setSelectedApprover([]);
     }
   };
 
@@ -155,12 +169,6 @@ const MaterialCreateScreen = () => {
   useEffect(() => {
     dispatch(getVendorsAndSubcontractors());
   }, [dispatch]);
-
-  const selectOptions = approverRoles.map((v) => ({
-    ...v,
-    value: v.roleName,
-    label: v.roleName,
-  }));
 
   return (
     <div className="container boq-form">
@@ -251,9 +259,10 @@ const MaterialCreateScreen = () => {
               <MultipleSelect
                 selectedOptions={selectedApprover}
                 handleSelected={setSelectedApprover}
-                data={selectOptions}
+                data={initialApproverArray}
                 isSearchable={true}
                 placeholder={"Select Approver"}
+                isMulti={true}
               />
             </Form.Group>
           </div>

@@ -1,10 +1,41 @@
 import { useNavigate } from "react-router-dom";
 
 import "bootstrap/dist/css/bootstrap.min.css"
+import { useDispatch, useSelector } from "react-redux";
+import { getPurchaseOrderDetailsSelector } from "../../../store/selector/masterSelector";
+import { useEffect, useState } from "react";
+import { getPurchaseOrderDetailsAction } from "../../../store/actions/masterAction";
 
 export default function PurchaseOrdersPage() {
   
-      const navigate = useNavigate();
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    const [purchaseId] = useState(2); // ✅ Default ID
+
+    useEffect(() => {
+      if (purchaseId) {
+        dispatch(getPurchaseOrderDetailsAction(purchaseId));
+      }
+    }, [dispatch, purchaseId]);
+    
+    const { data, loading, error } = useSelector(getPurchaseOrderDetailsSelector);
+    
+    const purchaseOrderIdFromData = data?.[0]?.purchaseOrderId;
+    
+    useEffect(() => {
+      if (data?.length > 0) {
+        console.log("Purchase Order ID from API:", purchaseOrderIdFromData);
+      } else if (!loading) {
+        console.log(" Default purchase ID:", purchaseId);
+      }
+    }, [data]);
+    
+
+
+  // UI rendering
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p className="text-danger">Error: {error}</p>;
 
   // Sample data based on the screenshot
 
@@ -18,7 +49,6 @@ export default function PurchaseOrdersPage() {
   })
 
  
-
   return (
     <div className="container mt-4">
       <div className="row mb-4">
@@ -77,7 +107,7 @@ export default function PurchaseOrdersPage() {
                     href="#"
                     
                     style={{ color: "#0d6efd", textDecoration: "none" }}
-                    onClick={() => navigate('/purchasemanager/poDetails')}
+                    onClick={() => navigate(`/purchasemanager/poDetails/${purchaseOrderIdFromData}`)}
                   >
                     View
                   </a>

@@ -5,14 +5,15 @@ import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClipboardCheck } from "@fortawesome/free-solid-svg-icons";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";
-import { getBoqDetails } from "../../../services";
+import { getBoqDetails } from "../../services";
 import { toast } from "react-toastify";
 
 const MaterialViewScreen = () => {
   const navigate = useNavigate();
   const route = useParams();
+  const location = useLocation();
   const [boqDetails, setboqDetails] = useState("");
-  console.log("route_route", route);
+  const { ticket } = location.state || {};
   const boqData = [
     {
       id: "01",
@@ -95,6 +96,9 @@ const MaterialViewScreen = () => {
     console.log("route_route", route);
   }, [route]);
 
+  console.log("boqDetails", boqDetails);
+  console.log("location", location);
+
   const getBOQDetails = async (boqId) => {
     console.log("boqId", typeof boqId, boqId);
     const response = await getBoqDetails(Number(boqId));
@@ -109,6 +113,27 @@ const MaterialViewScreen = () => {
     // Fetch the BOQ details using the boqId
     // You can use an API call here to get the details based on the boqId
     console.log("response:", response);
+  };
+
+  const isValidforApproval = () => {
+    const path = location.pathname.split("/").slice(1);
+    console.log("path", path);
+    if (path.includes("purchasemanager")) {
+      return true;
+    }
+  };
+  const handleConvertToPO = () => {
+    // Navigate to PO create page with boqDetails and ticket data
+    if (boqDetails) {
+      navigate("/purchasemanager/poCreate", {
+        state: {
+          boqData: boqDetails,
+          ticket: ticket,
+        },
+      });
+    } else {
+      toast.warning("No BOQ details available to convert");
+    }
   };
 
   return (
@@ -237,6 +262,20 @@ const MaterialViewScreen = () => {
       </div>
 
       <div className="d-flex justify-content-end align-items-center mt-3 gap-2">
+        {isValidforApproval && (
+          <button
+            className="btn text-black d-flex align-items-center"
+            style={{ background: "transparent", border: "none" }}
+            onClick={handleConvertToPO}
+          >
+            <FontAwesomeIcon
+              icon={faClipboardCheck}
+              className="me-2"
+              color="black"
+            />
+            Convert To PO
+          </button>
+        )}
         <button
           className="btn text-black d-flex align-items-center"
           style={{ background: "transparent", border: "none" }}

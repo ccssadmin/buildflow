@@ -50,6 +50,8 @@ export const API = {
   GET_FILTERED_UPDATE_BOARD_DATA: "/api/UpdatesBoardList/boardfilter",
   // LOGIN BOARD DETAILS 
   LOGIN_BOARD_DETAILS: '/api/Login/board-details',
+/** GET PURCHASE ORDER DETAILS */
+GET_PURCHASE_ORDER_DETAILS : '/api/Vendor/Getpurchase-order-details',
 
   //** BOQ Get DATA ***/
   GET_BOQ_DETAILS: "/api/Project/getBoqDetails",

@@ -12,3 +12,20 @@ export const getNewPoId = createAsyncThunk(
     }
   }
 );
+
+export const upsertPurchaseOrder = createAsyncThunk(
+  "purchase/upsertPurchaseOrder",
+  async (payload, { rejectWithValue }) => {
+    try {
+      const response = await api.POST("/api/Vendor/upsert-purchase-order", payload, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Something went wrong");
+    }
+  }
+);
+

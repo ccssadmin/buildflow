@@ -5,6 +5,11 @@ import Spinner from "./components/spinner/spinner.component";
 import "./styles/index.scss";
 import "./styles/index.css";
 
+
+// common Ticket Details for all flows
+
+const CommonTicketDetails = lazy(() => import('./components/common/TicketDetails'));
+const CommonBOQDetails =  lazy(() => import('./components/common/MaterialViewScreen'));
 /** LAYOUTS */
 const MdLayout = lazy(() => import("./components/layout/user-layout.component"));
 const EngineerLayout = lazy(() => import("./components/layout/engineer-layout.component"));
@@ -14,7 +19,7 @@ const FinanceLayout = lazy(() => import('./components/layout/finance-layout.comp
 const PmLayout = lazy(() => import('./components/layout/pm-layout.component'));
 const HrLayout = lazy(() => import('./components/layout/hr-layout.component'));
 const PurchasemanagerLayout = lazy(() => import('./components/layout/purchasemanager-layout.component'));
-const VendorLayout = lazy(() => import('./components/layout/vendor-layout.component'));
+const VendorLayout = lazy ( ( ) => import('./components/layout/vendor-layout.component'))
 
 /** PAGES */
 const Login = lazy(() => import("./pages/Login/Login"));
@@ -141,23 +146,23 @@ const PurchasemanagerVendorDetails = lazy(() => import('./pages/purchasemanagerF
 const PurchasemanagerVendorPriceDetails = lazy(() => import('./pages/purchasemanagerFlow/Vendors/VendorPriceDetails'));
 const PurchasemanagerPo = lazy(() => import('./pages/purchasemanagerFlow/Po/index'));
 const PurchasemanagerPoDetails = lazy(() => import('./pages/purchasemanagerFlow/Po/purchaseOrder'));
-const PurchasemanagerPoCreate = lazy(() => import('./pages/purchasemanagerFlow/Po/purchaseOrderCreate'));
+const PurchasemanagerPoCreate = lazy( ( ) => import('./pages/purchasemanagerFlow/Po/purchaseOrderCreate'));
 const PurchasemanagerKanban = lazy(() => import('./pages/purchasemanagerFlow/KanbanBoard/index'));
 const PurchasemanagerKanbanTicketDetails = lazy(() => import('./pages/purchasemanagerFlow/KanbanBoard/TicketDetails'));
 const PurchasemanagerChat = lazy(() => import('./pages/purchasemanagerFlow/ChatPage/Chat/ChatApp'));
 const PurchasemanagerSettings = lazy(() => import('./pages/purchasemanagerFlow/Settings/index'));
-const PurchaseBoq = lazy(() => import('./pages/purchasemanagerFlow/BoqView/MaterialViewScreen'));
+const PurchaseBoq = lazy( ( ) => import('./pages/purchasemanagerFlow/BoqView/MaterialViewScreen'));
 
 
 //Vendor Flow
 
-const VendorDashboard = lazy(() => import('./pages/vendorFlow/Dashboard/index'));
-const VendorPo = lazy(() => import('./pages/vendorFlow/Po/index'));
-const VendorEditPo = lazy(() => import('./pages/vendorFlow/Po/EditPurchaseOrder'));
-const VendorKanban = lazy(() => import('./pages/vendorFlow/KanbanBoard/index'));
-const VendorTicketDetails = lazy(() => import('./pages/vendorFlow/KanbanBoard/TicketDetails'));
-const VendorChat = lazy(() => import('./pages/vendorFlow/ChatPage/Chat/ChatApp'));
-const VendorSettings = lazy(() => import('./pages/vendorFlow/Settings/index'));
+const VendorDashboard = lazy( ( ) => import('./pages/vendorFlow/Dashboard/index'));
+const VendorPo = lazy( ( ) => import('./pages/vendorFlow/Po/index'));
+const VendorEditPo = lazy( ( ) => import('./pages/vendorFlow/Po/EditPurchaseOrder'));
+const VendorKanban = lazy( ( ) => import ('./pages/vendorFlow/KanbanBoard/index'));
+const VendorTicketDetails = lazy( ( ) => import ('./pages/vendorFlow/KanbanBoard/TicketDetails'));
+const VendorChat = lazy( ( ) => import('./pages/vendorFlow/ChatPage/Chat/ChatApp'));
+const VendorSettings = lazy( ( ) => import('./pages/vendorFlow/Settings/index'));
 
 
 const App = () => {
@@ -221,29 +226,36 @@ const App = () => {
     17: { // Purchase Manager (duplicate in your DB?)
       default: "/purchasemanager/dashboard",
       layout: PurchasemanagerLayout,
-    },
-    "Vendor": {
-      default: "/vendor/dashboard",
-      layout: VendorLayout
-    },
-  }
+    }
+      // layout: PurchasemanagerLayout
+    }
+    // "Vendor" : {
+    //   default:"/vendor/dashboard",
+    //   layout: VendorLayout
+    // },
   
-  // Fixed ProtectedRoute component to handle both numeric roleIds and string roles like "Vendor"
-  const ProtectedRoute = ({ children, allowedRoleIds, allowedRole }) => {
+
+  // const ProtectedRoute = ({ childre6n, allowedRoleIds }) => {
+  //   if (!roleId) {
+  //     return <Navigate to="/login" replace />;
+  //   }
+
+  //   if (!allowedRoleIds.includes(roleId)) {
+  //     return <Navigate to={roleRoutes[roleId]?.default || "/login"} replace />;
+  //   }
+
+  //   return children;
+  // };
+  const ProtectedRoute = ({ children, allowedRoleIds }) => {
     if (!roleId) {
       return <Navigate to="/login" replace />;
     }
-
-    // Handle both numeric roleIds and string roles
-    if (allowedRoleIds && !allowedRoleIds.includes(roleId)) {
+  
+    if (!allowedRoleIds.includes(roleId)) {
       return <Navigate to={roleRoutes[roleId]?.default || "/login"} replace />;
     }
-
-    if (allowedRole && roleId !== allowedRole) {
-      return <Navigate to={roleRoutes[roleId]?.default || "/login"} replace />;
-    }
-
-    return children;
+  
+    return children; // ✅ correct
   };
   
 
@@ -253,12 +265,7 @@ const App = () => {
       const accessToken = localStorage.getItem("accessToken");
 
       if (accessToken && storedRoleId) {
-        // Check if it's a Vendor role (special case)
-        if (storedRoleId === "Vendor") {
-          setRoleId("Vendor");
-        } else {
-          setRoleId(Number(storedRoleId));
-        }
+        setRoleId(Number(storedRoleId));
       } else {
         navigate("/login");
       }
@@ -334,13 +341,14 @@ const App = () => {
         >
           <Route path="home" element={<MdDashboard />} />
           <Route path="approvals" element={<Kanban />} />
-          <Route path="ticket/:ticketId" element={<TicketDetails />} />
+          <Route path="ticket/:ticketId" element={<CommonTicketDetails />} />
           <Route path="projects" element={<Projects />} />
           <Route path="projectdetails" element={<ProjectDetails />} />
           <Route path="task" element={<EngineerTask />} />
           <Route path="chat" element={<ChatApp />} />
           <Route path="settings" element={<Settings />} />
           <Route path="*" element={<NotFound />} />
+          <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
         </Route>
 
         {/* ADMIN ROUTES (Engineering Flow) */}
@@ -355,13 +363,13 @@ const App = () => {
           <Route path="engineerdashboard" element={<EngineerDashboard />} />
           <Route path="engineerproject" element={<EngineerProject />} />
           <Route path="engineerapprovals" element={<KanbanEngineer />} />
-          <Route path="engineerticketdetails/:ticketId" element={<EngineerTicketDetails />} />
+          <Route path="engineerticketdetails/:ticketId" element={<CommonTicketDetails />} />
           <Route path="engineerchats" element={<EngineerChat />} />
           <Route path="engineerreport" element={<EngineerReport />} />
           <Route path="engineerreportview" element={<EngineerReportView />} />
           <Route path="engineerreportcreate" element={<EngineerReportCreate />} />
           <Route path="engineermaterial" element={<EngineerMaterial />} />
-          <Route path="engineermaterialview/:boqId" element={<EngineerMaterialView />} />
+          <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
           <Route path="engineermaterialcreate" element={<EngineerMaterialCreate />} />
           <Route path="engineertask" element={<EngineerTask />} />
           <Route path="engineersetting" element={<EngineerSetting />} />
@@ -379,7 +387,7 @@ const App = () => {
         >
           <Route path="aqsdashboard" element={<AqsDashboard />} />
           <Route path="aqsapprovals" element={<KanbanAqs />} />
-          <Route path="aqsticketdetails/:ticketId" element={<AqsTicketDetails />} />
+          <Route path="aqsticketdetails/:ticketId" element={<CommonTicketDetails />} />
           <Route path="aqschats" element={<AqsChat />} />
           <Route path="aqsmaterial" element={<AqsMaterial />} />
           <Route path="aqsinventory" element={<AqsInventory />} />
@@ -393,7 +401,7 @@ const App = () => {
           <Route path="aqsvendordetails" element={<AqsVendorDetails />} />
           <Route path="aqsvendorpricedetails" element={<AqsVendorPriceDetails />} />
           <Route path="aqssetting" element={<AqsSetting />} />
-          <Route path="engineermaterialview/:boqId" element={<EngineerMaterialView />} />
+          <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
 
         </Route>
 
@@ -413,7 +421,7 @@ const App = () => {
           <Route path="createproject" element={<CeoCreateProject />} />
           <Route path="projectmilestone" element={<ProjectTimeline />} />
           <Route path="approvals" element={<KanbanCeo />} />
-          <Route path="ticket/:ticketId" element={<CeoTicketDetails />} />
+          <Route path="ticket/:ticketId" element={<CommonTicketDetails />} />
           <Route path="chats" element={<CeoChat />} />
           <Route path="finance" element={<CeoFinance />} />
           <Route path="resources" element={<CeoResources />} />
@@ -421,6 +429,7 @@ const App = () => {
           <Route path="reports" element={<CeoReport />} />
           <Route path="reportview" element={<CeoReportView />} />
           <Route path="settings" element={<CeoSettings />} />
+          <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
         </Route>
 
         {/* FINANCE ROUTES */}
@@ -437,7 +446,7 @@ const App = () => {
           <Route path="budgetcreate" element={<FinanceBudgetCreate />} />
           <Route path="budgetdetails" element={<FinanceBudgetDetails />} />
           <Route path="approvals" element={<KanbanFinance />} />
-          <Route path="financeticketdetails/:ticketId" element={<FinanceTicketDetails />} />
+          <Route path="financeticketdetails/:ticketId" element={<CommonTicketDetails />} />
           <Route path="chats" element={<FinanceChat />} />
           <Route path="invoice" element={<FinanceInvoice />} />
           <Route path="invoicedetails" element={<FinanceInvoiceDetails />} />
@@ -447,6 +456,7 @@ const App = () => {
           <Route path="report" element={<FinanceReport />} />
           <Route path="reportcreate" element={<FinanceReportCreate />} />
           <Route path="settings" element={<FinanceSettings />} />
+          <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
         </Route>
 
         {/* PM ROUTES */}
@@ -461,7 +471,7 @@ const App = () => {
           <Route path="dashboard" element={<PmDashboard />} />
           <Route path="project" element={<PmProject />} />
           <Route path="approvals" element={<KanbanPm />} />
-          <Route path="pmticket/:ticketId" element={<PmTicketDetails />} />
+          <Route path="pmticket/:ticketId" element={<CommonTicketDetails />} />
           <Route path="chats" element={<PmChat />} />
           <Route path="task" element={<PmTask />} />
           <Route path="resources" element={<PmResources />} />
@@ -472,6 +482,7 @@ const App = () => {
           <Route path="reports" element={<PmReport />} />
           <Route path="reportview" element={<PmReportView />} />
           <Route path="settings" element={<PmSettings />} />
+          <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
         </Route>
 
         {/* HR ROUTES */}
@@ -488,7 +499,7 @@ const App = () => {
           <Route path="addemployee" element={<AddHrEmployee />} />
           <Route path="employeedetail" element={<HrEmployeeDetail />} />
           <Route path="approvals" element={<HrKanban />} />
-          <Route path="hrticketdetails/:ticketId" element={<HrKanbanTicketDetails />} />
+          <Route path="hrticketdetails/:ticketId" element={<CommonTicketDetails />} />
           <Route path="chats" element={<HrChat />} />
           <Route path="settings" element={<HrSettings />} />
         </Route>
@@ -497,7 +508,7 @@ const App = () => {
         <Route
           path="/purchasemanager"
           element={
-            <ProtectedRoute allowedRoleIds={[17]}>
+            <ProtectedRoute allowedRoleIds={[ 17]}>
               {renderLayout(17)}
             </ProtectedRoute>
           }
@@ -511,30 +522,28 @@ const App = () => {
           <Route path="poCreate" element={<PurchasemanagerPoCreate />} />
           <Route path="boqDetails/:boqId" element={<PurchaseBoq />} />
           <Route path="approvals" element={<PurchasemanagerKanban />} />
-          <Route path="purchaseticketdetails/:ticketId" element={<PurchasemanagerKanbanTicketDetails />} />
+          <Route path="purchaseticketdetails/:ticketId" element={<CommonTicketDetails />} />
           <Route path="chats" element={<PurchasemanagerChat />} />
           <Route path="settings" element={<PurchasemanagerSettings />} />
+          <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
         </Route>
 
 
         {/* Vendor */}
 
-        <Route 
+          <Route 
           path="/vendor" 
-          element={
-            <ProtectedRoute allowedRole="Vendor">
-              {renderLayout("Vendor")}
-            </ProtectedRoute>
-          }
-        >
-          <Route path="dashboard" element={<VendorDashboard />}/>
-          <Route path="po" element={<VendorPo />} />
-          <Route path="editpo" element={<VendorEditPo />} />
-          <Route path="approvals" element={<VendorKanban />} />
-          <Route path="vendorticketdetails/:ticketId" element={<VendorTicketDetails />} />
-          <Route path="chats" element={<VendorChat />} />
-          <Route path="settings" element={<VendorSettings />} />
-        </Route>
+          element={<ProtectedRoute allowedRole="Vendor"><VendorLayout onLogout={handleLogout} /></ProtectedRoute>}
+          >
+
+            <Route  path="dashboard" element={<VendorDashboard />}/>
+            <Route path="po" element={<VendorPo />} />
+            <Route path="editpo" element={<VendorEditPo />} />
+            <Route path="approvals" element={<VendorKanban />} />
+            <Route path="vendorticketdetails/:ticketId" element={<CommonTicketDetails />} />
+            <Route path="chats" element={<VendorChat />} />
+            <Route path="settings" element={<VendorSettings />} />
+          </Route>
         {/* Catch all redirect */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>

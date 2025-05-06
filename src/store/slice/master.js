@@ -44,7 +44,8 @@ getTicketsbyboardParticipantsAction,
 addBoardAction,
 getBoardAction,
 editBoardAction,
-createTicketDetailsAction
+createTicketDetailsAction,
+getPurchaseOrderDetailsAction
 } from "../actions/masterAction";
 import { getLoginBoardDetailsdAction } from "../actions/kanbanAction";
 
@@ -245,6 +246,12 @@ const initialState = {
     error: null,
   },
   loginBoardDetails: {
+    data: [],
+    loading: false,
+    error: null,
+    message: "",
+  },
+  purchaseOrderDetails: {
     data: [],
     loading: false,
     error: null,
@@ -909,7 +916,22 @@ const masterSlice = createSlice({
       state.fetchError = action.error;
       state.loginBoardDetails.loading = false;
     });
-
+    
+  
+   /** USED TO GET PURCHASE ORDER DETAILS */
+      builder.addCase(getPurchaseOrderDetailsAction.pending, (state, action) => {
+        state.purchaseOrderDetails.loading = true;
+      });
+      builder.addCase(getPurchaseOrderDetailsAction.fulfilled, (state, action) => {
+        const data = action.payload;
+        state.purchaseOrderDetails.data = data;
+        state.purchaseOrderDetails.loading = false;
+      });
+      builder.addCase(getPurchaseOrderDetailsAction.rejected, (state, action) => {
+        state.fetchError = action.error;
+        state.purchaseOrderDetails.loading = false;
+      });
+  
   
   },
 });
