@@ -40,7 +40,6 @@ const Header = ({ onLogout }) => {
   const [showNotify, setShowNotify] = useState(false);
   const [showWPSwitch, setShowWPSwitch] = useState(false);
   const [{ data }, { setAuth, getUserInfo }] = useAuth();
-  // const [recentNotification, getRecentNotification] = useNotification();
   const notifyItemRef = useRef(null);
   const popupRef = useRef(null);
   const workspaceItemRef = useRef(null);
@@ -56,9 +55,12 @@ const Header = ({ onLogout }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
+  // Get user data from localStorage
+  const userData = JSON.parse(localStorage.getItem("userData")) || {};
+  const isVendor = localStorage.getItem("userType") === "vendor";
+
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // If the click is outside the popup, close it
       if (
         ((popupRef.current && !popupRef.current.contains(event.target)) ||
           popupRef.current == null) &&
@@ -67,10 +69,7 @@ const Header = ({ onLogout }) => {
         setShowInfo(false);
       }
     };
-    // Attach the event listener to the document body
     document.addEventListener("click", handleClickOutside);
-
-    // Cleanup the event listener when the component is unmounted
     return () => {
       document.removeEventListener("click", handleClickOutside);
     };
@@ -78,33 +77,27 @@ const Header = ({ onLogout }) => {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // If the click is outside the popup, close it
       if (
-        ((workspaceItemRef.current &&
+        (workspaceItemRef.current &&
           !workspaceItemRef.current.contains(event.target)) ||
-          workspaceItemRef.current == null) &&
-        event.target.id !== "workspaceSwitch"
+        (workspaceItemRef.current == null &&
+          event.target.id !== "workspaceSwitch")
       ) {
         setShowWPSwitch(false);
       }
     };
-    // Attach the event listener to the document body
     document.addEventListener("click", handleClickOutside);
-
-    // Cleanup the event listener when the component is unmounted
     return () => {
       document.removeEventListener("click", handleClickOutside);
     };
   }, []);
-
-  /** EVENT LISTENER TO CLOSE POPUP */
+  
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
-        ((notifyItemRef.current &&
+        (notifyItemRef.current &&
           !notifyItemRef.current.contains(event.target)) ||
-          popupRef.current == null) &&
-        event.target.id !== "show_notify"
+        (popupRef.current == null && event.target.id !== "show_notify")
       ) {
         setShowNotify(false);
       }
@@ -114,20 +107,11 @@ const Header = ({ onLogout }) => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
-  /** GET NOTIFICATION DATA'S */
-  // useEffect(() => {
-  //   triggerNotificationAPI();
-  // }, []);
-
-
-  /** USED TO UPDATE ACTIVE DEPARTMENT & WORKSPACE STATE ON REDUX */
+  
   useEffect(() => {
-    if (data?.details?.workspaceDTO) {
+    if (data?.details?.workspaceDTO && !isVendor) {
       let defaultBoard;
-      // FIRST CHECK WHETHER ACTIVE WORKSPACE & ACTIVE DEPARTMENT EXIST - IF SO REDIRECT TO SAME
       if (data?.activeWorkSpace && data?.activeDepartmentPermission) {
-        // const boardList = data.activeWorkSpace === 1 ? data?.details?.userBoardList : data?.details?.updatesboardsDTO;
         let boardList;
         if (data.activeWorkSpace === 1) {
           boardList = data?.details?.userBoardList;
@@ -149,12 +133,10 @@ const Header = ({ onLogout }) => {
         dispatch(setActiveBoardAction(defaultBoard?.boardId));
         dispatch(setActiveWorkSpaceAction(data?.activeWorkSpace));
       } else {
-        // ELSE REDIRECT TO DEFAULT WORKSPACE
         const defaultWorkSpace =
           data?.details?.workspaceDTO?.find(
             (w) => w.is_workspace_default === true
           ) || data?.details?.workspaceDTO?.[0];
-        // const boardList = defaultWorkSpace.work_space_id === 1  ? data?.details?.userBoardList : data?.details?.updatesboardsDTO;
         let boardList;
         if (defaultWorkSpace.work_space_id === 1) {
           boardList = data?.details?.userBoardList;
@@ -180,49 +162,32 @@ const Header = ({ onLogout }) => {
     }
   }, [data.details?.workspaceDTO]);
 
-  /** GET NOTIFICATION DATA'S */
-  // const triggerNotificationAPI = () => {
-  //   let defaultParam = {
-  //     page_number: appConstants.pageOffSet + 1,
-  //     page_size: 5,
-  //   };
-  //   getRecentNotification(defaultParam);
-  // };
-
-  /** HANDLE SHOW/HIDE MENU ITEM BASED ON USER CLICK */
   const handleMenuItem = (e) => {
-    // setShowNotify(false);
     const showPopup = showInfo ? !showInfo : true;
     if (e.type === "click" || e.key === "Enter") {
       setShowInfo(showPopup);
     }
   };
 
-  /** USED TO RESET AND HIDE MENU */
   const handleReset = () => {
     setShowInfo(false);
     setShowNotify(false);
     setShowWPSwitch(false);
   };
 
-  /** CLEARS TOKEN & LOGOUT USER */
-    const userLogout = () => {
-      setShowInfo(false);
-      setShowNotify(false);
-      onLogout(); 
-    };
-    
+  const userLogout = () => {
+    setShowInfo(false);
+    setShowNotify(false);
+    onLogout(); 
+  };
 
-  /** HANDLE SHOW/HIDE NOTIFICATION ITEM BASED ON USER CLICK */
   const handleNotify = (e) => {
-    // setShowInfo(false);
     const showPopup = showNotify ? !showNotify : true;
     if (e.type === "click" || e.key === "Enter") {
       setShowNotify(showPopup);
     }
   };
 
-  /** USED TO HANDLE WORKSPACE SWITCH */
   const handleWorkSpaceChange = (res) => {
     if (
       res.work_space_id === data?.activeWorkSpace &&
@@ -261,21 +226,11 @@ const Header = ({ onLogout }) => {
     }
   };
 
-  /** HANDLE USER STATUS */
   const handleUserStatus = (status) => {
     setCurrentStatus(status);
   };
 
-  // useEffect(() => {
-  //   const notificationInterval = setInterval(
-  //     triggerNotificationAPI,
-  //     appConstants.intervalTime
-  //   );
-  //   return () => clearInterval(notificationInterval);
-  // }, []);
-
   const handleDefaultWorkSpace = (data) => {
-    // TRIGGER API CALL TO SET DEFAULT WORKSPACE
     try {
       const requestData = {
         workspaceId: data.work_space_id,
@@ -287,14 +242,11 @@ const Header = ({ onLogout }) => {
           dispatch(
             showToast({ message: res.data.message, variant: "success" })
           );
-          // navigate(`/home`);
-          // handleReset();
         } else {
           dispatch(showToast({ message: res.data.message, variant: "danger" }));
         }
       });
     } catch (error) {
-      // Handle errors
       dispatch(showToast({ message: error, variant: "danger" }));
     }
   };
@@ -318,13 +270,6 @@ const Header = ({ onLogout }) => {
 
             <div className="header-content__logo-agent">
               <img className="css1" src={PRODUCT_LOGO} alt="Agent Board Icon" />
-              {/* <span className="title-agent-board">
-                {
-                  data?.details?.workspaceDTO?.filter(
-                    (userwp) => userwp?.work_space_id == data?.activeWorkSpace
-                  )[0]?.name
-                }
-              </span> */}
             </div>
           </div>
         </div>
@@ -336,9 +281,10 @@ const Header = ({ onLogout }) => {
           <div className="notification" ref={notifyItemRef} id="show_notify">
             <img src={notification_icon} className="icon-notification" alt="" />
           </div>
-          {data?.details?.user_type === null && data?.details?.workspaceDTO?.length > 1 && (
+          
+          {/* Hide workspace switch for vendors */}
+          {!isVendor && data?.details?.user_type === null && data?.details?.workspaceDTO?.length > 1 && (
             <>
-
               <div
                 className="workspaceSwitch"
                 id="workspaceSwitch"
@@ -363,7 +309,7 @@ const Header = ({ onLogout }) => {
                                   ? "active"
                                   : ""
                                 }`}
-                              onClick={() => handleWorkSpaceChange(list)} // Parent click handler
+                              onClick={() => handleWorkSpaceChange(list)}
                             >
                               <span className="name">{list.name}</span>
                               <span
@@ -376,8 +322,8 @@ const Header = ({ onLogout }) => {
                                   "Mark as default"
                                   } `}
                                 onClick={(e) => {
-                                  e.stopPropagation(); // Prevent the parent click event
-                                  handleDefaultWorkSpace(list); // Child click handler
+                                  e.stopPropagation();
+                                  handleDefaultWorkSpace(list);
                                 }}
                               ></span>
                             </div>
@@ -395,24 +341,30 @@ const Header = ({ onLogout }) => {
             <div className="user-info" onClick={handleMenuItem}>
               {data?.details?.displayName && (
                 <LogoAvatarShowLetter
-                  genaralData={data.details}
+                  genaralData={isVendor ? userData : data.details}
                   profilePhotoName={"photo"}
-                  profileName={"displayName"}
+                  profileName={isVendor ? "vendorName" : "displayName"}
                   outerClassName={"user-info__profile-pic"}
                   innerClassName={"user-icon-photo"}
                 ></LogoAvatarShowLetter>
               )}
               <div
-                className={`user-info__details ${data.details?.firstName ? data.details?.displayName : "none"
+                className={`user-info__details ${(isVendor ? userData.vendorName : data.details?.firstName) ? (isVendor ? userData.vendorName : data.details?.displayName) : "none"
                   }`}
               >
                 <p className="user-info__details-name" placeholder="User Name">
-                  {data.details?.firstName
-                    ? data.details?.firstName
-                    : "User Name"}
+                  {isVendor 
+                    ? userData.vendorName || "Vendor Name"
+                    : data.details?.firstName
+                      ? data.details?.firstName
+                      : "User Name"}
                 </p>
                 <p className="user-info__details-role" placeholder="Role">
-                  {data.details?.roleName ? data.details?.roleName : "Guest"}
+                  {isVendor
+                    ? userData.roleName || "Vendor"
+                    : data.details?.roleName 
+                      ? data.details?.roleName 
+                      : "Guest"}
                 </p>
               </div>
             </div>
@@ -421,9 +373,9 @@ const Header = ({ onLogout }) => {
                 <div className="user-info__popup-profile">
                   {data?.details?.displayName && (
                     <LogoAvatarShowLetter
-                      genaralData={data.details}
+                      genaralData={isVendor ? userData : data.details}
                       profilePhotoName={"photo"}
-                      profileName={"displayName"}
+                      profileName={isVendor ? "vendorName" : "displayName"}
                       outerClassName={"user-info__popup-profile-pic"}
                       innerClassName={"user-icon-photo"}
                     ></LogoAvatarShowLetter>
@@ -432,9 +384,11 @@ const Header = ({ onLogout }) => {
                     className="user-info__popup-profile-name"
                     placeholder="User Name"
                   >
-                    {data.details?.displayName
-                      ? data.details?.displayName
-                      : "User Name"}
+                    {isVendor
+                      ? userData.vendorName || "Vendor Name"
+                      : data.details?.displayName
+                        ? data.details?.displayName
+                        : "User Name"}
                   </p>
                 </div>
                 <div className="user-info__popup-menu" id="show_more_boards">
@@ -467,7 +421,6 @@ const Header = ({ onLogout }) => {
                     {t("layout.header.logout")}
                   </button>
                 </div>
-
               </div>
             )}
           </div>
