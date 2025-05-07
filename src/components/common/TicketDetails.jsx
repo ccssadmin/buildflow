@@ -292,10 +292,10 @@ const EngineerTicketDetails = () => {
   };
 
   const handleSave = async () => {
-    if (!approvalStatus) {
-      showToastNotification("Please select Approve or Reject");
-      return;
-    }
+    // if (!approvalStatus) {
+    //   showToastNotification("Please select Approve or Reject");
+    //   return;
+    // }
 
     setIsLoading(true);
 
