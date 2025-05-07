@@ -436,8 +436,8 @@ const EngineerTicketDetails = () => {
     approvals.forEach((approval) => {
       if (
         (approval.approved_by_id === userData?.empId &&
-          approval.approval_type === "approved") ||
-        "rejected"
+          approval.approval_type === "approved" ||
+          "rejected" ) 
       ) {
         hasUserApproved = true;
       }

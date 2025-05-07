@@ -336,7 +336,7 @@ const MaterialCreateScreen = () => {
             className="text-orange bg-orange add-column-btn p-0 mb-3"
             onClick={handleAddRow}
           >
-            + Add Column
+            + Add Row
           </Button>
           <Button type="submit" className="submit-btn">
             <FontAwesomeIcon
