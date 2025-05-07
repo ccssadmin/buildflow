@@ -907,77 +907,70 @@ const EngineerTicketDetails = () => {
             {/* Comments Tab Content */}
             {(activeTab === "all" || activeTab === "comments") && (
               <div className="mt-4">
-                {comments.map((comment, index) => (
-                  <div key={comment.id} className="d-flex mb-4">
-                    <div className="me-2">
-                      <div
-                        className={`rounded-circle bg-${comment.avatarColor} text-white d-flex align-items-center justify-content-center`}
-                        style={{
-                          width: "36px",
-                          height: "36px",
-                          fontSize: "16px",
-                          flexShrink: 0,
-                        }}
-                      >
-                        {comment.avatar}
+                {ticketDetails?.commentsAndAttachments?.map(
+                  (comment, index) => (
+                    <div key={comment.id} className="d-flex mb-4">
+                      <div className="me-2">
+                        <div
+                          className={`rounded-circle bg-${comment.avatarColor} text-white d-flex align-items-center justify-content-center`}
+                          style={{
+                            width: "36px",
+                            height: "36px",
+                            fontSize: "16px",
+                            flexShrink: 0,
+                          }}
+                        >
+                          {comment.avatar}
+                        </div>
                       </div>
-                    </div>
-                    <div style={{ width: "100%" }}>
-                      <div className="d-flex align-items-center flex-wrap">
-                        <span className="fw-bold">{comment.user}</span>
-                        <span className="text-muted ms-2 small">
-                          {comment.role}
-                        </span>
-                        {comment.time && (
+                      <div style={{ width: "100%" }}>
+                        <div className="d-flex align-items-center flex-wrap">
+                          <span className="fw-bold">{comment.user}</span>
                           <span className="text-muted ms-2 small">
-                            {comment.time}
+                            {comment.role}
                           </span>
-                        )}
-                      </div>
-                      <div className="mt-1">
-                        {comment.status && (
-                          <Badge
-                            bg={comment.statusColor || "danger"}
-                            className="px-2 py-1 rounded-pill"
-                            style={{ fontSize: "0.7rem" }}
-                          >
-                            {comment.status}
-                          </Badge>
-                        )}
-                        <span className={comment.status ? "ms-2" : ""}>
-                          {comment.content}
-                        </span>
-                      </div>
-
-                      {/* Display files in comment */}
-                      {comment.files && comment.files.length > 0 && (
-                        <div className="mt-2 p-2 bg-light rounded">
-                          <div className="d-flex align-items-center mb-1">
-                            <BsPaperclip className="me-1" size={12} />
-                            <small className="text-muted">Files:</small>
-                          </div>
-                          {comment.files.map((file) => (
-                            <div
-                              key={file.id}
-                              className="d-flex align-items-center p-1"
+                          {comment.time && (
+                            <span className="text-muted ms-2 small">
+                              {comment.time}
+                            </span>
+                          )}
+                        </div>
+                        <div className="mt-1">
+                          {comment.status && (
+                            <Badge
+                              bg={comment.statusColor || "danger"}
+                              className="px-2 py-1 rounded-pill"
+                              style={{ fontSize: "0.7rem" }}
                             >
-                              <small>
-                                {file.name} ({formatFileSize(file.size)})
+                              {comment.status}
+                            </Badge>
+                          )}
+                          <span className={comment.status ? "ms-2" : ""}>
+                            {comment.comment}
+                          </span>
+                        </div>
+
+                        {comment.filename && comment.file_path && (
+                          <div className="mt-2 p-2 bg-light rounded">
+                            <div className="d-flex align-items-center mb-1">
+                              <BsPaperclip className="me-1" size={12} />
+                              <small className="text-muted">
+                                Attached File:
                               </small>
                             </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* Display images in comment */}
-                      {comment.images && comment.images.length > 0 && (
-                        <div className="mt-2">
-                          <div className="d-flex flex-wrap">
-                            {comment.images.map((image) => (
-                              <div key={image.id} className="me-2 mb-2">
+                            <div className="d-flex align-items-center p-1">
+                              <a
+                                href={comment.file_path}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <small>{comment.filename}</small>
+                              </a>
+                            </div>
+                            <div key={index} className="me-2 mb-2 mt-3">
                                 <img
-                                  src={image.url}
-                                  alt={image.name}
+                                  src={comment.file_path}
+                                  alt={comment.filename}
                                   style={{
                                     width: "100px",
                                     height: "80px",
@@ -986,17 +979,17 @@ const EngineerTicketDetails = () => {
                                   className="rounded"
                                 />
                               </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
 
-                      {index < comments.length - 1 && (
-                        <hr className="mt-3" style={{ opacity: 0.1 }} />
-                      )}
+                          </div>
+                        )}
+
+                        {index < comments.length - 1 && (
+                          <hr className="mt-3" style={{ opacity: 0.1 }} />
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                )}
               </div>
             )}
 
