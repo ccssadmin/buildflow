@@ -13,12 +13,13 @@ import { fetchRoles } from "../../../store/actions/hr/designationaction";
 import { getAllEmployeesByRolesAction } from "../../../store/actions/Ceo/RoleBasedEmpAction";
 
 import { fetchProjects } from "../../../store/actions/hr/projectaction";
-
+import { toast } from "react-toastify";
+import { useTicket } from "../../../hooks/Ceo/useTicket";
 
 export default function POViewPage({ params }) {
   
   const location = useLocation();
-
+const { createTicket } = useTicket();
    const navigate = useNavigate();
    const { poId, loading } = useSelector((state) => state.purchase);
    const dispatch = useDispatch();
@@ -124,25 +125,41 @@ export default function POViewPage({ params }) {
 
 
 
-  const handleSubmit = () => {
-    const payload = {
-      poId,
-      projectId: selectedProjectId,
-      vendorId: selectedVendorId,
-      approvers: selectedApprover.map((a) => a.id),
-      items: lineItems.map(item => ({
-        ItemName: item.name,
-        Unit: item.unit,
-        Rate: parseFloat(item.rate),
-        Quantity: parseFloat(item.quantity),
-        Total: item.total,
-      })),
-      boqId: boqData?.boqId,
-      title: boqData?.boqName,
-    };
+  const handleCreatePO = async () => {
+      const userData = JSON.parse(localStorage.getItem("userData"));
+      const empId = userData?.empId;
+      const payload = {
+        purchaseOrderId: 0,
+        poId: poData.poNumber, // Ensure this is the correct name expected by the API
+        poDate: poData.poDate,
+        vendorName: poData.vendorName,
+        boqId: parseInt(boqData?.boqId) || 47,
+        boqTitle: boqData?.boqName || "",
+        createdBy: empId,
+        Items: poData.items.map((item) => ({
+          // itemId: item.itemId,
+          itemName: item.itemName,
+          unit: item.unit,
+          price: item.price,
+          quantity: item.quantity,
+          total: item.total,
+        })),
+      };
   
-    dispatch(upsertPurchaseOrder(payload));
-  };
+      const response = await dispatch(upsertPurchaseOrder(payload));
+      if (response?.payload?.success) {
+        toast.success("PO Created Successfully");
+        const ticketResponse = await createTicket({
+          poId: response?.payload?.data?.purchaseOrderId,
+          ticketType: "PO_APPROVAL",
+          assignTo: [1,2,7], // ✅ array of empIds
+          createdBy: userData?.empId, // replace with actual logged-in user ID
+        });
+  
+        console.log("ticketResponse", ticketResponse);
+      }
+      console.log("response", response);
+    };
   
   
   const handleAddRow = () => {
@@ -221,7 +238,7 @@ export default function POViewPage({ params }) {
         <div className="col-md-6 mb-3">
           <div className="form-group">
             <label style={{ fontWeight: "500", marginBottom: "8px" }}>Attach BOQ</label>
-            <textarea
+            <input  type="text"
               className="form-control"
                
               style={{ padding: "10px 12px", border: "1px solid #ced4da", borderRadius: "4px", minHeight: "38px" }}
@@ -348,7 +365,7 @@ export default function POViewPage({ params }) {
           <button className="btn btn-secondary me-2" onClick={() => navigate('../po')} style={{ padding: "8px 16px" }}>
             Back
           </button>
-          <button className="btn" onClick={handleSubmit}  style={{ backgroundColor: "#ff6600", color: "white", padding: "8px 16px" }}>
+          <button className="btn" onClick={handleCreatePO}  style={{ backgroundColor: "#ff6600", color: "white", padding: "8px 16px" }}>
             Save
           </button>
         </div>
