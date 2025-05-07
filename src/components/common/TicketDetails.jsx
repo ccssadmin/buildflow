@@ -1564,7 +1564,7 @@ const EngineerTicketDetails = () => {
             {/* Approved By */}
             <div
               className={`mb-3 mt-3 d-flex justify-content-between align-items-center border-bottom pb-3 ${
-                userData?.empId === ticket.created_by || hasUserApproved
+                userData?.empId === ticket.created_by
                   ? "d-none"
                   : "d-block"
               }`}
@@ -1604,7 +1604,7 @@ const EngineerTicketDetails = () => {
                   bg={ticketDetails?.isapproved ? "success" : "danger"}
                   className="px-2 py-1"
                 >
-                  {ticketDetails?.isapproved ? "Approved" : "Rejected"}
+                  {ticketDetails?.isapproved ? "Approved" : "Pending"}
                 </Badge>
               </div>
             )}
