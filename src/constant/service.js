@@ -53,7 +53,7 @@ export const API = {
   LOGIN_BOARD_DETAILS: '/api/Login/board-details',
 /** GET PURCHASE ORDER DETAILS */
 GET_PURCHASE_ORDER_DETAILS : '/api/Vendor/Getpurchase-order-details',
-GET_BOQCODE : '/api/Vendor/Getpurchase-orders-by-boq-code',
+GET_BOQCODE : '/api/Project/getBoqDetailsBy-BOQCode',
 
   //** BOQ Get DATA ***/
   GET_BOQ_DETAILS: "/api/Project/getBoqDetails",

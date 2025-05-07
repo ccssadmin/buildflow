@@ -17,9 +17,8 @@ export const getBoqByCode = createAsyncThunk(
   "purchase/getBoqByCode",
   async (boqCode, { rejectWithValue }) => {
     try {
-      // Properly encode the BOQ code for URL parameters
-      const encodedBoqCode = encodeURIComponent(boqCode);
-      const response = await api.GET(`/api/Vendor/Getpurchase-orders-by-boq-code/${encodedBoqCode}`);
+      // Format the URL correctly - the API expects ?code=BOQ%2347 format
+      const response = await api.GET(`/api/Project/getBoqDetailsBy-BOQCode?code=${encodeURIComponent(boqCode)}`);
       
       // Return null if response doesn't have data to prevent errors
       if (!response.data) {

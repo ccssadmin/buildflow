@@ -5,14 +5,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { getVendorsAndSubcontractors } from "../../../store/actions/vendor/getvendoraction";
 import { getNewPoId, upsertPurchaseOrder, getBoqByCode } from "../../../store/actions/Purchase/purcharseorderidaction";
-import { Dropdown, Form } from "react-bootstrap";
-import { RiArrowDropDownLine } from "react-icons/ri";
+import { Form } from "react-bootstrap";
 import MultipleSelect from "../../../components/DropDown/MultipleSelect";
 import { fetchRoles } from "../../../store/actions/hr/designationaction";
 import { getAllEmployeesByRolesAction } from "../../../store/actions/Ceo/RoleBasedEmpAction";
 import { fetchProjects } from "../../../store/actions/hr/projectaction";
 import { toast } from "react-toastify";
 import { useTicket } from "../../../hooks/Ceo/useTicket";
+import { debounce } from "lodash";
 
 export default function POViewPage({ params }) {
   const location = useLocation();
@@ -29,6 +29,7 @@ export default function POViewPage({ params }) {
   const { boqData, ticket } = location.state || {};
   const [boqCodeInput, setBoqCodeInput] = useState("");
   const [boqSearchError, setBoqSearchError] = useState("");
+  const [lineItems, setLineItems] = useState([]);
   
   const [poData, setPoData] = useState({
     poNumber: "",
@@ -37,70 +38,99 @@ export default function POViewPage({ params }) {
     items: [],
   });
 
-  const [lineItems, setLineItems] = useState([]);
+ 
 
-  // Handle BOQ code search
-  const handleBoqCodeSearch = async () => {
-    if (!boqCodeInput) {
-      setBoqSearchError("Please enter a BOQ code");
+  // Create a debounced search function
+  const debouncedSearch = debounce(async (code) => {
+    if (!code) {
+      setBoqSearchError("");
       return;
     }
-    
+
     try {
       // Ensure the BOQ code is properly formatted
-      // If the user doesn't include the "boq#" prefix, add it
-      let formattedBoqCode = boqCodeInput;
+      let formattedBoqCode = code;
       if (!formattedBoqCode.toLowerCase().startsWith("boq#")) {
         formattedBoqCode = `boq#${formattedBoqCode}`;
       }
       
       const result = await dispatch(getBoqByCode(formattedBoqCode)).unwrap();
-      if (result && result.length > 0) {
-        const boqData = result[0]; // Get the first item from the array
+      console.log("BOQ Data received:", result);
+      
+      // Handle both array response and direct object response
+      if (result) {
+        // Use the result directly if it's an object, or the first item if it's an array
+        const boqData = Array.isArray(result) ? result[0] : result;
         
-        // Update form fields with BOQ details
-        setPoData(prev => ({
-          ...prev,
-          vendorName: boqData.vendorName || "",
-          items: boqData.purchaseOrderItems || []
-        }));
-        
-        // Set line items for display
-        setLineItems(boqData.purchaseOrderItems?.map((item, index) => ({
-          id: index + 1,
-          name: item.itemName,
-          unit: item.unit,
-          rate: item.price,
-          quantity: item.quantity,
-          total: item.total
-        })) || []);
-        
-        // Set vendor if it exists in the vendors list
-        if (boqData.vendorId) {
-          setSelectedVendorId(boqData.vendorId.toString());
-        }
-        
-        // Update title field with BOQ name
-        if (boqData.boqName) {
+        if (boqData) {
+          console.log("Processing BOQ data:", boqData);
+          
+          // Update form fields with BOQ details
+          setPoData(prev => ({
+            ...prev,
+            vendorName: boqData.vendorName || "",
+          }));
+          
+          // Set line items for display - use boqItems from the API response
+          if (boqData.boqItems && boqData.boqItems.length > 0) {
+            const formattedItems = boqData.boqItems.map((item, index) => ({
+              id: index + 1,
+              name: item.itemName,
+              unit: item.unit,
+              rate: item.price,
+              quantity: item.quantity,
+              total: item.total
+            }));
+            
+            console.log("Setting line items:", formattedItems);
+            setLineItems(formattedItems);
+          }
+          
+          // Set project if it exists
+          if (boqData.projectId) {
+            setSelectedProjectId(boqData.projectId.toString());
+          }
+          
+          // Set vendor if it exists in the vendors list
+          if (boqData.vendorId) {
+            setSelectedVendorId(boqData.vendorId.toString());
+          }
+          
           // Store BOQ details in selector state
           dispatch({
             type: 'purchase/getBoqByCode/fulfilled',
             payload: {
               boqId: boqData.boqId,
               boqName: boqData.boqName,
-              boqCode: boqData.boqCode
+              boqCode: boqData.boqCode,
+              projectId: boqData.projectId,
+              projectName: boqData.projectName,
+              vendorId: boqData.vendorId,
+              vendorName: boqData.vendorName
             }
           });
+          
+          setBoqSearchError("");
+          toast.success("BOQ details loaded successfully");
+        } else {
+          setBoqSearchError("Invalid BOQ data format received");
         }
-        
-        setBoqSearchError("");
-        toast.success("BOQ details loaded successfully");
       } else {
         setBoqSearchError("No BOQ found with the provided code. Please check and try again.");
       }
     } catch (error) {
       setBoqSearchError("Failed to fetch BOQ details. Please check the code and try again.");
       console.error("BOQ fetch error:", error);
+    }
+  }, 500);
+
+  // Handle BOQ code input change with automatic search
+  const handleBoqCodeChange = (e) => {
+    const value = e.target.value;
+    setBoqCodeInput(value);
+    
+    if (value.length >= 2) { // Only search if at least 2 characters entered
+      debouncedSearch(value);
     }
   };
 
@@ -132,72 +162,89 @@ export default function POViewPage({ params }) {
   };
 
   // Handle create PO
-  const handleCreatePO = async () => {
-    if (lineItems.length === 0) {
-      toast.error("Please add at least one item to the purchase order");
-      return;
-    }
+ // Handle create PO
+const handleCreatePO = async () => {
+  if (lineItems.length === 0) {
+    toast.error("Please add at least one item to the purchase order");
+    return;
+  }
 
-    if (!selectedProjectId) {
-      toast.error("Please select a project");
-      return;
-    }
+  if (!selectedProjectId) {
+    toast.error("Please select a project");
+    return;
+  }
 
-    const userData = JSON.parse(localStorage.getItem("userData"));
-    const empId = userData?.empId;
-    
-    const payload = {
-      purchaseOrderId: 0,
-      poId: poData.poNumber || poId,
-      poDate: poData.poDate,
-      vendorName: poData.vendorName,
-      boqId: boqDetails?.boqId || parseInt(boqData?.boqId) || 0,
-      boqTitle: boqDetails?.boqName || boqData?.boqName || "",
-      projectId: parseInt(selectedProjectId) || 0,
-      createdBy: empId,
-      Items: lineItems.map((item) => ({
-        itemName: item.name,
-        unit: item.unit,
-        price: parseFloat(item.rate) || 0,
-        quantity: parseFloat(item.quantity) || 0,
-        total: parseFloat(item.total) || 0,
-      })),
-    };
+  // Check if BOQ Code is available
+  if (!boqCodeInput && !boqDetails?.boqCode && !boqData?.boqCode) {
+    toast.error("BOQ Code is required");
+    return;
+  }
 
-    try {
-      const response = await dispatch(upsertPurchaseOrder(payload)).unwrap();
-      if (response?.success) {
-        toast.success("PO Created Successfully");
-        
-        // Create ticket for approval
-        if (selectedApprover.length > 0) {
-          const approverIds = selectedApprover.map(approver => approver.emp_id || approver.id);
-          const ticketResponse = await createTicket({
-            poId: response?.data?.purchaseOrderId,
-            ticketType: "PO_APPROVAL",
-            assignTo: approverIds,
-            createdBy: userData?.empId,
-          });
-        } else {
-          // Default approvers if none selected
-          const ticketResponse = await createTicket({
-            poId: response?.data?.purchaseOrderId,
-            ticketType: "PO_APPROVAL",
-            assignTo: [1, 2, 7], // array of empIds
-            createdBy: userData?.empId,
-          });
-        }
-        
-        navigate('../po'); // Redirect after success
-      } else {
-        toast.error(response?.message || "Failed to create PO");
-      }
-    } catch (error) {
-      toast.error("Failed to create PO");
-      console.error("PO creation error:", error);
-    }
+  const userData = JSON.parse(localStorage.getItem("userData"));
+  const empId = userData?.empId;
+  
+  const payload = {
+    purchaseOrderId: 0,
+    poId: poData.poNumber || poId,
+    poDate: poData.poDate,
+    vendorName: poData.vendorName,
+    boqId: boqDetails?.boqId || parseInt(boqData?.boqId) || 0,
+    boqTitle: boqDetails?.boqName || boqData?.boqName || "",
+    boqCode: boqDetails?.boqCode || boqData?.boqCode || boqCodeInput, // Add the BOQ code
+    projectId: parseInt(selectedProjectId) || 0,
+    createdBy: empId,
+    Items: lineItems.map((item) => ({
+      itemName: item.name,
+      unit: item.unit,
+      price: parseFloat(item.rate) || 0,
+      quantity: parseFloat(item.quantity) || 0,
+      total: parseFloat(item.total) || 0,
+    })),
   };
 
+  console.log("Sending payload:", payload); // Log payload for debugging
+
+  try {
+    const response = await dispatch(upsertPurchaseOrder(payload)).unwrap();
+    if (response?.success) {
+      toast.success("PO Created Successfully");
+      
+      // Create ticket for approval
+      if (selectedApprover.length > 0) {
+        const approverIds = selectedApprover.map(approver => approver.emp_id || approver.id);
+        const ticketResponse = await createTicket({
+          poId: response?.data?.purchaseOrderId,
+          ticketType: "PO_APPROVAL",
+          assignTo: approverIds,
+          createdBy: userData?.empId,
+        });
+      } else {
+        // Default approvers if none selected
+        const ticketResponse = await createTicket({
+          poId: response?.data?.purchaseOrderId,
+          ticketType: "PO_APPROVAL",
+          assignTo: [1, 2, 7], // array of empIds
+          createdBy: userData?.empId,
+        });
+      }
+      
+      navigate('../po'); // Redirect after success
+    } else {
+      toast.error(response?.message || "Failed to create PO");
+    }
+  } catch (error) {
+    // Show more specific error message from API if available
+    if (error.response && error.response.data && error.response.data.errors) {
+      const errorMessages = Object.values(error.response.data.errors)
+        .flat()
+        .join(', ');
+      toast.error(`Validation error: ${errorMessages}`);
+    } else {
+      toast.error("Failed to create PO: " + (error.message || "Unknown error"));
+    }
+    console.error("PO creation error:", error);
+  }
+};
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
@@ -333,25 +380,26 @@ export default function POViewPage({ params }) {
         <div className="col-md-6 mb-3">
           <div className="form-group">
             <label style={{ fontWeight: "500", marginBottom: "8px" }}>
-              Attach BOQ <span style={{ color: "red" }}>*</span>
+              BOQ Code <span style={{ color: "red" }}>*</span>
             </label>
             <div className="input-group">
               <input
                 type="text"
                 className="form-control"
                 value={boqCodeInput}
-                onChange={(e) => setBoqCodeInput(e.target.value)}
-                placeholder="Enter BOQ Code (e.g. 37 or boq#37)"
+                onChange={handleBoqCodeChange}
+                placeholder="Enter BOQ Code (e.g. 47 or boq#47)"
                 style={{ padding: "10px 12px", border: "1px solid #ced4da", borderRadius: "4px" }}
               />
-              <button
-                className="btn btn-primary"
-                onClick={handleBoqCodeSearch}
-                disabled={boqLoading}
-                style={{ marginLeft: "8px" }}
-              >
-                {boqLoading ? "Searching..." : "Search"}
-              </button>
+              {boqLoading && (
+                <div className="input-group-append">
+                  <span className="input-group-text" style={{ backgroundColor: "#fff", border: "1px solid #ced4da" }}>
+                    <div className="spinner-border spinner-border-sm" role="status">
+                      <span className="sr-only">Loading...</span>
+                    </div>
+                  </span>
+                </div>
+              )}
             </div>
             {boqSearchError && (
               <div className="text-danger mt-2">{boqSearchError}</div>
@@ -363,22 +411,17 @@ export default function POViewPage({ params }) {
       <div className="row mb-4">
         <div className="col-md-6 mb-3">
           <div className="form-group">
-            <label style={{ fontWeight: "500", marginBottom: "8px" }}>Vendor</label>
-            <select
+            <label style={{ fontWeight: "500", marginBottom: "8px" }}>Vendor Name</label>
+            <input
+              type="text"
               className="form-control"
-              value={selectedVendorId}
-              onChange={(e) => setSelectedVendorId(e.target.value)}
+              value={boqDetails?.vendorName || poData.vendorName || ""}
+              readOnly
               style={{ padding: "10px 12px", border: "1px solid #ced4da", borderRadius: "4px" }}
-            >
-              <option value="">Select Vendor</option>
-              {vendors.map((vendor) => (
-                <option key={vendor.id} value={vendor.id}>
-                  {vendor.vendorName}
-                </option>
-              ))}
-            </select>
+            />
           </div>
         </div>
+        
         <div className="col-md-6">
           <Form.Group className="mb-3">
             <Form.Label className="text-black fs-5">Approved By</Form.Label>
