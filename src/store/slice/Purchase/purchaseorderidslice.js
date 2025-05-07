@@ -1,11 +1,14 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getNewPoId, upsertPurchaseOrder } from "../../actions/Purchase/purcharseorderidaction";
+import { getBoqByCode, getNewPoId, upsertPurchaseOrder } from "../../actions/Purchase/purcharseorderidaction";
 
 const initialState = {
   poId: null,
   loading: false,
   error: null,
   submissionStatus: null, // 'pending', 'success', 'error'
+  boqDetails: null,
+  boqLoading: false,
+  boqError: null,
 };
 
 const purchaseSlice = createSlice({
@@ -17,6 +20,15 @@ const purchaseSlice = createSlice({
       state.error = null;
       state.submissionStatus = null;
     },
+    resetBoqDetails(state) {
+      state.boqDetails = null;
+      state.boqError = null;
+    },
+    setBoqDetails(state, action) {
+      state.boqDetails = action.payload;
+      state.boqLoading = false;
+      state.boqError = null;
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -32,6 +44,34 @@ const purchaseSlice = createSlice({
       .addCase(getNewPoId.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      
+      // Get BOQ by Code
+      .addCase(getBoqByCode.pending, (state) => {
+        state.boqLoading = true;
+        state.boqError = null;
+      })
+      .addCase(getBoqByCode.fulfilled, (state, action) => {
+        state.boqLoading = false;
+        // Handle both direct BOQ objects and array responses
+        if (Array.isArray(action.payload) && action.payload.length > 0) {
+          const boqData = action.payload[0];
+          state.boqDetails = {
+            boqId: boqData.boqId,
+            boqName: boqData.boqName,
+            boqCode: boqData.boqCode,
+            vendorId: boqData.vendorId,
+            vendorName: boqData.vendorName,
+            items: boqData.purchaseOrderItems || []
+          };
+        } else if (action.payload && action.payload.boqId) {
+          // Handle single object format
+          state.boqDetails = action.payload;
+        }
+      })
+      .addCase(getBoqByCode.rejected, (state, action) => {
+        state.boqLoading = false;
+        state.boqError = action.payload;
       })
 
       // Upsert Purchase Order
@@ -49,6 +89,6 @@ const purchaseSlice = createSlice({
   },
 });
 
-export const { resetPoId } = purchaseSlice.actions;
+export const { resetPoId, resetBoqDetails, setBoqDetails } = purchaseSlice.actions;
 
 export default purchaseSlice.reducer;
