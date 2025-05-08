@@ -14,6 +14,7 @@ import { ChevronLeft, ChevronRight, Calendar, ChevronDown, X } from 'lucide-reac
 import profile from "../../../assets/images/Profile-pic.png";
 import { useDispatch } from "react-redux";
 import { userInfoAction } from "../../../store/actions";
+import { useNotification } from '../../../hooks/Ceo/useNotification';
 
 const AqsNotificationTab  = () => {
    // State for active tab
@@ -23,11 +24,8 @@ const AqsNotificationTab  = () => {
    const [showFullCalendar, setShowFullCalendar] = useState(false);
    
    // State for current date
-   const [currentDate, setCurrentDate] = useState(new Date(2025, 1, 17)); // Feb 17, 2025
-   
-   // State for selected date
-   const [selectedDate, setSelectedDate] = useState(new Date(2025, 1, 17)); // Feb 17, 2025
-   
+   const [currentDate, setCurrentDate] = useState(new Date()); // Today's date
+   const [selectedDate, setSelectedDate] = useState(new Date()); // Today's date
    // State for date filter active
    const [dateFilterActive, setDateFilterActive] = useState(false);
    
@@ -120,56 +118,72 @@ const AqsNotificationTab  = () => {
 
   const [notifications, setNotifications] = useState([]);
   
-   useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const response = await dispatch(userInfoAction()); // 🔥 Get action result
-        const userData = response.payload; // 🔥 Actual data is inside payload
+  const {getnotification} = useNotification();
   
-        if (userData && userData.empId && Array.isArray(userData.notifications)) {
-          const empId = userData.empId;
   
-          const userNotifications = userData.notifications.filter(
-            (notification) => notification.emp_id === empId
-          );
-  
-          console.log("notification:", userNotifications);
-  
-          const uniqueNotificationsMap = new Map();
-          userNotifications.forEach((n) => {
-            if (!uniqueNotificationsMap.has(n.notificationId)) {
-              uniqueNotificationsMap.set(n.notificationId, n);
-            }
-          });
-          const uniqueNotifications = Array.from(uniqueNotificationsMap.values());
-  
-          console.log("✅ Notifications after filtering:", uniqueNotifications);
-  
-          const mappedNotifications = uniqueNotifications.map((n) => ({
-            id: n.notificationId,
-            department: "General",
-            title: "Approval Request",
-            subtitle: n.message || "No Message",
-            description: n.message || "No Description Available",
-            date: "26-04-2025",
-            time: "01:00 PM",
-            sender: "System",
-            priority: "Medium Prioritize",
-            attachment: "None",
-            status: n.is_read ? 'approved' : 'unread'
-          }));
-  
-          setNotifications(mappedNotifications);
-        } else {
-          console.log("⚠️ No user data or notifications found.");
+    useEffect(() => {
+      const fetchNotifications = async () => {
+        try {
+          const userData = JSON.parse(localStorage.getItem("userData"));
+          const userId = userData?.empId;
+    
+          if (!userId) {
+            console.warn("empId not found in local storage.");
+            return;
+          }
+    
+          const userNotifications = await getnotification(userId);
+          console.log("notify:", userNotifications);
+    
+          if (Array.isArray(userNotifications)) {
+            const uniqueNotificationsMap = new Map();
+            userNotifications.forEach((n) => {
+              if (!uniqueNotificationsMap.has(n.notificationId)) {
+                uniqueNotificationsMap.set(n.notificationId, n);
+              }
+            });
+    
+            const uniqueNotifications = Array.from(uniqueNotificationsMap.values());
+    
+            const mappedNotifications = uniqueNotifications.map((n) => {
+              const dateObj = new Date(n.timestamp);
+    
+              // Format date as "DD-MM-YYYY"
+              const formattedDate = dateObj.toLocaleDateString('en-GB').split('/').join('-'); // "08-05-2025"
+    
+              // Format time as "HH:MM AM/PM"
+              const formattedTime = dateObj.toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+              });
+    
+              return {
+                id: n.notificationId,
+                department: "General",
+                title: "Approval Request",
+                subtitle: n.message || "No Message",
+                description: n.message || "No Description Available",
+                date: formattedDate,
+                time: formattedTime,
+                sender: "System",
+                priority: "Medium Prioritize",
+                attachment: "None",
+                status: n.is_read ? 'approved' : 'unread'
+              };
+            });
+    
+            setNotifications(mappedNotifications);
+          } else {
+            console.log("⚠️ No notifications returned.");
+          }
+        } catch (error) {
+          console.error("❌ Failed to fetch notifications:", error);
         }
-      } catch (error) {
-        console.error("❌ Failed to fetch user info or notifications:", error);
-      }
-    };
-  
-    fetchNotifications();
-  }, [dispatch]); // also add dispatch in dependency
+      };
+    
+      fetchNotifications();
+    }, []);
    
    // Function to get week dates centered around a specific date
    const getWeekDates = (date) => {

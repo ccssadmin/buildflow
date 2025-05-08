@@ -98,8 +98,9 @@ export const loginBoardDetails = (params) =>
 export const getPmProjectDetails = (params) =>
   api.GET(API.GET_PROJECT_DETAILS, params);
 //notification
-export const createNotification = (params) =>
-  api.POST(API.CREATE_NOTIFICATION, params);
+export const createNotification = (params) => api.POST(API.CREATE_NOTIFICATION, params);
+export const getnotification = (params) => api.GET(API.GET_NOTIFICATION + "?UserId=" + params);
+
 /** KANBAN BOARD */
 export const getAllBoard = (params) => api.GET(API.GET_ALL_BOARD, params);
 export const getBoardById = (params) =>
