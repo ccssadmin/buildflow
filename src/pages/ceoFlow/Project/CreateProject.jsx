@@ -1,7 +1,7 @@
 import { Calendar, ChevronLeft, ChevronRight, Plus, User } from "lucide-react";
 import { useState, Fragment, useRef, useEffect } from "react";
 import { Form, Button, Table, Row, Col } from "react-bootstrap";
-import ProjectSummary from "./ProjectSummary";
+import ProjectSummary from "../../../components/common/ProjectSummary";
 import BudgetFinancialAllocation from "./BudgetFinancialAllocation";
 import ProjectTeamStakeholder from "./ProjectTeamStakeholder";
 import TimelineMilestonePlanning from "./TimelineMilestonePlanning";
