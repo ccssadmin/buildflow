@@ -77,6 +77,7 @@ const CeoDashboard1 = lazy(() => import('./pages/ceoFlow/Dashboard/index1'));
 const CeoProject = lazy(() => import('./pages/ceoFlow/Project/index'));
 const CeoProjectDetails = lazy(() => import('./pages/ceoFlow/Project/ProjectDeatils'));
 const CeoCreateProject = lazy(() => import('./pages/ceoFlow/Project/CreateProject'));
+const CeoProjectSummary = lazy(()=>import('./pages/ceoFlow/Project/ProjectSummary'));
 const CeoTicketDetails = lazy(() => import('./pages/ceoFlow/KanbanBoard/TicketDetails'));
 const CeoChat = lazy(() => import('./pages/ceoFlow/ChatPage/Chat/ChatApp'));
 const KanbanCeo = lazy(() => import('./pages/ceoFlow/KanbanBoard/index'));
@@ -416,6 +417,7 @@ const App = () => {
           <Route path="project" element={<CeoProject />} />
           <Route path="projectdetails" element={<CeoProjectDetails />} />
           <Route path="createproject" element={<CeoCreateProject />} />
+          <Route path="projectSummary" element={<CeoProjectSummary />}/>
           <Route path="projectmilestone" element={<ProjectTimeline />} />
           <Route path="approvals" element={<KanbanCeo />} />
           <Route path="ticket/:ticketId" element={<CommonTicketDetails />} />
