@@ -347,7 +347,7 @@ const EngineerTicketDetails = () => {
       // if (currentDepartment?.deptId) moveTo.push(currentDepartment.deptId);
       if (selectedEmployee?.empId) moveTo.push(selectedEmployee.empId);
 
-       console.log("currentEmployee"  , selectedEmployee)
+      console.log("currentEmployee", selectedEmployee);
       // Construct the payload
       const payload = {
         ticketId: ticketData?.ticket_id,
@@ -458,7 +458,6 @@ const EngineerTicketDetails = () => {
     }
   };
 
-
   //check Boq Details for hide the details
 
   let hasBoqDetails = false;
@@ -473,8 +472,8 @@ const EngineerTicketDetails = () => {
     approvals.forEach((approval) => {
       if (
         (approval.approved_by_id === userData?.empId &&
-          approval.approval_type === "approved" ||
-          "rejected" ) 
+          approval.approval_type === "approved") ||
+        "rejected"
       ) {
         hasUserApprovedStatusShow = true;
       }
@@ -1079,38 +1078,35 @@ const EngineerTicketDetails = () => {
                         </span>
                       </div>
 
-                        {comment.filename && comment.file_path && (
-                          <div className="mt-2 p-2 bg-light rounded">
-                            <div className="d-flex align-items-center mb-1">
-                              <BsPaperclip className="me-1" size={12} />
-                              <small className="text-muted">
-                                Attached File:
-                              </small>
-                            </div>
-                            <div className="d-flex align-items-center p-1">
-                              <a
-                                href={comment.file_path}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                              >
-                                <small>{comment.filename}</small>
-                              </a>
-                            </div>
-                            <div key={index} className="me-2 mb-2 mt-3">
-                                <img
-                                  src={comment.file_path}
-                                  alt={comment.filename}
-                                  style={{
-                                    width: "100px",
-                                    height: "80px",
-                                    objectFit: "cover",
-                                  }}
-                                  className="rounded"
-                                />
-                              </div>
-
+                      {comment.filename && comment.file_path && (
+                        <div className="mt-2 p-2 bg-light rounded">
+                          <div className="d-flex align-items-center mb-1">
+                            <BsPaperclip className="me-1" size={12} />
+                            <small className="text-muted">Attached File:</small>
                           </div>
-                        )}
+                          <div className="d-flex align-items-center p-1">
+                            <a
+                              href={comment.file_path}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <small>{comment.filename}</small>
+                            </a>
+                          </div>
+                          <div key={index} className="me-2 mb-2 mt-3">
+                            <img
+                              src={comment.file_path}
+                              alt={comment.filename}
+                              style={{
+                                width: "100px",
+                                height: "80px",
+                                objectFit: "cover",
+                              }}
+                              className="rounded"
+                            />
+                          </div>
+                        </div>
+                      )}
 
                       {index < comments.length - 1 && (
                         <hr className="mt-3" style={{ opacity: 0.1 }} />
@@ -1568,9 +1564,7 @@ const EngineerTicketDetails = () => {
             {/* Approved By */}
             <div
               className={`mb-3 mt-3 d-flex justify-content-between align-items-center border-bottom pb-3 ${
-                userData?.empId === ticket.created_by
-                  ? "d-none"
-                  : "d-block"
+                userData?.empId === ticket?.created_by ? "d-none" : "d-block"
               }`}
             >
               <span className="text-muted">Action</span>
