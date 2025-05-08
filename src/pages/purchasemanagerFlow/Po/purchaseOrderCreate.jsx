@@ -13,10 +13,12 @@ import { fetchProjects } from "../../../store/actions/hr/projectaction";
 import { toast } from "react-toastify";
 import { useTicket } from "../../../hooks/Ceo/useTicket";
 import { debounce } from "lodash";
+import { useNotification } from "../../../hooks/Ceo/useNotification";
 
 export default function PurchasemanagerPoCreate({ params }) {
   const location = useLocation();
   const { createTicket } = useTicket();
+  const {createNotify} = useNotification();
   const navigate = useNavigate();
   const { poId, loading, boqDetails, boqLoading } = useSelector((state) => state.purchase);
   const dispatch = useDispatch();
@@ -218,6 +220,22 @@ const handleCreatePO = async () => {
           assignTo: approverIds,
           createdBy: userData?.empId,
         });
+
+        const ticketId = ticketResponse?.data?.data?.ticketId;
+        const projectName = ticketResponse?.data?.data?.projectName;
+
+      if (ticketId) {
+        // Create notification with ticket ID as sourceEntityId
+        const notificationPayload = {
+          empId: selectedApprover.length > 0 ? selectedApprover.map(approver => approver.emp_id || approver.id) : [1, 2, 7],
+          notificationType: "Generate_Purchase_Order ",
+          sourceEntityId: ticketId,  
+          message: `We would like to update you that we are currently awaiting your PO on the for ${projectName}. Kindly review and provide your confirmation at the earliest to avoid any delays in the process.`,
+        };
+
+        // Create notification
+        await createNotify(notificationPayload);
+      }
       } else {
         // Default approvers if none selected
         const ticketResponse = await createTicket({
@@ -226,6 +244,21 @@ const handleCreatePO = async () => {
           assignTo: [1, 2, 7], // array of empIds
           createdBy: userData?.empId,
         });
+        const ticketId = ticketResponse?.data?.data?.ticketId;
+        const projectName = ticketResponse?.data?.data?.projectName;
+
+      if (ticketId) {
+        // Create notification with ticket ID as sourceEntityId
+        const notificationPayload = {
+          empId: selectedApprover.length > 0 ? selectedApprover.map(approver => approver.emp_id || approver.id) : [1, 2, 7],
+          notificationType: "Generate_Purchase_Order ",
+          sourceEntityId: ticketId,  
+          message: `We would like to update you that we are currently awaiting your PO on the for ${projectName}. Kindly review and provide your confirmation at the earliest to avoid any delays in the process.`,
+        };
+
+        // Create notification
+        await createNotify(notificationPayload);
+      }
       }
       
       navigate('../po'); // Redirect after success
