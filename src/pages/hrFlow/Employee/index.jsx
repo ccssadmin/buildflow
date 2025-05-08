@@ -94,9 +94,10 @@ const EmployeeTable = () => {
       <td>{emp.firstName} {emp.lastName}</td>
       <td>{emp.deptName || "N/A"}</td>
       <td>{emp.roleName || "N/A"}</td>
-      <td className={emp.status === "allocated" ? "hrms-text-success" : "hrms-text-danger"}>
-        {emp.status || "unallocated"}
-      </td>
+      <td className={emp.isAllocated ? "hrms-text-success" : "hrms-text-danger"}>
+  {emp.isAllocated ? "Allocated" : "Unallocated"}
+</td>
+
       <td>{emp.phone || "N/A"}</td>
       <td>
         <button
@@ -136,14 +137,34 @@ const EmployeeTable = () => {
     Previous
   </button>
 
-  {[...Array(totalPages)].map((_, i) => {
-    // Pagination window: show only 4 pages at a time
-    const page = i + 1;
-    const windowStart = Math.floor((currentPage - 1) / 4) * 4 + 1;
-    const windowEnd = Math.min(windowStart + 3, totalPages);
-    if (page < windowStart || page > windowEnd) return null;
+  {/* First Page */}
+  <button
+    onClick={() => handlePageChange(1)}
+    style={{
+      margin: "0 5px",
+      padding: "6px 12px",
+      backgroundColor: currentPage === 1 ? "#0456D0" : "#eee",
+      color: currentPage === 1 ? "#fff" : "#000",
+      border: "none",
+      borderRadius: "4px",
+      cursor: "pointer",
+    }}
+  >
+    1
+  </button>
 
-    return (
+  {/* Ellipsis if currentPage > 4 */}
+  {currentPage > 4 && <span style={{ margin: "0 5px" }}>...</span>}
+
+  {/* Pages around current page */}
+  {Array.from({ length: totalPages }, (_, i) => i + 1)
+    .filter(
+      (page) =>
+        page !== 1 &&
+        page !== totalPages &&
+        Math.abs(page - currentPage) <= 1
+    )
+    .map((page) => (
       <button
         key={page}
         onClick={() => handlePageChange(page)}
@@ -159,8 +180,28 @@ const EmployeeTable = () => {
       >
         {page}
       </button>
-    );
-  })}
+    ))}
+
+  {/* Ellipsis if not near the end */}
+  {currentPage < totalPages - 3 && <span style={{ margin: "0 5px" }}>...</span>}
+
+  {/* Last Page */}
+  {totalPages > 1 && (
+    <button
+      onClick={() => handlePageChange(totalPages)}
+      style={{
+        margin: "0 5px",
+        padding: "6px 12px",
+        backgroundColor: currentPage === totalPages ? "#0456D0" : "#eee",
+        color: currentPage === totalPages ? "#fff" : "#000",
+        border: "none",
+        borderRadius: "4px",
+        cursor: "pointer",
+      }}
+    >
+      {totalPages}
+    </button>
+  )}
 
   <button
     onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
@@ -177,6 +218,7 @@ const EmployeeTable = () => {
     Next
   </button>
 </div>
+
 
 
     </div>

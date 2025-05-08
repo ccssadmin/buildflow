@@ -64,7 +64,7 @@ useEffect(() => {
           email: found.email || "",
           EmployeeCode: found.employeeCode || "",
           department: found.deptId?.toString() || "",
-          designation: found.roleName?.toString() || "",
+          designation: found.roleId?.toString() || "",
           project: found.project_id?.toString() || "",
         });
       }
@@ -280,10 +280,12 @@ const action = editingEmployee ? createOrUpdateEmployee : createOrUpdateEmployee
           <div className="addemployee-form-group">
             <label>Gender <span className="addemployee-required">*</span></label>
             <select name="gender" value={employee.gender} onChange={handleChange}>
+  <option value="">Select Gender</option>
   <option value="Male">Male</option>
   <option value="Female">Female</option>
   <option value="Other">Other</option>
 </select>
+
             {validationErrors.gender && <p className="error-text">{validationErrors.gender}</p>}
           </div>
 
