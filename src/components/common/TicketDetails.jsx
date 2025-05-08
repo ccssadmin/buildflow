@@ -727,6 +727,76 @@ const EngineerTicketDetails = () => {
     );
   };
 
+  const renderTicketDetails = () => {
+    if (ticketData?.ticket_type === "BOQ_APPROVAL") {
+      return (
+        <>
+          <h3 className="fs-18-500">Boq Details</h3>
+          <button
+            className="btn border-primary px-4 border-2 mt-2"
+            onClick={() =>
+              navigate(`../materialview/${ticketData.transaction_id}`, {
+                state: ticketData,
+              })
+            }
+          >
+            <GrAttachment />
+          </button>
+        </>
+      );
+    } else if (ticketData?.ticket_type === "submit") {
+      return (
+        <>
+          <h3 className="fs-18-500">Project Summary Details</h3>
+          <button
+            className="btn border-primary px-4 border-2 mt-2"
+            onClick={() =>
+              navigate(`../projectsummary/${ticketData.transaction_id}`, {
+                state: ticketData,
+              })
+            }
+          >
+            <GrAttachment />
+          </button>
+        </>
+      );
+    } else if (ticketData?.ticket_type === "submit") {
+      return (
+        <>
+          <h3 className="fs-18-500">Project Summary Details</h3>
+          <button
+            className="btn border-primary px-4 border-2 mt-2"
+            onClick={() =>
+              navigate(`../projectsummary/${ticketData.transaction_id}`, {
+                state: ticketData,
+              })
+            }
+          >
+            <GrAttachment />
+          </button>
+        </>
+      );
+    } else if (ticketData?.ticket_type === "PO_APPROVAL") {
+      return (
+        <>
+          <h3 className="fs-18-500">Purchase Order Details</h3>
+          <button
+            className="btn border-primary px-4 border-2 mt-2"
+            onClick={() =>
+              navigate(`../poDetails/${ticketData.transaction_id}`, {
+                state: ticketData,
+              })
+            }
+          >
+            <GrAttachment />
+          </button>
+        </>
+      );
+    }
+  };
+
+  console.log("Ticket Data", ticketData);
+
   return (
     <Container fluid className="">
       {/* Toast notification */}
@@ -934,15 +1004,7 @@ const EngineerTicketDetails = () => {
 
             {/* view material details (BOQ) */}
 
-            <div className="py-3">
-              <h3 className="fs-18-500">Boq Details</h3>
-              <button
-                className="btn border-primary px-4 border-2 mt-2"
-                onClick={() => get_boq_Ticket(ticket)}
-              >
-                <GrAttachment />
-              </button>
-            </div>
+            <div className="py-3">{renderTicketDetails(ticketData)}</div>
 
             {/* Tabs */}
             <div className="border-bottom-0 mb-2 overflow-auto">

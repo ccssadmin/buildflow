@@ -24,6 +24,7 @@ const Login = lazy(() => import("./pages/Login/Login"));
 
 const CommonTicketDetails = lazy(() => import('./components/common/TicketDetails'));
 const CommonBOQDetails =  lazy(() => import('./components/common/MaterialViewScreen'));
+const CommonProjectSummary = lazy(() => import('./components/common/ProjectSummary'));
 
 // SuperAdmin (MD Flow)
 const MdDashboard = lazy(() => import("./pages/mdflow/Dashboard/Home"));
@@ -417,8 +418,8 @@ const App = () => {
   <Route path="dashboard1" element={<CeoDashboard1 />} />
   <Route path="project" element={<CeoProject />} />
   <Route path="projectdetails/:projectId" element={<CeoProjectDetails />} />
-  <Route path="createproject" element={<CeoCreateProject />} />
-  <Route path="projectsummary/:projectId" element={<CeoProjectSummary />} />
+  <Route path="createproject/:projectId" element={<CeoCreateProject />} />
+  <Route path="createproject/" element={<CeoCreateProject />} />
   <Route path="projectmilestone" element={<ProjectTimeline />} />
   <Route path="approvals" element={<KanbanCeo />} />
   <Route path="ticket/:ticketId" element={<CommonTicketDetails />} />
@@ -430,6 +431,8 @@ const App = () => {
   <Route path="reportview" element={<CeoReportView />} />
   <Route path="settings" element={<CeoSettings />} />
   <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
+  <Route path="projectsummary/:projectId" element={<CommonProjectSummary />} />
+
 </Route>
 
         {/* FINANCE ROUTES */}

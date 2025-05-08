@@ -11,8 +11,11 @@ import ProjectBasicDetails from "./ProjectBasicDetails";
 import Swal from "sweetalert2";
 import { useRoleBasedEmp } from "../../../hooks/Ceo/useRoleBasedEmp";
 import { useTicket } from "../../../hooks/Ceo/useTicket";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useNotification } from "../../../hooks/Ceo/useNotification";
+import { getProjectDetailsAction } from "../../../store/actions/Ceo/ceoprojectAction";
+import { useDispatch } from "react-redux";
+import { set } from "lodash";
 
 // Form validation schema
 const validateForm = (step, formData) => {
@@ -20,8 +23,10 @@ const validateForm = (step, formData) => {
 
   if (step === 0) {
     if (!formData.projectName) errors.projectName = "Project name is required";
-    if (!formData.projectTypeId) errors.projectTypeId = "Project type is required";
-    if (!formData.projectSectorId) errors.projectSectorId = "Project sector is required";
+    if (!formData.projectTypeId)
+      errors.projectTypeId = "Project type is required";
+    if (!formData.projectSectorId)
+      errors.projectSectorId = "Project sector is required";
     if (!formData.projectStartDate)
       errors.projectStartDate = "Start date is required";
   } else if (step === 1) {
@@ -33,16 +38,18 @@ const validateForm = (step, formData) => {
 
 const CeoCreateProject = () => {
   // Update the state to handle multiple selections for dropdowns
+  const dispatch = useDispatch();
   const [projectCreated, setProjectCreated] = useState(false);
   const { createProjectBudget, loading } = useProject();
-  const { createProjectMilestone,fetchProjectDetails } = useProject();
+  const { createProjectMilestone, fetchProjectDetails } = useProject();
   const navigate = useNavigate();
-  const {fetchroles, fetchAllEmployees, employees} = useRoleBasedEmp();
-  const{createTicket} = useTicket();
-  const {createNotify} = useNotification();
+  const { fetchroles, fetchAllEmployees, employees } = useRoleBasedEmp();
+  const { createTicket } = useTicket();
+  const { createNotify } = useNotification();
+  const route = useParams();
   const [formData, setFormData] = useState({
     // Step 1: Project Basic Details
-     projectId: null,
+    projectId: null,
     projectName: "",
     location: "",
     projectType: "",
@@ -191,6 +198,28 @@ const CeoCreateProject = () => {
     ],
   });
 
+  useEffect(() => {
+    if (route?.projectId) {
+      getProjectsData(route?.projectId);
+    }
+  }, [route]);
+
+  const getProjectsData = async () => {
+    const result = await dispatch(getProjectDetailsAction(route?.projectId));
+    if (result?.payload) {
+      let step1  = result?.payload?.value?.project;
+      console.log("result?.payloa" , result?.payload?.value)
+      setFormData((prevState) => ({
+        ...prevState,
+        projectId: step1?.project_id,
+        projectName: step1?.project_name,
+        location: step1?.project_location,
+        projectType: step1?.project_type_name,
+      }));
+    }
+  };
+
+
   const handleProjectCreated = (projectId) => {
     if (!projectId) {
       console.error("❌ No project ID received!");
@@ -208,9 +237,9 @@ const CeoCreateProject = () => {
     window.localStorage.setItem("projectId", numericId.toString());
 
     // Update state with the projectId
-    setFormData(prevState => ({
+    setFormData((prevState) => ({
       ...prevState,
-      projectId: numericId
+      projectId: numericId,
     }));
 
     // Set projectCreated to true
@@ -221,12 +250,12 @@ const CeoCreateProject = () => {
       title: "Success!",
       text: `Project #${numericId} created successfully.`,
       timer: 1500,
-      showConfirmButton: false
+      showConfirmButton: false,
     });
 
     // Move to next step AFTER state updates
     setTimeout(() => {
-      setCurrentStep(prev => prev + 1);
+      setCurrentStep((prev) => prev + 1);
     }, 1600);
   };
 
@@ -294,7 +323,8 @@ const CeoCreateProject = () => {
       // If selected, remove it; if not, add it
       const updatedSelection = isSelected
         ? currentSelection.filter(
-            (selected) => selected.id !== item.id && selected.empId !== item.empId
+            (selected) =>
+              selected.id !== item.id && selected.empId !== item.empId
           )
         : [...currentSelection, item];
 
@@ -331,7 +361,7 @@ const CeoCreateProject = () => {
     try {
       // Get projectId from localStorage
       const projectId = localStorage.getItem("projectId");
-      
+
       if (!projectId) {
         Swal.fire({
           icon: "error",
@@ -340,28 +370,32 @@ const CeoCreateProject = () => {
         });
         return;
       }
-  
+
       // Show loading indicator
       Swal.fire({
         title: "Loading project details...",
         allowOutsideClick: false,
         didOpen: () => {
           Swal.showLoading();
-        }
+        },
       });
-  
+
       // Fetch project details
       const projectDetails = await fetchProjectDetails(projectId);
-      
+      setTimeout(() => {
+        navigate(`../projectsummary/${projectId}`);
+      }, 2000); // Simulate loading time
+
+      return;
+
       // Close loading indicator
       Swal.close();
-  
-      if (projectDetails) {
+
+      if (projectDetails.statusCode === 200) {
         // Update formData with the fetched details if needed
         // setFormData(prev => ({ ...prev, ...projectDetails }));
-        
         // Proceed to show summary
-        handleSubmit();
+        // handleSubmit();
       } else {
         Swal.fire({
           icon: "error",
@@ -382,13 +416,13 @@ const CeoCreateProject = () => {
   const handleNext = async () => {
     // Clear form errors first
     setFormErrors({});
-    
+
     // For step 2 (ProjectTeamStakeholder), we just return and let the component handle it
     if (currentStep === 2) {
       console.log("Step 2: Letting ProjectTeamStakeholder handle it");
       return;
     }
-    
+
     // Validate form for current step
     const errors = validateForm(currentStep, formData);
     if (Object.keys(errors).length > 0) {
@@ -396,30 +430,30 @@ const CeoCreateProject = () => {
       setFormErrors(errors);
       return;
     }
-  
+
     // Handle special cases for different steps
     if (currentStep === 0 && !projectCreated) {
       console.log("Step 0: Waiting for project creation");
       return;
     }
-  
+
     if (currentStep === 3) {
       console.log("Step 3: Handling milestones");
       await handleMilestoneSubmit();
       return;
     }
-  
+
     if (currentStep === 4) {
       console.log("Step 4: Final submission");
       await handleFinalReview();
       return;
     }
-    
+
     // Default case: simply move to next step
     console.log(`Moving from step ${currentStep} to ${currentStep + 1}`);
-    setCurrentStep(prev => prev + 1);
+    setCurrentStep((prev) => prev + 1);
   };
-  
+
   // Add this helper function for milestone handling
   const handleMilestoneSubmit = async () => {
     if (!formData.projectId) {
@@ -430,9 +464,9 @@ const CeoCreateProject = () => {
       });
       return;
     }
-  
+
     try {
-      const formattedMilestones = formData.milestones.map(milestone => ({
+      const formattedMilestones = formData.milestones.map((milestone) => ({
         milestoneId: 0,
         milestoneName: milestone.name,
         milestoneDescription: milestone.description,
@@ -440,12 +474,12 @@ const CeoCreateProject = () => {
         milestoneEndDate: milestone.endDate,
         milestoneStatus: milestone.status,
       }));
-  
+
       const response = await createProjectMilestone(formData.projectId, {
         projectId: formData.projectId,
         milestoneList: formattedMilestones,
       });
-  
+
       if (response.success) {
         await Swal.fire({
           icon: "success",
@@ -453,7 +487,7 @@ const CeoCreateProject = () => {
           timer: 1500,
           showConfirmButton: false,
         });
-        setCurrentStep(prev => prev + 1);
+        setCurrentStep((prev) => prev + 1);
       } else {
         Swal.fire({
           icon: "error",
@@ -470,7 +504,7 @@ const CeoCreateProject = () => {
       });
     }
   };
-  
+
   const handleBack = () => {
     setCurrentStep(currentStep - 1);
   };
@@ -525,26 +559,27 @@ const CeoCreateProject = () => {
         estimatedCost: "",
         approvedBudget: "",
       };
-  
+
       setFormData((prevFormData) => ({
         ...prevFormData,
         budgetBreakdown: [...prevFormData.budgetBreakdown, newColumn],
       }));
     } else if (currentStep === 3) {
       // For milestones
-      const nextId = formData.milestones.length > 0 
-        ? Math.max(...formData.milestones.map(m => m.id)) + 1
-        : 1;
-        
+      const nextId =
+        formData.milestones.length > 0
+          ? Math.max(...formData.milestones.map((m) => m.id)) + 1
+          : 1;
+
       const milestoneToAdd = newMilestone || {
         id: nextId,
         name: "",
         description: "",
         startDate: "",
         endDate: "",
-        status: "Planned"
+        status: "Planned",
       };
-      
+
       setFormData((prevFormData) => ({
         ...prevFormData,
         milestones: [...prevFormData.milestones, milestoneToAdd],
@@ -577,8 +612,9 @@ const CeoCreateProject = () => {
           {steps.map((step, index) => (
             <div key={index} className="step-item">
               <div
-                className={`step-circle ${index <= currentStep ? "active" : ""
-                  }`}
+                className={`step-circle ${
+                  index <= currentStep ? "active" : ""
+                }`}
               >
                 <svg
                   width="15"
@@ -608,8 +644,9 @@ const CeoCreateProject = () => {
                 </svg>
               </div>
               <div
-                className={`step-line ${index < currentStep ? "active" : ""} ${index === steps.length - 1 ? "hidden" : ""
-                  }`}
+                className={`step-line ${index < currentStep ? "active" : ""} ${
+                  index === steps.length - 1 ? "hidden" : ""
+                }`}
               ></div>
               <div
                 className={`step-label ${index <= currentStep ? "active" : ""}`}
@@ -626,9 +663,9 @@ const CeoCreateProject = () => {
   const renderProjectBasicDetails = () => {
     return (
       <ProjectBasicDetails
-        formData={formData} 
-        setFormData={setFormData} 
-        formErrors={formErrors} 
+        formData={formData}
+        setFormData={setFormData}
+        formErrors={formErrors}
         onProjectCreated={handleProjectCreated}
       />
     );
@@ -637,19 +674,18 @@ const CeoCreateProject = () => {
   const renderBudgetFinancialAllocation = () => {
     return (
       <BudgetFinancialAllocation
-        formData={formData} 
-        setFormData={setFormData} 
-        createProjectBudget={createProjectBudget} 
-        fetchroles = {fetchroles}
+        formData={formData}
+        setFormData={setFormData}
+        createProjectBudget={createProjectBudget}
+        fetchroles={fetchroles}
         fetchAllEmployees={fetchAllEmployees}
-        createTicket= {createTicket}
-        createNotify= {createNotify}
+        createTicket={createTicket}
+        createNotify={createNotify}
         loading={loading}
         onNext={() => setCurrentStep(currentStep + 1)}
       />
     );
   };
-  
 
   const renderProjectTeamStakeholder = () => {
     return (
@@ -662,9 +698,9 @@ const CeoCreateProject = () => {
         toggleDropdown={toggleDropdown}
         handleSelectItem={handleSelectItem}
         handleRemoveItem={handleRemoveItem}
-        fetchroles = {fetchroles}
-        createTicket= {createTicket}
-        createNotify= {createNotify}
+        fetchroles={fetchroles}
+        createTicket={createTicket}
+        createNotify={createNotify}
         onNext={() => {
           console.log("ProjectTeamStakeholder called onNext");
           setCurrentStep(currentStep + 1);
@@ -680,9 +716,9 @@ const CeoCreateProject = () => {
         handleMilestoneChange={handleMilestoneChange}
         handleAddColumn={handleAddColumn}
         fetchAllEmployees={fetchAllEmployees}
-        employees = {employees}
-        createTicket= {createTicket}
-        createNotify= {createNotify}
+        employees={employees}
+        createTicket={createTicket}
+        createNotify={createNotify}
         onNextStep={() => setCurrentStep(currentStep + 1)}
         setFormData={setFormData}
       />
@@ -691,10 +727,10 @@ const CeoCreateProject = () => {
 
   const renderRiskComplianceAssessment = () => {
     return (
-      <RiskComplianceAssessment 
-        formData={formData} 
-        setFormData={setFormData} 
-        handleAddColumn={handleAddColumn} 
+      <RiskComplianceAssessment
+        formData={formData}
+        setFormData={setFormData}
+        handleAddColumn={handleAddColumn}
       />
     );
   };
@@ -728,20 +764,24 @@ const CeoCreateProject = () => {
             {showSummary ? (
               <ProjectSummary
                 formData={formData}
-                fetchroles = {fetchroles}
-                createTicket= {createTicket}
-                createNotify= {createNotify}
+                fetchroles={fetchroles}
+                createTicket={createTicket}
+                createNotify={createNotify}
                 fetchAllEmployees={fetchAllEmployees}
-                onBackClick={(step) => {
-                  setCurrentStep(step);
-                  setShowSummary(false);
-                }}
+                // onBackClick={(step) => {
+                //   setCurrentStep(step);
+                //   setShowSummary(false);
+                // }}
               />
             ) : (
               <>
                 {renderProgressBar()}
-                
-                <div className={`form-container p-0  position-relative ${currentStep === 4 ? 'step-risk' : ''}`}>
+
+                <div
+                  className={`form-container p-0  position-relative ${
+                    currentStep === 4 ? "step-risk" : ""
+                  }`}
+                >
                   {renderFormStep()}
                   <div className="form-actions justify-content-between">
                     {currentStep > 0 && (
@@ -752,7 +792,11 @@ const CeoCreateProject = () => {
                         &lt; Back
                       </Button>
                     )}
-                    <div className={`d-flex ${currentStep === 4 ? 'd-block step-risk' : 'd-none'}`}>
+                    <div
+                      className={`d-flex ${
+                        currentStep === 4 ? "d-block step-risk" : "d-none"
+                      }`}
+                    >
                       {currentStep === 1 || currentStep === 2 ? (
                         <Button className="btn-primary btn fs-14-600 bg-transparent text-primary border-0 border-radius-2">
                           <svg
@@ -775,8 +819,11 @@ const CeoCreateProject = () => {
                         className="btn-primary btn-final-review btn fs-14-600 bg-primary border-0 border-radius-2"
                         onClick={handleNext}
                       >
-                        {currentStep === 0 && !projectCreated ? "Next >" :
-                          currentStep === 4 ? "Final Review >" : "Next >"}
+                        {currentStep === 0 && !projectCreated
+                          ? "Next >"
+                          : currentStep === 4
+                          ? "Final Review >"
+                          : "Next >"}
                       </Button>
                     </div>
                   </div>

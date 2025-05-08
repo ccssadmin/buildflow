@@ -6,23 +6,25 @@ import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useDispatch, useSelector } from "react-redux";
 import { getProjectDetailsAction } from "../../store/actions/Ceo/ceoprojectAction";
+import { fetchRoles } from "../../store/actions/hr/designationaction";
+import { useRoleBasedEmp } from "../../hooks/Ceo/useRoleBasedEmp";
+import { useTicket } from "../../hooks/Ceo/useTicket";
+import { useNotification } from "../../hooks/Ceo/useNotification";
 
-const ProjectSummary = ({
-  formData,
-  onBackClick,
-  createTicket,
-  createNotify,
-  fetchroles,
-  fetchAllEmployees,
-}) => {
+const ProjectSummary = ({ formData, onBackClick }) => {
   const { projectId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  
+  const { createTicket } = useTicket();
+  const { fetchAllEmployees } = useRoleBasedEmp();
+  const { createNotify } = useNotification();
+
+  console.log("Project ID from URL:", projectId);
+
   const { loading, data: projectDetails } = useSelector(
     (state) => state.project.getProjectDetails
   );
-  
+
   const [showModal, setShowModal] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [dynamicRoles, setDynamicRoles] = useState([]);
@@ -33,8 +35,10 @@ const ProjectSummary = ({
     team_details: [],
     finance_approval_data: [],
     milestone_details: [],
-    risk_management_data: []
+    risk_management_data: [],
   });
+
+  const [projectData, setProjectData] = useState();
 
   const PROJECT_TYPES = {
     1: "Residential",
@@ -48,9 +52,14 @@ const ProjectSummary = ({
 
   useEffect(() => {
     if (projectId) {
-      dispatch(getProjectDetailsAction(projectId));
+      getProjectDetails();
     }
-  }, [projectId, dispatch]);
+  }, [projectId]);
+
+  const getProjectDetails = async () => {
+    const result = await dispatch(getProjectDetailsAction(projectId));
+    setProjectData(result?.payload?.value);
+  };
 
   useEffect(() => {
     if (projectDetails) {
@@ -60,7 +69,7 @@ const ProjectSummary = ({
         team_details: projectDetails.team_details || [],
         finance_approval_data: projectDetails.finance_approval_data || [],
         milestone_details: projectDetails.milestone_details || [],
-        risk_management_data: projectDetails.risk_management_data || []
+        risk_management_data: projectDetails.risk_management_data || [],
       });
     }
   }, [projectDetails]);
@@ -72,18 +81,25 @@ const ProjectSummary = ({
   };
 
   const getProjectTypeName = () => {
-    if (!localFormData.project.project_type_id) return "Not provided";
-    return PROJECT_TYPES[localFormData.project.project_type_id] || "Not provided";
+    if (!projectData?.project?.project_type_id) return "Not provided";
+    return (
+      PROJECT_TYPES[projectData?.project?.project_type_id] || "Not provided"
+    );
   };
 
   const getProjectSectorName = () => {
     if (!localFormData.project.project_sector_id) return "Not provided";
-    return PROJECT_SECTORS[localFormData.project.project_sector_id] || "Not provided";
+    return (
+      PROJECT_SECTORS[localFormData.project.project_sector_id] || "Not provided"
+    );
   };
 
   if (loading) {
     return (
-      <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ height: "100vh" }}
+      >
         <Spinner animation="border" role="status">
           <span className="visually-hidden">Loading...</span>
         </Spinner>
@@ -91,13 +107,12 @@ const ProjectSummary = ({
     );
   }
 
-  if (!localFormData.project.project_id) {
-    return <Navigate to="/projects" />;
-  }
-  
+  // if (!localFormData.project.project_id) {
+  //   return <Navigate to="/projects" />;
+  // }
 
   return (
-    <div className="project-summary">
+    <div className="project-summary p-5">
       <div className="breadcrumb-container pb-3 d-flex align-items-center">
         <span className="breadcrumb-item">Projects</span>
         <svg
@@ -128,7 +143,11 @@ const ProjectSummary = ({
       <div className="summary-section mt-4">
         <div className="summary-header">
           <h3>01. Project Basic Details</h3>
-          <Button variant="link" className="edit-btn" onClick={() => onBackClick(0)}>
+          <Button
+            variant="link"
+            className="edit-btn"
+            onClick={() => navigate(`../createproject/${projectId}`)}
+          >
             Edit
           </Button>
         </div>
@@ -139,7 +158,7 @@ const ProjectSummary = ({
               <Form.Control
                 disabled
                 type="text"
-                value={localFormData.project.project_name || "Not provided"}
+                value={projectData?.project?.project_name || "Not provided"}
               />
             </div>
           </Col>
@@ -149,18 +168,14 @@ const ProjectSummary = ({
               <Form.Control
                 disabled
                 type="text"
-                value={localFormData.project.project_location || "Not provided"}
+                value={projectData?.project?.project_location || "Not provided"}
               />
             </div>
           </Col>
           <Col md={6} lg={4}>
             <div className="summary-field">
               <label>Project Type</label>
-              <Form.Control
-                disabled
-                type="text"
-                value={getProjectTypeName()}
-              />
+              <Form.Control disabled type="text" value={getProjectTypeName()} />
             </div>
           </Col>
         </Row>
@@ -171,7 +186,9 @@ const ProjectSummary = ({
               <Form.Control
                 disabled
                 type="text"
-                value={getProjectSectorName()}
+                value={
+                  projectData?.project?.project_sector_name || "Not provided"
+                }
               />
             </div>
           </Col>
@@ -182,7 +199,9 @@ const ProjectSummary = ({
                 <Form.Control
                   disabled
                   type="text"
-                  value={localFormData.project.project_start_date || "Not provided"}
+                  value={
+                    projectData?.project?.project_start_date || "Not provided"
+                  }
                 />
                 <Calendar className="date-icon" />
               </div>
@@ -195,7 +214,9 @@ const ProjectSummary = ({
                 <Form.Control
                   disabled
                   type="text"
-                  value={localFormData.project.project_end_date || "Not provided"}
+                  value={
+                    projectData?.project?.project_end_date || "Not provided"
+                  }
                 />
                 <Calendar className="date-icon" />
               </div>
@@ -210,7 +231,9 @@ const ProjectSummary = ({
                 disabled
                 as="textarea"
                 rows={3}
-                value={localFormData.project.project_description || "Not provided"}
+                value={
+                  projectData?.project?.project_description || "Not provided"
+                }
               />
             </div>
           </Col>
@@ -221,18 +244,27 @@ const ProjectSummary = ({
       <div className="summary-section">
         <div className="summary-header">
           <h3>02. Budget & Financial Allocation</h3>
-          <Button variant="link" className="edit-btn" onClick={() => onBackClick(1)}>
+          <Button
+            variant="link"
+            className="edit-btn"
+            onClick={() => onBackClick(1)}
+          >
             Edit
           </Button>
         </div>
         <Row className="mb-3">
           <Col md={6}>
             <div className="summary-field">
-              <label className="text-dark fs-26-700">Total Project Budget</label>
+              <label className="text-dark fs-26-700">
+                Total Project Budget
+              </label>
               <Form.Control
                 disabled
                 type="text"
-                value={`₹ ${localFormData.project.project_total_budget?.toLocaleString() || "Not provided"}`}
+                value={`₹ ${
+                  projectData?.project?.project_total_budget?.toLocaleString() ||
+                  "Not provided"
+                }`}
               />
             </div>
           </Col>
@@ -243,13 +275,19 @@ const ProjectSummary = ({
             <thead>
               <tr>
                 <th className="text-center text-dark fs-18-500">S.No</th>
-                <th className="text-center text-dark fs-18-500">Expense Category</th>
-                <th className="text-center text-dark fs-18-500">Estimated Cost (₹)</th>
-                <th className="text-center text-dark fs-18-500">Approved Budget (₹)</th>
+                <th className="text-center text-dark fs-18-500">
+                  Expense Category
+                </th>
+                <th className="text-center text-dark fs-18-500">
+                  Estimated Cost (₹)
+                </th>
+                <th className="text-center text-dark fs-18-500">
+                  Approved Budget (₹)
+                </th>
               </tr>
             </thead>
             <tbody>
-              {localFormData.budget_details?.map((item, index) => (
+              {projectData?.budget_details?.map((item, index) => (
                 <tr key={index}>
                   <td className="text-center text-dark-gray fs-16-500">
                     {String(index + 1).padStart(2, "0")}
@@ -274,7 +312,11 @@ const ProjectSummary = ({
       <div className="summary-section">
         <div className="summary-header">
           <h3>03. Project Team & Stakeholder Assignment</h3>
-          <Button variant="link" className="edit-btn" onClick={() => onBackClick(2)}>
+          <Button
+            variant="link"
+            className="edit-btn"
+            onClick={() => onBackClick(2)}
+          >
             Edit
           </Button>
         </div>
@@ -283,15 +325,17 @@ const ProjectSummary = ({
             <div className="summary-field">
               <label>Project Manager</label>
               <div className="summary-multi-selectn">
-                {localFormData.team_details?.filter(t => t.role === "Project Manager").map((item) => (
-                  <div key={item.emp_id} className="summary-tag width-100">
-                    <Form.Control
-                      disabled
-                      type="text"
-                      value={item.emp_name || "Not assigned"}
-                    />
-                  </div>
-                ))}
+                {projectData?.team_details
+                  ?.filter((t) => t.role === "Project Manager")
+                  .map((item) => (
+                    <div key={item.emp_id} className="summary-tag width-100">
+                      <Form.Control
+                        disabled
+                        type="text"
+                        value={item.emp_name || "Not assigned"}
+                      />
+                    </div>
+                  ))}
               </div>
             </div>
           </Col>
@@ -307,7 +351,7 @@ const ProjectSummary = ({
               </tr>
             </thead>
             <tbody>
-              {localFormData.finance_approval_data?.map((item, index) => (
+              {projectData?.finance_approval_data?.map((item, index) => (
                 <tr key={item.permission_finance_approval_id}>
                   <td className="text-center text-dark-gray fs-16-500">
                     {String(index + 1).padStart(2, "0")}
@@ -332,55 +376,71 @@ const ProjectSummary = ({
       <div className="summary-section">
         <div className="summary-header">
           <h3>04. Timeline & Milestone Planning</h3>
-          <Button variant="link" className="edit-btn" onClick={() => onBackClick(3)}>
+          <Button
+            variant="link"
+            className="edit-btn"
+            onClick={() => onBackClick(3)}
+          >
             Edit
           </Button>
         </div>
-        <Table bordered responsive className="mt-4 w-100">
-          <thead>
-            <tr>
-              <th className="text-center text-dark fs-18-500">Milestone</th>
-              <th className="text-center text-dark fs-18-500">Description</th>
-              <th className="text-center text-dark fs-18-500">Start Date</th>
-              <th className="text-center text-dark fs-18-500">End Date</th>
-              <th className="text-center text-dark fs-18-500">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {localFormData.milestone_details?.map((milestone) => (
-              <tr key={milestone.milestone_id}>
-                <td className="text-center text-dark-gray fs-16-500">
-                  {milestone.milestone_name}
-                </td>
-                <td className="text-center text-dark-gray fs-16-500">
-                  {milestone.milestone_description}
-                </td>
-                <td className="text-center text-dark-gray fs-16-500">
-                  {milestone.milestone_start_date || "Not set"}
-                </td>
-                <td className="text-center text-dark-gray fs-16-500">
-                  {milestone.milestone_end_date || "Not set"}
-                </td>
-                <td className="text-center text-dark-gray fs-16-500">
-                  <div className={`status-badge ${milestone.milestone_status?.toLowerCase()}`}>
-                    {milestone.milestone_status}
-                  </div>
-                </td>
+        {!projectData?.milestone_details ? (
+          <div className="text-center py-4">
+            <p>No Timeline & Milestone data available</p>
+          </div>
+        ) : (
+          <Table bordered responsive className="mt-4 w-100">
+            <thead>
+              <tr>
+                <th className="text-center text-dark fs-18-500">Milestone</th>
+                <th className="text-center text-dark fs-18-500">Description</th>
+                <th className="text-center text-dark fs-18-500">Start Date</th>
+                <th className="text-center text-dark fs-18-500">End Date</th>
+                <th className="text-center text-dark fs-18-500">Status</th>
               </tr>
-            ))}
-          </tbody>
-        </Table>
+            </thead>
+            <tbody>
+              {projectData?.milestone_details?.map((milestone) => (
+                <tr key={milestone.milestone_id}>
+                  <td className="text-center text-dark-gray fs-16-500">
+                    {milestone.milestone_name}
+                  </td>
+                  <td className="text-center text-dark-gray fs-16-500">
+                    {milestone.milestone_description}
+                  </td>
+                  <td className="text-center text-dark-gray fs-16-500">
+                    {milestone.milestone_start_date || "Not set"}
+                  </td>
+                  <td className="text-center text-dark-gray fs-16-500">
+                    {milestone.milestone_end_date || "Not set"}
+                  </td>
+                  <td className="text-center text-dark-gray fs-16-500">
+                    <div
+                      className={`status-badge ${milestone.milestone_status?.toLowerCase()}`}
+                    >
+                      {milestone.milestone_status}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        )}
       </div>
 
       {/* 05. Risk & Compliance Assessment */}
       <div className="summary-section">
         <div className="summary-header">
           <h3>05. Risk & Compliance Assessment</h3>
-          <Button variant="link" className="edit-btn" onClick={() => onBackClick(4)}>
+          <Button
+            variant="link"
+            className="edit-btn"
+            onClick={() => onBackClick(4)}
+          >
             Edit
           </Button>
         </div>
-        {localFormData.risk_management_data ? (
+        {projectData?.risk_management_data ? (
           <Table bordered responsive className="mt-4 w-100">
             <thead>
               <tr>
@@ -391,31 +451,40 @@ const ProjectSummary = ({
               </tr>
             </thead>
             <tbody>
-              {localFormData.risk_management_data?.map((risk, index) => (
+              {projectData?.risk_management_data?.map((risk, index) => (
                 <tr key={risk.id || index}>
                   <td className="text-center text-dark-gray fs-16-500">
                     {String(index + 1).padStart(2, "0")}
                   </td>
                   <td className="text-center text-dark-gray fs-16-500">
-                    {risk.category}
+                    {risk.category_name}
                   </td>
                   <td className="text-center text-dark-gray fs-16-500">
-                    <div className={`status-badge ${risk.status?.toLowerCase()}`}>
-                      {risk.status === "Completed" && (
+                    <div
+                      className={`status-badge ${risk.risk_status?.toLowerCase()}`}
+                    >
+                      {risk.risk_status === "Completed" && (
                         <span className="status-icon">✓</span>
                       )}
-                      {risk.status === "Pending" && (
+                      {risk.risk_status === "Pending" && (
                         <span className="status-icon">!</span>
                       )}
-                      {risk.status}
+                      {risk.risk_status}
                     </div>
                   </td>
                   <td className="text-center text-dark-gray fs-16-500">
-                    {risk.file ? (
-                      risk.file.name
+                    {risk.image_url ? (
+                      <a
+                        href={risk?.image_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {" "}
+                        {risk?.image_url.slice(-15)}
+                      </a>
                     ) : (
                       <Button variant="link" className="upload-btn">
-                        Upload
+                        Not Uploaded
                       </Button>
                     )}
                   </td>
@@ -430,15 +499,15 @@ const ProjectSummary = ({
         )}
       </div>
 
-      <div className="form-actions text-center mt-4">
+      <div className="form-actions text-center mt-4 w-100 flex-end d-flex  justify-content-end">
         <Button
-          variant="primary"
-          className="submit-btn"
+          className="submit-btn  w-auto  border-0 "
           onClick={async () => {
             try {
-              const rolesResponse = await fetchroles();
+              const rolesResponse = await dispatch(fetchRoles());
+              console.log("Roles Response:", rolesResponse);
 
-              if (rolesResponse?.data) {
+              if (rolesResponse?.payload?.length > 0) {
                 const targetRoles = [
                   "Managing Director",
                   "Director",
@@ -446,7 +515,7 @@ const ProjectSummary = ({
                   "GM Technology",
                 ];
 
-                const filteredRoles = rolesResponse.data.filter((role) =>
+                const filteredRoles = rolesResponse?.payload?.filter((role) =>
                   targetRoles.includes(role.roleName)
                 );
 
@@ -458,7 +527,8 @@ const ProjectSummary = ({
                   const employeesByRole = empResponse?.data?.employeesByRole;
 
                   if (employeesByRole) {
-                    const employeesForExactRole = employeesByRole[role.roleName];
+                    const employeesForExactRole =
+                      employeesByRole[role.roleName];
                     if (Array.isArray(employeesForExactRole)) {
                       allEmployees.push(
                         ...employeesForExactRole.map((emp) => ({
@@ -469,6 +539,8 @@ const ProjectSummary = ({
                     }
                   }
                 }
+
+                console.log("All Employees:", allEmployees);
 
                 setEmployeesByRole(allEmployees);
                 setShowModal(true);
@@ -533,23 +605,25 @@ const ProjectSummary = ({
                 });
                 return;
               }
-            
+
               try {
                 const userData = JSON.parse(localStorage.getItem("userData"));
-                
+
                 // 1. Create Ticket
                 const createdBy = parseInt(localStorage.getItem("userRoleId"));
-                  
+
                 // 1. Create Ticket for all selected users at once
                 const ticketResponse = await createTicket({
-                  projectId: localFormData.project.project_id,
+                  projectId: projectData?.project.project_id,
                   ticketType: "submit",
                   assignTo: selectedUsers,
                   createdBy: userData.empId,
                   assignTo: selectedUsers, // ✅ array of empIds
-                  createdBy: createdBy
+                  createdBy: createdBy,
                 });
-            
+
+                console.log("Ticket Response:", ticketResponse);
+
                 const createdTicketId = ticketResponse?.data?.data?.ticketId;
 
                 // 2. Create notification
@@ -562,7 +636,7 @@ const ProjectSummary = ({
                   sourceEntityId: createdTicketId,
                   message: `We would like to update you that we are currently awaiting approval on the Project Finalisation Report submitted for  ${localFormData.projectName}. Kindly review and provide your confirmation at the earliest to avoid any delays in the process.`,
                 });
-            
+
                 Swal.fire({
                   icon: "success",
                   title: "Success",
@@ -570,9 +644,10 @@ const ProjectSummary = ({
                   timer: 1500,
                   showConfirmButton: false,
                 });
-            
+
                 setShowModal(false);
-            
+                console.log("createdTicketId_createdTicketId", createdTicketId);
+
                 if (createdTicketId) {
                   setTimeout(() => {
                     navigate(`../ticket/${createdTicketId}`);
