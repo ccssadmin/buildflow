@@ -33,6 +33,7 @@ export const API = {
 
 //Notification
   CREATE_NOTIFICATION: "/api/Notification/create-notification",
+  GET_NOTIFICATION: "/api/Notification/get-notification",
   //Ticket Comment Create
   CREATE_TICKET_DETAILS: '/api/Ticket/add-comment-attachment',
 

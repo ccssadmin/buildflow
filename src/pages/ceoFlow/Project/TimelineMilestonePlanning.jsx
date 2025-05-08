@@ -51,14 +51,19 @@ const TimelineMilestonePlanning = ({
     };
   
     try {
-      await createTicket(ticketPayload);
-      console.log("✅ Ticket created");
+      const ticketResponse = await createTicket(ticketPayload); 
+      const ticketId = ticketResponse?.data?.data?.ticketId; 
+      const projectName = ticketResponse?.data?.data?.projectName;
+  
+      if (!ticketId) {
+        throw new Error("Ticket ID not returned from createTicket");
+      }
   
       const notificationPayload = {
         empId: selectedUsers,
-        notificationType: "Ticket Assigned",
-        sourceEntityId: 0,
-        message: "A new budget ticket has been assigned to you.",
+        notificationType: "Timeline_and_Milestone_Planning",
+        sourceEntityId: ticketId,
+        message: `We would like you to Evaluate and determine the Timeline and Milestones of ${projectName} Project with consideration.Kindly  provide your confirmation at the earliest to avoid any delays in the process.`,
       };
   
       await createNotify(notificationPayload);

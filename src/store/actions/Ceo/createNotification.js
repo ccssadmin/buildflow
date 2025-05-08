@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { createNotification } from "../../../services";
+import { createNotification, getnotification } from "../../../services";
 
 export const createnotificationAction = createAsyncThunk(
   "createTicket",
@@ -8,3 +8,11 @@ export const createnotificationAction = createAsyncThunk(
     return response.data;
   }
 );
+
+export const getnotificationAction = createAsyncThunk(
+  "getNotification",
+  async (userId) =>{
+    const response = await getnotification(userId);
+    return response.data;
+  }
+)
