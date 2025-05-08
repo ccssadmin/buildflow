@@ -13,7 +13,8 @@ const VendorEditPurchaseOrder = () => {
 
   useEffect(() => {
     if (purchaseOrderId) {
-      dispatch(getPurchaseOrderDetails(purchaseOrderId));
+      dispatch(getPurchaseOrderDetails(Number(purchaseOrderId)));
+      console.log("Selected PO: ", selectedPurchaseOrder);
     }
   }, [dispatch, purchaseOrderId]);
 
