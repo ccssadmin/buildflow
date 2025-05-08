@@ -22,13 +22,8 @@ const EmployeeTable = () => {
 
   // Sorting logic
   const sortedEmployees = [...employeeList].sort((a, b) => {
-    if (sortOrder === "asc") {
-      return a.employeeCode.localeCompare(b.employeeCode);
-    } else {
-      return b.employeeCode.localeCompare(a.employeeCode);
-    }
+    return b.empId - a.empId; // Latest employee first
   });
-
   // Pagination logic
   const totalPages = Math.ceil(sortedEmployees.length / itemsPerPage);
   const indexOfLast = currentPage * itemsPerPage;
