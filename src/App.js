@@ -152,6 +152,7 @@ const PurchasemanagerSettings = lazy(() => import('./pages/purchasemanagerFlow/S
 const PurchaseBoq = lazy(() => import('./pages/purchasemanagerFlow/BoqView/MaterialViewScreen'));
 
 
+
 //Vendor Flow
 
 const VendorDashboard = lazy(() => import('./pages/vendorFlow/Dashboard/index'));
@@ -514,7 +515,6 @@ const App = () => {
           <Route path="vendorsDetails" element={<PurchasemanagerVendorDetails/>} />
           <Route path="vendorsPriceDetails" element={<PurchasemanagerVendorPriceDetails/>} />
           <Route path="po" element={<PurchasemanagerPo />} />
-          <Route path="poDetails" element={<PurchasemanagerPoDetails/>} />
           <Route path="poCreate" element={<PurchasemanagerPoCreate />} />
           <Route path="boqDetails/:boqId" element={<PurchaseBoq />} />
           <Route path="approvals" element={<PurchasemanagerKanban />} />
@@ -522,6 +522,7 @@ const App = () => {
           <Route path="chats" element={<PurchasemanagerChat />} />
           <Route path="settings" element={<PurchasemanagerSettings />} />
           <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
+          <Route path="poDetails/:purchaseOrderId" element={<PurchasemanagerPoDetails/>} />
         </Route>
 
 
