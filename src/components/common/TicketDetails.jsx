@@ -24,7 +24,7 @@ import { IoMdClose } from "react-icons/io";
 
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { AiOutlineUser } from "react-icons/ai";
 import { RiSaveFill } from "react-icons/ri";
 import { BsCalendar3 } from "react-icons/bs";
@@ -39,6 +39,7 @@ import { createTicketDetailsAction } from "../../store/actions/masterAction";
 import { createTicketsDetailsSelector } from "../../store/selector/masterSelector";
 import { GrAttachment } from "react-icons/gr";
 import MultipleSelect from "../DropDown/MultipleSelect";
+import { getTicketDetailsAction } from "../../store/actions/kanbanAction";
 
 const EngineerTicketDetails = () => {
   const [activeTab, setActiveTab] = useState("all");
@@ -68,6 +69,8 @@ const EngineerTicketDetails = () => {
   const localUserId = localStorage.getItem("userRoleId");
   const userData = JSON.parse(localStorage.getItem("userData"));
   const token = userData?.token || localStorage.getItem("accessToken");
+
+  const id = useParams(); // ✅ This gives you task.id from the URL
 
   const {
     departments,
@@ -158,7 +161,7 @@ const EngineerTicketDetails = () => {
 
   // Show label selector
   const [showLabelSelector, setShowLabelSelector] = useState(false);
-
+  const [ticketData, setTicketData] = useState(null); // ✅ state to hold API response
   // Available users for assignment
   const [availableUsers, setAvailableUsers] = useState([
     {
@@ -208,7 +211,28 @@ const EngineerTicketDetails = () => {
       // Optionally redirect to login
     }
   }, []);
+  //get ticket by id
 
+  useEffect(() => {
+    if (id) {
+      fetchTicketDetails();
+    }
+  }, [dispatch, id]);
+  const fetchTicketDetails = async () => {
+    try {
+      const data = await dispatch(getticketbyidAction(id?.ticketId)).unwrap();
+
+      console.log("Ticket Details:", data);
+
+      setTicketData(data); // ✅ store data in state
+    } catch (error) {
+      console.error("Error was coming :", error);
+    }
+  };
+
+  // ✅ Now you can access ticketData here
+
+  console.log("Data Res", ticketData?.name);
   // At the top of TicketDetails.jsx
   useEffect(() => {
     const loadDepartments = async () => {
@@ -317,7 +341,7 @@ const EngineerTicketDetails = () => {
 
       // Construct the payload
       const payload = {
-        ticketId: ticketDetails?.ticket_id,
+        ticketId: ticketData?.ticket_id,
         dueDate: dueDate ? dueDate.toISOString().split("T")[0] : null,
         isApproved: approvalStatus === "Approved",
         updatedBy: userData.empId,
@@ -334,7 +358,7 @@ const EngineerTicketDetails = () => {
 
       if (result.success) {
         showToastNotification("Ticket updated successfully");
-
+        fetchTicketDetails();
         // ✅ Refetch the updated ticket
         const updatedData = await dispatch(
           getticketbyidAction(payload.ticketId)
@@ -367,7 +391,7 @@ const EngineerTicketDetails = () => {
 
     const userData = JSON.parse(localStorage.getItem("userData"));
     const empId = userData?.empId;
-    const ticketId = ticketDetails?.ticket_id;
+    const ticketId = ticketData?.ticket_id;
     console.log("EmpID =>", empId);
     console.log();
     console.log("Employee ID For Ticket Comment:", empId);
@@ -426,25 +450,30 @@ const EngineerTicketDetails = () => {
     }
   };
 
+
+  //check Boq Details for hide the details
+
+  let hasBoqDetails = false;
+
   //check Id based approvel to hide action
 
-  let hasUserApproved = false;
+  let hasUserApprovedStatusShow = false;
 
   const grouped = ticket?.approvalsGrouped || {};
 
   Object.values(grouped).forEach((approvals) => {
     approvals.forEach((approval) => {
       if (
-        (approval.approved_by_id === userData?.empId &&
-          approval.approval_type === "approved" ||
-          "rejected" ) 
+        approval.approved_by_id === userData?.empId &&
+        (approval.approval_type === "approved" ||
+          approval.approval_type === "rejected")
       ) {
-        hasUserApproved = true;
+        hasUserApprovedStatusShow = true;
       }
     });
   });
 
-  console.log("Has user approved?", hasUserApproved); // true or false
+  console.log("Has user approved?", hasUserApprovedStatusShow); // true or false
 
   // Handle file attachment
   const handleFileAttachment = (e) => {
@@ -629,11 +658,11 @@ const EngineerTicketDetails = () => {
           </small>
           <small className="text-muted mx-2">›</small>
           <small style={{ color: "#FF6F00" }}>
-            {ticketDetails?.name || "Ticket Details"}
+            {ticketData?.name || "Ticket Details"}
           </small>
         </div>
         <div className="mt-3 ms-3">
-          <h4>{ticketDetails?.name || "Ticket Details"}</h4>
+          <h4>{ticketData?.name || "Ticket Details"}</h4>
           <div className="d-flex align-items-center mt-1">
             <small className="text-muted">Created by</small>
             <div className="ms-2 d-flex align-items-center">
@@ -641,11 +670,11 @@ const EngineerTicketDetails = () => {
                 className="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center"
                 style={{ width: "20px", height: "20px", fontSize: "12px" }}
               >
-                {getInitials(ticketDetails?.ticket_owner_name)}
+                {getInitials(ticketData?.ticket_owner_name)}
               </div>
               <small className="ms-1">
-                {ticketDetails?.ticket_owner_name || "Unknown"} on{" "}
-                {formatDate(ticketDetails?.create_date)}
+                {ticketData?.ticket_owner_name || "Unknown"} on{" "}
+                {formatDate(ticketData?.create_date)}
               </small>
             </div>
           </div>
@@ -668,7 +697,7 @@ const EngineerTicketDetails = () => {
                   flexShrink: 0,
                 }}
               >
-                {getInitials(ticketDetails?.ticket_owner_name)}
+                {getInitials(ticketData?.ticket_owner_name)}
               </div>
               <div className="flex-grow-1">
                 <Form className="position-relative">
@@ -907,89 +936,84 @@ const EngineerTicketDetails = () => {
             {/* Comments Tab Content */}
             {(activeTab === "all" || activeTab === "comments") && (
               <div className="mt-4">
-                {ticketDetails?.commentsAndAttachments?.map(
-                  (comment, index) => (
-                    <div key={comment.id} className="d-flex mb-4">
-                      <div className="me-2">
-                        <div
-                          className={`rounded-circle bg-${comment.avatarColor} text-white d-flex align-items-center justify-content-center`}
-                          style={{
-                            width: "36px",
-                            height: "36px",
-                            fontSize: "16px",
-                            flexShrink: 0,
-                          }}
-                        >
-                          {comment.avatar}
-                        </div>
-                      </div>
-                      <div style={{ width: "100%" }}>
-                        <div className="d-flex align-items-center flex-wrap">
-                          <span className="fw-bold">{comment.user}</span>
-                          <span className="text-muted ms-2 small">
-                            {comment.role}
-                          </span>
-                          {comment.time && (
-                            <span className="text-muted ms-2 small">
-                              {comment.time}
-                            </span>
-                          )}
-                        </div>
-                        <div className="mt-1">
-                          {comment.status && (
-                            <Badge
-                              bg={comment.statusColor || "danger"}
-                              className="px-2 py-1 rounded-pill"
-                              style={{ fontSize: "0.7rem" }}
-                            >
-                              {comment.status}
-                            </Badge>
-                          )}
-                          <span className={comment.status ? "ms-2" : ""}>
-                            {comment.comment}
-                          </span>
-                        </div>
-
-                        {comment.filename && comment.file_path && (
-                          <div className="mt-2 p-2 bg-light rounded">
-                            <div className="d-flex align-items-center mb-1">
-                              <BsPaperclip className="me-1" size={12} />
-                              <small className="text-muted">
-                                Attached File:
-                              </small>
-                            </div>
-                            <div className="d-flex align-items-center p-1">
-                              <a
-                                href={comment.file_path}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                              >
-                                <small>{comment.filename}</small>
-                              </a>
-                            </div>
-                            <div key={index} className="me-2 mb-2 mt-3">
-                                <img
-                                  src={comment.file_path}
-                                  alt={comment.filename}
-                                  style={{
-                                    width: "100px",
-                                    height: "80px",
-                                    objectFit: "cover",
-                                  }}
-                                  className="rounded"
-                                />
-                              </div>
-
-                          </div>
-                        )}
-
-                        {index < comments.length - 1 && (
-                          <hr className="mt-3" style={{ opacity: 0.1 }} />
-                        )}
+                {ticketData?.commentsAndAttachments?.map((comment, index) => (
+                  <div key={comment.id} className="d-flex mb-4">
+                    <div className="me-2">
+                      <div
+                        className={`rounded-circle bg-${comment.avatarColor} text-white d-flex align-items-center justify-content-center`}
+                        style={{
+                          width: "36px",
+                          height: "36px",
+                          fontSize: "16px",
+                          flexShrink: 0,
+                        }}
+                      >
+                        {comment.avatar}
                       </div>
                     </div>
-                  )
-                )}
+                    <div style={{ width: "100%" }}>
+                      <div className="d-flex align-items-center flex-wrap">
+                        <span className="fw-bold">{comment.user}</span>
+                        <span className="text-muted ms-2 small">
+                          {comment.role}
+                        </span>
+                        {comment.time && (
+                          <span className="text-muted ms-2 small">
+                            {comment.time}
+                          </span>
+                        )}
+                      </div>
+                      <div className="mt-1">
+                        {comment.status && (
+                          <Badge
+                            bg={comment.statusColor || "danger"}
+                            className="px-2 py-1 rounded-pill"
+                            style={{ fontSize: "0.7rem" }}
+                          >
+                            {comment.status}
+                          </Badge>
+                        )}
+                        <span className={comment.status ? "ms-2" : ""}>
+                          {comment.comment}
+                        </span>
+                      </div>
+
+                      {comment.filename && comment.file_path && (
+                        <div className="mt-2 p-2 bg-light rounded">
+                          <div className="d-flex align-items-center mb-1">
+                            <BsPaperclip className="me-1" size={12} />
+                            <small className="text-muted">Attached File:</small>
+                          </div>
+                          <div className="d-flex align-items-center p-1">
+                            <a
+                              href={comment.file_path}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <small>{comment.filename}</small>
+                            </a>
+                          </div>
+                          <div key={index} className="me-2 mb-2 mt-3">
+                            <img
+                              src={comment.file_path}
+                              alt={comment.filename}
+                              style={{
+                                width: "100px",
+                                height: "80px",
+                                objectFit: "cover",
+                              }}
+                              className="rounded"
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {index < comments.length - 1 && (
+                        <hr className="mt-3" style={{ opacity: 0.1 }} />
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
 
@@ -1158,12 +1182,12 @@ const EngineerTicketDetails = () => {
                       <div className="d-flex align-items-center">
                         <span className="fw-bold">Ticket Created</span>
                         <span className="text-muted ms-2 small">
-                          {formatDate(ticketDetails?.create_date)}
+                          {formatDate(ticketData?.create_date)}
                         </span>
                       </div>
                       <p className="text-muted small mb-0">
                         Ticket created by{" "}
-                        {ticketDetails?.ticket_owner_name || "Unknown"}
+                        {ticketData?.ticket_owner_name || "Unknown"}
                       </p>
                     </div>
                   </div>
@@ -1182,16 +1206,16 @@ const EngineerTicketDetails = () => {
                       <div className="d-flex align-items-center">
                         <span className="fw-bold">Ticket Type</span>
                         <span className="text-muted ms-2 small">
-                          {ticketDetails?.ticket_type || "N/A"}
+                          {ticketData?.ticket_type || "N/A"}
                         </span>
                       </div>
                       <p className="text-muted small mb-0">
-                        Type: {ticketDetails?.ticket_type || "Not specified"}
+                        Type: {ticketData?.ticket_type || "Not specified"}
                       </p>
                     </div>
                   </div>
 
-                  {ticketDetails?.isapproved !== null && (
+                  {ticketData?.isapproved !== null && (
                     <div className="timeline-item d-flex mb-3">
                       <div
                         className="timeline-marker bg-success rounded-circle"
@@ -1206,14 +1230,12 @@ const EngineerTicketDetails = () => {
                         <div className="d-flex align-items-center">
                           <span className="fw-bold">Approval Status</span>
                           <span className="text-muted ms-2 small">
-                            {ticketDetails?.isapproved
-                              ? "Approved"
-                              : "Rejected"}
+                            {ticketData?.isapproved ? "Approved" : "Rejected"}
                           </span>
                         </div>
                         <p className="text-muted small mb-0">
                           Status:{" "}
-                          {ticketDetails?.isapproved ? "Approved" : "Rejected"}
+                          {ticketData?.isapproved ? "Approved" : "Rejected"}
                         </p>
                       </div>
                     </div>
@@ -1251,10 +1273,10 @@ const EngineerTicketDetails = () => {
                   className="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center"
                   style={{ width: "24px", height: "24px", fontSize: "12px" }}
                 >
-                  {getInitials(ticketDetails?.ticket_owner_name)}
+                  {getInitials(ticketData?.ticket_owner_name)}
                 </div>
                 <span className="ms-2">
-                  {ticketDetails?.ticket_owner_name || "Unknown"}
+                  {ticketData?.ticket_owner_name || "Unknown"}
                 </span>
               </div>
             </div>
@@ -1327,7 +1349,7 @@ const EngineerTicketDetails = () => {
                   <span>
                     {orderDate
                       ? orderDate.toLocaleDateString()
-                      : formatDate(ticketDetails?.create_date) || "Not set"}
+                      : formatDate(ticketData?.create_date) || "Not set"}
                   </span>
                   <BsCalendar3 className="ms-1" />
                 </Button>
@@ -1358,7 +1380,7 @@ const EngineerTicketDetails = () => {
                   <span>
                     {dueDate
                       ? dueDate.toLocaleDateString()
-                      : formatDate(ticketDetails?.due_date) || "Not set"}
+                      : formatDate(ticketData?.due_date) || "Not set"}
                   </span>
                   <BsCalendar3 className="ms-1" />
                 </Button>
@@ -1557,9 +1579,7 @@ const EngineerTicketDetails = () => {
             {/* Approved By */}
             <div
               className={`mb-3 mt-3 d-flex justify-content-between align-items-center border-bottom pb-3 ${
-                userData?.empId === ticket.created_by
-                  ? "d-none"
-                  : "d-block"
+                hasUserApprovedStatusShow ? "d-none" : "d-block"
               }`}
             >
               <span className="text-muted">Action</span>
@@ -1590,23 +1610,23 @@ const EngineerTicketDetails = () => {
             </div>
 
             {/* Approval Status */}
-            {ticketDetails?.isapproved !== null && (
+            {ticketData?.isapproved !== null && (
               <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
                 <span className="text-muted">Approval Status</span>
                 <Badge
-                  bg={ticketDetails?.isapproved ? "success" : "danger"}
+                  bg={ticketData?.isapproved ? "success" : "danger"}
                   className="px-2 py-1"
                 >
-                  {ticketDetails?.isapproved ? "Approved" : "Pending"}
+                  {ticketData?.isapproved ? "Approved" : "Pending"}
                 </Badge>
               </div>
             )}
 
             {/* Approved By */}
-            {ticketDetails?.approved_by && (
+            {ticketData?.approved_by && (
               <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
                 <span className="text-muted">Approved By</span>
-                <span>{ticketDetails?.approved_by}</span>
+                <span>{ticketData?.approved_by}</span>
               </div>
             )}
 
