@@ -166,6 +166,69 @@ const ProjectTeamStakeholder = ({
     }
   };
   
+  // Helper function to find the role mapping for a position in the finance table
+  const getRoleMapping = (position) => {
+    const roleMapping = {
+      projectManager: "Project Manager",
+      assistantProjectManager: "Assistant Project Manager",
+      leadEngineer: "Lead Engineer",
+      siteSupervisor: "Site Supervisor",
+      qs: "QS",
+      assistantQs: "Assistant QS",
+      siteEngineer: "Site Engineer",
+      engineer: "Engineer",
+      designer: "Designer"
+    };
+    return roleMapping[position] || position;
+  };
+
+  // Function to update the finance approval table when team selection changes
+  const updateFinanceApprovalWithSelectedTeam = () => {
+    const newPermissionData = [...permissionData];
+    
+    // Process each role in the formData
+    Object.keys(formData).forEach((field) => {
+      if (
+        ["projectManager", "assistantProjectManager", "leadEngineer", 
+         "siteSupervisor", "qs", "assistantQs", "siteEngineer", 
+         "engineer", "designer"].includes(field) &&
+        Array.isArray(formData[field]) && 
+        formData[field].length > 0
+      ) {
+        const roleName = getRoleMapping(field);
+        
+        // Check if the role already exists in permission data
+        const existingRoleIndex = newPermissionData.findIndex(
+          (item) => item.role === roleName
+        );
+        
+        // Get the first employee from the field
+        const selectedEmployee = formData[field][0];
+        
+        if (existingRoleIndex >= 0) {
+          // Update existing entry
+          newPermissionData[existingRoleIndex] = {
+            ...newPermissionData[existingRoleIndex],
+            employee: selectedEmployee.name || selectedEmployee.employeeName,
+            employeeId: selectedEmployee.id || selectedEmployee.empId,
+          };
+        } else {
+          // Add new entry if role doesn't exist
+          newPermissionData.push({
+            id: newPermissionData.length > 0 
+               ? Math.max(...newPermissionData.map(item => item.id)) + 1 
+               : 1,
+            role: roleName,
+            employee: selectedEmployee.name || selectedEmployee.employeeName,
+            employeeId: selectedEmployee.id || selectedEmployee.empId,
+            amount: "",
+          });
+        }
+      }
+    });
+    
+    setPermissionData(newPermissionData);
+  };
 
   useEffect(() => {
     if (!dataLoaded) {
@@ -223,7 +286,6 @@ const ProjectTeamStakeholder = ({
           role: role,
           employee: empData.employeeName,
           employeeId: empData.employeeId,
-
           amount: "",
         });
         roleMap.delete(role);
@@ -416,6 +478,24 @@ const ProjectTeamStakeholder = ({
     };
   }, []);
 
+  // Watch for changes in formData team selections and update finance table
+  useEffect(() => {
+    if (dataLoaded) {
+      updateFinanceApprovalWithSelectedTeam();
+    }
+  }, [
+    formData.projectManager,
+    formData.assistantProjectManager,
+    formData.leadEngineer,
+    formData.siteSupervisor,
+    formData.qs,
+    formData.assistantQs,
+    formData.siteEngineer,
+    formData.engineer,
+    formData.designer,
+    dataLoaded
+  ]);
+
   const getEmployeesByField = (field) => {
     switch (field) {
       case "projectManager":
@@ -500,7 +580,6 @@ const ProjectTeamStakeholder = ({
   };
 
   // Replace the existing handleLocalSelectItem function with this one
-  // Replace the handleLocalSelectItem function with this implementation
   const handleLocalSelectItem = (field, item) => {
     setFormData((prevState) => {
       const currentSelection = prevState[field] || [];
@@ -548,7 +627,6 @@ const ProjectTeamStakeholder = ({
     );
   };
 
-
   const MultiSelect = ({ field, label }) => {
     const inputRef = useRef(null);
     const isDropdownVisible = localDropdownVisible[field] || false;
@@ -564,9 +642,7 @@ const ProjectTeamStakeholder = ({
       // Clear search input immediately after selecting
       handleSearchFilterChange({ target: { value: '' } }, field);
       handleToggleDropdown(field);
-
     };
-
 
     return (
       <Form.Group style={{ position: "relative", marginBottom: "15px" }}>
@@ -609,7 +685,6 @@ const ProjectTeamStakeholder = ({
             autoComplete="off"
           />
 
-
           {/* Dropdown list */}
           {isDropdownVisible && (
             <div
@@ -642,7 +717,6 @@ const ProjectTeamStakeholder = ({
       </Form.Group>
     );
   };
-
 
   return (
     <Form>
@@ -742,10 +816,10 @@ const ProjectTeamStakeholder = ({
         className="d-flex justify-content-end align-items-end"
         style={{ minHeight: "80px", marginTop: "20px" }}
       >
-        <Button className="btn-primary btn fs-14-600 bg-transparent text-primary border-0 border-radius-2"
+        <Button 
+          className="btn-primary btn fs-14-600 bg-transparent text-primary border-0 border-radius-2"
           onClick={async () => {
-            const roleKey = "HR"; // hardcoded since only "HR" role is required
-          
+            const roleKey = "HR";
             const { success, data } = await fetchAllEmployees();
           
             if (
@@ -763,9 +837,8 @@ const ProjectTeamStakeholder = ({
             }
           
             setEmployees(data.employeesByRole[roleKey]);
-            setShowModal(true); // open the modal
+            setShowModal(true);
           }}
-          
         >
           <svg
             className="me-2"
@@ -786,14 +859,13 @@ const ProjectTeamStakeholder = ({
           className="btn-primary btn fs-14-600 bg-primary border-0 border-radius-2"
           onClick={async () => {
             if (!submitLoading) {
-              await handleSubmit(); // Wait for submission to complete
+              await handleSubmit();
               if (onNext) {
-                onNext(); // Call the provided onNext function
+                onNext();
               }
             }
           }}
           disabled={submitLoading}
-
         >
           {submitLoading ? (
             <>
@@ -838,8 +910,9 @@ const ProjectTeamStakeholder = ({
         </Modal.Body>
         <Modal.Footer className="justify-content-center">
           <Button
-            className={`d-flex justify-content-center ${selectedUsers.length > 0 ? "btn-allow" : "btn-not-allow"
-              }`}
+            className={`d-flex justify-content-center ${
+              selectedUsers.length > 0 ? "btn-allow" : "btn-not-allow"
+            }`}
             onClick={handleTicketSubmission}
             disabled={selectedUsers.length === 0}
           >

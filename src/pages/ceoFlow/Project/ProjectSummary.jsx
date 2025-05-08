@@ -1,9 +1,12 @@
 import { Calendar } from "lucide-react";
-import React, { useState } from "react";
-import { Button, Row, Col, Form, Modal } from "react-bootstrap";
+import React, { useState, useEffect } from "react";
+import { Button, Row, Col, Form, Modal, Spinner } from "react-bootstrap";
 import { profile } from "../../../assets/images";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
+import { useDispatch, useSelector } from "react-redux";
+import { getProjectDetailsAction } from "../../../store/actions/Ceo/ceoprojectAction";
+
 
 // Permission and Finance Approval data
 const permissionData = [
@@ -25,6 +28,7 @@ const permissionData = [
   },
   { id: 7, role: "Finance", employee: "Jane Cooper", amount: "" },
 ];
+
 const ProjectSummary = ({
   formData,
   onBackClick,
@@ -33,12 +37,21 @@ const ProjectSummary = ({
   fetchroles,
   fetchAllEmployees,
 }) => {
+  const { projectId } = useParams();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  
+  // Get project details from Redux store
+  const { loading, data: projectDetails } = useSelector(
+    (state) => state.project.getProjectDetails
+  );
+  
   const [showModal, setShowModal] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [dynamicRoles, setDynamicRoles] = useState([]);
   const [employeesByRole, setEmployeesByRole] = useState([]);
+  const [localFormData, setLocalFormData] = useState(formData || {});
 
-  const navigate = useNavigate();
   const users = [
     { id: 1, name: "Jacob Jones", role: "Managing Director" },
     { id: 2, name: "Robert Fox", role: "Director" },
@@ -46,30 +59,81 @@ const ProjectSummary = ({
     { id: 4, name: "Devon Lane", role: "Finance Head" },
     { id: 5, name: "Cody Fisher", role: "GM Technology", image: "T" },
   ];
+
   const PROJECT_TYPES = {
     1: "Residential",
     2: "Industrial",
   };
+
   const PROJECT_SECTORS = {
     1: "Public",
     2: "Private",
   };
+
+  useEffect(() => {
+    if (projectId) {
+      dispatch(getProjectDetailsAction(projectId));
+    }
+  }, [projectId, dispatch]);
+
+  useEffect(() => {
+    if (projectDetails) {
+      // Transform the API data to match your form structure
+      const transformedData = {
+        projectId: projectDetails.projectId,
+        projectName: projectDetails.projectName,
+        projectLocation: projectDetails.projectLocation,
+        projectTypeId: projectDetails.projectTypeId,
+        projectSectorId: projectDetails.projectSectorId,
+        projectStartDate: projectDetails.projectStartDate,
+        expectedCompletionDate: projectDetails.expectedCompletionDate,
+        description: projectDetails.description,
+        totalBudget: projectDetails.totalBudget,
+        sendTo: projectDetails.sendTo,
+        budgetBreakdown: projectDetails.budgetBreakdown || [],
+        projectManager: projectDetails.projectTeam?.projectManager || [],
+        assistantProjectManager: projectDetails.projectTeam?.assistantProjectManager || [],
+        leadEngineer: projectDetails.projectTeam?.leadEngineer || [],
+        milestones: projectDetails.milestones || [],
+        risks: projectDetails.risks || [],
+      };
+      
+      setLocalFormData(transformedData);
+    }
+  }, [projectDetails]);
+
   const handleCheckboxChange = (id) => {
     setSelectedUsers((prev) =>
       prev.includes(id) ? prev.filter((userId) => userId !== id) : [...prev, id]
     );
   };
+
   // Get Project Type name from ID
   const getProjectTypeName = () => {
-    if (!formData.projectTypeId) return "Not provided";
-    return PROJECT_TYPES[formData.projectTypeId] || "Not provided";
+    if (!localFormData.projectTypeId) return "Not provided";
+    return PROJECT_TYPES[localFormData.projectTypeId] || "Not provided";
   };
 
   // Get Project Sector name from ID
   const getProjectSectorName = () => {
-    if (!formData.projectSectorId) return "Not provided";
-    return PROJECT_SECTORS[formData.projectSectorId] || "Not provided";
+    if (!localFormData.projectSectorId) return "Not provided";
+    return PROJECT_SECTORS[localFormData.projectSectorId] || "Not provided";
   };
+
+  if (loading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </Spinner>
+      </div>
+    );
+  }
+
+  if (!localFormData.projectId) {
+    return <Navigate to="/projects" />;
+  }
+
   return (
     <div className="project-summary">
       <div className="breadcrumb-container pb-3 d-flex align-items-center">
@@ -116,7 +180,7 @@ const ProjectSummary = ({
               <Form.Control
                 disabled
                 type="text"
-                placeholder={formData.projectName || "Not provided"}
+                placeholder={localFormData.projectName || "Not provided"}
               />
             </div>
           </Col>
@@ -126,7 +190,7 @@ const ProjectSummary = ({
               <Form.Control
                 disabled
                 type="text"
-                placeholder={formData.projectLocation || "Not provided"}
+                placeholder={localFormData.projectLocation || "Not provided"}
               />
             </div>
           </Col>
@@ -159,7 +223,7 @@ const ProjectSummary = ({
                 <Form.Control
                   disabled
                   type="text"
-                  placeholder={formData.projectStartDate || "Not provided"}
+                  placeholder={localFormData.projectStartDate || "Not provided"}
                 />
                 <Calendar className="date-icon" />
               </div>
@@ -173,7 +237,7 @@ const ProjectSummary = ({
                   disabled
                   type="text"
                   placeholder={
-                    formData.expectedCompletionDate || "Not provided"
+                    localFormData.expectedCompletionDate || "Not provided"
                   }
                 />
                 <Calendar className="date-icon" />
@@ -188,7 +252,7 @@ const ProjectSummary = ({
               <Form.Control
                 disabled
                 type="text"
-                placeholder={formData.description || "Not provided"}
+                placeholder={localFormData.description || "Not provided"}
               />
             </div>
           </Col>
@@ -215,7 +279,7 @@ const ProjectSummary = ({
               <Form.Control
                 disabled
                 type="text"
-                placeholder={`(₹) ${formData.totalBudget || "Not provided"}`}
+                placeholder={`(₹) ${localFormData.totalBudget || "Not provided"}`}
               />
             </div>
           </Col>
@@ -225,7 +289,7 @@ const ProjectSummary = ({
               <Form.Control
                 disabled
                 type="text"
-                placeholder={formData.sendTo || "Not provided"}
+                placeholder={localFormData.sendTo || "Not provided"}
               />
             </div>
           </Col>
@@ -248,10 +312,10 @@ const ProjectSummary = ({
               </tr>
             </thead>
             <tbody>
-              {formData.budgetBreakdown.map((item) => (
-                <tr key={item.id}>
+              {localFormData.budgetBreakdown?.map((item, index) => (
+                <tr key={index}>
                   <td className="text-center text-dark-gray fs-16-500">
-                    {String(item.id).padStart(2, "0")}
+                    {String(index + 1).padStart(2, "0")}
                   </td>
                   <td className="text-center text-dark-gray fs-16-500">
                     {item.category}
@@ -285,8 +349,8 @@ const ProjectSummary = ({
             <div className="summary-field">
               <label>Project Manager</label>
               <div className="summary-multi-selectn ">
-                {formData.projectManager.length > 0 ? (
-                  formData.projectManager.map((item) => (
+                {localFormData.projectManager?.length > 0 ? (
+                  localFormData.projectManager.map((item) => (
                     <div key={item.id} className="summary-tag width-100">
                       <Form.Control
                         disabled
@@ -305,8 +369,8 @@ const ProjectSummary = ({
             <div className="summary-field">
               <label>Assistant Project Manager</label>
               <div className="summary-multi-select">
-                {formData.assistantProjectManager.length > 0 ? (
-                  formData.assistantProjectManager.map((item) => (
+                {localFormData.assistantProjectManager?.length > 0 ? (
+                  localFormData.assistantProjectManager.map((item) => (
                     <div key={item.id} className="summary-tag width-100">
                       <Form.Control
                         disabled
@@ -326,8 +390,8 @@ const ProjectSummary = ({
             <div className="summary-field">
               <label>Lead Engineer</label>
               <div className="summary-multi-select">
-                {formData.leadEngineer.length > 0 ? (
-                  formData.leadEngineer.map((item) => (
+                {localFormData.leadEngineer?.length > 0 ? (
+                  localFormData.leadEngineer.map((item) => (
                     <div key={item.id} className="summary-tag width-100">
                       <Form.Control
                         disabled
@@ -401,7 +465,7 @@ const ProjectSummary = ({
             </tr>
           </thead>
           <tbody>
-            {formData.milestones.map((milestone) => (
+            {localFormData.milestones?.map((milestone) => (
               <tr key={milestone.id}>
                 <td className="text-center text-dark-gray fs-16-500">
                   {milestone.name}
@@ -417,7 +481,7 @@ const ProjectSummary = ({
                 </td>
                 <td className="text-center text-dark-gray fs-16-500">
                   <div
-                    className={`status-badge ${milestone.status.toLowerCase()}`}
+                    className={`status-badge ${milestone.status?.toLowerCase()}`}
                   >
                     {milestone.status}
                   </div>
@@ -449,16 +513,16 @@ const ProjectSummary = ({
             </tr>
           </thead>
           <tbody>
-            {formData.risks.map((risk) => (
-              <tr key={risk.id}>
+            {localFormData.risks?.map((risk, index) => (
+              <tr key={risk.id || index}>
                 <td className="text-center text-dary fs-16-500">
-                  {String(risk.id).padStart(2, "0")}
+                  {String(index + 1).padStart(2, "0")}
                 </td>
                 <td className="text-center text-dark fs-16-500">
                   {risk.category}
                 </td>
                 <td className="text-center text-dark fs-16-500">
-                  <div className={`status-badge ${risk.status.toLowerCase()}`}>
+                  <div className={`status-badge ${risk.status?.toLowerCase()}`}>
                     {risk.status === "Completed" && (
                       <span className="status-icon">✓</span>
                     )}
@@ -527,7 +591,6 @@ const ProjectSummary = ({
                       allEmployees.push(
                         ...employeesForExactRole.map((emp) => ({
                           ...emp,
-
                           roleName: role.roleName, // keep correct roleName
                         }))
                       );
@@ -542,7 +605,6 @@ const ProjectSummary = ({
                 console.log("🎯 All Employees collected:", allEmployees);
 
                 setEmployeesByRole(allEmployees);
-
                 setShowModal(true);
               } else {
                 console.error("❌ No roles fetched");
@@ -556,8 +618,7 @@ const ProjectSummary = ({
         </Button>
       </div>
 
-      {/* Modal popup  */}
-
+      {/* Modal popup */}
       <Modal
         show={showModal}
         className="model-approvel-send"
@@ -597,73 +658,73 @@ const ProjectSummary = ({
         </Modal.Body>
         <Modal.Footer className="justify-content-center">
           <Button
-            className={`d-flex justify-content-center ${selectedUsers.length > 0 ? "btn-allow" : "btn-not-allow"
-              }`}
-              onClick={async () => {
-                if (selectedUsers.length === 0) {
-                  Swal.fire({
-                    icon: "warning",
-                    title: "No Employees Selected",
-                    text: "Please select at least one employee.",
-                  });
-                  return;
-                }
-              
-                try {
-                  const userData = JSON.parse(localStorage.getItem("userData"));
-                  const createdBy = parseInt(localStorage.getItem("userRoleId"));
+            className={`d-flex justify-content-center ${
+              selectedUsers.length > 0 ? "btn-allow" : "btn-not-allow"
+            }`}
+            onClick={async () => {
+              if (selectedUsers.length === 0) {
+                Swal.fire({
+                  icon: "warning",
+                  title: "No Employees Selected",
+                  text: "Please select at least one employee.",
+                });
+                return;
+              }
+            
+              try {
+                const userData = JSON.parse(localStorage.getItem("userData"));
+                const createdBy = parseInt(localStorage.getItem("userRoleId"));
                   
-                  // 1. Create Ticket for all selected users at once
-                  const ticketResponse = await createTicket({
-                    projectId: formData.projectId,
-                    ticketType: "submit",
-                    assignTo: selectedUsers, // ✅ array of empIds
-                    createdBy: createdBy
-                  });
-              
-                  const createdTicketId = ticketResponse?.data?.data?.ticketId;
+                // 1. Create Ticket for all selected users at once
+                const ticketResponse = await createTicket({
+                  projectId: localFormData.projectId,
+                  ticketType: "submit",
+                  assignTo: selectedUsers, // ✅ array of empIds
+                  createdBy: createdBy
+                });
+            
+                const createdTicketId = ticketResponse?.data?.data?.ticketId;
 
-                  if (!createdTicketId) {
-                    console.warn("❌ ticketId missing in response:", ticketResponse);
-                  }
-              
-                  // 2. Create notification for all selected users
-                  await createNotify({
-                    empId: selectedUsers,
-                    notificationType: "Project_Finalisation_Approval",
-                    sourceEntityId: createdTicketId,
-                    message: `We would like to update you that we are currently awaiting approval on the Project Finalisation Report submitted for  ${formData.projectName}. Kindly review and provide your confirmation at the earliest to avoid any delays in the process.`,
-                  });
-              
-                  Swal.fire({
-                    icon: "success",
-                    title: "Tickets and Notifications Created",
-                    text: "Successfully submitted.",
-                    timer: 1500,
-                    showConfirmButton: false,
-                  });
-              
-                  setShowModal(false);
-              
-                  // ✅ Navigate after short delay
-                  if (createdTicketId) {
-                    setTimeout(() => {
-                      navigate(`../ticket/${createdTicketId}`);
-                    }, 100); // give UI time to cleanup modal
-                  }
-              
-                } catch (error) {
-                  console.error("❌ Failed to create ticket/notification:", error);
-                  Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text: "Could not create ticket or notification.",
-                  });
+                if (!createdTicketId) {
+                  console.warn("❌ ticketId missing in response:", ticketResponse);
                 }
-              }}
-              
+            
+                // 2. Create notification for all selected users
+                await createNotify({
+                  empId: selectedUsers,
+                  notificationType: "Project_Finalisation_Approval",
+                  sourceEntityId: createdTicketId,
+                  message: `We would like to update you that we are currently awaiting approval on the Project Finalisation Report submitted for  ${localFormData.projectName}. Kindly review and provide your confirmation at the earliest to avoid any delays in the process.`,
+                });
+            
+                Swal.fire({
+                  icon: "success",
+                  title: "Tickets and Notifications Created",
+                  text: "Successfully submitted.",
+                  timer: 1500,
+                  showConfirmButton: false,
+                });
+            
+                setShowModal(false);
+            
+                // ✅ Navigate after short delay
+                if (createdTicketId) {
+                  setTimeout(() => {
+                    navigate(`../ticket/${createdTicketId}`);
+                  }, 100); // give UI time to cleanup modal
+                }
+            
+              } catch (error) {
+                console.error("❌ Failed to create ticket/notification:", error);
+                Swal.fire({
+                  icon: "error",
+                  title: "Error",
+                  text: "Could not create ticket or notification.",
+                });
+              }
+            }}
+            
             disabled={selectedUsers.length === 0}
-
           >
             Submit
           </Button>

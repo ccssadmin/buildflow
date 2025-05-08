@@ -77,6 +77,7 @@ const CeoDashboard1 = lazy(() => import('./pages/ceoFlow/Dashboard/index1'));
 const CeoProject = lazy(() => import('./pages/ceoFlow/Project/index'));
 const CeoProjectDetails = lazy(() => import('./pages/ceoFlow/Project/ProjectDeatils'));
 const CeoCreateProject = lazy(() => import('./pages/ceoFlow/Project/CreateProject'));
+const CeoProjectSummary = lazy(()=>import('./pages/ceoFlow/Project/ProjectSummary'));
 const CeoTicketDetails = lazy(() => import('./pages/ceoFlow/KanbanBoard/TicketDetails'));
 const CeoChat = lazy(() => import('./pages/ceoFlow/ChatPage/Chat/ChatApp'));
 const KanbanCeo = lazy(() => import('./pages/ceoFlow/KanbanBoard/index'));
@@ -150,6 +151,7 @@ const PurchasemanagerKanbanTicketDetails = lazy(() => import('./pages/purchasema
 const PurchasemanagerChat = lazy(() => import('./pages/purchasemanagerFlow/ChatPage/Chat/ChatApp'));
 const PurchasemanagerSettings = lazy(() => import('./pages/purchasemanagerFlow/Settings/index'));
 const PurchaseBoq = lazy(() => import('./pages/purchasemanagerFlow/BoqView/MaterialViewScreen'));
+
 
 
 //Vendor Flow
@@ -415,6 +417,7 @@ const App = () => {
           <Route path="project" element={<CeoProject />} />
           <Route path="projectdetails" element={<CeoProjectDetails />} />
           <Route path="createproject" element={<CeoCreateProject />} />
+          <Route path="projectSummary" element={<CeoProjectSummary />}/>
           <Route path="projectmilestone" element={<ProjectTimeline />} />
           <Route path="approvals" element={<KanbanCeo />} />
           <Route path="ticket/:ticketId" element={<CommonTicketDetails />} />
@@ -492,7 +495,7 @@ const App = () => {
         >
           <Route path="dashboard" element={<HrDashboard />} />
           <Route path="employee" element={<HrEmployee />} />
-          <Route path="addemployee" element={<AddHrEmployee />} />
+          <Route path="addemployee/:empId?" element={<AddHrEmployee />} />
           <Route path="employeedetail" element={<HrEmployeeDetail />} />
           <Route path="approvals" element={<HrKanban />} />
           <Route path="hrticketdetails/:ticketId" element={<CommonTicketDetails />} />
@@ -514,7 +517,6 @@ const App = () => {
           <Route path="vendorsDetails" element={<PurchasemanagerVendorDetails/>} />
           <Route path="vendorsPriceDetails" element={<PurchasemanagerVendorPriceDetails/>} />
           <Route path="po" element={<PurchasemanagerPo />} />
-          <Route path="poDetails" element={<PurchasemanagerPoDetails/>} />
           <Route path="poCreate" element={<PurchasemanagerPoCreate />} />
           <Route path="boqDetails/:boqId" element={<PurchaseBoq />} />
           <Route path="approvals" element={<PurchasemanagerKanban />} />
@@ -522,6 +524,7 @@ const App = () => {
           <Route path="chats" element={<PurchasemanagerChat />} />
           <Route path="settings" element={<PurchasemanagerSettings />} />
           <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
+          <Route path="poDetails/:purchaseOrderId" element={<PurchasemanagerPoDetails/>} />
         </Route>
 
 
@@ -537,7 +540,7 @@ const App = () => {
         >
           <Route path="dashboard" element={<VendorDashboard />}/>
           <Route path="po" element={<VendorPo />} />
-          <Route path="editpo" element={<VendorEditPo />} />
+          <Route path="editpo/:purchaseOrderId" element={<VendorEditPo />} />
           <Route path="approvals" element={<VendorKanban />} />
           <Route path="vendorticketdetails/:ticketId" element={<VendorTicketDetails />} />
           <Route path="chats" element={<VendorChat />} />

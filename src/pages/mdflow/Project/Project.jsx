@@ -12,6 +12,9 @@ const Projects = () => {
   const [filteredProjects, setFilteredProjects] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [projects, setProjects] = useState([]);
+  const [statusFilter, setStatusFilter] = useState("all"); // Default to show all
+    
 
   const projectId = localStorage.getItem("projectId");
 
@@ -27,6 +30,7 @@ const Projects = () => {
       setLoading(true);
       try {
         const result = await dispatch(getAllProjectByFilterAction()).unwrap();
+        setProjects(result);
         setFilteredProjects(result); // Initially show all projects
         setError(null);
       } catch (error) {
@@ -43,6 +47,25 @@ const Projects = () => {
       fetchAllProjects();
     }, []);
   
+    const handleFilterChange = (event) => {
+      setStatusFilter(event.target.value);
+    };
+
+      const applyFilter = () => {
+        if (statusFilter === "all") {
+          setFilteredProjects(projects); // Show all projects
+        } else {
+          const filtered = projects.filter(
+            (project) => project.project_status.toLowerCase() === statusFilter.toLowerCase()
+          );
+          setFilteredProjects(filtered);
+        }
+      };
+
+
+       useEffect(() => {
+          applyFilter();
+        }, [statusFilter, projects]);
 
   const ProjectCard = ({ project }) => {
     return (
@@ -97,7 +120,31 @@ const Projects = () => {
               <h2 className="title-1">Ongoing Project</h2>
             </div>
             <div className="col-xl-6 col-lg-6 col-md-6 col-sm-12 text-end">
-              <Link className="link-filter"><img src={filter} alt="Filter" /> Filter</Link>
+
+              
+              {/* <Link className="link-filter"><img src={filter} alt="Filter" /> Filter</Link> */}
+
+              <select
+  className="link-filter"
+  value={statusFilter}
+  onChange={handleFilterChange}
+  style={{
+    width: "150px",
+    height: "35px",
+    background: `url(${filter}) no-repeat scroll 10px center`,
+    backgroundSize: "20px 20px",
+    paddingLeft: "30px",
+    backgroundColor:"#EBEBEB",
+    border:"none"
+  }}
+>
+  <option value="all">All</option>
+  <option value="Ongoing">Ongoing</option>
+  <option value="Pending">Pending</option>
+  <option value="Planned">Planned</option>
+  <option value="NotApproved">Not Approved</option>
+</select>
+
             </div>
           </div>
           <div className="row mt-4">
