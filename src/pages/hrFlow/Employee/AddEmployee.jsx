@@ -1,23 +1,26 @@
 import React, { useEffect, useState } from "react";
 import "../../../styles/components/css/hr/hrms.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { fetchDepartments } from "../../../store/actions/hr/departmentaction";
-import { createEmployee, createOrUpdateEmployee, deleteEmployee } from "../../../store/actions/hr/createemployeaction";
+import { createEmployee, createOrUpdateEmployee, deleteEmployee, getEmployees, getNewEmpId } from "../../../store/actions/hr/createemployeaction";
 import { fetchRolesByDepartment } from "../../../store/actions/hr/designationaction";
 import { fetchProjects } from "../../../store/actions/hr/projectaction";
 
 
 const AddEmployee = () => {
 
+  const { empId } = useParams();
   const dispatch = useDispatch();
   const { departments = [], loading, error } = useSelector((state) => state.department || {});
   const { roles = [] } = useSelector((state) => state.role || {});
   const { projects = [] } = useSelector((state) => state.project);
   const [validationErrors, setValidationErrors] = useState({});
   const location = useLocation();
-const editingEmployee = location.state?.employeeData;
+
+  const [editingEmployee, setEditingEmployee] = useState(location.state?.employeeData || null);
+  
 
   
 const [employee, setEmployee] = useState({
@@ -31,29 +34,46 @@ const [employee, setEmployee] = useState({
   designation: "",
   project: "",
 });
+
 useEffect(() => {
-  if (editingEmployee) {
+  if (location.state?.employeeData) {
+    const emp = location.state.employeeData;
+    setEditingEmployee(emp);
     setEmployee({
-      name: editingEmployee.firstName || "",
-      dob: editingEmployee.dateOfBirth || "",
-      gender: editingEmployee.gender || "",
-                  mobile: editingEmployee.phone || "",
-      email: editingEmployee.email || "",
-      EmployeeCode: editingEmployee.employeeCode || "",
-      department: editingEmployee.deptId?.toString() || "",
-      designation: editingEmployee.designation ? 
-      editingEmployee.roleId.toString() : "",
-            project: editingEmployee.project_id?.toString() || "",
+      name: emp.firstName || "",
+      dob: emp.dateOfBirth || "",
+      gender: emp.gender || "",
+      mobile: emp.phone || "",
+      email: emp.email || "",
+      EmployeeCode: emp.employeeCode || "",
+      department: emp.deptId?.toString() || "",
+      designation: emp.roleName?.toString() || "",
+      project: emp.project_id?.toString() || "",
+    });
+  } else if (empId) {
+    dispatch(getEmployees()).then((res) => {
+      const employeeList = res.payload || [];
+      const found = employeeList.find(emp => emp.empId.toString() === empId.toString());
+      if (found) {
+        setEditingEmployee(found);
+        setEmployee({
+          name: found.firstName || "",
+          dob: found.dateOfBirth || "",
+          gender: found.gender || "",
+          mobile: found.phone || "",
+          email: found.email || "",
+          EmployeeCode: found.employeeCode || "",
+          department: found.deptId?.toString() || "",
+          designation: found.roleName?.toString() || "",
+          project: found.project_id?.toString() || "",
+        });
+      }
     });
   }
-}, [editingEmployee]);
-
-
-  
+}, [empId, location.state, dispatch]);
 
 
 
-  
 
 
   useEffect(() => {
@@ -92,6 +112,10 @@ useEffect(() => {
     }
   };
 
+
+   useEffect(() => {
+      dispatch(getEmployees());
+    }, [dispatch]);
   
   useEffect(() => {
     dispatch(fetchProjects());
@@ -142,22 +166,27 @@ useEffect(() => {
     if (Object.keys(errors).length > 0) return;
   
     const formattedData = {
-      empId: editingEmployee?.empId || 0,
-      firstName: employee.name,
-      dateOfBirth: employee.dob,
-      gender: employee.gender,
-      phone: employee.mobile,
-      email: employee.email,
-      department: Number(employee.department),
-      designation: Number(employee.designation),
-      project: Number(employee.project),
-      employeeCode: employee.EmployeeCode,
+    
+        EmpId: editingEmployee?.empId || 0,
+        FirstName: employee.name,
+        DateOfBirth: employee.dob,
+        Gender: employee.gender,
+        Phone: employee.mobile,
+        Email: employee.email,
+        Department: Number(employee.department),
+        Designation: Number(employee.designation),
+        Project: Number(employee.project),
+        EmployeeCode: employee.EmployeeCode,
+      
     };
     
+    
+
 
     
     
-    const action = editingEmployee ? createOrUpdateEmployee : createEmployee;
+const action = editingEmployee ? createOrUpdateEmployee : createOrUpdateEmployee;
+
   
     dispatch(action(formattedData))      .then(() => {
         setSuccessMessage(
@@ -187,8 +216,25 @@ useEffect(() => {
       });
   };
   
+  const newEmpId = useSelector((state) => state.employee.newEmpId);
+  useEffect(() => {
+    if (!editingEmployee) {
+      dispatch(getNewEmpId());
+    }
+  }, [dispatch, editingEmployee]);
+
   
+  useEffect(() => {
+    if (!editingEmployee && newEmpId) {
+      setEmployee((prev) => ({
+        ...prev,
+        EmployeeCode: `${newEmpId}`
+      }));
+    }
+  }, [newEmpId, editingEmployee]);
   
+
+
 
   const handleCancel = () => {
     setEmployee({
@@ -234,12 +280,10 @@ useEffect(() => {
           <div className="addemployee-form-group">
             <label>Gender <span className="addemployee-required">*</span></label>
             <select name="gender" value={employee.gender} onChange={handleChange}>
-  <option value="">Select Gender</option>
   <option value="Male">Male</option>
   <option value="Female">Female</option>
   <option value="Other">Other</option>
 </select>
-
             {validationErrors.gender && <p className="error-text">{validationErrors.gender}</p>}
           </div>
 
@@ -282,11 +326,16 @@ useEffect(() => {
         <h6 className="addemployee-section-title">Employment Details</h6>
 
         <div className="addemployee-form-row">
-          <div className="addemployee-form-group">
-            <label>Employee ID</label>
-            <input type="text" placeholder="EMP001025" name="EmployeeCode" value={employee.EmployeeCode} onChange={handleChange} />
-          </div>
-
+        <div className="addemployee-form-group">
+  <label>Employee ID</label>
+  <input
+    type="text"
+    name="EmployeeCode"
+    value={employee.EmployeeCode}
+    onChange={handleChange}
+    readOnly // optional: make it read-only
+  />
+</div>
 
           <div className="addemployee-form-group">
             <label>Department <span className="addemployee-required">*</span></label>
@@ -294,8 +343,9 @@ useEffect(() => {
   name="department"
   value={employee.department}
   onChange={handleChange}
-  disabled={!!editingEmployee} // Disable in edit mode
+  
 >
+
   <option value="">Select Department</option>
   {loading ? (
     <option disabled>Loading departments...</option>
@@ -309,7 +359,6 @@ useEffect(() => {
     <option disabled>No departments available</option>
   )}
 </select>
-
 {validationErrors.department && <p className="error-text">{validationErrors.department}</p>}
           </div>
 
@@ -322,20 +371,23 @@ useEffect(() => {
   name="designation"
   value={employee.designation}
   onChange={handleChange}
-  disabled={!!editingEmployee} // Disable in edit mode
+  disabled={!employee.department}
 >
-  <option value="">Select Designation</option>
-  {Array.isArray(roles) ? (
-    roles.map((role) => (
-      <option key={role.roleId} value={role.roleId}>
-        {role.roleName}
-      </option>
-    ))
-  ) : (
-    <option disabled>Loading roles...</option>
-  )}
-</select>
 
+  
+    <option value="0">Select Designation</option>
+    {Array.isArray(roles) ? (
+  roles.map((roles) => (
+    <option key={roles.roleId} value={roles.roleId}>
+    {roles.roleName}
+  </option>
+  ))
+) : (
+  <option disabled>Loading roles...</option>
+)}
+
+  
+  </select>
   {validationErrors.designation && <p className="error-text">{validationErrors.designation}</p>}
 
 </div>
@@ -343,18 +395,13 @@ useEffect(() => {
 
           <div className="addemployee-form-group">
             <label >Projects <span className="addemployee-required">*</span></label>
-            <select
-  className="project"
-  name="project"
-  value={employee.project}
-  onChange={handleChange}
-  disabled={!!editingEmployee} // Disable in edit mode
->
+            <select  className="project"  name="project" value={employee.project} onChange={handleChange} >
   <option value="">Select Project</option>
   {projects.map((proj) => (
     <option key={proj.project_id} value={proj.project_id}>
-      {proj.project_name}
+    {proj.project_name}
     </option>
+    
   ))}
 </select>
 {validationErrors.project && <p className="error-text">{validationErrors.project}</p>}
@@ -362,18 +409,19 @@ useEffect(() => {
 
           </div>
         </div>
-        {editingEmployee && (
-  <div className="addemployee-form-actions">
-    <button
-      type="button"
-      className="addemployee-btn-delete"
-      onClick={handleDelete}
-      
-    >
-      Delete
-    </button>
+       {editingEmployee && (
+          <div className="addemployee-form-actions">
+  <button
+    type="button"
+
+    className="addemployee-btn-delete"
+    onClick={handleDelete}
+  >
+    Delete
+  </button>
   </div>
 )}
+
 
 
 
