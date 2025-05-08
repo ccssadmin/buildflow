@@ -38,7 +38,8 @@ import { useDepartments } from "../../hooks/Ceo/useDepartments";
 import { createTicketDetailsAction } from "../../store/actions/masterAction";
 import { createTicketsDetailsSelector } from "../../store/selector/masterSelector";
 import { GrAttachment } from "react-icons/gr";
-import MultipleSelect from "../DropDown/MultipleSelect";
+import Select, { components } from "react-select";
+import { toast } from "react-toastify";
 
 const EngineerTicketDetails = () => {
   const [activeTab, setActiveTab] = useState("all");
@@ -68,6 +69,7 @@ const EngineerTicketDetails = () => {
   const localUserId = localStorage.getItem("userRoleId");
   const userData = JSON.parse(localStorage.getItem("userData"));
   const token = userData?.token || localStorage.getItem("accessToken");
+  const [groupedDepartments, setGroupedDepartments] = useState([]);
 
   const {
     departments,
@@ -217,6 +219,12 @@ const EngineerTicketDetails = () => {
         const result = await fetchDepartments();
         if (result.success) {
           setAvailableDepartments(result.data);
+          let dropdownData = result.data.map((dept) => ({
+            ...dept,
+            label: dept.deptName,
+            value: dept.deptName,
+          }));
+          setGroupedDepartments(dropdownData);
         } else {
           console.error("Failed to fetch departments");
         }
@@ -312,9 +320,10 @@ const EngineerTicketDetails = () => {
 
       // Prepare moveTo array
       const moveTo = [];
-      if (currentDepartment?.deptId) moveTo.push(currentDepartment.deptId);
-      if (currentEmployee?.id) moveTo.push(currentEmployee.id);
+      // if (currentDepartment?.deptId) moveTo.push(currentDepartment.deptId);
+      if (selectedEmployee?.empId) moveTo.push(selectedEmployee.empId);
 
+       console.log("currentEmployee"  , selectedEmployee)
       // Construct the payload
       const payload = {
         ticketId: ticketDetails?.ticket_id,
@@ -333,7 +342,7 @@ const EngineerTicketDetails = () => {
       ).unwrap();
 
       if (result.success) {
-        showToastNotification("Ticket updated successfully");
+        toast.success("Ticket updated successfully");
 
         // ✅ Refetch the updated ticket
         const updatedData = await dispatch(
@@ -349,7 +358,7 @@ const EngineerTicketDetails = () => {
           setDueDate(new Date(updatedData.due_date));
         }
       } else {
-        showToastNotification(result.message || "Failed to update ticket");
+        toast.warn(result.message || "Failed to update ticket");
       }
     } catch (error) {
       console.error("Update error:", error);
@@ -364,14 +373,9 @@ const EngineerTicketDetails = () => {
       showToastNotification("Please enter a comment.");
       return;
     }
-
     const userData = JSON.parse(localStorage.getItem("userData"));
     const empId = userData?.empId;
     const ticketId = ticketDetails?.ticket_id;
-    console.log("EmpID =>", empId);
-    console.log();
-    console.log("Employee ID For Ticket Comment:", empId);
-
     if (!empId) {
       showToastNotification("Employee ID is missing.");
       return;
@@ -436,8 +440,8 @@ const EngineerTicketDetails = () => {
     approvals.forEach((approval) => {
       if (
         (approval.approved_by_id === userData?.empId &&
-          approval.approval_type === "approved" ||
-          "rejected" ) 
+          approval.approval_type === "approved") ||
+        "rejected"
       ) {
         hasUserApproved = true;
       }
@@ -598,6 +602,99 @@ const EngineerTicketDetails = () => {
     // console.log("ticket"  , ticket)
     navigate(`../materialview/${ticket.transaction_id}`, { state: ticket });
   };
+
+  useEffect(() => {
+    if (currentEmployees.length > 0) {
+      const groupedOptions = availableDepartments
+        .map((dept) => {
+          const cleanDeptName = dept.deptName.trim();
+          const children = currentEmployees.filter(
+            (item) => item.deptName.trim() === cleanDeptName
+          );
+
+          return {
+            label: cleanDeptName,
+            options: children,
+          };
+        })
+        .filter((group) => group.options.length > 0);
+
+      setGroupedDepartments(groupedOptions);
+    }
+  }, [currentEmployees]);
+
+  const [expandedDeptId, setExpandedDeptId] = useState(null);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  console.log("expandedDeptId:", expandedDeptId);
+
+  const options = [];
+  const toggleDept = (deptId) => {
+    setExpandedDeptId(deptId.deptId);
+    handleDepartmentChange(deptId);
+  };
+  const customMenuList = (props) => {
+    return (
+      <components.MenuList {...props}>
+        {availableDepartments?.map((dept) => (
+          <div key={dept.deptId}>
+            {/* Department Heading */}
+            <div
+              onClick={() => {
+                toggleDept(dept);
+              }}
+              style={{
+                fontWeight: "bold",
+                padding: "8px",
+                backgroundColor: "#f0f0f0",
+                cursor: "pointer",
+                borderBottom: "1px solid #ccc",
+              }}
+            >
+              {dept.deptName}
+            </div>
+
+            {/* Expanded Employees */}
+            {showEmployeeSelector && expandedDeptId === dept.deptId && (
+              <div style={{ backgroundColor: "#fff" }}>
+                {currentEmployees.length > 0 ? (
+                  currentEmployees?.map((emp) => (
+                    <div
+                      key={emp.id}
+                      onClick={() => {
+                        setSelectedEmployee(emp);
+                      }}
+                      style={{
+                        padding: "3px",
+                        cursor: "pointer",
+                        backgroundColor:
+                          selectedEmployee?.id === emp.id ? "#FEFEFE" : "white",
+                        borderBottom: "1px solid #eee",
+                      }}
+                    >
+                      {emp.employeeName}
+                    </div>
+                  ))
+                ) : (
+                  <div
+                    style={{
+                      padding: "3px",
+                      cursor: "pointer",
+                      backgroundColor: "#FEFEFE",
+                      borderBottom: "1px solid #eee",
+                      textAlign: "center",
+                    }}
+                  >
+                    No Employees Found
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        ))}
+      </components.MenuList>
+    );
+  };
+
   return (
     <Container fluid className="">
       {/* Toast notification */}
@@ -968,18 +1065,17 @@ const EngineerTicketDetails = () => {
                               </a>
                             </div>
                             <div key={index} className="me-2 mb-2 mt-3">
-                                <img
-                                  src={comment.file_path}
-                                  alt={comment.filename}
-                                  style={{
-                                    width: "100px",
-                                    height: "80px",
-                                    objectFit: "cover",
-                                  }}
-                                  className="rounded"
-                                />
-                              </div>
-
+                              <img
+                                src={comment.file_path}
+                                alt={comment.filename}
+                                style={{
+                                  width: "100px",
+                                  height: "80px",
+                                  objectFit: "cover",
+                                }}
+                                className="rounded"
+                              />
+                            </div>
                           </div>
                         )}
 
@@ -1403,139 +1499,26 @@ const EngineerTicketDetails = () => {
             </div>
 
             {/* Move To */}
-            <div className="department-employee-selector">
+            <div className="department-employee-selector border-bottom pb-3">
               {/* Move To Selector */}
-              <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3 flex-wrap">
+              <div className="mb-3 d-flex justify-content-between align-items-center  flex-wrap">
                 <span className="text-muted">Move To</span>
-
-                <div
-                  className="d-flex align-items-center position-relative flex-wrap"
-                  style={{ justifyContent: "end" }}
-                >
-                  <Button
-                    variant="link"
-                    className="d-flex align-items-center border-no-underline"
-                    style={{
-                      color: "#FF6F00",
-                      textDecoration: "none",
-                      backgroundColor: currentDepartment ? "#DDDF" : "white",
-                      padding: currentDepartment ? "5px 10px" : 0,
-                    }}
-                    onClick={() =>
-                      setShowDepartmentSelector(!showDepartmentSelector)
+                <div style={{ justifyContent: "end", width: "300px" }}>
+                  <Select
+                    options={options}
+                    placeholder="Select Deperatment"
+                    components={{ MenuList: customMenuList }}
+                    value={
+                      selectedEmployee
+                        ? {
+                            label: selectedEmployee.employeeName,
+                            value: selectedEmployee.id,
+                          }
+                        : null
                     }
-                    disabled={isLoading}
-                  >
-                    <span
-                      style={{ color: currentDepartment ? "#000" : "#FF6F00" }}
-                    >
-                      {currentDepartment
-                        ? currentDepartment.deptName
-                        : "Select Department"}
-                    </span>
-                    {currentDepartment ? (
-                      <button
-                        className="btn btn-0 border-0"
-                        onClick={() => {
-                          setCurrentDepartment("");
-                          setCurrentEmployee("");
-                        }}
-                      >
-                        <IoMdClose className="ms-1" />
-                      </button>
-                    ) : (
-                      <AiOutlineUser
-                        className="ms-1"
-                        style={{ fill: "#FF6F00" }}
-                      />
-                    )}
-                  </Button>
-
-                  {showDepartmentSelector && (
-                    <div
-                      className="position-absolute end-0 top-100 bg-white shadow border rounded mt-1"
-                      style={{ zIndex: 1000, minWidth: "160px" }}
-                    >
-                      <div className="p-2 border-bottom">
-                        <small className="fw-bold">Select Department</small>
-                      </div>
-                      {isLoading ? (
-                        <div className="p-2 text-muted small">Loading...</div>
-                      ) : availableDepartments.length > 0 ? (
-                        availableDepartments.map((dept) => (
-                          <div
-                            key={dept.deptId}
-                            className="p-2 hover-bg-light cursor-pointer"
-                            onClick={() => handleDepartmentChange(dept)}
-                            style={{ cursor: "pointer" }}
-                          >
-                            <div className="small">{dept.deptName}</div>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="p-2 text-muted small">
-                          No departments available
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Show employee selector when department is selected */}
-                  {currentDepartment && !currentEmployee && (
-                    <Button
-                      variant="link"
-                      className="p-0 d-flex align-items-center border-no-underline w-100"
-                      style={{
-                        color: "#FF6F00",
-                        textDecoration: "none",
-                        justifyContent: "end",
-                      }}
-                      onClick={() =>
-                        setShowEmployeeSelector(!showEmployeeSelector)
-                      }
-                      disabled={isLoading}
-                    >
-                      <span style={{ color: "#FF6F00" }}>
-                        {currentEmployee
-                          ? currentEmployee.employeeName
-                          : "Select Employee"}
-                      </span>
-                      <AiOutlineUser
-                        className="ms-1"
-                        style={{ fill: "#FF6F00" }}
-                      />
-                    </Button>
-                  )}
-
-                  {/* Show employee selector only when the employee selector is toggled */}
-                  {showEmployeeSelector && currentDepartment && (
-                    <div
-                      className="position-absolute end-0 top-100 bg-white shadow border rounded mt-1"
-                      style={{ zIndex: 1000, minWidth: "160px" }}
-                    >
-                      <div className="p-2 border-bottom">
-                        <small className="fw-bold">Select Employee</small>
-                      </div>
-                      {isLoading ? (
-                        <div className="p-2 text-muted small">Loading...</div>
-                      ) : currentEmployees.length > 0 ? (
-                        currentEmployees.map((emp) => (
-                          <div
-                            key={emp.id}
-                            className="p-2 hover-bg-light cursor-pointer"
-                            onClick={() => handleEmployeeChange(emp)}
-                            style={{ cursor: "pointer" }}
-                          >
-                            <div className="small">{emp.employeeName}</div>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="p-2 text-muted small">
-                          No employees available
-                        </div>
-                      )}
-                    </div>
-                  )}
+                    onChange={() => {}}
+                    isSearchable={false}
+                  />
                 </div>
               </div>
 
@@ -1544,9 +1527,7 @@ const EngineerTicketDetails = () => {
                 <div className="mt-3 p-2 border rounded bg-light">
                   <h6 className="mb-1">Move To:</h6>
                   <p className="mb-0">
-                    {currentEmployee
-                      ? currentEmployee.employeeName
-                      : currentDepartment
+                    {currentDepartment
                       ? currentDepartment.deptName
                       : "Select Move To"}
                   </p>
@@ -1557,9 +1538,7 @@ const EngineerTicketDetails = () => {
             {/* Approved By */}
             <div
               className={`mb-3 mt-3 d-flex justify-content-between align-items-center border-bottom pb-3 ${
-                userData?.empId === ticket.created_by
-                  ? "d-none"
-                  : "d-block"
+                userData?.empId === ticket.created_by ? "d-none" : "d-block"
               }`}
             >
               <span className="text-muted">Action</span>
@@ -1591,7 +1570,7 @@ const EngineerTicketDetails = () => {
 
             {/* Approval Status */}
             {ticketDetails?.isapproved !== null && (
-              <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
+              <div className="mt-3 mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
                 <span className="text-muted">Approval Status</span>
                 <Badge
                   bg={ticketDetails?.isapproved ? "success" : "danger"}
