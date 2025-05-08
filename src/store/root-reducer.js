@@ -13,6 +13,7 @@ import employeeReducer from "./slice/hr/createemployeeslice";
 import boqReducer from "./slice/Engineer/upsertboqslice";
 import vendorReducer from "./slice/Vendor/getvendorslice";
 import purchaseReducer from "./slice/Purchase/purchaseorderidslice";
+import purchaseOrderReducer from "./slice/vendorflow/po-vendorslice";
 
 export const rootReducer = combineReducers({
   auth: authSlice.reducer,
@@ -30,6 +31,7 @@ export const rootReducer = combineReducers({
   boq: boqReducer,
   vendor: vendorReducer, 
   purchase: purchaseReducer,
+  purchaseOrder: purchaseOrderReducer,
 
 
 });

@@ -492,7 +492,7 @@ const App = () => {
         >
           <Route path="dashboard" element={<HrDashboard />} />
           <Route path="employee" element={<HrEmployee />} />
-          <Route path="addemployee" element={<AddHrEmployee />} />
+          <Route path="addemployee/:empId?" element={<AddHrEmployee />} />
           <Route path="employeedetail" element={<HrEmployeeDetail />} />
           <Route path="approvals" element={<HrKanban />} />
           <Route path="hrticketdetails/:ticketId" element={<CommonTicketDetails />} />
@@ -537,7 +537,7 @@ const App = () => {
         >
           <Route path="dashboard" element={<VendorDashboard />}/>
           <Route path="po" element={<VendorPo />} />
-          <Route path="editpo" element={<VendorEditPo />} />
+          <Route path="editpo/:purchaseOrderId" element={<VendorEditPo />} />
           <Route path="approvals" element={<VendorKanban />} />
           <Route path="vendorticketdetails/:ticketId" element={<VendorTicketDetails />} />
           <Route path="chats" element={<VendorChat />} />
