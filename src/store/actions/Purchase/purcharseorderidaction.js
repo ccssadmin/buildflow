@@ -61,3 +61,15 @@ export const upsertPurchaseOrder = createAsyncThunk(
     }
   }
 );
+
+export const getAllPurchaseOrder = createAsyncThunk(
+  "purchase/getAllPurchaseOrders",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.GET("/api/Vendor/Get-AllPurchaseOrderDetails");
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
