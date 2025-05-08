@@ -21,7 +21,7 @@ export const getPurchaseOrderDetails = createAsyncThunk(
     async (purchaseOrderId, { rejectWithValue }) => {
       try {
         const response = await api.GET(`/api/Vendor/Getpurchase-order-details/${purchaseOrderId}`);
-        return response.data;
+        return Array.isArray(response.data) ? response.data[0] : response.data;
       } catch (error) {
         return rejectWithValue(error.response?.data?.message || "Failed to fetch purchase order details");
       }

@@ -77,15 +77,24 @@ const PurchasemanagerPoCreate = () => {
     const response = await dispatch(upsertPurchaseOrder(payload));
     if (response?.payload?.success) {
       toast.success("PO Created Successfully");
+    
+      const poId = response?.payload?.data?.purchaseOrderId;
+    
+      if (!poId) {
+        toast.error("Error: No PO ID returned from server");
+        return;
+      }
+    
       const ticketResponse = await createTicket({
-        poId: response?.payload?.data?.purchaseOrderId,
+        poId, // now ensured to be valid
         ticketType: "PO_APPROVAL",
-        assignTo: [1,2,7], // ✅ array of empIds
-        createdBy: userData?.empId, // replace with actual logged-in user ID
+        assignTo: [1, 2, 7],
+        createdBy: userData?.empId,
       });
-
+    
       console.log("ticketResponse", ticketResponse);
     }
+    
     console.log("response", response);
   };
 
