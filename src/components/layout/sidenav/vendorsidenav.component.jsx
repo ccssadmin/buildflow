@@ -9,16 +9,16 @@ import IconDashboard from "../../../assets/images/menu/icon-dashboard.svg";
 import IconSettings from "../../../assets/images/menu/icon-settings.svg";
 import IconApprovals from "../../../assets/images/menu/icon-approvals.svg";
 import IconChat from "../../../assets/images/menu/icon-chat.svg";
-import IconVendor from "../../../assets/images/menu/icon-vendor.svg";
 
 const VendorsideNav = ({ onChange }) => {
   const [collaps, setCollaps] = useState(false);
   const [{ data: auth }] = useAuth();
   const [contactUsForm, setContactUsForm] = useState(false);
 
-  const expandCollaps = () => {
-    setCollaps(!collaps);
-    onChange(!collaps);
+  const expandCollaps = (e) => {
+    let showTitle = collaps ? !collaps : true;
+    setCollaps(showTitle);
+    onChange(showTitle);
   };
 
   const handleContactUs = () => {
@@ -33,65 +33,95 @@ const VendorsideNav = ({ onChange }) => {
     <>
       <div className="sidenav-content">
         <div className="sidenav-content__headings">
-          <div className={collaps ? "sidenav-content_headings-lists" : "sidenav-content_headings-lists collaps"}>
-            <NavLink to="/vendor/dashboard" className="link-tag">
-              {({ isActive }) => (
-                <h5 className="sidenav-content__headings-lists--title" title="Dashboard">
-                  <img src={IconDashboard} alt="Dashboard" />
-                  <span>Dashboard</span>
-                  {collaps && "Kanban"}
-                </h5>
-              )}
-            </NavLink>
+          <div className={!collaps ? "sidenav-content__headings-lists collaps" : "sidenav-content__headings-lists"}>
+            {/* DASHBOARD */}
+            <h5
+              className="sidenav-content__headings-lists--title"
+              title="Dashboard"
+            >
+              <NavLink 
+                to="/vendor/dashboard" 
+                className="link-tag"
+                activeClassName="active"
+              >
+                <img src={IconDashboard} alt={"Dashboard"} />
+                <span>Dashboard</span>
+                {collaps && "Dashboard"}
+              </NavLink>
+            </h5>
 
-            <NavLink to="/vendor/po" className="link-tag">
-              {({ isActive }) => (
-                <h5 className="sidenav-content__headings-lists--title" title="Purchase Orders">
-                  <img src={IconChat} alt="PO" />
-                  <span>Pos</span>
-                  {collaps && "Team"}
-                </h5>
-              )}
-            </NavLink>
+            {/* PO */}
+            <h5
+              className="sidenav-content__headings-lists--title"
+              title="POs"
+            >
+              <NavLink 
+                to="/vendor/po" 
+                className="link-tag"
+                activeClassName="active"
+              >
+                <img src={IconChat} alt={"POs"} className="d-block" />
+                <span>POs</span>
+                {collaps && "POs"}
+              </NavLink>
+            </h5>
 
-            <NavLink to="/vendor/approvals" className="link-tag">
-              {({ isActive }) => (
-                <h5 className="sidenav-content__headings-lists--title" title="Approvals">
-                  <img src={IconProjects} alt="Projects" />
-                  <span>Approvals</span>
-                  {collaps && "Projects"}
-                </h5>
-              )}
-            </NavLink>
+            {/* APPROVALS */}
+            <h5
+              className="sidenav-content__headings-lists--title"
+              title="Approvals"
+            >
+              <NavLink 
+                to="/vendor/approvals" 
+                className="link-tag"
+                activeClassName="active"
+              >
+                <img src={IconApprovals} alt={"Approvals"} />
+                <span>Approvals</span>
+                {collaps && "Approvals"}
+              </NavLink>
+            </h5>
 
-            <NavLink to="/vendor/chats" className="link-tag">
-              {({ isActive }) => (
-                <h5 className="sidenav-content__headings-lists--title" title="Chat">
-                  <img src={IconApprovals} alt="Approval" />
-                  <span>Chat</span>
-                  {collaps && "Team"}
-                </h5>
-              )}
-            </NavLink>
+            {/* CHAT */}
+            <h5
+              className="sidenav-content__headings-lists--title"
+              title="Chat"
+            >
+              <NavLink 
+                to="/vendor/chats" 
+                className="link-tag"
+                activeClassName="active"
+              >
+                <img src={IconProjects} alt={"Chat"} className="d-block" />
+                <span>Chat</span>
+                {collaps && "Chat"}
+              </NavLink>
+            </h5>
 
-            <NavLink to="/vendor/settings" className="link-tag">
-              {({ isActive }) => (
-                <h5 className="sidenav-content__headings-lists--title" title="Settings">
-                  <img src={IconSettings} alt="Settings" />
-                  <span>Settings</span>
-                  {collaps && "Team"}
-                </h5>
-              )}
-            </NavLink>
+            {/* SETTINGS */}
+            <h5
+              className="sidenav-content__headings-lists--title"
+              title="Settings"
+            >
+              <NavLink 
+                to="/vendor/settings" 
+                className="link-tag"
+                activeClassName="active"
+              >
+                <img src={IconSettings} alt={"Settings"} />
+                <span>Settings</span>
+                {collaps && "Settings"}
+              </NavLink>
+            </h5>
           </div>
         </div>
 
         {/* Contact Us */}
-        {auth.activeWorkSpace === 3 && (
+        {auth?.activeWorkSpace === 3 && (
           <div className="setting__info">
             <p className="setting__info-contact" title="Contact Us">
               <button onClick={handleContactUs}>
-                <img src={menu.ContactUs} />
+                <img src={menu.ContactUs} alt="Contact Us" />
                 {collaps && "Contact us"}
               </button>
             </p>
