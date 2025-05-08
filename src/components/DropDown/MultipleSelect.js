@@ -9,7 +9,8 @@ const MultipleSelect = ({
   placeholder,
   handleSelected,
   selectedOptions,
-  isMulti
+  isMulti,
+  disabled,
 }) => {
   const selectStyles = {
     control: (provided) => ({
@@ -65,6 +66,7 @@ const MultipleSelect = ({
         onChange={handleSelected}
         value={selectedOptions ? selectedOptions : []}
         isSearchable={isSearchable}
+        isDisabled={disabled ? disabled : false}
       />
     </div>
   );

@@ -18,6 +18,7 @@ import { toast } from "react-toastify";
 import { useTicket } from "../../../hooks/Ceo/useTicket";
 import { debounce } from "lodash";
 import { getPurchaseOrderDetails } from "../../../store/actions/vendorflow/po-vendroaction";
+import Select from "react-dropdown-select";
 
 export default function POViewPage({ params }) {
   const location = useLocation();
@@ -57,8 +58,9 @@ export default function POViewPage({ params }) {
     const response = await dispatch(
       getPurchaseOrderDetails(route?.purchaseOrderId)
     );
-    if (response?.payload.length > 0) {
-      setPurchaseData(response?.payload[0]);
+    console.log("response", response);
+    if (response?.payload) {
+      setPurchaseData(response?.payload);
     }
   };
 
@@ -344,6 +346,20 @@ export default function POViewPage({ params }) {
     0
   );
 
+  const getApproverName = () => {
+    if (purchaseData?.approvers?.length > 0) {
+      const employeeOptions = purchaseData?.approvers?.map((emp) => ({
+        ...emp,
+        label: emp.employeeName,
+        value: emp.employeeName,
+      }));
+      console.log("employeeOptions_employeeOptions", employeeOptions);
+      return employeeOptions;
+    }
+  };
+
+  console.log("AppovedBy", getApproverName());
+
   return (
     <div className="container mt-4 mb-5">
       <h1
@@ -443,7 +459,7 @@ export default function POViewPage({ params }) {
               <input
                 type="text"
                 className="form-control"
-                value={purchaseData?.boqId}
+                value={purchaseData?.boqCode}
                 onChange={handleBoqCodeChange}
                 placeholder="Enter BOQ Code (e.g. 47 or boq#47)"
                 style={{
@@ -487,7 +503,7 @@ export default function POViewPage({ params }) {
             <input
               type="text"
               className="form-control"
-              value={boqDetails?.vendorName || poData.vendorName || ""}
+              value={purchaseData?.vendorName || poData.vendorName || ""}
               readOnly
               style={{
                 padding: "10px 12px",
@@ -501,12 +517,20 @@ export default function POViewPage({ params }) {
         <div className="col-md-6">
           <Form.Group className="mb-3">
             <Form.Label className="text-black fs-5">Approved By</Form.Label>
-            <MultipleSelect
+            {/* <MultipleSelect
               selectedOptions={selectedApprover}
               handleSelected={setSelectedApprover}
               data={initialApproverArray}
+
               isSearchable={true}
               placeholder={"Select Approver"}
+              isMulti={true}
+
+            /> */}
+            <MultipleSelect
+              placeholder="Approved By"
+              selectedOptions={getApproverName()}
+              disabled
               isMulti={true}
             />
           </Form.Group>
@@ -649,7 +673,9 @@ export default function POViewPage({ params }) {
               >
                 <div className="d-flex justify-content-between">
                   <p className="m-0 text-dark">Grand Total:</p>{" "}
-                  <p className="m-0 text-dark">₹ {totalAmount?.toLocaleString()}</p>
+                  <p className="m-0 text-dark">
+                    ₹ {totalAmount?.toLocaleString()}
+                  </p>
                 </div>
               </td>
             </tr>
