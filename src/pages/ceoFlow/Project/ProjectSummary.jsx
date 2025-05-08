@@ -611,13 +611,14 @@ const ProjectSummary = ({
               
                 try {
                   const userData = JSON.parse(localStorage.getItem("userData"));
-                  const token = userData?.token || localStorage.getItem("accessToken");
+                  const createdBy = parseInt(localStorage.getItem("userRoleId"));
+                  
                   // 1. Create Ticket for all selected users at once
                   const ticketResponse = await createTicket({
                     projectId: formData.projectId,
                     ticketType: "submit",
                     assignTo: selectedUsers, // ✅ array of empIds
-                    createdBy: userData.empId // replace with actual logged-in user ID
+                    createdBy: createdBy
                   });
               
                   const createdTicketId = ticketResponse?.data?.data?.ticketId;
@@ -629,9 +630,9 @@ const ProjectSummary = ({
                   // 2. Create notification for all selected users
                   await createNotify({
                     empId: selectedUsers,
-                    notificationType: "approval-request",
-                    sourceEntityId: 0,
-                    message: `Approval requested for project ${formData.projectName}`,
+                    notificationType: "Project_Finalisation_Approval",
+                    sourceEntityId: createdTicketId,
+                    message: `We would like to update you that we are currently awaiting approval on the Project Finalisation Report submitted for  ${formData.projectName}. Kindly review and provide your confirmation at the earliest to avoid any delays in the process.`,
                   });
               
                   Swal.fire({

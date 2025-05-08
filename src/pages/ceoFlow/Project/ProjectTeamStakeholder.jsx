@@ -115,7 +115,7 @@ const ProjectTeamStakeholder = ({
 
   const handleTicketSubmission = async () => {
     const projectId = formData.projectId || localProjectId || parseInt(localStorage.getItem("projectId"));
-    const createdBy = parseInt(localStorage.getItem("userRoleId")); // This is CEO's user id (creator)
+    const createdBy = parseInt(localStorage.getItem("userRoleId")); 
   
     if (selectedUsers.length === 0) {
       Swal.fire({
@@ -128,20 +128,25 @@ const ProjectTeamStakeholder = ({
   
     const ticketPayload = {
       projectId,
-      ticketType: "project team",
+      ticketType: "permissionFinanceApproval",
       assignTo: selectedUsers,
       createdBy: createdBy,
     };
   
     try {
-      await createTicket(ticketPayload);
-      console.log("✅ Ticket created");
+      const ticketResponse = await createTicket(ticketPayload);
+      const ticketId = ticketResponse?.data?.data?.ticketId; 
+      const projectName = ticketResponse?.data?.data?.projectName;
+  
+      if (!ticketId) {
+        throw new Error("Ticket ID not returned from createTicket");
+      }
   
       const notificationPayload = {
         empId: selectedUsers,
-        notificationType: "Ticket Assigned",
-        sourceEntityId: 0,
-        message: "A new budget ticket has been assigned to you.",
+        notificationType: "Resource_Allocation",
+        sourceEntityId: ticketId,
+        message: `We would like you to Allocate Resources for our ${projectName} Project with consideration to all criteria’s required.Kindly  provide your confirmation at the earliest to avoid any delays in the process.`,
       };
   
       await createNotify(notificationPayload);
