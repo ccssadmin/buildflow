@@ -7,6 +7,7 @@ import { faClipboardCheck } from "@fortawesome/free-solid-svg-icons";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";
 import { getBoqDetails } from "../../services";
 import { toast } from "react-toastify";
+import * as XLSX from "xlsx";  // Import the xlsx library
 
 const MaterialViewScreen = () => {
   const navigate = useNavigate();
@@ -88,6 +89,30 @@ const MaterialViewScreen = () => {
       total: 3600,
     },
   ];
+
+  
+
+  const handleDownloadExcel = () => {
+    const items = boqDetails?.boqItems || []; // Ensure that boqItems are present
+    const formattedData = items.map(item => ({
+      "S. No": item.boqItemsId,
+      "Item Name": item.itemName,
+      "Unit": item.unit,
+      "Rate ₹": item.price,
+      "Quantity": item.quantity,
+      "Total": item.total,
+    }));
+  
+    const ws = XLSX.utils.json_to_sheet(formattedData); // Convert to sheet format
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "BOQ Data");
+  
+    // Generate and download the Excel file
+    XLSX.writeFile(wb, "BOQ_Data.xlsx");
+  };
+  
+
+  
 
   useEffect(() => {
     if (route?.boqId) {
@@ -290,6 +315,7 @@ const MaterialViewScreen = () => {
         <button
           className="btn text-white d-flex align-items-center"
           style={{ backgroundColor: "#ff6600" }}
+          onClick={handleDownloadExcel}
         >
           <FontAwesomeIcon
             icon={faDownload}
