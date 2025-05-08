@@ -70,7 +70,7 @@ export default function PurchaseOrdersPage() {
             </div>
             <button 
             className="btn" style={{ backgroundColor: "#ff6600", color: "white", fontWeight: "500" }}
-            onClick={() => navigate('/purchasemanager/poDetails')}
+            onClick={() => navigate('/purchasemanager/poCreate')}
             >
               + Create PO
             </button>
