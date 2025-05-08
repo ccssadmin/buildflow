@@ -77,7 +77,7 @@ const CeoDashboard1 = lazy(() => import('./pages/ceoFlow/Dashboard/index1'));
 const CeoProject = lazy(() => import('./pages/ceoFlow/Project/index'));
 const CeoProjectDetails = lazy(() => import('./pages/ceoFlow/Project/ProjectDeatils'));
 const CeoCreateProject = lazy(() => import('./pages/ceoFlow/Project/CreateProject'));
-const CeoProjectSummary = lazy(()=>import('./pages/ceoFlow/Project/ProjectSummary'));
+const CeoProjectSummary = lazy(()=>import('./components/common/ProjectSummary'));
 const CeoTicketDetails = lazy(() => import('./pages/ceoFlow/KanbanBoard/TicketDetails'));
 const CeoChat = lazy(() => import('./pages/ceoFlow/ChatPage/Chat/ChatApp'));
 const KanbanCeo = lazy(() => import('./pages/ceoFlow/KanbanBoard/index'));
@@ -404,32 +404,33 @@ const App = () => {
         </Route>
 
         {/* CEO ROUTES */}
-        <Route
-          path="/ceo"
-          element={
-            <ProtectedRoute allowedRoleIds={[1, 15]}>
-              {renderLayout(1)}
-            </ProtectedRoute>
-          }
-        >
-          <Route path="dashboard" element={<CeoDashboard />} />
-          <Route path="dashboard1" element={<CeoDashboard1 />} />
-          <Route path="project" element={<CeoProject />} />
-          <Route path="projectdetails" element={<CeoProjectDetails />} />
-          <Route path="createproject" element={<CeoCreateProject />} />
-          <Route path="projectSummary" element={<CeoProjectSummary />}/>
-          <Route path="projectmilestone" element={<ProjectTimeline />} />
-          <Route path="approvals" element={<KanbanCeo />} />
-          <Route path="ticket/:ticketId" element={<CommonTicketDetails />} />
-          <Route path="chats" element={<CeoChat />} />
-          <Route path="finance" element={<CeoFinance />} />
-          <Route path="resources" element={<CeoResources />} />
-          <Route path="departments" element={<Ceodepartments />} />
-          <Route path="reports" element={<CeoReport />} />
-          <Route path="reportview" element={<CeoReportView />} />
-          <Route path="settings" element={<CeoSettings />} />
-          <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
-        </Route>
+      
+<Route
+  path="/ceo"
+  element={
+    <ProtectedRoute allowedRoleIds={[1]}>
+      {renderLayout(1)}
+    </ProtectedRoute>
+  }
+>
+  <Route path="dashboard" element={<CeoDashboard />} />
+  <Route path="dashboard1" element={<CeoDashboard1 />} />
+  <Route path="project" element={<CeoProject />} />
+  <Route path="projectdetails/:projectId" element={<CeoProjectDetails />} />
+  <Route path="createproject" element={<CeoCreateProject />} />
+  <Route path="projectsummary/:projectId" element={<CeoProjectSummary />} />
+  <Route path="projectmilestone" element={<ProjectTimeline />} />
+  <Route path="approvals" element={<KanbanCeo />} />
+  <Route path="ticket/:ticketId" element={<CommonTicketDetails />} />
+  <Route path="chats" element={<CeoChat />} />
+  <Route path="finance" element={<CeoFinance />} />
+  <Route path="resources" element={<CeoResources />} />
+  <Route path="departments" element={<Ceodepartments />} />
+  <Route path="reports" element={<CeoReport />} />
+  <Route path="reportview" element={<CeoReportView />} />
+  <Route path="settings" element={<CeoSettings />} />
+  <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
+</Route>
 
         {/* FINANCE ROUTES */}
         <Route
