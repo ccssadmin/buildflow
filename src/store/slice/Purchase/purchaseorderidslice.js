@@ -1,5 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getBoqByCode, getNewPoId, upsertPurchaseOrder } from "../../actions/Purchase/purcharseorderidaction";
+import {
+  getAllPurchaseOrder,
+
+  getBoqByCode,
+  getNewPoId,
+  upsertPurchaseOrder,
+ 
+} from "../../actions/Purchase/purcharseorderidaction";
 
 const initialState = {
   poId: null,
@@ -9,6 +16,7 @@ const initialState = {
   boqDetails: null,
   boqLoading: false,
   boqError: null,
+  allPurchaseOrders: [], // ✅ New state field
 };
 
 const purchaseSlice = createSlice({
@@ -28,11 +36,11 @@ const purchaseSlice = createSlice({
       state.boqDetails = action.payload;
       state.boqLoading = false;
       state.boqError = null;
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
-      // Get New PO ID
+      // ✅ Get New PO ID
       .addCase(getNewPoId.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -45,15 +53,14 @@ const purchaseSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      
-      // Get BOQ by Code
+
+      // ✅ Get BOQ by Code
       .addCase(getBoqByCode.pending, (state) => {
         state.boqLoading = true;
         state.boqError = null;
       })
       .addCase(getBoqByCode.fulfilled, (state, action) => {
         state.boqLoading = false;
-        // Handle both direct BOQ objects and array responses
         if (Array.isArray(action.payload) && action.payload.length > 0) {
           const boqData = action.payload[0];
           state.boqDetails = {
@@ -62,10 +69,9 @@ const purchaseSlice = createSlice({
             boqCode: boqData.boqCode,
             vendorId: boqData.vendorId,
             vendorName: boqData.vendorName,
-            items: boqData.purchaseOrderItems || []
+            items: boqData.purchaseOrderItems || [],
           };
         } else if (action.payload && action.payload.boqId) {
-          // Handle single object format
           state.boqDetails = action.payload;
         }
       })
@@ -74,7 +80,7 @@ const purchaseSlice = createSlice({
         state.boqError = action.payload;
       })
 
-      // Upsert Purchase Order
+      // ✅ Upsert Purchase Order
       .addCase(upsertPurchaseOrder.pending, (state) => {
         state.submissionStatus = "pending";
         state.error = null;
@@ -84,6 +90,20 @@ const purchaseSlice = createSlice({
       })
       .addCase(upsertPurchaseOrder.rejected, (state, action) => {
         state.submissionStatus = "error";
+        state.error = action.payload;
+      })
+
+      // ✅ Get All Purchase Orders
+      .addCase(getAllPurchaseOrder.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getAllPurchaseOrder.fulfilled, (state, action) => {
+        state.loading = false;
+        state.allPurchaseOrders = action.payload;
+      })
+      .addCase(getAllPurchaseOrder.rejected, (state, action) => {
+        state.loading = false;
         state.error = action.payload;
       });
   },
