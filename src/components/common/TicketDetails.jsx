@@ -65,6 +65,9 @@ const EngineerTicketDetails = () => {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [uploadedImages, setUploadedImages] = useState([]);
   const { data, loading, error } = useSelector(createTicketsDetailsSelector);
+  const localUserId = localStorage.getItem("userRoleId");
+  const userData = JSON.parse(localStorage.getItem("userData"));
+  const token = userData?.token || localStorage.getItem("accessToken");
 
   const {
     departments,
@@ -98,56 +101,29 @@ const EngineerTicketDetails = () => {
     },
   ]);
 
-  const [approvalData] = useState([
-    {
-      role: "Managing Director",
-      statuses: [
-        { type: "Rejected", color: "danger", active: true },
-        { type: "Pending", color: "warning", active: false },
-        { type: "Approved", color: "success", active: false },
-      ],
-    },
-    {
-      role: "Director",
-      statuses: [
-        { type: "Rejected", color: "danger", active: false },
-        { type: "Pending", color: "warning", active: true },
-        { type: "Approved", color: "success", active: false },
-      ],
-    },
-    {
-      role: "CEO",
-      statuses: [
-        { type: "Rejected", color: "danger", active: true },
-        { type: "Pending", color: "warning", active: false },
-        { type: "Approved", color: "success", active: false },
-      ],
-    },
-    {
-      role: "General Manager (Tech)",
-      statuses: [
-        { type: "Rejected", color: "danger", active: false },
-        { type: "Pending", color: "warning", active: false },
-        { type: "Approved", color: "success", active: true },
-      ],
-    },
-    {
-      role: "General Manager (Admin)",
-      statuses: [
-        { type: "Rejected", color: "danger", active: false },
-        { type: "Pending", color: "warning", active: false },
-        { type: "Approved", color: "success", active: true },
-      ],
-    },
-    {
-      role: "Finance Head",
-      statuses: [
-        { type: "Rejected", color: "danger", active: true },
-        { type: "Pending", color: "warning", active: false },
-        { type: "Approved", color: "success", active: false },
-      ],
-    },
-  ]);
+  //approvalData
+
+  const roleColorMap = {
+    approved: { color: "success", label: "Approved" },
+    pending: { color: "warning", label: "Pending" },
+    rejected: { color: "danger", label: "Rejected" },
+  };
+
+  const transformedData = Object.entries(ticket?.approvalsGrouped || {}).map(
+    ([role, approvals]) => {
+      const approval = approvals[0]; // Assuming single approval per role
+      const statusType = approval?.approval_type || "pending";
+
+      return {
+        role,
+        statuses: ["rejected", "pending", "approved"].map((type) => ({
+          type: roleColorMap[type].label,
+          color: roleColorMap[type].color,
+          active: type === statusType,
+        })),
+      };
+    }
+  );
 
   // Date state management
   const [orderDate, setOrderDate] = useState(
@@ -316,10 +292,10 @@ const EngineerTicketDetails = () => {
   };
 
   const handleSave = async () => {
-    if (!approvalStatus) {
-      showToastNotification("Please select Approve or Reject");
-      return;
-    }
+    // if (!approvalStatus) {
+    //   showToastNotification("Please select Approve or Reject");
+    //   return;
+    // }
 
     setIsLoading(true);
 
@@ -392,7 +368,8 @@ const EngineerTicketDetails = () => {
     const userData = JSON.parse(localStorage.getItem("userData"));
     const empId = userData?.empId;
     const ticketId = ticketDetails?.ticket_id;
-
+    console.log("EmpID =>", empId);
+    console.log();
     console.log("Employee ID For Ticket Comment:", empId);
 
     if (!empId) {
@@ -448,6 +425,26 @@ const EngineerTicketDetails = () => {
       showToastNotification("Failed to send comment.");
     }
   };
+
+  //check Id based approvel to hide action
+
+  let hasUserApproved = false;
+
+  const grouped = ticket?.approvalsGrouped || {};
+
+  Object.values(grouped).forEach((approvals) => {
+    approvals.forEach((approval) => {
+      if (
+        (approval.approved_by_id === userData?.empId &&
+          approval.approval_type === "approved" ||
+          "rejected" ) 
+      ) {
+        hasUserApproved = true;
+      }
+    });
+  });
+
+  console.log("Has user approved?", hasUserApproved); // true or false
 
   // Handle file attachment
   const handleFileAttachment = (e) => {
@@ -910,77 +907,70 @@ const EngineerTicketDetails = () => {
             {/* Comments Tab Content */}
             {(activeTab === "all" || activeTab === "comments") && (
               <div className="mt-4">
-                {comments.map((comment, index) => (
-                  <div key={comment.id} className="d-flex mb-4">
-                    <div className="me-2">
-                      <div
-                        className={`rounded-circle bg-${comment.avatarColor} text-white d-flex align-items-center justify-content-center`}
-                        style={{
-                          width: "36px",
-                          height: "36px",
-                          fontSize: "16px",
-                          flexShrink: 0,
-                        }}
-                      >
-                        {comment.avatar}
+                {ticketDetails?.commentsAndAttachments?.map(
+                  (comment, index) => (
+                    <div key={comment.id} className="d-flex mb-4">
+                      <div className="me-2">
+                        <div
+                          className={`rounded-circle bg-${comment.avatarColor} text-white d-flex align-items-center justify-content-center`}
+                          style={{
+                            width: "36px",
+                            height: "36px",
+                            fontSize: "16px",
+                            flexShrink: 0,
+                          }}
+                        >
+                          {comment.avatar}
+                        </div>
                       </div>
-                    </div>
-                    <div style={{ width: "100%" }}>
-                      <div className="d-flex align-items-center flex-wrap">
-                        <span className="fw-bold">{comment.user}</span>
-                        <span className="text-muted ms-2 small">
-                          {comment.role}
-                        </span>
-                        {comment.time && (
+                      <div style={{ width: "100%" }}>
+                        <div className="d-flex align-items-center flex-wrap">
+                          <span className="fw-bold">{comment.user}</span>
                           <span className="text-muted ms-2 small">
-                            {comment.time}
+                            {comment.role}
                           </span>
-                        )}
-                      </div>
-                      <div className="mt-1">
-                        {comment.status && (
-                          <Badge
-                            bg={comment.statusColor || "danger"}
-                            className="px-2 py-1 rounded-pill"
-                            style={{ fontSize: "0.7rem" }}
-                          >
-                            {comment.status}
-                          </Badge>
-                        )}
-                        <span className={comment.status ? "ms-2" : ""}>
-                          {comment.content}
-                        </span>
-                      </div>
-
-                      {/* Display files in comment */}
-                      {comment.files && comment.files.length > 0 && (
-                        <div className="mt-2 p-2 bg-light rounded">
-                          <div className="d-flex align-items-center mb-1">
-                            <BsPaperclip className="me-1" size={12} />
-                            <small className="text-muted">Files:</small>
-                          </div>
-                          {comment.files.map((file) => (
-                            <div
-                              key={file.id}
-                              className="d-flex align-items-center p-1"
+                          {comment.time && (
+                            <span className="text-muted ms-2 small">
+                              {comment.time}
+                            </span>
+                          )}
+                        </div>
+                        <div className="mt-1">
+                          {comment.status && (
+                            <Badge
+                              bg={comment.statusColor || "danger"}
+                              className="px-2 py-1 rounded-pill"
+                              style={{ fontSize: "0.7rem" }}
                             >
-                              <small>
-                                {file.name} ({formatFileSize(file.size)})
+                              {comment.status}
+                            </Badge>
+                          )}
+                          <span className={comment.status ? "ms-2" : ""}>
+                            {comment.comment}
+                          </span>
+                        </div>
+
+                        {comment.filename && comment.file_path && (
+                          <div className="mt-2 p-2 bg-light rounded">
+                            <div className="d-flex align-items-center mb-1">
+                              <BsPaperclip className="me-1" size={12} />
+                              <small className="text-muted">
+                                Attached File:
                               </small>
                             </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* Display images in comment */}
-                      {comment.images && comment.images.length > 0 && (
-                        <div className="mt-2">
-                          <div className="d-flex flex-wrap">
-                            {comment.images.map((image) => (
-                              <div key={image.id} className="me-2 mb-2">
+                            <div className="d-flex align-items-center p-1">
+                              <a
+                                href={comment.file_path}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <small>{comment.filename}</small>
+                              </a>
+                            </div>
+                            <div key={index} className="me-2 mb-2 mt-3">
                                 <img
-                                  src={image.url}
-                                  alt={image.name}
+                                  src={comment.file_path}
+                                  alt={comment.filename}
                                   style={{
                                     width: "100px",
                                     height: "80px",
@@ -989,35 +979,23 @@ const EngineerTicketDetails = () => {
                                   className="rounded"
                                 />
                               </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
 
-                      {index < comments.length - 1 && (
-                        <hr className="mt-3" style={{ opacity: 0.1 }} />
-                      )}
+                          </div>
+                        )}
+
+                        {index < comments.length - 1 && (
+                          <hr className="mt-3" style={{ opacity: 0.1 }} />
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                )}
               </div>
             )}
 
             {activeTab === "approvalstatus" && (
               <>
-                <Row
-                  className="mb-3 fw-bold"
-                  style={{ fontSize: "14px", marginBottom: 5, marginTop: 30 }}
-                >
-                  <Col xs={6} style={{ fontSize: 18 }}>
-                    List
-                  </Col>
-                  <Col xs={6} style={{ fontSize: 18 }}>
-                    Status
-                  </Col>
-                </Row>
-
-                {approvalData.map((item, index) => (
+                {transformedData.map((item, index) => (
                   <Row key={index} className="mb-4 align-items-center">
                     <Col xs={6}>
                       <span style={{ fontSize: "14px", color: "#444" }}>
@@ -1577,7 +1555,13 @@ const EngineerTicketDetails = () => {
             </div>
 
             {/* Approved By */}
-            <div className="mb-3 mt-3 d-flex justify-content-between align-items-center border-bottom pb-3">
+            <div
+              className={`mb-3 mt-3 d-flex justify-content-between align-items-center border-bottom pb-3 ${
+                userData?.empId === ticket.created_by
+                  ? "d-none"
+                  : "d-block"
+              }`}
+            >
               <span className="text-muted">Action</span>
               <div className="d-flex align-items-center">
                 <button
@@ -1604,6 +1588,7 @@ const EngineerTicketDetails = () => {
                 </button>
               </div>
             </div>
+
             {/* Approval Status */}
             {ticketDetails?.isapproved !== null && (
               <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
@@ -1612,7 +1597,7 @@ const EngineerTicketDetails = () => {
                   bg={ticketDetails?.isapproved ? "success" : "danger"}
                   className="px-2 py-1"
                 >
-                  {ticketDetails?.isapproved ? "Approved" : "Rejected"}
+                  {ticketDetails?.isapproved ? "Approved" : "Pending"}
                 </Badge>
               </div>
             )}

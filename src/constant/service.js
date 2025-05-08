@@ -25,6 +25,7 @@ export const API = {
  GET_DEPARTMENTS_BY_ID : "/api/Login/getEmployeesByDepartment/",
   /*PM FLOW  */
   GET_PROJECT_DETAILS:"/api/Project/getProjectDetails",
+
   
  /* Employee data */
  GET_EMPLOYEES_BY_ROLES: "/api/Login/getEmployeesByRoles",
@@ -52,6 +53,7 @@ export const API = {
   LOGIN_BOARD_DETAILS: '/api/Login/board-details',
 /** GET PURCHASE ORDER DETAILS */
 GET_PURCHASE_ORDER_DETAILS : '/api/Vendor/Getpurchase-order-details',
+GET_BOQCODE : '/api/Project/getBoqDetailsBy-BOQCode',
 
   //** BOQ Get DATA ***/
   GET_BOQ_DETAILS: "/api/Project/getBoqDetails",

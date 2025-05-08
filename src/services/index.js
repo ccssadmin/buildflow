@@ -69,6 +69,11 @@ export const getTicketById = (ticketId) => {
   }
   return api.GET(`${API.GET_TICKET_BY_ID}?ticketId=${ticketId}`);
 };
+
+//BOQCODE
+export const getBoqCode = (params) => api.GET(API.GET_BOQCODE + "/" + params.boqCode,params);
+
+
 export const getTicketLabels = (params) =>
   api.GET(API.GET_TICKET_LABELS + "/" + params.empId, params);
 
