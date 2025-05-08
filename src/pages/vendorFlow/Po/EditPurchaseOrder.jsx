@@ -1,7 +1,12 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { getPurchaseOrderDetails } from "../../../store/actions/vendorflow/po-vendroaction";
+import { upsertPurchaseOrder } from "../../../store/actions/Purchase/purcharseorderidaction";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faDownload } from "@fortawesome/free-solid-svg-icons";
 
 const VendorEditPurchaseOrder = () => {
   const dispatch = useDispatch();
@@ -11,16 +16,53 @@ const VendorEditPurchaseOrder = () => {
     (state) => state.purchaseOrder
   );
 
+  const [localPurchaseOrder, setLocalPurchaseOrder] = useState(null);
+
+
+  const handleDownloadExcel = () => {
+    if (!localPurchaseOrder?.purchaseOrderItems?.length) return;
+  
+    const data = localPurchaseOrder.purchaseOrderItems.map((item, index) => ({
+      "S. No": String(index + 1).padStart(2, "0"),
+      "Item Name": item.itemName,
+      "Unit": item.unit,
+      "Rate ₹": item.price,
+      "Quantity": item.quantity,
+      "Total ₹": item.total,
+    }));
+  
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "PurchaseOrderItems");
+  
+    const fileName = `PurchaseOrder_${localPurchaseOrder.poId}.xlsx`;
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const fileData = new Blob([excelBuffer], { type: "application/octet-stream" });
+    saveAs(fileData, fileName);
+  };
+  
+
+
+
   useEffect(() => {
     if (purchaseOrderId) {
       dispatch(getPurchaseOrderDetails(Number(purchaseOrderId)));
-      console.log("Selected PO: ", selectedPurchaseOrder);
     }
   }, [dispatch, purchaseOrderId]);
 
+  useEffect(() => {
+    if (selectedPurchaseOrder) {
+      setLocalPurchaseOrder(selectedPurchaseOrder);
+    }
+  }, [selectedPurchaseOrder]);
+
+  const handleUpdate = () => {
+    dispatch(upsertPurchaseOrder(localPurchaseOrder));
+  };
+
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
-  if (!selectedPurchaseOrder) return <p>No data found</p>;
+  if (!localPurchaseOrder) return <p>No data found</p>;
 
   return (
     <div className="container mt-4">
@@ -43,7 +85,7 @@ const VendorEditPurchaseOrder = () => {
           <input
             type="text"
             className="form-control"
-            value={selectedPurchaseOrder.poId}
+            value={localPurchaseOrder.poId}
             readOnly
           />
         </div>
@@ -52,23 +94,49 @@ const VendorEditPurchaseOrder = () => {
           <input
             type="text"
             className="form-control"
-            value={selectedPurchaseOrder.projectName}
+            value={localPurchaseOrder.projectName}
             readOnly
           />
         </div>
         <div className="col-md-6 mb-3">
           <label className="form-label fw-bold">Status</label>
-          <div className="form-control text-warning bg-light">
-            {selectedPurchaseOrder.status || "Pending"}
-          </div>
+          <select
+            className="form-select"
+            value={localPurchaseOrder.status || "Pending"}
+            onChange={(e) => {
+              const updatedStatus = e.target.value;
+              setLocalPurchaseOrder((prev) => ({
+                ...prev,
+                status: updatedStatus,
+                dispatchDate:
+                  updatedStatus === "Completed" || updatedStatus === "Dispatched"
+                    ? new Date().toISOString().split("T")[0]
+                    : "",
+              }));
+            }}
+          >
+            <option value="Pending">Pending</option>
+            <option value="Dispatched">Dispatched</option>
+            <option value="Completed">Completed</option>
+          </select>
         </div>
+
         <div className="col-md-6 mb-3">
           <label className="form-label fw-bold">Dispatch Date</label>
           <input
-            type="text"
+            type="date"
             className="form-control"
-            value={selectedPurchaseOrder.dispatchDate || "N/A"}
-            readOnly
+            value={localPurchaseOrder.dispatchDate || ""}
+            onChange={(e) =>
+              setLocalPurchaseOrder((prev) => ({
+                ...prev,
+                dispatchDate: e.target.value,
+              }))
+            }
+            disabled={
+              localPurchaseOrder.status !== "Completed" &&
+              localPurchaseOrder.status !== "Dispatched"
+            }
           />
         </div>
       </div>
@@ -79,8 +147,13 @@ const VendorEditPurchaseOrder = () => {
           className="form-control"
           rows={3}
           placeholder="Write a note……"
-          value={selectedPurchaseOrder.notes || ""}
-          readOnly
+          value={localPurchaseOrder.notes || ""}
+          onChange={(e) =>
+            setLocalPurchaseOrder((prev) => ({
+              ...prev,
+              notes: e.target.value,
+            }))
+          }
         ></textarea>
       </div>
 
@@ -97,7 +170,7 @@ const VendorEditPurchaseOrder = () => {
           </tr>
         </thead>
         <tbody>
-          {selectedPurchaseOrder.purchaseOrderItems?.map((item, idx) => (
+          {localPurchaseOrder.purchaseOrderItems?.map((item, idx) => (
             <tr key={item.purchaseOrderItemsId || idx}>
               <td>{String(idx + 1).padStart(2, "0")}</td>
               <td>{item.itemName}</td>
@@ -110,10 +183,20 @@ const VendorEditPurchaseOrder = () => {
         </tbody>
       </table>
 
-      {/* Update Status Button */}
-      <div className="mt-4">
-        <button className="btn btn-success">Update Status</button>
-      </div>
+    
+      <div className="mt-3 d-flex gap-2">
+  <button className="btn btn-success" onClick={handleUpdate}>
+    Submit
+  </button>
+  <button
+    className="btn text-white d-flex align-items-center"
+    style={{ backgroundColor: "#ff6600" }}
+    onClick={handleDownloadExcel}
+  >
+    <FontAwesomeIcon icon={faDownload} className="me-2" />
+    Download .xlsx
+  </button>
+</div>
     </div>
   );
 };
