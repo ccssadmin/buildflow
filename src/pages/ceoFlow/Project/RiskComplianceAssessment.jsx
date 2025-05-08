@@ -58,7 +58,7 @@ const RiskComplianceAssessment = ({ formData, handleAddColumn, setFormData }) =>
     getProjectId();
   }, [formData, setFormData]);
 
-  const handleFileChange = (riskId, e) => {
+  const handleFileChange = async (riskId, e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       const updatedRisks = formData.risks.map((risk) => {
@@ -69,10 +69,12 @@ const RiskComplianceAssessment = ({ formData, handleAddColumn, setFormData }) =>
       });
       setFormData((prev) => ({ ...prev, risks: updatedRisks }));
       setUploadingForId(null);
+      const risk = updatedRisks.find((r) => r.id === riskId);
+      await handleUpload(risk);
     }
   };
 
-  const handleStatusChange = (riskId, newStatus) => {
+  const handleStatusChange = async (riskId, newStatus) => {
     const updatedRisks = formData.risks.map((risk) => {
       if (risk.id === riskId) {
         return { ...risk, status: newStatus };
@@ -80,6 +82,8 @@ const RiskComplianceAssessment = ({ formData, handleAddColumn, setFormData }) =>
       return risk;
     });
     setFormData((prev) => ({ ...prev, risks: updatedRisks }));
+
+   
   };
 
   const handleUpload = async (risk) => {
@@ -173,7 +177,7 @@ const RiskComplianceAssessment = ({ formData, handleAddColumn, setFormData }) =>
             <th>Category</th>
             <th>Status</th>
             <th>File</th>
-            <th>Upload</th>
+            {/* <th>Upload</th> */}
           </tr>
         </thead>
         <tbody>
@@ -206,7 +210,7 @@ const RiskComplianceAssessment = ({ formData, handleAddColumn, setFormData }) =>
                   </Button>
                 )}
               </td>
-              <td>
+              {/* <td>
                 {uploadedRisks[risk.id] ? (
                   <Button variant="success" disabled className="btn-sm">
                     <FaCheckCircle /> Done
@@ -225,7 +229,7 @@ const RiskComplianceAssessment = ({ formData, handleAddColumn, setFormData }) =>
                     )}
                   </Button>
                 )}
-              </td>
+              </td> */}
             </tr>
           ))}
         </tbody>
