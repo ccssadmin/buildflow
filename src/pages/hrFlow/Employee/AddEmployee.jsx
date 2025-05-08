@@ -150,17 +150,30 @@ useEffect(() => {
     } else if (!/^[A-Za-z\s]+$/.test(employee.name)) {
       errors.name = "Name must contain only letters";
     }
-    if (!employee.dob) errors.dob = "Date of birth is required";
-    if (!employee.gender) errors.gender = "Gender is required";
-    if (!/^\d{10}$/.test(employee.mobile)) {
+    
+    if (employee.mobile && !/^\d{10}$/.test(employee.mobile)) {
       errors.mobile = "Enter valid 10-digit mobile number";
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(employee.email)) {
+    
+    if (employee.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(employee.email)) {
       errors.email = "Invalid email format";
     }
-    if (!employee.department) errors.department = "Department is required";
-    if (!employee.designation) errors.designation = "Designation is required";
-    if (!employee.project) errors.project = "Project is required";
+    
+    if (!employee.email) {
+      errors.email = "Email is required";
+    }
+    
+    if (!employee.department) {
+      errors.department = "Department is required";
+    }
+    
+    if (!employee.designation) {
+      errors.designation = "Designation is required";
+    }
+    
+    // 'project' is optional, no validation needed
+    // 'dob' and 'gender' are optional, no validation needed
+    
   
     setValidationErrors(errors);
     if (Object.keys(errors).length > 0) return;
@@ -272,13 +285,13 @@ const action = editingEmployee ? createOrUpdateEmployee : createOrUpdateEmployee
           </div>
 
           <div className="addemployee-form-group">
-            <label>Date of Birth <span className="addemployee-required">*</span></label>
+            <label>Date of Birth <span className="addemployee-required"></span></label>
             <input type="date" name="dob" value={employee.dob} onChange={handleChange}  />
             {validationErrors.dob && <p className="error-text">{validationErrors.dob}</p>}
           </div>
 
           <div className="addemployee-form-group">
-            <label>Gender <span className="addemployee-required">*</span></label>
+            <label>Gender <span className="addemployee-required"></span></label>
             <select name="gender" value={employee.gender} onChange={handleChange}>
   <option value="">Select Gender</option>
   <option value="Male">Male</option>
@@ -286,11 +299,10 @@ const action = editingEmployee ? createOrUpdateEmployee : createOrUpdateEmployee
   <option value="Other">Other</option>
 </select>
 
-            {validationErrors.gender && <p className="error-text">{validationErrors.gender}</p>}
           </div>
 
           <div className="addemployee-form-group">
-            <label>Mobile No</label>
+            <label>Mobile No  <span className="addemployee-required">*</span></label>
   <div className="mobile-input-wrapper">
     <img
       src="https://flagcdn.com/w40/in.png"
@@ -306,12 +318,11 @@ const action = editingEmployee ? createOrUpdateEmployee : createOrUpdateEmployee
       placeholder="92xxx xxxxx"
       className="mobile-input"
     />
-    {validationErrors.mobile && <p className="error-text">{validationErrors.mobile}</p>}
       </div>
           </div>
 
           <div className="addemployee-form-group-email">
-          <label className="addemployee-form-group-label">Email ID</label>
+          <label className="addemployee-form-group-label">Email ID <span className="addemployee-required">*</span> </label>
   <input
     type="email"
     name="email"
@@ -396,7 +407,7 @@ const action = editingEmployee ? createOrUpdateEmployee : createOrUpdateEmployee
 
 
           <div className="addemployee-form-group">
-            <label >Projects <span className="addemployee-required">*</span></label>
+            <label >Projects </label>
             <select  className="project"  name="project" value={employee.project} onChange={handleChange} >
   <option value="">Select Project</option>
   {projects.map((proj) => (
@@ -406,7 +417,6 @@ const action = editingEmployee ? createOrUpdateEmployee : createOrUpdateEmployee
     
   ))}
 </select>
-{validationErrors.project && <p className="error-text">{validationErrors.project}</p>}
 
 
           </div>
