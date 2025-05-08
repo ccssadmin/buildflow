@@ -6,6 +6,8 @@ import { Link } from "react-router-dom";
 export default function VendorPurchaseOrder() {
   const dispatch = useDispatch();
   const { purchaseOrders, loading, error } = useSelector((state) => state.purchaseOrder);
+  const vendorId = localStorage.getItem("vendorId");
+  localStorage.setItem("vendorId", vendorId);
 
   useEffect(() => {
     const vendorId = localStorage.getItem("vendorId");
