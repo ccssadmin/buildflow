@@ -152,6 +152,7 @@ const PurchasemanagerSettings = lazy(() => import('./pages/purchasemanagerFlow/S
 const PurchaseBoq = lazy(() => import('./pages/purchasemanagerFlow/BoqView/MaterialViewScreen'));
 
 
+
 //Vendor Flow
 
 const VendorDashboard = lazy(() => import('./pages/vendorFlow/Dashboard/index'));
@@ -492,7 +493,7 @@ const App = () => {
         >
           <Route path="dashboard" element={<HrDashboard />} />
           <Route path="employee" element={<HrEmployee />} />
-          <Route path="addemployee" element={<AddHrEmployee />} />
+          <Route path="addemployee/:empId?" element={<AddHrEmployee />} />
           <Route path="employeedetail" element={<HrEmployeeDetail />} />
           <Route path="approvals" element={<HrKanban />} />
           <Route path="hrticketdetails/:ticketId" element={<CommonTicketDetails />} />
@@ -514,7 +515,6 @@ const App = () => {
           <Route path="vendorsDetails" element={<PurchasemanagerVendorDetails/>} />
           <Route path="vendorsPriceDetails" element={<PurchasemanagerVendorPriceDetails/>} />
           <Route path="po" element={<PurchasemanagerPo />} />
-          <Route path="poDetails" element={<PurchasemanagerPoDetails/>} />
           <Route path="poCreate" element={<PurchasemanagerPoCreate />} />
           <Route path="boqDetails/:boqId" element={<PurchaseBoq />} />
           <Route path="approvals" element={<PurchasemanagerKanban />} />
@@ -522,6 +522,7 @@ const App = () => {
           <Route path="chats" element={<PurchasemanagerChat />} />
           <Route path="settings" element={<PurchasemanagerSettings />} />
           <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
+          <Route path="poDetails/:purchaseOrderId" element={<PurchasemanagerPoDetails/>} />
         </Route>
 
 
@@ -537,7 +538,7 @@ const App = () => {
         >
           <Route path="dashboard" element={<VendorDashboard />}/>
           <Route path="po" element={<VendorPo />} />
-          <Route path="editpo" element={<VendorEditPo />} />
+          <Route path="editpo/:purchaseOrderId" element={<VendorEditPo />} />
           <Route path="approvals" element={<VendorKanban />} />
           <Route path="vendorticketdetails/:ticketId" element={<VendorTicketDetails />} />
           <Route path="chats" element={<VendorChat />} />
