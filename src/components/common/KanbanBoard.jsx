@@ -190,11 +190,10 @@ const KanbanBoard = () => {
       9: `/admin/engineerticketdetails/${ticketId}`, // Designer
       10: `/admin/engineerticketdetails/${ticketId}`, // Engineer
       11: `/ticket/${ticketId}`, // Managing Director
-      12: `/finance/financeticketdetails/${ticketId}`, // Head Finance
-      13: `/ceo/ticket/${ticketId}`, // GM Technology
+      13: `/finance/ticket/${ticketId}`, // Head Finance
+      12: `/ceo/ticket/${ticketId}`, // GM Technology
       15: `/hr/hrticketdetails/${ticketId}`, // HR
-      16: `/purchasemanager/hrticketdetails/${ticketId}`, // Purchase Manager
-      17: `/purchasemanager/hrticketdetails/${ticketId}`, // Purchase Manager (duplicate)
+      17: `/purchasemanager/ticket/${ticketId}`, 
     };
 
     return roleRoutes[userRoleId] || `/ticket/${ticketId}`;

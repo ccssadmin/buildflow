@@ -150,7 +150,7 @@ const MaterialViewScreen = () => {
   const handleConvertToPO = () => {
     // Navigate to PO create page with boqDetails and ticket data
     if (boqDetails) {
-      navigate("/purchasemanager/poCreate", {
+      navigate("/purchasemanager/PoCreateAutoGenrate", {
         state: {
           boqData: boqDetails,
           ticket: ticket,
