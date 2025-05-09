@@ -9,11 +9,10 @@ import { useTicket } from "../../../hooks/Ceo/useTicket";
 import { fetchProjects } from "../../../store/actions/hr/projectaction";
 
 const PoCreateAutoGenrate = () => {
-      const { projects = [] } = useSelector((state) => state.project);
-    const [selectedProjectId, setSelectedProjectId] = useState("")
-    const { poId, loading, boqDetails, boqLoading } = useSelector(
-        (state) => state.purchase
-      );
+  const { projects = [] } = useSelector((state) => state.project);
+  const { poId, loading, boqDetails, boqLoading } = useSelector(
+    (state) => state.purchase
+  );
   const location = useLocation();
   const { boqData, ticket } = location.state || {};
   const { createTicket } = useTicket();
@@ -21,23 +20,30 @@ const PoCreateAutoGenrate = () => {
     poNumber: "",
     poDate: new Date().toISOString().split("T")[0],
     vendorName: boqData?.vendorName || "",
+    projectName: boqData?.projectName || "",
+    approvedBy: boqData?.approvedBy || "CEO", // Default value or from boqData
     items: [],
   });
 
   const dispatch = useDispatch();
+  
   useEffect(() => {
     dispatch(fetchProjects());
   }, [dispatch]);
 
-  const handleProjectChange = (e) => {
-    setSelectedProjectId(e.target.value);
-  };
   useEffect(() => {
     // Initialize PO data from BOQ data if available
     if (boqData) {
+      // Find project name from projects array if projectId exists in boqData
+      const projectName = boqData.projectId 
+        ? projects.find(p => p.project_id === boqData.projectId)?.project_name || ""
+        : "";
+        
       setPoData((prev) => ({
         ...prev,
         vendorName: boqData.vendorName || "",
+        projectName: projectName,
+        approvedBy: boqData.approvedBy || "CEO",
         items:
           boqData.boqItems?.map((item) => ({
             itemId: item.boqItemsId,
@@ -49,20 +55,22 @@ const PoCreateAutoGenrate = () => {
           })) || [],
       }));
     }
-  }, [boqData]);
+  }, [boqData, projects]);
 
   useEffect(() => {
-      // Set PO ID when it's available
-      if (poId) {
-        setPoData((prev) => ({
-          ...prev,
-          poNumber: poId,
-        }));
-      }
-    }, [poId]);
-useEffect(() => {
+    // Set PO ID when it's available
+    if (poId) {
+      setPoData((prev) => ({
+        ...prev,
+        poNumber: poId,
+      }));
+    }
+  }, [poId]);
+  
+  useEffect(() => {
     dispatch(getNewPoId());
   }, [dispatch]);
+  
   // Generate a PO number when component mounts
   useEffect(() => {
     const generatePoNumber = () => {
@@ -85,6 +93,8 @@ useEffect(() => {
       poId: poData.poNumber, // Ensure this is the correct name expected by the API
       poDate: poData.poDate,
       vendorName: poData.vendorName,
+      projectName: poData.projectName,
+      approvedBy: poData.approvedBy,
       boqId: boqData?.boqId || "",
       boqTitle: boqData?.boqName || "",
       createdBy: empId,
@@ -191,28 +201,21 @@ useEffect(() => {
                 disabled
               />
             </Form.Group>
-            <div className="form-group">
-            <label style={{ fontWeight: "500", marginBottom: "8px" }}>
-              Projects <span style={{ color: "red" }}>*</span>
-            </label>
-            <select
-              className="form-control"
-              value={selectedProjectId}
-              onChange={handleProjectChange}
-              style={{
-                padding: "10px 12px",
-                border: "1px solid #ced4da",
-                borderRadius: "4px",
-              }}
-            >
-              <option value="">Select Project</option>
-              {projects.map((proj) => (
-                <option key={proj.project_id} value={proj.project_id}>
-                  {proj.project_name}
-                </option>
-              ))}
-            </select>
-          </div>
+            <Form.Group className="mb-3">
+              <Form.Label className="text-black fs-5">
+                Project Name <span style={{ color: "red" }}>*</span>
+              </Form.Label>
+              <Form.Control
+                type="text"
+                value={poData.projectName}
+                onChange={(e) => setPoData({ ...poData, projectName: e.target.value })}
+                style={{
+                  padding: "10px 12px",
+                  border: "1px solid #ced4da",
+                  borderRadius: "4px",
+                }}
+              />
+            </Form.Group>
           </div>
           <div className="col-md-6">
             <Form.Group className="mb-3">
@@ -223,7 +226,19 @@ useEffect(() => {
                 disabled
               />
             </Form.Group>
-            
+            <Form.Group className="mb-3">
+              <Form.Label className="text-black fs-5">Approved By</Form.Label>
+              <Form.Control
+                type="text"
+                value={poData.approvedBy}
+                onChange={(e) => setPoData({ ...poData, approvedBy: e.target.value })}
+                style={{
+                  padding: "10px 12px",
+                  border: "1px solid #ced4da",
+                  borderRadius: "4px",
+                }}
+              />
+            </Form.Group>
           </div>
         </div>
       )}
