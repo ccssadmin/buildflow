@@ -102,7 +102,7 @@ const VendorEditPurchaseOrder = () => {
           <label className="form-label fw-bold">Status</label>
           <select
             className="form-select"
-            value={localPurchaseOrder.status || "Pending"}
+            value={localPurchaseOrder.deliveryStatus || "Pending"}
             onChange={(e) => {
               const updatedStatus = e.target.value;
               setLocalPurchaseOrder((prev) => ({
@@ -126,7 +126,7 @@ const VendorEditPurchaseOrder = () => {
           <input
             type="date"
             className="form-control"
-            value={localPurchaseOrder.dispatchDate || ""}
+            value={localPurchaseOrder.deliveryStatusDate || ""}
             onChange={(e) =>
               setLocalPurchaseOrder((prev) => ({
                 ...prev,
