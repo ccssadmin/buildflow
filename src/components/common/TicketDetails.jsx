@@ -399,7 +399,7 @@ const EngineerTicketDetails = () => {
     }
     const userData = JSON.parse(localStorage.getItem("userData"));
     const empId = userData?.empId;
-    const ticketId = ticketDetails?.ticket_id;
+    const ticketId = ticketData?.ticket_id;
     console.log("EmpID =>", empId);
     console.log();
     console.log("Employee ID For Ticket Comment:", empId);
@@ -1657,7 +1657,7 @@ const EngineerTicketDetails = () => {
             </div>
 
             {/* Approval Status */}
-            {ticketDetails?.isapproved !== null && (
+            {ticketData?.isapproved !== null && (
               <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
                 <span className="text-muted">Approval Status</span>
                 <Badge

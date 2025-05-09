@@ -5,6 +5,7 @@ import Spinner from "./components/spinner/spinner.component";
 import "./styles/index.scss";
 import "./styles/index.css";
 
+
 /** LAYOUTS */
 const MdLayout = lazy(() => import("./components/layout/user-layout.component"));
 const EngineerLayout = lazy(() => import("./components/layout/engineer-layout.component"));
@@ -149,7 +150,7 @@ const PurchasemanagerPo = lazy(() => import('./pages/purchasemanagerFlow/Po/inde
 const PurchasemanagerPoDetails = lazy(() => import('./pages/purchasemanagerFlow/Po/purchaseOrder'));
 const PurchasemanagerPoCreate = lazy(() => import('./pages/purchasemanagerFlow/Po/purchaseOrderCreate'));
 const PurchasemanagerKanban = lazy(() => import('./pages/purchasemanagerFlow/KanbanBoard/index'));
-const PurchasemanagerKanbanTicketDetails = lazy(() => import('./pages/purchasemanagerFlow/KanbanBoard/TicketDetails'));
+const PoCreateAutoGenrate = lazy(() => import('./pages/purchasemanagerFlow/Po/PoCreateAutoGenrate')); 
 const PurchasemanagerChat = lazy(() => import('./pages/purchasemanagerFlow/ChatPage/Chat/ChatApp'));
 const PurchasemanagerSettings = lazy(() => import('./pages/purchasemanagerFlow/Settings/index'));
 const PurchaseBoq = lazy(() => import('./pages/purchasemanagerFlow/BoqView/MaterialViewScreen'));
@@ -329,6 +330,7 @@ const App = () => {
             )
           }
         />
+        
 
         {/* SUPERADMIN ROUTES (MD Flow) */}
         <Route
@@ -451,7 +453,7 @@ const App = () => {
           <Route path="budgetcreate" element={<FinanceBudgetCreate />} />
           <Route path="budgetdetails" element={<FinanceBudgetDetails />} />
           <Route path="approvals" element={<CommonKanban />} />
-          <Route path="financeticketdetails/:ticketId" element={<CommonTicketDetails />} />
+          <Route path="ticket/:ticketId" element={<CommonTicketDetails />} />
           <Route path="chats" element={<FinanceChat />} />
           <Route path="invoice" element={<FinanceInvoice />} />
           <Route path="invoicedetails" element={<FinanceInvoiceDetails />} />
@@ -533,6 +535,7 @@ const App = () => {
           <Route path="settings" element={<PurchasemanagerSettings />} />
           <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
           <Route path="poDetails/:purchaseOrderId" element={<PurchasemanagerPoDetails/>} />
+          <Route path="pocreateautogenrate" element={<PoCreateAutoGenrate />} />
           <Route path="ticket/:ticketId" element={<CommonTicketDetails />} />
           
         </Route>
