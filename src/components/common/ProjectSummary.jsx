@@ -505,7 +505,7 @@ const ProjectSummary = ({ formData, onBackClick }) => {
     const isRole1 = userRoleId === 3;
     return (
         <Button
-        className={`submit-btn w-auto border-0 ${userRoleId === 1 ? "d-block" : "d-none"}`}
+        className={`submit-btn w-auto border-0 ${userRoleId === 3 ? "d-block" : "d-none"}`}
           onClick={async () => {
             try {
               const rolesResponse = await dispatch(fetchRoles());
