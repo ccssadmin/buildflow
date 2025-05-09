@@ -699,9 +699,9 @@ const ProjectTeamStakeholder = ({
                   onClick={() => handleItemClick(item)}
                   style={{ cursor: "pointer" }}
                 >
-                  <div className="d-flex justify-content-between">
+                  <div className="d-flex justify-content-between align-items-center text-capitalize">
                     <span>{item.name}</span>
-                    <span className="text-muted small">
+                    <span className={`small fs-12-400 ms-2 ${item.value ? "text-danger" : "text-success"}`}>
                       {item.value ? "Allocated" : "Not Allocated"}
                     </span>
                   </div>
