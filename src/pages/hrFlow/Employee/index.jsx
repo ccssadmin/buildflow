@@ -56,18 +56,18 @@ const EmployeeTable = () => {
         </div>
       </div>
 
-      <table className="hrms-table">
+      <table className="tbl hrms-table">
       <thead className="hrms-thead">
           <tr>
-            <th onClick={handleSort} style={{ cursor: "pointer" }}>
+            <th className="fs-16-500" onClick={handleSort} style={{ cursor: "pointer" }}>
               Employee ID {sortOrder === "asc" ? "↑" : "↓"}
             </th>
-            <th>Name</th>
-            <th>Department</th>
-            <th>Designation</th>
-            <th>Allocated</th>
-            <th>Contact</th>
-            <th>Action</th>
+            <th className="fs-16-500 text-dark">Name</th>
+            <th className="fs-16-500 text-dark">Department</th>
+            <th className="fs-16-500 text-dark">Designation</th>
+            <th className="fs-16-500 text-dark">Allocated</th>
+            <th className="fs-16-500 text-dark">Contact</th>
+            <th className="fs-16-500 text-dark">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -85,11 +85,11 @@ const EmployeeTable = () => {
 
   {!loading && currentEmployees.map((emp, index) => (
     <tr key={index}>
-      <td>{emp.employeeCode}</td>
-      <td>{emp.firstName} {emp.lastName}</td>
-      <td>{emp.deptName || "N/A"}</td>
-      <td>{emp.roleName || "N/A"}</td>
-      <td className={emp.isAllocated ? "hrms-text-success" : "hrms-text-danger"}>
+      <td className="text-dark-gray fs-16-500">{emp.employeeCode}</td>
+      <td className="text-dark-gray fs-16-500 text-capitalize">{emp.firstName} {emp.lastName}</td>
+      <td className="text-dark-gray fs-16-500">{emp.deptName || "N/A"}</td>
+      <td className="text-dark-gray fs-16-500">{emp.roleName || "N/A"}</td>
+      <td className={emp.isAllocated ? "hrms-text-success fs-16-500" : "hrms-text-danger fs-16-500"}>
   {emp.isAllocated ? "Allocated" : "Unallocated"}
 </td>
 

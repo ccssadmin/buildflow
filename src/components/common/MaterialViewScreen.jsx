@@ -287,9 +287,13 @@ const MaterialViewScreen = () => {
       </div>
 
       <div className="d-flex justify-content-end align-items-center mt-3 gap-2">
-        {isValidforApproval && (
+      {(() => {
+  const userRoleId = parseInt(localStorage.getItem("userRoleId"));
+  const isRole1 = userRoleId === 17;
+
+  return isValidforApproval && (
           <button
-            className="btn text-black d-flex align-items-center"
+          className={`btn text-black d-flex align-items-center ${isRole1 ? "d-block" : "d-none"}`}
             style={{ background: "transparent", border: "none" }}
             onClick={handleConvertToPO}
           >
@@ -299,8 +303,8 @@ const MaterialViewScreen = () => {
               color="black"
             />
             Convert To PO
-          </button>
-        )}
+          </button>);
+})()}
         <button
           className="btn text-black d-flex align-items-center"
           style={{ background: "transparent", border: "none" }}
