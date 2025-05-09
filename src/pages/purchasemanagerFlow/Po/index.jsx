@@ -59,39 +59,39 @@ export default function PurchaseOrdersPage() {
             </tr>
           </thead>
           <tbody>
-            {allPurchaseOrders?.length > 0 ? (
-              allPurchaseOrders.map((po, index) => (
-                <tr key={index}>
-                  <td className="text-center">{po.poId || "-"}</td>
-                  <td className="text-center">{po.projectName || "-"}</td>
-                  <td className="text-center">{po.vendorName || "-"}</td>
-                  
-                 
-                  <td className="text-center">{po.date || "-"}</td>
-                  <td className="text-center">
-                    <span style={{ color: "#28a745", fontWeight: "500" }}>Pending</span>
-                  </td>
-                
-                  <td className="text-center">{po.mobile || "-"}</td>
-                  <td className="text-center">
-                    <button
-                      className="btn btn-link"
-                      style={{ color: "#0d6efd", textDecoration: "none" }}
-                      onClick={() => navigate(`/purchasemanager/poDetails/${po.purchaseOrderId}`)}
-                    >
-                      View
-                    </button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="6" className="text-center text-muted">
-                  No Purchase Orders found.
-                </td>
-              </tr>
-            )}
-          </tbody>
+  {allPurchaseOrders?.length > 0 ? (
+    allPurchaseOrders.map((po, index) => (
+      <tr key={index}>
+        <td className="text-center">{po.poId || "-"}</td>
+        <td className="text-center">{po.projectName || "-"}</td>
+        <td className="text-center">{po.vendor || "-"}</td>
+        <td className="text-center">{po.deliveryStatusDate || "-"}</td>
+        <td className="text-center">
+        <span className="text-success">
+    {po.deliveryStatus ? po.deliveryStatus : "Pending"}
+  </span>
+        </td>
+        <td className="text-center">{po.vendorMobileNumber || "-"}</td>
+        <td className="text-center">
+          <button
+            className="btn btn-link"
+            style={{ color: "#0d6efd", textDecoration: "none" }}
+            onClick={() => navigate(`/purchasemanager/poDetails/${po.purchaseOrderId}`)}
+          >
+            View
+          </button>
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan="7" className="text-center text-muted">
+        No Purchase Orders found.
+      </td>
+    </tr>
+  )}
+</tbody>
+
         </table>
       </div>
     </div>
