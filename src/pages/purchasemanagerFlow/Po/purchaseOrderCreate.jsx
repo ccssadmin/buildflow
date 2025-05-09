@@ -1,10 +1,14 @@
-"use client"
+"use client";
 import { useLocation, useNavigate } from "react-router-dom";
-import "bootstrap/dist/css/bootstrap.min.css"
+import "bootstrap/dist/css/bootstrap.min.css";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { getVendorsAndSubcontractors } from "../../../store/actions/vendor/getvendoraction";
-import { getNewPoId, upsertPurchaseOrder, getBoqByCode } from "../../../store/actions/Purchase/purcharseorderidaction";
+import {
+  getNewPoId,
+  upsertPurchaseOrder,
+  getBoqByCode,
+} from "../../../store/actions/Purchase/purcharseorderidaction";
 import { Form } from "react-bootstrap";
 import MultipleSelect from "../../../components/DropDown/MultipleSelect";
 import { fetchRoles } from "../../../store/actions/hr/designationaction";
@@ -18,9 +22,11 @@ import { useNotification } from "../../../hooks/Ceo/useNotification";
 export default function PurchasemanagerPoCreate({ params }) {
   const location = useLocation();
   const { createTicket } = useTicket();
-  const {createNotify} = useNotification();
+  const { createNotify } = useNotification();
   const navigate = useNavigate();
-  const { poId, loading, boqDetails, boqLoading } = useSelector((state) => state.purchase);
+  const { poId, loading, boqDetails, boqLoading } = useSelector(
+    (state) => state.purchase
+  );
   const dispatch = useDispatch();
   const { vendors } = useSelector((state) => state.vendor);
   const [selectedProjectId, setSelectedProjectId] = useState("");
@@ -32,15 +38,15 @@ export default function PurchasemanagerPoCreate({ params }) {
   const [boqCodeInput, setBoqCodeInput] = useState("");
   const [boqSearchError, setBoqSearchError] = useState("");
   const [lineItems, setLineItems] = useState([]);
-  
+
+  console.log("selectedApprover", selectedApprover);
+
   const [poData, setPoData] = useState({
     poNumber: "",
     poDate: new Date().toISOString().split("T")[0],
     vendorName: boqData?.vendorName || "",
     items: [],
   });
-
- 
 
   // Create a debounced search function
   const debouncedSearch = debounce(async (code) => {
@@ -55,24 +61,24 @@ export default function PurchasemanagerPoCreate({ params }) {
       if (!formattedBoqCode.toLowerCase().startsWith("boq#")) {
         formattedBoqCode = `boq#${formattedBoqCode}`;
       }
-      
+
       const result = await dispatch(getBoqByCode(formattedBoqCode)).unwrap();
       console.log("BOQ Data received:", result);
-      
+
       // Handle both array response and direct object response
       if (result) {
         // Use the result directly if it's an object, or the first item if it's an array
         const boqData = Array.isArray(result) ? result[0] : result;
-        
+
         if (boqData) {
           console.log("Processing BOQ data:", boqData);
-          
+
           // Update form fields with BOQ details
-          setPoData(prev => ({
+          setPoData((prev) => ({
             ...prev,
             vendorName: boqData.vendorName || "",
           }));
-          
+
           // Set line items for display - use boqItems from the API response
           if (boqData.boqItems && boqData.boqItems.length > 0) {
             const formattedItems = boqData.boqItems.map((item, index) => ({
@@ -81,26 +87,26 @@ export default function PurchasemanagerPoCreate({ params }) {
               unit: item.unit,
               rate: item.price,
               quantity: item.quantity,
-              total: item.total
+              total: item.total,
             }));
-            
+
             console.log("Setting line items:", formattedItems);
             setLineItems(formattedItems);
           }
-          
+
           // Set project if it exists
           if (boqData.projectId) {
             setSelectedProjectId(boqData.projectId.toString());
           }
-          
+
           // Set vendor if it exists in the vendors list
           if (boqData.vendorId) {
             setSelectedVendorId(boqData.vendorId.toString());
           }
-          
+
           // Store BOQ details in selector state
           dispatch({
-            type: 'purchase/getBoqByCode/fulfilled',
+            type: "purchase/getBoqByCode/fulfilled",
             payload: {
               boqId: boqData.boqId,
               boqName: boqData.boqName,
@@ -108,20 +114,24 @@ export default function PurchasemanagerPoCreate({ params }) {
               projectId: boqData.projectId,
               projectName: boqData.projectName,
               vendorId: boqData.vendorId,
-              vendorName: boqData.vendorName
-            }
+              vendorName: boqData.vendorName,
+            },
           });
-          
+
           setBoqSearchError("");
           toast.success("BOQ details loaded successfully");
         } else {
           setBoqSearchError("Invalid BOQ data format received");
         }
       } else {
-        setBoqSearchError("No BOQ found with the provided code. Please check and try again.");
+        setBoqSearchError(
+          "No BOQ found with the provided code. Please check and try again."
+        );
       }
     } catch (error) {
-      setBoqSearchError("Failed to fetch BOQ details. Please check the code and try again.");
+      setBoqSearchError(
+        "Failed to fetch BOQ details. Please check the code and try again."
+      );
       console.error("BOQ fetch error:", error);
     }
   }, 500);
@@ -130,8 +140,9 @@ export default function PurchasemanagerPoCreate({ params }) {
   const handleBoqCodeChange = (e) => {
     const value = e.target.value;
     setBoqCodeInput(value);
-    
-    if (value.length >= 2) { // Only search if at least 2 characters entered
+
+    if (value.length >= 2) {
+      // Only search if at least 2 characters entered
       debouncedSearch(value);
     }
   };
@@ -140,18 +151,21 @@ export default function PurchasemanagerPoCreate({ params }) {
   const handleInputChange = (index, field, value) => {
     const updatedItems = [...lineItems];
     updatedItems[index][field] = value;
-  
+
     const rate = parseFloat(updatedItems[index].rate) || 0;
     const quantity = parseFloat(updatedItems[index].quantity) || 0;
-  
+
     updatedItems[index].total = rate * quantity;
-  
+
     setLineItems(updatedItems);
   };
 
   // Handle add new row
   const handleAddRow = () => {
-    const newId = lineItems.length > 0 ? Math.max(...lineItems.map(item => item.id)) + 1 : 1;
+    const newId =
+      lineItems.length > 0
+        ? Math.max(...lineItems.map((item) => item.id)) + 1
+        : 1;
     const newRow = {
       id: newId,
       name: "",
@@ -164,120 +178,147 @@ export default function PurchasemanagerPoCreate({ params }) {
   };
 
   // Handle create PO
- // Handle create PO
-const handleCreatePO = async () => {
-  if (lineItems.length === 0) {
-    toast.error("Please add at least one item to the purchase order");
-    return;
-  }
+  // Handle create PO
+  const handleCreatePO = async () => {
+    if (lineItems.length === 0) {
+      toast.error("Please add at least one item to the purchase order");
+      return;
+    }
 
-  if (!selectedProjectId) {
-    toast.error("Please select a project");
-    return;
-  }
+    if (!selectedProjectId) {
+      toast.error("Please select a project");
+      return;
+    }
 
-  // Check if BOQ Code is available
-  if (!boqCodeInput && !boqDetails?.boqCode && !boqData?.boqCode) {
-    toast.error("BOQ Code is required");
-    return;
-  }
+    // Check if BOQ Code is available
+    if (!boqCodeInput && !boqDetails?.boqCode && !boqData?.boqCode) {
+      toast.error("BOQ Code is required");
+      return;
+    }
 
-  const userData = JSON.parse(localStorage.getItem("userData"));
-  const empId = userData?.empId;
-  
-  const payload = {
-    purchaseOrderId: 0,
-    poId: poData.poNumber || poId,
-    poDate: poData.poDate,
-    vendorName: poData.vendorName,
-    boqId: boqDetails?.boqId || parseInt(boqData?.boqId) || 0,
-    boqTitle: boqDetails?.boqName || boqData?.boqName || "",
-    boqCode: boqDetails?.boqCode || boqData?.boqCode || boqCodeInput, // Add the BOQ code
-    projectId: parseInt(selectedProjectId) || 0,
-    createdBy: empId,
-    Items: lineItems.map((item) => ({
-      itemName: item.name,
-      unit: item.unit,
-      price: parseFloat(item.rate) || 0,
-      quantity: parseFloat(item.quantity) || 0,
-      total: parseFloat(item.total) || 0,
-    })),
-  };
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    const empId = userData?.empId;
 
-  console.log("Sending payload:", payload); // Log payload for debugging
+    const payload = {
+      purchaseOrderId: 0,
+      poId: poData.poNumber || poId,
+      poDate: poData.poDate,
+      vendorName: poData.vendorName,
+      boqId: boqDetails?.boqId || parseInt(boqData?.boqId) || 0,
+      boqTitle: boqDetails?.boqName || boqData?.boqName || "",
+      boqCode: boqDetails?.boqCode || boqData?.boqCode || boqCodeInput, // Add the BOQ code
+      projectId: parseInt(selectedProjectId) || 0,
+      createdBy: empId,
+      Items: lineItems.map((item) => ({
+        itemName: item.name,
+        unit: item.unit,
+        price: parseFloat(item.rate) || 0,
+        quantity: parseFloat(item.quantity) || 0,
+        total: parseFloat(item.total) || 0,
+      })),
+    };
 
-  try {
-    const response = await dispatch(upsertPurchaseOrder(payload)).unwrap();
-    if (response?.success) {
-      toast.success("PO Created Successfully");
-      
-      // Create ticket for approval
-      if (selectedApprover.length > 0) {
-        const approverIds = selectedApprover.map(approver => approver.emp_id || approver.id);
-        const ticketResponse = await createTicket({
-          poId: response?.data?.purchaseOrderId,
-          ticketType: "PO_APPROVAL",
-          assignTo: approverIds,
-          createdBy: userData?.empId,
-        });
+    console.log("Sending payload:", payload); // Log payload for debugging
 
-        const ticketId = ticketResponse?.data?.data?.ticketId;
-        const projectName = ticketResponse?.data?.data?.projectName;
+    try {
+      const response = await dispatch(upsertPurchaseOrder(payload)).unwrap();
+      if (response?.success) {
+        toast.success("PO Created Successfully");
 
-      if (ticketId) {
-        // Create notification with ticket ID as sourceEntityId
-        const notificationPayload = {
-          empId: selectedApprover.length > 0 ? selectedApprover.map(approver => approver.emp_id || approver.id) : [1, 2, 7],
-          notificationType: "Generate_Purchase_Order ",
-          sourceEntityId: ticketId,  
-          message: `We would like to update you that we are currently awaiting your PO on the for ${projectName}. Kindly review and provide your confirmation at the earliest to avoid any delays in the process.`,
-        };
+        // Create ticket for approval
+        if (selectedApprover.length > 0) {
+          console.log("this if working");
+          const ticketResponse = await createTicket({
+            poId: response?.data?.purchaseOrderId,
+            ticketType: "PO_APPROVAL",
+            assignTo:
+              selectedApprover.length > 0
+                ? selectedApprover.map(
+                    (approver) => approver.empId || approver.empId
+                  )
+                : [1, 2, 7],
+            createdBy: userData?.empId,
+          });
 
-        // Create notification
-        await createNotify(notificationPayload);
-      }
+          if (ticketResponse?.data?.success) {
+            toast.success("Ticket Created Successfully");
+          }
+
+          console.log("Ticket response:", ticketResponse); // Log ticket response for debugging
+          const ticketId = ticketResponse?.data?.data?.ticketId;
+          const projectName = ticketResponse?.data?.data?.projectName;
+
+          if (ticketId) {
+            // Create notification with ticket ID as sourceEntityId
+            const notificationPayload = {
+              empId:
+                selectedApprover.length > 0
+                  ? selectedApprover.map(
+                      (approver) => approver.emp_id || approver.id
+                    )
+                  : [1, 2, 7],
+              notificationType: "Generate_Purchase_Order ",
+              sourceEntityId: ticketId,
+              message: `We would like to update you that we are currently awaiting your PO on the for ${projectName}. Kindly review and provide your confirmation at the earliest to avoid any delays in the process.`,
+            };
+
+            // Create notification
+            await createNotify(notificationPayload);
+          }
+        } else {
+          // Default approvers if none selected
+          const ticketResponse = await createTicket({
+            poId: response?.data?.purchaseOrderId,
+            ticketType: "PO_APPROVAL",
+            assignTo:
+              selectedApprover.length > 0
+                ? selectedApprover.map(
+                    (approver) => approver.empId || approver.id
+                  )
+                : [1, 2, 7], // array of empIds
+            createdBy: userData?.empId,
+          });
+          const ticketId = ticketResponse?.data?.data?.ticketId;
+          const projectName = ticketResponse?.data?.data?.projectName;
+
+          if (ticketId) {
+            // Create notification with ticket ID as sourceEntityId
+            const notificationPayload = {
+              empId:
+                selectedApprover.length > 0
+                  ? selectedApprover.map(
+                      (approver) => approver.empId || approver.id
+                    )
+                  : [1, 2, 7],
+              notificationType: "Generate_Purchase_Order ",
+              sourceEntityId: ticketId,
+              message: `We would like to update you that we are currently awaiting your PO on the for ${projectName}. Kindly review and provide your confirmation at the earliest to avoid any delays in the process.`,
+            };
+
+            // Create notification
+            await createNotify(notificationPayload);
+          }
+        }
+
+        navigate("../po"); // Redirect after success
       } else {
-        // Default approvers if none selected
-        const ticketResponse = await createTicket({
-          poId: response?.data?.purchaseOrderId,
-          ticketType: "PO_APPROVAL",
-          assignTo: [1, 2, 7], // array of empIds
-          createdBy: userData?.empId,
-        });
-        const ticketId = ticketResponse?.data?.data?.ticketId;
-        const projectName = ticketResponse?.data?.data?.projectName;
-
-      if (ticketId) {
-        // Create notification with ticket ID as sourceEntityId
-        const notificationPayload = {
-          empId: selectedApprover.length > 0 ? selectedApprover.map(approver => approver.emp_id || approver.id) : [1, 2, 7],
-          notificationType: "Generate_Purchase_Order ",
-          sourceEntityId: ticketId,  
-          message: `We would like to update you that we are currently awaiting your PO on the for ${projectName}. Kindly review and provide your confirmation at the earliest to avoid any delays in the process.`,
-        };
-
-        // Create notification
-        await createNotify(notificationPayload);
+        toast.error(response?.message || "Failed to create PO");
       }
+    } catch (error) {
+      // Show more specific error message from API if available
+      if (error.response && error.response.data && error.response.data.errors) {
+        const errorMessages = Object.values(error.response.data.errors)
+          .flat()
+          .join(", ");
+        toast.error(`Validation error: ${errorMessages}`);
+      } else {
+        toast.error(
+          "Failed to create PO: " + (error.message || "Unknown error")
+        );
       }
-      
-      navigate('../po'); // Redirect after success
-    } else {
-      toast.error(response?.message || "Failed to create PO");
+      console.error("PO creation error:", error);
     }
-  } catch (error) {
-    // Show more specific error message from API if available
-    if (error.response && error.response.data && error.response.data.errors) {
-      const errorMessages = Object.values(error.response.data.errors)
-        .flat()
-        .join(', ');
-      toast.error(`Validation error: ${errorMessages}`);
-    } else {
-      toast.error("Failed to create PO: " + (error.message || "Unknown error"));
-    }
-    console.error("PO creation error:", error);
-  }
-};
+  };
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
@@ -290,11 +331,7 @@ const handleCreatePO = async () => {
         );
         const approverRoles = firstEmployees
           ?.filter((role) =>
-            [
-              "CEO",
-              "Head Finance",
-              "Managing Director",
-            ].includes(role.role)
+            ["CEO", "Head Finance", "Managing Director"].includes(role.role)
           )
           .map((role) => ({
             ...role.employee,
@@ -314,9 +351,9 @@ const handleCreatePO = async () => {
   useEffect(() => {
     // Set PO ID when it's available
     if (poId) {
-      setPoData(prev => ({
+      setPoData((prev) => ({
         ...prev,
-        poNumber: poId
+        poNumber: poId,
       }));
     }
   }, [poId]);
@@ -342,11 +379,23 @@ const handleCreatePO = async () => {
   }, [dispatch]);
 
   // Calculate total amount
-  const totalAmount = lineItems.reduce((sum, item) => sum + (parseFloat(item.total) || 0), 0);
+  const totalAmount = lineItems.reduce(
+    (sum, item) => sum + (parseFloat(item.total) || 0),
+    0
+  );
 
   return (
     <div className="container mt-4 mb-5">
-      <h1 style={{ fontSize: "28px", fontWeight: "bold", color: "#333", marginBottom: "24px" }}>Purchase Order</h1>
+      <h1
+        style={{
+          fontSize: "28px",
+          fontWeight: "bold",
+          color: "#333",
+          marginBottom: "24px",
+        }}
+      >
+        Purchase Order
+      </h1>
 
       <div className="row mb-4">
         <div className="col-md-6 mb-3">
@@ -367,7 +416,7 @@ const handleCreatePO = async () => {
             />
           </div>
         </div>
-        
+
         <div className="col-md-6 mb-3">
           <div className="form-group">
             <label style={{ fontWeight: "500", marginBottom: "8px" }}>
@@ -393,7 +442,7 @@ const handleCreatePO = async () => {
           </div>
         </div>
       </div>
-    
+
       <div className="row mb-4">
         <div className="col-md-6 mb-3">
           <div className="form-group">
@@ -405,11 +454,15 @@ const handleCreatePO = async () => {
               className="form-control"
               value={boqDetails?.boqName || boqData?.boqName || ""}
               readOnly
-              style={{ padding: "10px 12px", border: "1px solid #ced4da", borderRadius: "4px" }}
+              style={{
+                padding: "10px 12px",
+                border: "1px solid #ced4da",
+                borderRadius: "4px",
+              }}
             />
           </div>
         </div>
-        
+
         <div className="col-md-6 mb-3">
           <div className="form-group">
             <label style={{ fontWeight: "500", marginBottom: "8px" }}>
@@ -422,12 +475,25 @@ const handleCreatePO = async () => {
                 value={boqCodeInput}
                 onChange={handleBoqCodeChange}
                 placeholder="Enter BOQ Code (e.g. 47 or boq#47)"
-                style={{ padding: "10px 12px", border: "1px solid #ced4da", borderRadius: "4px" }}
+                style={{
+                  padding: "10px 12px",
+                  border: "1px solid #ced4da",
+                  borderRadius: "4px",
+                }}
               />
               {boqLoading && (
                 <div className="input-group-append">
-                  <span className="input-group-text" style={{ backgroundColor: "#fff", border: "1px solid #ced4da" }}>
-                    <div className="spinner-border spinner-border-sm" role="status">
+                  <span
+                    className="input-group-text"
+                    style={{
+                      backgroundColor: "#fff",
+                      border: "1px solid #ced4da",
+                    }}
+                  >
+                    <div
+                      className="spinner-border spinner-border-sm"
+                      role="status"
+                    >
                       <span className="sr-only">Loading...</span>
                     </div>
                   </span>
@@ -444,17 +510,23 @@ const handleCreatePO = async () => {
       <div className="row mb-4">
         <div className="col-md-6 mb-3">
           <div className="form-group">
-            <label style={{ fontWeight: "500", marginBottom: "8px" }}>Vendor Name</label>
+            <label style={{ fontWeight: "500", marginBottom: "8px" }}>
+              Vendor Name
+            </label>
             <input
               type="text"
               className="form-control"
               value={boqDetails?.vendorName || poData.vendorName || ""}
               readOnly
-              style={{ padding: "10px 12px", border: "1px solid #ced4da", borderRadius: "4px" }}
+              style={{
+                padding: "10px 12px",
+                border: "1px solid #ced4da",
+                borderRadius: "4px",
+              }}
             />
           </div>
         </div>
-        
+
         <div className="col-md-6">
           <Form.Group className="mb-3">
             <Form.Label className="text-black fs-5">Approved By</Form.Label>
@@ -474,24 +546,87 @@ const handleCreatePO = async () => {
         <table className="table table-bordered">
           <thead style={{ backgroundColor: "#f0f0f0" }}>
             <tr>
-              <th className="text-center" style={{ padding: "12px 16px", fontWeight: "500", color: "#555", width: "80px" }}>S. No</th>
-              <th className="text-center" style={{ padding: "12px 16px", fontWeight: "500", color: "#555" }}>Item Name</th>
-              <th className="text-center" style={{ padding: "12px 16px", fontWeight: "500", color: "#555", width: "120px" }}>Unit</th>
-              <th className="text-center" style={{ padding: "12px 16px", fontWeight: "500", color: "#555", width: "120px" }}>Rate ₹</th>
-              <th className="text-center" style={{ padding: "12px 16px", fontWeight: "500", color: "#555", width: "120px" }}>Quantity</th>
-              <th className="text-center" style={{ padding: "12px 16px", fontWeight: "500", color: "#555", width: "120px" }}>Total</th>
+              <th
+                className="text-center"
+                style={{
+                  padding: "12px 16px",
+                  fontWeight: "500",
+                  color: "#555",
+                  width: "80px",
+                }}
+              >
+                S. No
+              </th>
+              <th
+                className="text-center"
+                style={{
+                  padding: "12px 16px",
+                  fontWeight: "500",
+                  color: "#555",
+                }}
+              >
+                Item Name
+              </th>
+              <th
+                className="text-center"
+                style={{
+                  padding: "12px 16px",
+                  fontWeight: "500",
+                  color: "#555",
+                  width: "120px",
+                }}
+              >
+                Unit
+              </th>
+              <th
+                className="text-center"
+                style={{
+                  padding: "12px 16px",
+                  fontWeight: "500",
+                  color: "#555",
+                  width: "120px",
+                }}
+              >
+                Rate ₹
+              </th>
+              <th
+                className="text-center"
+                style={{
+                  padding: "12px 16px",
+                  fontWeight: "500",
+                  color: "#555",
+                  width: "120px",
+                }}
+              >
+                Quantity
+              </th>
+              <th
+                className="text-center"
+                style={{
+                  padding: "12px 16px",
+                  fontWeight: "500",
+                  color: "#555",
+                  width: "120px",
+                }}
+              >
+                Total
+              </th>
             </tr>
           </thead>
           <tbody>
             {lineItems.map((item, index) => (
               <tr key={item.id} style={{ borderBottom: "1px solid #dee2e6" }}>
-                <td className="text-center" style={{ padding: "12px 16px" }}>{item.id}</td>
+                <td className="text-center" style={{ padding: "12px 16px" }}>
+                  {item.id}
+                </td>
                 <td className="text-center">
                   <input
                     type="text"
                     className="form-control"
                     value={item.name}
-                    onChange={(e) => handleInputChange(index, "name", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange(index, "name", e.target.value)
+                    }
                   />
                 </td>
                 <td className="text-center">
@@ -499,7 +634,9 @@ const handleCreatePO = async () => {
                     type="text"
                     className="form-control"
                     value={item.unit}
-                    onChange={(e) => handleInputChange(index, "unit", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange(index, "unit", e.target.value)
+                    }
                   />
                 </td>
                 <td className="text-center">
@@ -507,7 +644,9 @@ const handleCreatePO = async () => {
                     type="number"
                     className="form-control"
                     value={item.rate}
-                    onChange={(e) => handleInputChange(index, "rate", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange(index, "rate", e.target.value)
+                    }
                   />
                 </td>
                 <td className="text-center">
@@ -515,7 +654,9 @@ const handleCreatePO = async () => {
                     type="number"
                     className="form-control"
                     value={item.quantity}
-                    onChange={(e) => handleInputChange(index, "quantity", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange(index, "quantity", e.target.value)
+                    }
                   />
                 </td>
                 <td className="text-center" style={{ padding: "12px 16px" }}>
@@ -526,14 +667,23 @@ const handleCreatePO = async () => {
           </tbody>
           <tfoot>
             <tr>
-              <td colSpan="5" className="text-end" style={{ fontWeight: "bold", padding: "12px 16px" }}>Grand Total:</td>
-              <td className="text-center" style={{ fontWeight: "bold", padding: "12px 16px" }}>
+              <td
+                colSpan="5"
+                className="text-end"
+                style={{ fontWeight: "bold", padding: "12px 16px" }}
+              >
+                Grand Total:
+              </td>
+              <td
+                className="text-center"
+                style={{ fontWeight: "bold", padding: "12px 16px" }}
+              >
                 ₹ {totalAmount.toLocaleString()}
               </td>
             </tr>
           </tfoot>
         </table>
-        
+
         <button
           className="btn"
           onClick={handleAddRow}
@@ -550,16 +700,20 @@ const handleCreatePO = async () => {
 
       <div className="row mt-4">
         <div className="col-12 d-flex justify-content-end">
-          <button className="btn btn-secondary me-2" onClick={() => navigate('../po')} style={{ padding: "8px 16px" }}>
+          <button
+            className="btn btn-secondary me-2"
+            onClick={() => navigate("../po")}
+            style={{ padding: "8px 16px" }}
+          >
             Back
           </button>
-          <button 
-            className="btn" 
+          <button
+            className="btn"
             onClick={handleCreatePO}
-            style={{ 
-              backgroundColor: "#ff6600", 
-              color: "white", 
-              padding: "8px 16px"
+            style={{
+              backgroundColor: "#ff6600",
+              color: "white",
+              padding: "8px 16px",
             }}
           >
             Save
