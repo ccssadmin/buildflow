@@ -174,35 +174,59 @@ const App = () => {
   const navigate = useNavigate();
 
   const roleRoutes = {
-    3: { // CEO
+    1: { // CEO
       default: "/ceo/dashboard",
       layout: CeoLayout,
     },
-    30: { // Site Engineer
+    2: { // Site Engineer
       default: "/admin/engineerdashboard",
       layout: EngineerLayout,
     },
-    17: { // Assistant QS
+    3: { // Assistant QS
       default: "/aqs/aqsdashboard",
       layout: AqsLayout,
     },
-    10: { // Project Manager
+    4: { // QS
+      default: "/aqs/aqsdashboard",
+      layout: AqsLayout,
+    },
+    5: { // Site Supervisor
+      default: "/admin/engineerdashboard",
+      layout: EngineerLayout,
+    },
+    6: { // Lead Engineer
+      default: "/admin/engineerdashboard",
+      layout: EngineerLayout,
+    },
+    7: { // Assistant Project Manager
       default: "/pm/dashboard",
       layout: PmLayout,
     },
-    2: { // Managing Director
+    8: { // Project Manager
+      default: "/pm/dashboard",
+      layout: PmLayout,
+    },
+    9: { // Designer
+      default: "/admin/engineerdashboard",
+      layout: EngineerLayout,
+    },
+    10: { // Engineer
+      default: "/admin/engineerdashboard",
+      layout: EngineerLayout,
+    },
+    11: { // Managing Director
       default: "/home",
       layout: MdLayout,
     },
-    22: { // finance head
+    13: { // finance head
       default: "/finance/dashboard",
       layout: FinanceLayout,
     },
-    25: { // HR
+    15: { // HR
       default: "/hr/dashboard",
       layout: HrLayout,
     },
-    19: { // Purchase Manager (duplicate in your DB?)
+    17: { // Purchase Manager (duplicate in your DB?)
       default: "/purchasemanager/dashboard",
       layout: PurchasemanagerLayout,
     },
@@ -312,8 +336,8 @@ const App = () => {
         <Route
           path="/"
           element={
-            <ProtectedRoute allowedRoleIds={[2]}>
-              {renderLayout(2)}
+            <ProtectedRoute allowedRoleIds={[11]}>
+              {renderLayout(11)}
             </ProtectedRoute>
           }
         >
@@ -334,8 +358,8 @@ const App = () => {
         <Route
           path="/admin"
           element={
-            <ProtectedRoute allowedRoleIds={[30]}>
-              {renderLayout(30)}
+            <ProtectedRoute allowedRoleIds={[2, 5, 6, 9, 10]}>
+              {renderLayout(2)}
             </ProtectedRoute>
           }
         >
@@ -359,8 +383,8 @@ const App = () => {
         <Route
           path="/aqs"
           element={
-            <ProtectedRoute allowedRoleIds={[17]}>
-              {renderLayout(17)}
+            <ProtectedRoute allowedRoleIds={[3, 4]}>
+              {renderLayout(3)}
             </ProtectedRoute>
           }
         >
@@ -389,8 +413,8 @@ const App = () => {
 <Route
   path="/ceo"
   element={
-    <ProtectedRoute allowedRoleIds={[3]}>
-      {renderLayout(3)}
+    <ProtectedRoute allowedRoleIds={[1]}>
+      {renderLayout(1)}
     </ProtectedRoute>
   }
 >
@@ -419,8 +443,8 @@ const App = () => {
         <Route
           path="/finance"
           element={
-            <ProtectedRoute allowedRoleIds={[22]}>
-              {renderLayout(22)}
+            <ProtectedRoute allowedRoleIds={[13]}>
+              {renderLayout(13)}
             </ProtectedRoute>
           }
         >
@@ -447,8 +471,8 @@ const App = () => {
         <Route
           path="/pm"
           element={
-            <ProtectedRoute allowedRoleIds={[10]}>
-              {renderLayout(10)}
+            <ProtectedRoute allowedRoleIds={[7, 8]}>
+              {renderLayout(8)}
             </ProtectedRoute>
           }
         >
@@ -474,8 +498,8 @@ const App = () => {
         <Route
           path="/hr"
           element={
-            <ProtectedRoute allowedRoleIds={[25]}>
-              {renderLayout(25)}
+            <ProtectedRoute allowedRoleIds={[15]}>
+              {renderLayout(15)}
             </ProtectedRoute>
           }
         >
@@ -493,8 +517,8 @@ const App = () => {
         <Route
           path="/purchasemanager"
           element={
-            <ProtectedRoute allowedRoleIds={[19]}>
-              {renderLayout(19)}
+            <ProtectedRoute allowedRoleIds={[17]}>
+              {renderLayout(17)}
             </ProtectedRoute>
           }
         >

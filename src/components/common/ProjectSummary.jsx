@@ -502,10 +502,10 @@ const ProjectSummary = ({ formData, onBackClick }) => {
       <div className="form-actions text-center mt-4 w-100 flex-end d-flex  justify-content-end">
       {(() => {
     const userRoleId = parseInt(localStorage.getItem("userRoleId"));
-    const isRole1 = userRoleId === 3;
+    const isRole1 = userRoleId === 1;
     return (
         <Button
-        className={`submit-btn w-auto border-0 ${userRoleId === 3 ? "d-block" : "d-none"}`}
+        className={`submit-btn w-auto border-0 ${userRoleId === 1 ? "d-block" : "d-none"}`}
           onClick={async () => {
             try {
               const rolesResponse = await dispatch(fetchRoles());

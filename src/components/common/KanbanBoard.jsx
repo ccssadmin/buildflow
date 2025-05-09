@@ -179,14 +179,14 @@ const KanbanBoard = () => {
   const getTicketRoute = (ticketId) => {
     // Map role IDs to their respective routes
     const roleRoutes = {
-      3: `/ceo/ticket/${ticketId}`, // CEO
+      1: `/ceo/ticket/${ticketId}`, // CEO
       30: `/admin/engineerticketdetails/${ticketId}`, // Site Engineer
-      17: `/aqs/aqsticketdetails/${ticketId}`,
-      10: `/pm/pmticket/${ticketId}`,
-      2: `/ticket/${ticketId}`, // Managing Director
-      22: `/finance/ticket/${ticketId}`, // Head Finance
-      25: `/hr/hrticketdetails/${ticketId}`, // HR
-      19: `/purchasemanager/ticket/${ticketId}`, 
+      10: `/aqs/aqsticketdetails/${ticketId}`,
+      8: `/pm/pmticket/${ticketId}`,
+      11: `/ticket/${ticketId}`, // Managing Director
+      13: `/finance/ticket/${ticketId}`, // Head Finance
+      15: `/hr/hrticketdetails/${ticketId}`, // HR
+      17: `/purchasemanager/ticket/${ticketId}`, 
     };
 
     return roleRoutes[userRoleId] || `/ticket/${ticketId}`;
