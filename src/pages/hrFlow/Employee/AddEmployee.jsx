@@ -255,200 +255,178 @@ const AddEmployee = () => {
   };
 
   return (
-    <main className="page-hrmsdashboard d-flex">
-      <div className="left-container">
-        <div className="row">
-          <div className="col-sm-12 col-md-12 col-lg-12 col-xl-12  mb-4">
-            <div className="breadcrumb-container pb-3 d-flex align-items-center">
-              <span className="breadcrumb-item text-dark-gray">Employee</span>
-              <svg
-                className="mx-2"
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M6 4.5L9.5 8L6 11.5" stroke="#606060" />
-              </svg>
-              <span className="breadcrumb-item active">Add Employee</span>
-            </div>
+        <div className="addemployee-container">
+          <div className="addemployee-breadcrumb">
+            <span className="addemployee-link" onClick={() => navigate("/hr/employee")}>Employee</span>
+            <span className="addemployee-separator">&gt;</span>
+            <span className="addemployee-current">Add Employee</span>
           </div>
-        </div>
+
+          {successMessage && <div className="addemployee-success">{successMessage}</div>}
+
+          <form onSubmit={handleSubmit} className="addemployee-form">
+            <h6 className="addemployee-section-title">Personal Info</h6>
+
+            <div className="addemployee-form-row">
+              <div className="addemployee-form-group">
+                <label>Name <span className="addemployee-required">*</span></label>
+
+                <input type="text" name="name" placeholder="Employee Name" value={employee.name} onChange={handleChange}  />
+                {validationErrors.name && <p className="error-text">{validationErrors.name}</p>}
+              </div>
+
+              <div className="addemployee-form-group">
+                <label>Date of Birth <span className="addemployee-required"></span></label>
+                <input type="date" name="dob" value={employee.dob} onChange={handleChange}  />
+                {validationErrors.dob && <p className="error-text">{validationErrors.dob}</p>}
+              </div>
+
+              <div className="addemployee-form-group">
+                <label>Gender <span className="addemployee-required"></span></label>
+                <select name="gender" value={employee.gender} onChange={handleChange}>
+      <option value="">Select Gender</option>
+      <option value="Male">Male</option>
+      <option value="Female">Female</option>
+      <option value="Other">Other</option>
+    </select>
+
+              </div>
+
+              <div className="addemployee-form-group">
+                <label>Mobile No  <span className="addemployee-required">*</span></label>
+      <div className="mobile-input-wrapper">
+        <img
+          src="https://flagcdn.com/w40/in.png"
+          alt="India Flag"
+          className="flag-icon"
+        />
+        <span className="country-code">+91</span>
+        <input
+          type="text"
+          name="mobile"
+          value={employee.mobile}
+          onChange={handleChange}
+          placeholder="92xxx xxxxx"
+          className="mobile-input"
+        />
+          </div>
+              </div>
+
+              <div className="addemployee-form-group-email">
+              <label className="addemployee-form-group-label">Email ID <span className="addemployee-required">*</span> </label>
+      <input
+        type="email"
+        name="email"
+        value={employee.email}
+        onChange={handleChange}
+        placeholder="Enter Email Id"
+        className="email-input"
+      />
+          {validationErrors.email && <p className="error-text">{validationErrors.email}</p>}
+
+    </div>
+            </div>
+
+            <h6 className="addemployee-section-title">Employment Details</h6>
+
+            <div className="addemployee-form-row">
+            <div className="addemployee-form-group">
+      <label>Employee ID</label>
+      <input
+        type="text"
+        name="EmployeeCode"
+        value={employee.EmployeeCode}
+        onChange={handleChange}
+        readOnly // optional: make it read-only
+      />
+    </div>
+
+              <div className="addemployee-form-group">
+                <label>Department <span className="addemployee-required">*</span></label>
+                <select
+      name="department"
+      value={employee.department}
+      onChange={handleChange}
+
+    >
+
+      <option value="">Select Department</option>
+      {loading ? (
+        <option disabled>Loading departments...</option>
+      ) : Array.isArray(departments) && departments.length > 0 ? (
+        departments.map((dept) => (
+          <option key={dept.deptId} value={dept.deptId}>
+            {dept.deptName.trim()}
+          </option>
+        ))
+      ) : (
+        <option disabled>No departments available</option>
+      )}
+    </select>
+    {validationErrors.department && <p className="error-text">{validationErrors.department}</p>}
+              </div>
+
+              <div className="addemployee-form-group">
+      <label>
+        Designation <span className="addemployee-required">*</span>
+      </label>
+      <select
+      name="designation"
+      value={employee.designation}
+      onChange={handleChange}
+      disabled={!employee.department}
+    >
+
+        <option value="0">Select Designation</option>
+        {Array.isArray(roles) ? (
+      roles.map((roles) => (
+        <option key={roles.roleId} value={roles.roleId}>
+        {roles.roleName}
+      </option>
+      ))
+    ) : (
+      <option disabled>Loading roles...</option>
+    )}
+
+      </select>
+      {validationErrors.designation && <p className="error-text">{validationErrors.designation}</p>}
+
+    </div>
+
+              <div className="addemployee-form-group">
+                <label >Projects </label>
+                <select  className="project"  name="project" value={employee.project} onChange={handleChange} >
+      <option value="">Select Project</option>
+      {projects.map((proj) => (
+        <option key={proj.project_id} value={proj.project_id}>
+        {proj.project_name}
+        </option>
+
+      ))}
+    </select>
+
+              </div>
+            </div>
+           {editingEmployee && (
+              <div className="addemployee-form-actions">
+      <button
+        type="button"
+
+        className="addemployee-btn-delete"
+        onClick={handleDelete}
+      >
+        Delete
+      </button>
       </div>
-    </main>
-    //     <div className="addemployee-container">
-    //       <div className="addemployee-breadcrumb">
-    //         <span className="addemployee-link" onClick={() => navigate("/hr/employee")}>Employee</span>
-    //         <span className="addemployee-separator">&gt;</span>
-    //         <span className="addemployee-current">Add Employee</span>
-    //       </div>
+    )}
 
-    //       {successMessage && <div className="addemployee-success">{successMessage}</div>}
+            <div className="addemployee-form-actions">
+              <button type="button" className="addemployee-btn-cancel" onClick={handleCancel}>Cancel</button>
+              <button type="submit" className="addemployee-btn-save">Save</button>
+            </div>
 
-    //       <form onSubmit={handleSubmit} className="addemployee-form">
-    //         <h6 className="addemployee-section-title">Personal Info</h6>
-
-    //         <div className="addemployee-form-row">
-    //           <div className="addemployee-form-group">
-    //             <label>Name <span className="addemployee-required">*</span></label>
-
-    //             <input type="text" name="name" placeholder="Employee Name" value={employee.name} onChange={handleChange}  />
-    //             {validationErrors.name && <p className="error-text">{validationErrors.name}</p>}
-    //           </div>
-
-    //           <div className="addemployee-form-group">
-    //             <label>Date of Birth <span className="addemployee-required"></span></label>
-    //             <input type="date" name="dob" value={employee.dob} onChange={handleChange}  />
-    //             {validationErrors.dob && <p className="error-text">{validationErrors.dob}</p>}
-    //           </div>
-
-    //           <div className="addemployee-form-group">
-    //             <label>Gender <span className="addemployee-required"></span></label>
-    //             <select name="gender" value={employee.gender} onChange={handleChange}>
-    //   <option value="">Select Gender</option>
-    //   <option value="Male">Male</option>
-    //   <option value="Female">Female</option>
-    //   <option value="Other">Other</option>
-    // </select>
-
-    //           </div>
-
-    //           <div className="addemployee-form-group">
-    //             <label>Mobile No  <span className="addemployee-required">*</span></label>
-    //   <div className="mobile-input-wrapper">
-    //     <img
-    //       src="https://flagcdn.com/w40/in.png"
-    //       alt="India Flag"
-    //       className="flag-icon"
-    //     />
-    //     <span className="country-code">+91</span>
-    //     <input
-    //       type="text"
-    //       name="mobile"
-    //       value={employee.mobile}
-    //       onChange={handleChange}
-    //       placeholder="92xxx xxxxx"
-    //       className="mobile-input"
-    //     />
-    //       </div>
-    //           </div>
-
-    //           <div className="addemployee-form-group-email">
-    //           <label className="addemployee-form-group-label">Email ID <span className="addemployee-required">*</span> </label>
-    //   <input
-    //     type="email"
-    //     name="email"
-    //     value={employee.email}
-    //     onChange={handleChange}
-    //     placeholder="Enter Email Id"
-    //     className="email-input"
-    //   />
-    //       {validationErrors.email && <p className="error-text">{validationErrors.email}</p>}
-
-    // </div>
-    //         </div>
-
-    //         <h6 className="addemployee-section-title">Employment Details</h6>
-
-    //         <div className="addemployee-form-row">
-    //         <div className="addemployee-form-group">
-    //   <label>Employee ID</label>
-    //   <input
-    //     type="text"
-    //     name="EmployeeCode"
-    //     value={employee.EmployeeCode}
-    //     onChange={handleChange}
-    //     readOnly // optional: make it read-only
-    //   />
-    // </div>
-
-    //           <div className="addemployee-form-group">
-    //             <label>Department <span className="addemployee-required">*</span></label>
-    //             <select
-    //   name="department"
-    //   value={employee.department}
-    //   onChange={handleChange}
-
-    // >
-
-    //   <option value="">Select Department</option>
-    //   {loading ? (
-    //     <option disabled>Loading departments...</option>
-    //   ) : Array.isArray(departments) && departments.length > 0 ? (
-    //     departments.map((dept) => (
-    //       <option key={dept.deptId} value={dept.deptId}>
-    //         {dept.deptName.trim()}
-    //       </option>
-    //     ))
-    //   ) : (
-    //     <option disabled>No departments available</option>
-    //   )}
-    // </select>
-    // {validationErrors.department && <p className="error-text">{validationErrors.department}</p>}
-    //           </div>
-
-    //           <div className="addemployee-form-group">
-    //   <label>
-    //     Designation <span className="addemployee-required">*</span>
-    //   </label>
-    //   <select
-    //   name="designation"
-    //   value={employee.designation}
-    //   onChange={handleChange}
-    //   disabled={!employee.department}
-    // >
-
-    //     <option value="0">Select Designation</option>
-    //     {Array.isArray(roles) ? (
-    //   roles.map((roles) => (
-    //     <option key={roles.roleId} value={roles.roleId}>
-    //     {roles.roleName}
-    //   </option>
-    //   ))
-    // ) : (
-    //   <option disabled>Loading roles...</option>
-    // )}
-
-    //   </select>
-    //   {validationErrors.designation && <p className="error-text">{validationErrors.designation}</p>}
-
-    // </div>
-
-    //           <div className="addemployee-form-group">
-    //             <label >Projects </label>
-    //             <select  className="project"  name="project" value={employee.project} onChange={handleChange} >
-    //   <option value="">Select Project</option>
-    //   {projects.map((proj) => (
-    //     <option key={proj.project_id} value={proj.project_id}>
-    //     {proj.project_name}
-    //     </option>
-
-    //   ))}
-    // </select>
-
-    //           </div>
-    //         </div>
-    //        {editingEmployee && (
-    //           <div className="addemployee-form-actions">
-    //   <button
-    //     type="button"
-
-    //     className="addemployee-btn-delete"
-    //     onClick={handleDelete}
-    //   >
-    //     Delete
-    //   </button>
-    //   </div>
-    // )}
-
-    //         <div className="addemployee-form-actions">
-    //           <button type="button" className="addemployee-btn-cancel" onClick={handleCancel}>Cancel</button>
-    //           <button type="submit" className="addemployee-btn-save">Save</button>
-    //         </div>
-
-    //       </form>
-    //     </div>
+          </form>
+        </div>
   );
 };
 

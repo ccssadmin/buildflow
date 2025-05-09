@@ -695,7 +695,7 @@ export const createTicketDetailsAction = createAsyncThunk(
       console.log('Using token:', token.substring(0, 10) + '...'); // Log first part of token for debugging
       
       const response = await axios.post(
-        'https://buildflowgraphql.crestclimbers.com/api/Ticket/add-comment-attachment',
+        'https://buildflowtestingapi.crestclimbers.com/api/Ticket/add-comment-attachment',
         formData,
         {
           headers: {
