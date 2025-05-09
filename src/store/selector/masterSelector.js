@@ -562,3 +562,18 @@ export const loginBoardDetailsSelector = createSelector(
     error,
   })
 );
+
+
+/** TO GET BOQ ITEMS BY ID */
+export const getBoqItemsSelector = createSelector(
+  [
+    state => state.master.boqItems.data,
+    state => state.master.boqItems.loading,
+    state => state.master.boqItems.error,
+  ],
+  (data, loading, error) => ({
+    data,
+    loading,
+    error,
+  })
+);

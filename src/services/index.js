@@ -551,3 +551,8 @@ export const getAgencyIssueType = (params) =>
   api.GET(API.GET_AGENCY_ISSUETYPE, params);
 export const submitContactUsForm = (params) =>
   api.POST(API.SUBMIT_CONTACT_US_FORM, params);
+
+
+/** BOQ ITEMS BY ID */
+export const getBoqItemsById = (params) =>
+  api.GET(API.GET_BOQ_ITEMS_BY_ID + "/" + params);

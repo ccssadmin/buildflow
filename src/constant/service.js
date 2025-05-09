@@ -258,7 +258,10 @@ GET_BOQCODE : '/api/Project/getBoqDetailsBy-BOQCode',
   
   /** AGENCY - CONTACT US */
   GET_AGENCY_ISSUETYPE: 'api/Agency/getagencyissuetype',
-  SUBMIT_CONTACT_US_FORM: 'api/AgencyBoard/add-agencycontactusdetails'
- 
+  SUBMIT_CONTACT_US_FORM: 'api/AgencyBoard/add-agencycontactusdetails',
+
+/** GET BOQ ITEMS BY ID */
+GET_BOQ_ITEMS_BY_ID: '/api/Project/boq-items',
+
 };
 

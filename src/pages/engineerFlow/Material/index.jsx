@@ -1,10 +1,19 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Table, Dropdown, Button } from "react-bootstrap";
 import { RiArrowDropDownLine } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
+import { getBoqItemsSelector } from "../../../store/selector/masterSelector";
+import { useDispatch, useSelector } from "react-redux";
+import { getBoqItemsAction } from "../../../store/actions/masterAction";
 
 const Material = () => {
   const [selectedSite, setSelectedSite] = useState('MRM Site');
+
+  const {data,loading,error} = useSelector(getBoqItemsSelector);
+  const dispatch = useDispatch();
+  const projectID = 221;
+
+  const [boqItems, setBoqItems] = useState(data);
 
   const sites = ['MRM Site', 'ABC Site', 'XYZ Site'];
 
@@ -55,6 +64,25 @@ const Material = () => {
     );
   };
 
+useEffect(()=>{
+  const userData = JSON.parse(localStorage.getItem("userData"));
+  const ProjectID = userData?.projects?.[0]?.projectId;
+
+  if(ProjectID){
+    dispatch(getBoqItemsAction(ProjectID));
+  }
+},[dispatch]);
+
+useEffect(() => {
+  setBoqItems(data);
+  console.log("BOQ ITEMS DATA", data);
+}, [data]); 
+
+
+if (loading) return <p>Loading...</p>;
+if (error) return <p className="text-danger">Error: {error}</p>;
+
+
   return (
     <div className="container mt-4">
       <div className="header-section">
@@ -89,23 +117,22 @@ const Material = () => {
             </tr>
           </thead>
           <tbody>
-            {materials.map((material, index) => (
+            {boqItems.map((material, index) => (
               <tr key={index}>
                 <td>{material.id}</td>
-                <td>{material.name}</td>
+                <td>{material.itemName}</td>
                 <td>{material.stock}</td>
                 <td>{material.required}</td>
                 <td>{getLevelBadge(material.level)}</td>
                 <td>{getStatusBadge(material.status)}</td>
                 <td>
                   <a
-                    href="#"
+                    href=""
                     style={{ color: material.action === "View" ? "#0456D0" : "#0456D0" }}
-                    onClick={() => navigate('/admin/engineermaterialview')}
+                    onClick={() => navigate(`/admin/engineermaterialviewscreen/${material.boqId}`)}
                   >
-                    {material.action}
+                    {material.boqId}
                   </a>
-
                 </td>
               </tr>
             ))}

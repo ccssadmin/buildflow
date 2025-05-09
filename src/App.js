@@ -366,6 +366,7 @@ const App = () => {
           <Route path="engineerreportcreate" element={<EngineerReportCreate />} />
           <Route path="engineermaterial" element={<EngineerMaterial />} />
           <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
+          <Route path="engineermaterialviewscreen/:boqId" element={<EngineerMaterialView />} />
           <Route path="engineermaterialcreate" element={<EngineerMaterialCreate />} />
           <Route path="engineertask" element={<EngineerTask />} />
           <Route path="engineersetting" element={<EngineerSetting />} />

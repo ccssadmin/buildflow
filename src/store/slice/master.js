@@ -45,7 +45,8 @@ addBoardAction,
 getBoardAction,
 editBoardAction,
 createTicketDetailsAction,
-getPurchaseOrderDetailsAction
+getPurchaseOrderDetailsAction,
+getBoqItemsAction
 } from "../actions/masterAction";
 import { getLoginBoardDetailsdAction } from "../actions/kanbanAction";
 
@@ -257,6 +258,15 @@ const initialState = {
     error: null,
     message: "",
   },
+
+  boqItems: {
+    data: [],
+    loading: false,
+    error: null,
+    message: "",
+  },
+
+
 };
 
 const masterSlice = createSlice({
@@ -932,6 +942,27 @@ const masterSlice = createSlice({
         state.purchaseOrderDetails.loading = false;
       });
   
+
+ /** USED TO GET BOQ ITEMS BY ID */
+ builder.addCase(getBoqItemsAction.pending, (state, action) => {
+  state.boqItems.loading = true;
+});
+builder.addCase(getBoqItemsAction.fulfilled, (state, action) => {
+  const data = action.payload;
+  state.boqItems.data = data;
+  state.boqItems.loading = false;
+});
+builder.addCase(getBoqItemsAction.rejected, (state, action) => {
+  state.fetchError = action.error;
+  state.boqItems.loading = false;
+});
+
+
+
+
+
+
+
   
   },
 });
