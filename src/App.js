@@ -425,6 +425,7 @@ const App = () => {
   <Route path="dashboard1" element={<CeoDashboard1 />} />
   <Route path="project" element={<CeoProject />} />
   <Route path="projectdetails/:projectId" element={<CeoProjectDetails />} />
+  <Route path="projectdetails" element={<CeoProjectDetails />} />
   <Route path="createproject/:projectId" element={<CeoCreateProject />} />
   <Route path="createproject/" element={<CeoCreateProject />} />
   <Route path="projectmilestone" element={<ProjectTimeline />} />
@@ -560,7 +561,7 @@ const App = () => {
           <Route path="po" element={<VendorPo />} />
           <Route path="editpo/:purchaseOrderId" element={<VendorEditPo />} />
           <Route path="approvals" element={<CommonKanban />} />
-          <Route path="vendorticketdetails/:ticketId" element={<VendorTicketDetails />} />
+          <Route path="ticket/:ticketId" element={<CommonTicketDetails />} />
           <Route path="chats" element={<VendorChat />} />
           <Route path="settings" element={<VendorSettings />} />
         </Route>
