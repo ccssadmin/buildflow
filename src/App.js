@@ -27,6 +27,7 @@ const CommonTicketDetails = lazy(() => import('./components/common/TicketDetails
 const CommonBOQDetails =  lazy(() => import('./components/common/MaterialViewScreen'));
 const CommonProjectSummary = lazy(() => import('./components/common/ProjectSummary'));
 const CommonKanban = lazy(() => import('./components/common/KanbanBoard'));
+const CommonPODetails = lazy(() => import('./components/common/purchaseOrder'));
 
 // SuperAdmin (MD Flow)
 const MdDashboard = lazy(() => import("./pages/mdflow/Dashboard/Home"));
@@ -230,7 +231,7 @@ const App = () => {
       default: "/purchasemanager/dashboard",
       layout: PurchasemanagerLayout,
     },
-    "Vendor": {
+    14 : {
       default: "/vendor/dashboard",
       layout: VendorLayout
     },
@@ -352,6 +353,7 @@ const App = () => {
           <Route path="*" element={<NotFound />} />
           <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
           <Route path="projectsummary/:projectId" element={<CommonProjectSummary />} />
+          <Route path="poDetails/:purchaseOrderId" element={<CommonPODetails/>} />
         </Route>
 
         {/* ADMIN ROUTES (Engineering Flow) */}
@@ -436,6 +438,7 @@ const App = () => {
   <Route path="settings" element={<CeoSettings />} />
   <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
   <Route path="projectsummary/:projectId" element={<CommonProjectSummary />} />
+  <Route path="poDetails/:purchaseOrderId" element={<CommonPODetails/>} />
 
 </Route>
 
@@ -465,6 +468,7 @@ const App = () => {
           <Route path="settings" element={<FinanceSettings />} />
           <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
           <Route path="projectsummary/:projectId" element={<CommonProjectSummary />} />
+          <Route path="poDetails/:purchaseOrderId" element={<CommonPODetails/>} />
         </Route>
 
         {/* PM ROUTES */}
@@ -534,7 +538,7 @@ const App = () => {
           <Route path="chats" element={<PurchasemanagerChat />} />
           <Route path="settings" element={<PurchasemanagerSettings />} />
           <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
-          <Route path="poDetails/:purchaseOrderId" element={<PurchasemanagerPoDetails/>} />
+          <Route path="poDetails/:purchaseOrderId" element={<CommonPODetails/>} />
           <Route path="pocreateautogenrate" element={<PoCreateAutoGenrate />} />
           <Route path="ticket/:ticketId" element={<CommonTicketDetails />} />
           
@@ -546,8 +550,8 @@ const App = () => {
         <Route 
           path="/vendor" 
           element={
-            <ProtectedRoute allowedRole="Vendor">
-              {renderLayout("Vendor")}
+            <ProtectedRoute allowedRoleIds="14">
+              {renderLayout("14")}
             </ProtectedRoute>
           }
         >
@@ -565,5 +569,6 @@ const App = () => {
     </Suspense>
   );
 };
+
 
 export default App;

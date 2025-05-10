@@ -1,6 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
+
+const BASE_URL = process.env.REACT_APP_MASTER_API_BASE_URL;
 // In your slice, modify the `uploadRiskData` to use FormData for file uploads.
 export const uploadRiskData = createAsyncThunk(
   'risk/uploadRiskData',
@@ -45,7 +47,7 @@ export const uploadRiskData = createAsyncThunk(
 
       // Make the API request
       const response = await axios.post(
-        'https://buildflowtestingapi.crestclimbers.com/api/Project/upsertRisk-single-upload',
+        `${BASE_URL}/api/Project/upsertRisk-single-upload`,
         formData,
         {
           headers: {

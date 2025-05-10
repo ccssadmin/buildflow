@@ -384,7 +384,7 @@ const fetchTicketDetails = async () => {
       setIsLoading(false);
     }
   };
-
+const BASE_URL = process.env.REACT_APP_MASTER_API_BASE_URL;
   const handleSendComment = async () => {
     if (!commentText.trim()) {
       showToastNotification("Please enter a comment.");
@@ -463,14 +463,13 @@ const fetchTicketDetails = async () => {
 
   Object.values(grouped).forEach((approvals) => {
     approvals.forEach((approval) => {
-      if (
-        approval.approved_by_id === userData?.empId &&
-        (approval.approval_type === "approved" ||
-          approval.approval_type === "rejected")
-      ) {
+      const userApproved = approval?.approved_by_id === userData?.empId;
+      const statusProcessed = ["approved", "rejected"].includes(approval?.approval_type);
+  
+      if (userApproved && statusProcessed) {
         hasUserApprovedStatusShow = true;
-      }
-    });
+  }
+  });
   });
 
   console.log("Has user approved?", hasUserApprovedStatusShow); // true or false
@@ -1166,7 +1165,7 @@ const fetchTicketDetails = async () => {
                           </div>
                           <div className="d-flex align-items-center p-1">
                             <a
-                              href={comment.file_path}
+                              href={`${BASE_URL}/${comment.file_path}`}
                               target="_blank"
                               rel="noopener noreferrer"
                             >
@@ -1175,7 +1174,7 @@ const fetchTicketDetails = async () => {
                           </div>
                           <div key={index} className="me-2 mb-2 mt-3">
                             <img
-                              src={comment.file_path}
+                              src={`${BASE_URL}/${comment.file_path}`}
                               alt={comment.filename}
                               style={{
                                 width: "100px",

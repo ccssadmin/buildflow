@@ -31,7 +31,11 @@ const MaterialCreateScreen = () => {
   const { createTicket } = useTicket();
   const {createNotify} = useNotification();
   const [initialApproverArray, setInitialApproverArray] = useState([]);
-
+const [validationErrors, setValidationErrors] = useState({
+    title: false,
+    vendor: false,
+    approver: false
+  });
   const { vendors, loading, error } = useSelector((state) => state.vendor);
 
   const handleAddRow = () => {
@@ -103,9 +107,50 @@ const MaterialCreateScreen = () => {
 
     setRows(updatedRows);
   };
+  const handleVendorSelect = (e) => {
+    const value = e.target.value;
+    setSelectedVendorId(value);
+    if (value) {
+      setValidationErrors({...validationErrors, vendor: false});
+    }
+  }
 
+  // Function to handle title change and clear validation error
+  const handleTitleChange = (e) => {
+    const value = e.target.value;
+    setTitle(value);
+    if (value.trim()) {
+      setValidationErrors({...validationErrors, title: false});
+    }
+  }
+const validateForm = () => {
+    const errors = {
+      title: !title.trim(),
+      vendor: !selectedVendorId,
+      approver: !selectedApprover.length
+    };
+    
+    setValidationErrors(errors);
+    
+    // Return true if no errors
+    return !Object.values(errors).some(error => error);
+  };
+  const handleApproverSelect = (selectedOptions) => {
+    setSelectedApprover(selectedOptions);
+    if (selectedOptions && selectedOptions.length > 0) {
+      setValidationErrors({...validationErrors, approver: false});
+    }
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // Validate form
+    if (!validateForm()) {
+      // If validation fails, show appropriate toast messages
+      if (validationErrors.title) toast.warn("Please enter a title.");
+      if (validationErrors.vendor) toast.warn("Please select a vendor.");
+      if (validationErrors.approver) toast.warn("Please select at least one approver.");
+      return;
+    }
     let empData = JSON.parse(localStorage.getItem("userData"));
   
     if (!selectedVendorId) {
@@ -282,10 +327,10 @@ const MaterialCreateScreen = () => {
               </Form.Select>
             </Form.Group>
           </div>
-          <div className="col-md-6">
+          <div className={validationErrors.approver ? "col-md-6 is-invalid" : "col-md-6"}>
             <Form.Group className="mb-3">
               <Form.Label className="text-black fs-5">Approved By</Form.Label>
-              <MultipleSelect
+              <MultipleSelect required
                 selectedOptions={selectedApprover}
                 handleSelected={setSelectedApprover}
                 data={initialApproverArray}
@@ -293,6 +338,11 @@ const MaterialCreateScreen = () => {
                 placeholder={"Select Approver"}
                 isMulti={true}
               />
+              {validationErrors.approver && (
+                <div className="invalid-feedback" style={{ display: "block" }}>
+                  Please select at least one approver.
+                </div>
+              )}
             </Form.Group>
           </div>
         </div>

@@ -45,7 +45,7 @@ export const uploadRiskData = createAsyncThunk(
 
       // Make the API request
       const response = await axios.post(
-        'https://buildflowtestingapi.crestclimbers.com/api/Project/upsertRisk-single-upload',
+        `${BASE_URL}/api/Project/upsertRisk-single-upload`,
         formData,
         {
           headers: {
