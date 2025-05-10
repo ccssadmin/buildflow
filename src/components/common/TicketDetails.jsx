@@ -453,26 +453,29 @@ const BASE_URL = process.env.REACT_APP_MASTER_API_BASE_URL;
 
   //check Boq Details for hide the details
 
-  let hasBoqDetails = false;
+  let approvedStatusShowByID = false;
+let approvedStatusByStatus = false;
 
-  //check Id based approvel to hide action
+const grouped = ticketData?.approvalsGrouped || {};
 
-  let hasUserApprovedStatusShow = false;
+function hasUserApprovedByID(approvals, empId) {
+  return approvals.some(approval => approval?.approved_by_id === empId);
+}
 
-  const grouped = ticketData?.approvalsGrouped || {};
+function hasProcessedStatus(approvals) {
+  return approvals.some(approval => ["approved", "rejected"].includes(approval?.approval_type));
+}
 
-  Object.values(grouped).forEach((approvals) => {
-    approvals.forEach((approval) => {
-      const userApproved = approval?.approved_by_id === userData?.empId;
-      const statusProcessed = ["approved", "rejected"].includes(approval?.approval_type);
-  
-      if (userApproved && statusProcessed) {
-        hasUserApprovedStatusShow = true;
+Object.values(grouped).forEach((approvals) => {
+  if (hasUserApprovedByID(approvals, userData?.empId)) {
+    approvedStatusShowByID = true;
   }
-  });
-  });
+  if (hasProcessedStatus(approvals)) {
+    approvedStatusByStatus = true;
+  }
+});
 
-  console.log("Has user approved?", hasUserApprovedStatusShow); // true or false
+  console.log("Has user approved?", hasProcessedStatus); // true or false
 
   // Handle file attachment
   const handleFileAttachment = (e) => {
@@ -1634,10 +1637,10 @@ const BASE_URL = process.env.REACT_APP_MASTER_API_BASE_URL;
 
               {/* Approved By */}
             <div
-              className={` mb-3 mt-3 d-flex justify-content-between align-items-center border-bottom pb-3 pt-3 ${
-                hasUserApprovedStatusShow ? "d-none" : "d-block"
-              }`}
-            >
+                className={`mb-3 mt-3 d-flex justify-content-between align-items-center border-bottom pb-3 pt-3 ${
+                 approvedStatusShowByID && approvedStatusByStatus ? "d-none" : "d-block"
+                }`}
+>
               <span className="text-muted">Action</span>
               <div className="d-flex align-items-center">
                 <button

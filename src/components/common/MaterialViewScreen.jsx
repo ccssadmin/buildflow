@@ -267,16 +267,19 @@ const MaterialViewScreen = () => {
           </thead>
           <tbody>
             {boqDetails?.boqItems?.length > 0 &&
-              boqDetails?.boqItems?.map((item, index) => (
-                <tr key={index}>
-                  <td style={{ textAlign: "center" }}>{item.boqItemsId}</td>
-                  <td style={{ textAlign: "center" }}>{item.itemName}</td>
-                  <td style={{ textAlign: "center" }}>{item.unit}</td>
-                  <td style={{ textAlign: "center" }}>{item.price}</td>
-                  <td style={{ textAlign: "center" }}>{item.quantity}</td>
-                  <td style={{ textAlign: "center" }}>{item.total}</td>
-                </tr>
-              ))}
+      boqDetails.boqItems.map((item, index) => {
+        const sno = index + 1;
+        return (
+          <tr key={index}>
+            <td style={{ textAlign: "center" }}>{sno}</td>
+            <td style={{ textAlign: "center" }}>{item.itemName}</td>
+            <td style={{ textAlign: "center" }}>{item.unit}</td>
+            <td style={{ textAlign: "center" }}>{item.price}</td>
+            <td style={{ textAlign: "center" }}>{item.quantity}</td>
+            <td style={{ textAlign: "center" }}>{item.total}</td>
+          </tr>
+        );
+      })}
           </tbody>
         </Table>
       </div>
