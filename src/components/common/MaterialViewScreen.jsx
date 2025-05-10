@@ -91,7 +91,7 @@ const MaterialViewScreen = () => {
     },
   ];
 
-  
+
 
   const handleDownloadExcel = () => {
     const items = boqDetails?.boqItems || []; // Ensure that boqItems are present
@@ -103,17 +103,17 @@ const MaterialViewScreen = () => {
       "Quantity": item.quantity,
       "Total": item.total,
     }));
-  
+
     const ws = XLSX.utils.json_to_sheet(formattedData); // Convert to sheet format
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "BOQ Data");
-  
+
     // Generate and download the Excel file
     XLSX.writeFile(wb, "BOQ_Data.xlsx");
   };
-  
 
-  
+
+
 
   useEffect(() => {
     if (route?.boqId) {
@@ -149,21 +149,21 @@ const MaterialViewScreen = () => {
     }
   };
   const handleConvertToPO = () => {
-  // Navigate to PO create page with boqDetails and ticket data
-  if (boqDetails) {
-    navigate("/purchasemanager/pocreateautogenrate", {
-      state: {
-        boqData: {
-          ...boqDetails,
-          boqCode: boqDetails.boqCode || `boq#${boqDetails.boqId}` // Ensure boqCode is available
+    // Navigate to PO create page with boqDetails and ticket data
+    if (boqDetails) {
+      navigate("/purchasemanager/pocreateautogenrate", {
+        state: {
+          boqData: {
+            ...boqDetails,
+            boqCode: boqDetails.boqCode || `boq#${boqDetails.boqId}` // Ensure boqCode is available
+          },
+          ticket: ticket,
         },
-        ticket: ticket,
-      },
-    });
-  } else {
-    toast.warning("No BOQ details available to convert");
-  }
-};
+      });
+    } else {
+      toast.warning("No BOQ details available to convert");
+    }
+  };
 
 
   return (
@@ -209,7 +209,7 @@ const MaterialViewScreen = () => {
             <Form.Label className="text-black fs-5">
               Title <span className="text-danger">*</span>
             </Form.Label>
-            <Form.Control
+            <Form.Control disabled
               type="text"
               placeholder="BOQ TITLE"
               value={boqDetails?.boqName}
@@ -223,7 +223,7 @@ const MaterialViewScreen = () => {
           <Form.Group className="mb-3">
             <Form.Label className="text-black fs-5">Vendor</Form.Label>
             <Dropdown>
-              <Dropdown.Toggle className="w-100 text-start border-0 custom-dropdown">
+              <Dropdown.Toggle disabled className="w-100 text-start border-1 custom-dropdown">
                 <span className="text-danger me-2">⬤</span>
                 <span>{boqDetails?.vendorName}</span> <RiArrowDropDownLine />
               </Dropdown.Toggle>
@@ -239,7 +239,7 @@ const MaterialViewScreen = () => {
           <Form.Group className="mb-3">
             <Form.Label className="text-black fs-5">Send Approve</Form.Label>
             <Dropdown>
-              <Dropdown.Toggle className="w-100 text-start border-0 custom-dropdown">
+              <Dropdown.Toggle disabled className="w-100 text-start border-1 custom-dropdown">
                 CEO <RiArrowDropDownLine />
               </Dropdown.Toggle>
 
@@ -267,55 +267,57 @@ const MaterialViewScreen = () => {
           </thead>
           <tbody>
             {boqDetails?.boqItems?.length > 0 &&
-      boqDetails.boqItems.map((item, index) => {
-        const sno = index + 1;
-        return (
-          <tr key={index}>
-            <td style={{ textAlign: "center" }}>{sno}</td>
-            <td style={{ textAlign: "center" }}>{item.itemName}</td>
-            <td style={{ textAlign: "center" }}>{item.unit}</td>
-            <td style={{ textAlign: "center" }}>{item.price}</td>
-            <td style={{ textAlign: "center" }}>{item.quantity}</td>
-            <td style={{ textAlign: "center" }}>{item.total}</td>
-          </tr>
-        );
-      })}
+              boqDetails.boqItems.map((item, index) => {
+                const sno = index + 1;
+                return (
+                  <tr key={index}>
+                    <td style={{ textAlign: "center" }}>{sno}</td>
+                    <td style={{ textAlign: "center" }}>{item.itemName}</td>
+                    <td style={{ textAlign: "center" }}>{item.unit}</td>
+                    <td style={{ textAlign: "center" }}>{item.price}</td>
+                    <td style={{ textAlign: "center" }}>{item.quantity}</td>
+                    <td style={{ textAlign: "center" }}>{item.total}</td>
+                  </tr>
+                );
+              })}
           </tbody>
         </Table>
       </div>
       {/* Total & Action Buttons Section */}
-      <div
-        className="d-flex justify-content-between align-items-center text-white p-3"
+      <div className="d-flex justify-content-between align-items-center text-white p-3"
         style={{ backgroundColor: "#ff6600" }}
       >
-        <div>Total</div>
-        <div>
-          {boqData.reduce((acc, item) => acc + item.total, 0).toLocaleString()}
+        <div className="text-white">Total</div>
+        <div className="text-white">
+          {(boqDetails?.boqItems?.length > 0
+            ? boqDetails.boqItems.reduce((acc, item) => acc + (item.total || 0), 0)
+            : boqData.reduce((acc, item) => acc + (item.total || 0), 0)
+          ).toLocaleString()}
         </div>
       </div>
 
       <div className="d-flex justify-content-end align-items-center mt-3 gap-2">
-      {(() => {
-  const userRoleId = parseInt(localStorage.getItem("userRoleId"));
-  const isRole1 = userRoleId === 17;
+        {(() => {
+          const userRoleId = parseInt(localStorage.getItem("userRoleId"));
+          const isRole1 = userRoleId === 17;
 
-  return isValidforApproval && (
-          <button
-          className={`btn text-black d-flex align-items-center ${isRole1 ? "d-block" : "d-none"}`}
-            style={{ background: "transparent", border: "none" }}
-            onClick={handleConvertToPO}
-          >
-            <FontAwesomeIcon
-              icon={faClipboardCheck}
-              className="me-2"
-              color="black"
-            />
-            Convert To PO
-          </button>);
-})()}
+          return isValidforApproval && (
+            <button
+              className={`btn text-white d-flex align-items-center ${isRole1 ? "d-block" : "d-none"}`}
+              style={{ backgroundColor: "#ff6600" }}
+              onClick={handleConvertToPO}
+            >
+              <FontAwesomeIcon
+                icon={faClipboardCheck}
+                className="me-2"
+                color="black"
+              />
+              Convert To PO
+            </button>);
+        })()}
         <button
-          className="btn text-black d-flex align-items-center"
-          style={{ background: "transparent", border: "none" }}
+          className="btn btn-secondary text-white d-flex align-items-center"
+          
         >
           <FontAwesomeIcon
             icon={faClipboardCheck}

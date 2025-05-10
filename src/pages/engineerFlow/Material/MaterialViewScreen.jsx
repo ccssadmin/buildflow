@@ -212,38 +212,41 @@ const MaterialViewScreen = () => {
           </thead>
           <tbody>
             {boqDetails?.boqItems?.length > 0 &&
-      boqDetails.boqItems.map((item, index) => {
-        const sno = index + 1;
-        return (
-          <tr key={index}>
-            <td style={{ textAlign: "center" }}>{sno}</td>
-            <td style={{ textAlign: "center" }}>{item.itemName}</td>
-            <td style={{ textAlign: "center" }}>{item.unit}</td>
-            <td style={{ textAlign: "center" }}>{item.price}</td>
-            <td style={{ textAlign: "center" }}>{item.quantity}</td>
-            <td style={{ textAlign: "center" }}>{item.total}</td>
-          </tr>
-        );
-      })}
+              boqDetails.boqItems.map((item, index) => {
+                const sno = index + 1;
+                return (
+                  <tr key={index}>
+                    <td style={{ textAlign: "center" }}>{sno}</td>
+                    <td style={{ textAlign: "center" }}>{item.itemName}</td>
+                    <td style={{ textAlign: "center" }}>{item.unit}</td>
+                    <td style={{ textAlign: "center" }}>{item.price}</td>
+                    <td style={{ textAlign: "center" }}>{item.quantity}</td>
+                    <td style={{ textAlign: "center" }}>{item.total}</td>
+                  </tr>
+                );
+              })}
 
           </tbody>
         </Table>
       </div>
       {/* Total & Action Buttons Section */}
-      <div
-        className="d-flex justify-content-between align-items-center text-white p-3"
+      <div className="d-flex justify-content-between align-items-center text-white p-3"
         style={{ backgroundColor: "#ff6600" }}
       >
-        <div>Total</div>
-        <div>
-          {boqData.reduce((acc, item) => acc + item.total, 0).toLocaleString()}
+        <div className="text-white">Total</div>
+        <div className="text-white">
+          {(boqDetails?.boqItems?.length > 0
+            ? boqDetails.boqItems.reduce((acc, item) => acc + (item.total || 0), 0)
+            : boqData.reduce((acc, item) => acc + (item.total || 0), 0)
+          ).toLocaleString()}
         </div>
       </div>
 
+
       <div className="d-flex justify-content-end align-items-center mt-3 gap-2">
         <button
-          className="btn text-black d-flex align-items-center"
-          style={{ background: "transparent", border: "none" }}
+          className="btn btn-secondary text-white d-flex align-items-center"
+          
         >
           <FontAwesomeIcon
             icon={faClipboardCheck}
