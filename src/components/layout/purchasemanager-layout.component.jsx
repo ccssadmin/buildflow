@@ -52,11 +52,7 @@ const PurchasemanagerLayout =({ onLogout })=> {
       <div className={`layout-container layout-large-sidenav-container ${collapseNav ? "" : "left-sidebar"}`}>
         <PurchasemanagersideNav onChange={tempChange} />
         <div className="body-content">
-          {(data?.error && (
-            <h3 className="server-error">
-              <img src={serverErrorIcon} alt="serverErrorIcon" /> {data?.error}
-            </h3>
-          )) || <Outlet />}
+          <Outlet />
         </div>
       </div>
       {/* <Footer /> */}

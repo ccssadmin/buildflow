@@ -1,9 +1,10 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import Spinner from "./components/spinner/spinner.component";
-
+import SessionExpiredModal from "../src/pages/Login/SessionExpiredModel";
 import "./styles/index.scss";
 import "./styles/index.css";
+import { setJustLoggedIn } from "./services/api";
 
 
 /** LAYOUTS */
@@ -172,6 +173,7 @@ const VendorSettings = lazy(() => import('./pages/vendorFlow/Settings/index'));
 const App = () => {
   const [roleId, setRoleId] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showSessionExpiredModal, setShowSessionExpiredModal] = useState(false);
   const navigate = useNavigate();
 
   const roleRoutes = {
@@ -238,7 +240,7 @@ const App = () => {
   }
   
   // Fixed ProtectedRoute component to handle both numeric roleIds and string roles like "Vendor"
-  const ProtectedRoute = ({ children, allowedRoleIds, allowedRole }) => {
+   const ProtectedRoute = ({ children, allowedRoleIds, allowedRole }) => {
     if (!roleId) {
       return <Navigate to="/login" replace />;
     }
@@ -254,28 +256,118 @@ const App = () => {
 
     return children;
   };
-  
+   useEffect(() => {
+    // Add event listener for session expiration
+    const handleSessionExpiredEvent = () => {
+      handleSessionExpired();
+    };
 
-  useEffect(() => {
+    
+    // Listen for the custom session expired event
+    document.addEventListener('session_expired', handleSessionExpiredEvent);
+    
+    // Clean up listener on unmount
+    return () => {
+      document.removeEventListener('session_expired', handleSessionExpiredEvent);
+    };
+  }, []);
+
+   const handleSessionExpired = () => {
+    setShowSessionExpiredModal(true);
+  };
+
+  // Handle modal close - perform logout and redirect to login
+  const handleModalClose = () => {
+    setShowSessionExpiredModal(false);
+    handleLogout();
+  };
+
+    useEffect(() => {
     const checkAuthStatus = () => {
       const storedRoleId = localStorage.getItem("userRoleId");
       const accessToken = localStorage.getItem("accessToken");
 
+      // Check if token exists
       if (accessToken && storedRoleId) {
-        // Check if it's a Vendor role (special case)
-        if (storedRoleId === "Vendor") {
-          setRoleId("Vendor");
-        } else {
-          setRoleId(Number(storedRoleId));
+        try {
+          // Check if token is valid
+          const isValidToken = isTokenValid(accessToken);
+          
+          if (!isValidToken) {
+            // If token is invalid/expired, show session expired modal
+            handleSessionExpired();
+            return;
+          }
+          
+          // If valid token, set the role ID
+          if (storedRoleId === "Vendor") {
+            setRoleId("Vendor");
+          } else {
+            setRoleId(Number(storedRoleId));
+          }
+        } catch (error) {
+          console.error("Error validating token:", error);
+          handleSessionExpired();
+          return;
         }
       } else {
+        // Redirect to login if no token
         navigate("/login");
       }
+      
       setLoading(false);
     };
 
+    // Initial check
     checkAuthStatus();
+    
+    // Also set up interval to periodically check token validity
+    const tokenCheckInterval = setInterval(() => {
+      const accessToken = localStorage.getItem("accessToken");
+      if (accessToken && !isTokenValid(accessToken)) {
+        handleSessionExpired();
+      }
+    }, 60000); // Check every minute
+    
+    // Clean up interval
+    return () => clearInterval(tokenCheckInterval);
   }, [navigate]);
+
+ const isTokenValid = (token) => {
+    if (!token) return false;
+    
+    try {
+      // Check if token is a JWT and decode it
+      if (token.split('.').length === 3) {
+        // JWT token - decode and check expiration
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        
+        const { exp } = JSON.parse(jsonPayload);
+        
+        // Check if token is expired
+        if (exp) {
+          return Date.now() <= exp * 1000;
+        }
+      }
+      
+      // Check for manual expiration time in localStorage
+      const tokenExpiration = localStorage.getItem("tokenExpiration");
+      if (tokenExpiration) {
+        return Date.now() <= parseInt(tokenExpiration);
+      }
+      
+      // If we can't verify expiration from token itself
+      // We'll assume the token is valid (and rely on API calls to detect invalidity)
+      return true;
+    } catch (error) {
+      console.error("Error validating token:", error);
+      return false;
+    }
+  };
 
   // Handle successful login
   const handleLoginSuccess = (userData) => {
@@ -290,22 +382,26 @@ const App = () => {
       console.error("Invalid user data received:", userData);
     }
   };
-
   // Handle logout
-  const handleLogout = () => {
-    // Clear all items from localStorage
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("userRole");
-    localStorage.removeItem("userRoleId");
-    localStorage.removeItem("userData");
-    localStorage.removeItem('projectId');
+   const handleLogout = () => {
+  // Clear all items from localStorage
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("userRole");
+  localStorage.removeItem("userRoleId");
+  localStorage.removeItem("userData");
+  localStorage.removeItem('projectId');
+  localStorage.removeItem('userType');
+  localStorage.removeItem('tokenExpiration');
 
-    // Reset the state
-    setRoleId(null);
+  // Reset the state
+  setRoleId(null);
+  
+  // Reset the justLoggedIn flag
+  setJustLoggedIn(false);
 
-    // Redirect to login page
-    navigate("/login", { replace: true });
-  };
+  // Redirect to login page
+  navigate("/login", { replace: true });
+};
 
   if (loading) {
     return <Spinner />;
@@ -319,9 +415,14 @@ const App = () => {
 
   return (
     <Suspense fallback={<Spinner />}>
+         <SessionExpiredModal 
+        isOpen={showSessionExpiredModal} 
+        onClose={handleModalClose} 
+      />
+      
       <Routes>
         {/* LOGIN PAGE */}
-        <Route
+       <Route
           path="/login"
           element={
             roleId ? (
