@@ -53,7 +53,7 @@ export const GeneralSettings = () => {
   return (
     <>
       <div className="profile-details">
-        <h2>Vendor Profile</h2>
+        <h2>Admin Profile</h2>
 
         {loading && <p>Loading vendor information...</p>}
         {error && <p className="text-danger">{error}</p>}
@@ -63,7 +63,7 @@ export const GeneralSettings = () => {
             <div className="d-flex align-items-center mb-4">
               <img src={profile} alt="profile" className="img-profile" />
               <div>
-                <h4 className="mb-1">{user.details.vendorName || "Vendor Name"}</h4>
+                <h4 className="mb-1">{user.details.firstName || "Vendor Name"}</h4>
                 <p>{user.details.roleName || "Vendor"}</p>
               </div>
             </div>
@@ -79,7 +79,7 @@ export const GeneralSettings = () => {
               <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M2.84 6.85616C4.63 10.75 7.81 13.84 11.76 15.52L12.53 15.86C13.01 16.07 13.54 16.11 14.03 15.98C14.53 15.84 14.97 15.54 15.27 15.12L16.55 13.36L14.28 11.22L13.05 12.44C12.95 12.58 12.8 12.67 12.64 12.71C12.47 12.75 12.3 12.74 12.14 12.67C9.18 11.33 6.81 8.96 5.47 6L6.88 4.23L5.13 1.64L3.01 2.88C2.59 3.18 2.29 3.62 2.15 4.12C2.02 4.63 2.06 5.16 2.28 5.63L2.84 6.85616Z" fill="black"/>
               </svg>
-              <h6 className="title-3 mb-0 ms-2">{user.details.mobile || "+91 --- --- ----"}</h6>
+              <h6 className="title-3 mb-0 ms-2">{user.details.phone || "+91 --- --- ----"}</h6>
             </div>
           </>
         )}
