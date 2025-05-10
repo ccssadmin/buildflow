@@ -5,6 +5,7 @@ import Spinner from "./components/spinner/spinner.component";
 import "./styles/index.scss";
 import "./styles/index.css";
 
+
 /** LAYOUTS */
 const MdLayout = lazy(() => import("./components/layout/user-layout.component"));
 const EngineerLayout = lazy(() => import("./components/layout/engineer-layout.component"));
@@ -25,6 +26,8 @@ const Login = lazy(() => import("./pages/Login/Login"));
 const CommonTicketDetails = lazy(() => import('./components/common/TicketDetails'));
 const CommonBOQDetails =  lazy(() => import('./components/common/MaterialViewScreen'));
 const CommonProjectSummary = lazy(() => import('./components/common/ProjectSummary'));
+const CommonKanban = lazy(() => import('./components/common/KanbanBoard'));
+const CommonPODetails = lazy(() => import('./components/common/purchaseOrder'));
 
 // SuperAdmin (MD Flow)
 const MdDashboard = lazy(() => import("./pages/mdflow/Dashboard/Home"));
@@ -148,7 +151,7 @@ const PurchasemanagerPo = lazy(() => import('./pages/purchasemanagerFlow/Po/inde
 const PurchasemanagerPoDetails = lazy(() => import('./pages/purchasemanagerFlow/Po/purchaseOrder'));
 const PurchasemanagerPoCreate = lazy(() => import('./pages/purchasemanagerFlow/Po/purchaseOrderCreate'));
 const PurchasemanagerKanban = lazy(() => import('./pages/purchasemanagerFlow/KanbanBoard/index'));
-const PurchasemanagerKanbanTicketDetails = lazy(() => import('./pages/purchasemanagerFlow/KanbanBoard/TicketDetails'));
+const PoCreateAutoGenrate = lazy(() => import('./pages/purchasemanagerFlow/Po/PoCreateAutoGenrate')); 
 const PurchasemanagerChat = lazy(() => import('./pages/purchasemanagerFlow/ChatPage/Chat/ChatApp'));
 const PurchasemanagerSettings = lazy(() => import('./pages/purchasemanagerFlow/Settings/index'));
 const PurchaseBoq = lazy(() => import('./pages/purchasemanagerFlow/BoqView/MaterialViewScreen'));
@@ -228,7 +231,7 @@ const App = () => {
       default: "/purchasemanager/dashboard",
       layout: PurchasemanagerLayout,
     },
-    "Vendor": {
+    14 : {
       default: "/vendor/dashboard",
       layout: VendorLayout
     },
@@ -328,6 +331,7 @@ const App = () => {
             )
           }
         />
+        
 
         {/* SUPERADMIN ROUTES (MD Flow) */}
         <Route
@@ -339,7 +343,7 @@ const App = () => {
           }
         >
           <Route path="home" element={<MdDashboard />} />
-          <Route path="approvals" element={<Kanban />} />
+          <Route path="approvals" element={<CommonKanban />} />
           <Route path="ticket/:ticketId" element={<CommonTicketDetails />} />
           <Route path="projects" element={<Projects />} />
           <Route path="projectdetails" element={<ProjectDetails />} />
@@ -348,6 +352,8 @@ const App = () => {
           <Route path="settings" element={<Settings />} />
           <Route path="*" element={<NotFound />} />
           <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
+          <Route path="projectsummary/:projectId" element={<CommonProjectSummary />} />
+          <Route path="poDetails/:purchaseOrderId" element={<CommonPODetails/>} />
         </Route>
 
         {/* ADMIN ROUTES (Engineering Flow) */}
@@ -361,7 +367,7 @@ const App = () => {
         >
           <Route path="engineerdashboard" element={<EngineerDashboard />} />
           <Route path="engineerproject" element={<EngineerProject />} />
-          <Route path="engineerapprovals" element={<KanbanEngineer />} />
+          <Route path="engineerapprovals" element={<CommonKanban />} />
           <Route path="engineerticketdetails/:ticketId" element={<CommonTicketDetails />} />
           <Route path="engineerchats" element={<EngineerChat />} />
           <Route path="engineerreport" element={<EngineerReport />} />
@@ -385,7 +391,7 @@ const App = () => {
           }
         >
           <Route path="aqsdashboard" element={<AqsDashboard />} />
-          <Route path="aqsapprovals" element={<KanbanAqs />} />
+          <Route path="aqsapprovals" element={<CommonKanban />} />
           <Route path="aqsticketdetails/:ticketId" element={<CommonTicketDetails />} />
           <Route path="aqschats" element={<AqsChat />} />
           <Route path="aqsmaterial" element={<AqsMaterial />} />
@@ -421,7 +427,7 @@ const App = () => {
   <Route path="createproject/:projectId" element={<CeoCreateProject />} />
   <Route path="createproject/" element={<CeoCreateProject />} />
   <Route path="projectmilestone" element={<ProjectTimeline />} />
-  <Route path="approvals" element={<KanbanCeo />} />
+  <Route path="approvals" element={<CommonKanban />} />
   <Route path="ticket/:ticketId" element={<CommonTicketDetails />} />
   <Route path="chats" element={<CeoChat />} />
   <Route path="finance" element={<CeoFinance />} />
@@ -432,6 +438,7 @@ const App = () => {
   <Route path="settings" element={<CeoSettings />} />
   <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
   <Route path="projectsummary/:projectId" element={<CommonProjectSummary />} />
+  <Route path="poDetails/:purchaseOrderId" element={<CommonPODetails/>} />
 
 </Route>
 
@@ -448,8 +455,8 @@ const App = () => {
           <Route path="budget" element={<FinanceBudget />} />
           <Route path="budgetcreate" element={<FinanceBudgetCreate />} />
           <Route path="budgetdetails" element={<FinanceBudgetDetails />} />
-          <Route path="approvals" element={<KanbanFinance />} />
-          <Route path="financeticketdetails/:ticketId" element={<CommonTicketDetails />} />
+          <Route path="approvals" element={<CommonKanban />} />
+          <Route path="ticket/:ticketId" element={<CommonTicketDetails />} />
           <Route path="chats" element={<FinanceChat />} />
           <Route path="invoice" element={<FinanceInvoice />} />
           <Route path="invoicedetails" element={<FinanceInvoiceDetails />} />
@@ -460,6 +467,8 @@ const App = () => {
           <Route path="reportcreate" element={<FinanceReportCreate />} />
           <Route path="settings" element={<FinanceSettings />} />
           <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
+          <Route path="projectsummary/:projectId" element={<CommonProjectSummary />} />
+          <Route path="poDetails/:purchaseOrderId" element={<CommonPODetails/>} />
         </Route>
 
         {/* PM ROUTES */}
@@ -473,7 +482,7 @@ const App = () => {
         >
           <Route path="dashboard" element={<PmDashboard />} />
           <Route path="project" element={<PmProject />} />
-          <Route path="approvals" element={<KanbanPm />} />
+          <Route path="approvals" element={<CommonKanban />} />
           <Route path="pmticket/:ticketId" element={<CommonTicketDetails />} />
           <Route path="chats" element={<PmChat />} />
           <Route path="task" element={<PmTask />} />
@@ -486,6 +495,7 @@ const App = () => {
           <Route path="reportview" element={<PmReportView />} />
           <Route path="settings" element={<PmSettings />} />
           <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
+          <Route path="projectsummary/:projectId" element={<CommonProjectSummary />} />
         </Route>
 
         {/* HR ROUTES */}
@@ -501,7 +511,7 @@ const App = () => {
           <Route path="employee" element={<HrEmployee />} />
           <Route path="addemployee/:empId?" element={<AddHrEmployee />} />
           <Route path="employeedetail" element={<HrEmployeeDetail />} />
-          <Route path="approvals" element={<HrKanban />} />
+          <Route path="approvals" element={<CommonKanban />} />
           <Route path="hrticketdetails/:ticketId" element={<CommonTicketDetails />} />
           <Route path="chats" element={<HrChat />} />
           <Route path="settings" element={<HrSettings />} />
@@ -523,12 +533,15 @@ const App = () => {
           <Route path="po" element={<PurchasemanagerPo />} />
           <Route path="poCreate" element={<PurchasemanagerPoCreate />} />
           <Route path="boqDetails/:boqId" element={<PurchaseBoq />} />
-          <Route path="approvals" element={<PurchasemanagerKanban />} />
+          <Route path="approvals" element={<CommonKanban />} />
           <Route path="purchaseticketdetails/:ticketId" element={<CommonTicketDetails />} />
           <Route path="chats" element={<PurchasemanagerChat />} />
           <Route path="settings" element={<PurchasemanagerSettings />} />
           <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
-          <Route path="poDetails/:purchaseOrderId" element={<PurchasemanagerPoDetails/>} />
+          <Route path="poDetails/:purchaseOrderId" element={<CommonPODetails/>} />
+          <Route path="pocreateautogenrate" element={<PoCreateAutoGenrate />} />
+          <Route path="ticket/:ticketId" element={<CommonTicketDetails />} />
+          
         </Route>
 
 
@@ -537,15 +550,15 @@ const App = () => {
         <Route 
           path="/vendor" 
           element={
-            <ProtectedRoute allowedRole="Vendor">
-              {renderLayout("Vendor")}
+            <ProtectedRoute allowedRoleIds="14">
+              {renderLayout("14")}
             </ProtectedRoute>
           }
         >
           <Route path="dashboard" element={<VendorDashboard />}/>
           <Route path="po" element={<VendorPo />} />
           <Route path="editpo/:purchaseOrderId" element={<VendorEditPo />} />
-          <Route path="approvals" element={<VendorKanban />} />
+          <Route path="approvals" element={<CommonKanban />} />
           <Route path="vendorticketdetails/:ticketId" element={<VendorTicketDetails />} />
           <Route path="chats" element={<VendorChat />} />
           <Route path="settings" element={<VendorSettings />} />
@@ -556,5 +569,6 @@ const App = () => {
     </Suspense>
   );
 };
+
 
 export default App;

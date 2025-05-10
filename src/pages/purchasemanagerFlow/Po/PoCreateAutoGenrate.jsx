@@ -20,7 +20,7 @@ import { useTicket } from "../../../hooks/Ceo/useTicket";
 import { debounce } from "lodash";
 import { useNotification } from "../../../hooks/Ceo/useNotification";
 
-export default function PurchasemanagerPoCreate({ params }) {
+export default function PoCreateAutoGenrate ({ params }) {
   const location = useLocation();
   const { createTicket } = useTicket();
   const { createNotify } = useNotification();
@@ -39,7 +39,25 @@ export default function PurchasemanagerPoCreate({ params }) {
 const [boqCodeInput, setBoqCodeInput] = useState(boqData?.boqCode || "");
   const [boqSearchError, setBoqSearchError] = useState("");
   const [lineItems, setLineItems] = useState([]);
-
+const [validationErrors, setValidationErrors] = useState({
+    approver: false
+  });
+  const handleApproverSelect = (selectedOptions) => {
+    setSelectedApprover(selectedOptions);
+    if (selectedOptions && selectedOptions.length > 0) {
+      setValidationErrors({...validationErrors, approver: false});
+    }
+  };
+const validateForm = () => {
+    const errors = {
+      approver: !selectedApprover.length
+    };
+    
+    setValidationErrors(errors);
+    
+    // Return true if no errors
+    return !Object.values(errors).some(error => error);
+  };
   console.log("selectedApprover", selectedApprover);
 useEffect(() => {
   if (boqData?.boqCode) {
@@ -189,6 +207,10 @@ useEffect(() => {
   // Handle create PO
   // Handle create PO
   const handleCreatePO = async () => {
+    if (!validateForm()) {
+          if (validationErrors.approver) toast.warn("Please select at least one approver.");
+          return;
+        }
     if (lineItems.length === 0) {
       toast.error("Please add at least one item to the purchase order");
       return;
@@ -276,37 +298,37 @@ useEffect(() => {
           }
         } else {
           // Default approvers if none selected
-          const ticketResponse = await createTicket({
-            poId: response?.data?.purchaseOrderId,
-            ticketType: "PO_APPROVAL",
-            assignTo:
-              selectedApprover.length > 0
-                ? selectedApprover.map(
-                    (approver) => approver.empId || approver.id
-                  )
-                : [1, 2, 7], // array of empIds
-            createdBy: userData?.empId,
-          });
-          const ticketId = ticketResponse?.data?.data?.ticketId;
-          const projectName = ticketResponse?.data?.data?.projectName;
+          // const ticketResponse = await createTicket({
+          //   poId: response?.data?.purchaseOrderId,
+          //   ticketType: "PO_APPROVAL",
+          //   assignTo:
+          //     selectedApprover.length > 0
+          //       ? selectedApprover.map(
+          //           (approver) => approver.empId || approver.id
+          //         )
+          //       : [1, 2, 7], // array of empIds
+          //   createdBy: userData?.empId,
+          // });
+          // const ticketId = ticketResponse?.data?.data?.ticketId;
+          // const projectName = ticketResponse?.data?.data?.projectName;
 
-          if (ticketId) {
-            // Create notification with ticket ID as sourceEntityId
-            const notificationPayload = {
-              empId:
-                selectedApprover.length > 0
-                  ? selectedApprover.map(
-                      (approver) => approver.empId || approver.id
-                    )
-                  : [1, 2, 7],
-              notificationType: "Generate_Purchase_Order ",
-              sourceEntityId: ticketId,
-              message: `We would like to update you that we are currently awaiting your PO on the for ${projectName}. Kindly review and provide your confirmation at the earliest to avoid any delays in the process.`,
-            };
+          // if (ticketId) {
+          //   // Create notification with ticket ID as sourceEntityId
+          //   const notificationPayload = {
+          //     empId:
+          //       selectedApprover.length > 0
+          //         ? selectedApprover.map(
+          //             (approver) => approver.empId || approver.id
+          //           )
+          //         : [1, 2, 7],
+          //     notificationType: "Generate_Purchase_Order ",
+          //     sourceEntityId: ticketId,
+          //     message: `We would like to update you that we are currently awaiting your PO on the for ${projectName}. Kindly review and provide your confirmation at the earliest to avoid any delays in the process.`,
+          //   };
 
-            // Create notification
-            await createNotify(notificationPayload);
-          }
+          //   // Create notification
+          //   await createNotify(notificationPayload);
+          // }
         }
 
         navigate("../po"); // Redirect after success
@@ -412,7 +434,7 @@ useEffect(() => {
             <label style={{ fontWeight: "500", marginBottom: "8px" }}>
               PO Id <span style={{ color: "red" }}>*</span>
             </label>
-            <input
+            <input disabled
               type="text"
               className="form-control"
               value={loading ? "Loading..." : poId || ""}
@@ -431,7 +453,7 @@ useEffect(() => {
             <label style={{ fontWeight: "500", marginBottom: "8px" }}>
               Projects <span style={{ color: "red" }}>*</span>
             </label>
-            <select
+            <select disabled
               className="form-control"
               value={selectedProjectId}
               onChange={handleProjectChange}
@@ -459,7 +481,7 @@ useEffect(() => {
               Title <span style={{ color: "red" }}>*</span>
             </label>
             <input
-              type="text"
+              type="text" disabled
               className="form-control"
               value={boqDetails?.boqName || boqData?.boqName || ""}
               readOnly
@@ -478,7 +500,7 @@ useEffect(() => {
               BOQ Code <span style={{ color: "red" }}>*</span>
             </label>
             <div className="input-group">
-              <input
+              <input disabled
                 type="text"
                 className="form-control"
                 value={boqCodeInput}
@@ -523,7 +545,7 @@ useEffect(() => {
               Vendor Name
             </label>
             <input
-              type="text"
+              type="text" disabled
               className="form-control"
               value={boqDetails?.vendorName || poData.vendorName || ""}
               readOnly
@@ -536,10 +558,10 @@ useEffect(() => {
           </div>
         </div>
 
-        <div className="col-md-6">
+        <div className={validationErrors.approver ? "is-invalid col-sm-6" : "col-sm-6"}>
           <Form.Group className="mb-3">
             <Form.Label className="text-black fs-5">Approved By</Form.Label>
-            <MultipleSelect
+            <MultipleSelect required
               selectedOptions={selectedApprover}
               handleSelected={setSelectedApprover}
               data={initialApproverArray}
@@ -549,7 +571,11 @@ useEffect(() => {
             />
           </Form.Group>
         </div>
-      </div>
+      </div> {validationErrors.approver && (
+                <div className="invalid-feedback" style={{ display: "block" }}>
+                  Please select at least one approver.
+                </div>
+              )}
 
       <div className="table-responsive mt-4">
         <table className="table table-bordered">
@@ -630,7 +656,7 @@ useEffect(() => {
                 </td>
                 <td className="text-center">
                   <input
-                    type="text"
+                    type="text" disabled
                     className="form-control"
                     value={item.name}
                     onChange={(e) =>
@@ -640,7 +666,7 @@ useEffect(() => {
                 </td>
                 <td className="text-center">
                   <input
-                    type="text"
+                    type="text" disabled
                     className="form-control"
                     value={item.unit}
                     onChange={(e) =>
@@ -650,7 +676,7 @@ useEffect(() => {
                 </td>
                 <td className="text-center">
                   <input
-                    type="number"
+                    type="number" disabled
                     className="form-control"
                     value={item.rate}
                     onChange={(e) =>
@@ -660,7 +686,7 @@ useEffect(() => {
                 </td>
                 <td className="text-center">
                   <input
-                    type="number"
+                    type="number" disabled
                     className="form-control"
                     value={item.quantity}
                     onChange={(e) =>
@@ -693,18 +719,7 @@ useEffect(() => {
           </tfoot>
         </table>
 
-        <button
-          className="btn"
-          onClick={handleAddRow}
-          style={{
-            backgroundColor: "#007bff",
-            color: "white",
-            fontWeight: "500",
-            marginBottom: "10px",
-          }}
-        >
-          + Add New Row
-        </button>
+        
       </div>
 
       <div className="row mt-4">

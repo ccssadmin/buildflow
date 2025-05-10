@@ -1,3 +1,4 @@
+//D:\ccs\Project\React JS\latest\buildflow\src\components\common\MaterialViewScreen.jsx
 import React, { useEffect, useState } from "react";
 import { Form, Table, Dropdown } from "react-bootstrap";
 import { RiArrowDropDownLine } from "react-icons/ri";
@@ -148,18 +149,22 @@ const MaterialViewScreen = () => {
     }
   };
   const handleConvertToPO = () => {
-    // Navigate to PO create page with boqDetails and ticket data
-    if (boqDetails) {
-      navigate("/purchasemanager/poCreate", {
-        state: {
-          boqData: boqDetails,
-          ticket: ticket,
+  // Navigate to PO create page with boqDetails and ticket data
+  if (boqDetails) {
+    navigate("/purchasemanager/pocreateautogenrate", {
+      state: {
+        boqData: {
+          ...boqDetails,
+          boqCode: boqDetails.boqCode || `boq#${boqDetails.boqId}` // Ensure boqCode is available
         },
-      });
-    } else {
-      toast.warning("No BOQ details available to convert");
-    }
-  };
+        ticket: ticket,
+      },
+    });
+  } else {
+    toast.warning("No BOQ details available to convert");
+  }
+};
+
 
   return (
     <div className="container mt-4">
@@ -287,9 +292,13 @@ const MaterialViewScreen = () => {
       </div>
 
       <div className="d-flex justify-content-end align-items-center mt-3 gap-2">
-        {isValidforApproval && (
+      {(() => {
+  const userRoleId = parseInt(localStorage.getItem("userRoleId"));
+  const isRole1 = userRoleId === 17;
+
+  return isValidforApproval && (
           <button
-            className="btn text-black d-flex align-items-center"
+          className={`btn text-black d-flex align-items-center ${isRole1 ? "d-block" : "d-none"}`}
             style={{ background: "transparent", border: "none" }}
             onClick={handleConvertToPO}
           >
@@ -299,8 +308,8 @@ const MaterialViewScreen = () => {
               color="black"
             />
             Convert To PO
-          </button>
-        )}
+          </button>);
+})()}
         <button
           className="btn text-black d-flex align-items-center"
           style={{ background: "transparent", border: "none" }}

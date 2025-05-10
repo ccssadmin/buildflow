@@ -500,8 +500,12 @@ const ProjectSummary = ({ formData, onBackClick }) => {
       </div>
 
       <div className="form-actions text-center mt-4 w-100 flex-end d-flex  justify-content-end">
+      {(() => {
+    const userRoleId = parseInt(localStorage.getItem("userRoleId"));
+    const isRole1 = userRoleId === 1;
+    return (
         <Button
-          className="submit-btn  w-auto  border-0 "
+        className={`submit-btn w-auto border-0 ${userRoleId === 1 ? "d-block" : "d-none"}`}
           onClick={async () => {
             try {
               const rolesResponse = await dispatch(fetchRoles());
@@ -552,6 +556,8 @@ const ProjectSummary = ({ formData, onBackClick }) => {
         >
           Submit for Approval
         </Button>
+        );
+      })()}
       </div>
 
       {/* Approval Modal */}
@@ -619,7 +625,6 @@ const ProjectSummary = ({ formData, onBackClick }) => {
                   assignTo: selectedUsers,
                   createdBy: userData.empId,
                   assignTo: selectedUsers, // ✅ array of empIds
-                  createdBy: createdBy,
                 });
 
                 console.log("Ticket Response:", ticketResponse);

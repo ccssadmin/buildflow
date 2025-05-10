@@ -375,6 +375,7 @@ const CeoCreateProject = () => {
       Swal.fire({
         title: "Loading project details...",
         allowOutsideClick: false,
+        timer: 5000,
         didOpen: () => {
           Swal.showLoading();
         },

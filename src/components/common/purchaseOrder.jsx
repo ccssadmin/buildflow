@@ -1,29 +1,28 @@
-//D:\ccs\Project\React JS\latest\buildflow\src\pages\purchasemanagerFlow\Po\purchaseOrderCreate.jsx
 "use client";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-import { getVendorsAndSubcontractors } from "../../../store/actions/vendor/getvendoraction";
+import { getVendorsAndSubcontractors } from "../../store/actions/vendor/getvendoraction";
 import {
   getNewPoId,
   upsertPurchaseOrder,
   getBoqByCode,
-} from "../../../store/actions/Purchase/purcharseorderidaction";
+} from "../../store/actions/Purchase/purcharseorderidaction";
 import { Form } from "react-bootstrap";
-import MultipleSelect from "../../../components/DropDown/MultipleSelect";
-import { fetchRoles } from "../../../store/actions/hr/designationaction";
-import { getAllEmployeesByRolesAction } from "../../../store/actions/Ceo/RoleBasedEmpAction";
-import { fetchProjects } from "../../../store/actions/hr/projectaction";
+import MultipleSelect from "../../components/DropDown/MultipleSelect";
+import { fetchRoles } from "../../store/actions/hr/designationaction";
+import { getAllEmployeesByRolesAction } from "../../store/actions/Ceo/RoleBasedEmpAction";
+import { fetchProjects } from "../../store/actions/hr/projectaction";
 import { toast } from "react-toastify";
-import { useTicket } from "../../../hooks/Ceo/useTicket";
+import { useTicket } from "../../hooks/Ceo/useTicket";
 import { debounce } from "lodash";
-import { useNotification } from "../../../hooks/Ceo/useNotification";
+import { getPurchaseOrderDetails } from "../../store/actions/vendorflow/po-vendroaction";
+import Select from "react-dropdown-select";
 
-export default function PurchasemanagerPoCreate({ params }) {
+export default function POViewPage({ params }) {
   const location = useLocation();
   const { createTicket } = useTicket();
-  const { createNotify } = useNotification();
   const navigate = useNavigate();
   const { poId, loading, boqDetails, boqLoading } = useSelector(
     (state) => state.purchase
@@ -36,26 +35,34 @@ export default function PurchasemanagerPoCreate({ params }) {
   const [selectedApprover, setSelectedApprover] = useState([]);
   const [initialApproverArray, setInitialApproverArray] = useState([]);
   const { boqData, ticket } = location.state || {};
-const [boqCodeInput, setBoqCodeInput] = useState(boqData?.boqCode || "");
+  const [boqCodeInput, setBoqCodeInput] = useState("");
   const [boqSearchError, setBoqSearchError] = useState("");
   const [lineItems, setLineItems] = useState([]);
+  const route = useParams();
+  const [purchaseData, setPurchaseData] = useState("");
 
-  console.log("selectedApprover", selectedApprover);
-useEffect(() => {
-  if (boqData?.boqCode) {
-    // Set the BOQ code input
-    setBoqCodeInput(boqData.boqCode);
-    
-    // Automatically trigger the search with the provided BOQ code
-    debouncedSearch(boqData.boqCode);
-  }
-}, [boqData]);
   const [poData, setPoData] = useState({
     poNumber: "",
     poDate: new Date().toISOString().split("T")[0],
     vendorName: boqData?.vendorName || "",
     items: [],
   });
+
+  useEffect(() => {
+    if (route.purchaseOrderId) {
+      get_PO_Details();
+    }
+  }, [route]);
+
+  const get_PO_Details = async () => {
+    const response = await dispatch(
+      getPurchaseOrderDetails(route?.purchaseOrderId)
+    );
+    console.log("response", response);
+    if (response?.payload) {
+      setPurchaseData(response?.payload);
+    }
+  };
 
   // Create a debounced search function
   const debouncedSearch = debounce(async (code) => {
@@ -236,77 +243,23 @@ useEffect(() => {
 
         // Create ticket for approval
         if (selectedApprover.length > 0) {
-          console.log("this if working");
+          const approverIds = selectedApprover.map(
+            (approver) => approver.emp_id || approver.id
+          );
           const ticketResponse = await createTicket({
             poId: response?.data?.purchaseOrderId,
             ticketType: "PO_APPROVAL",
-            assignTo:
-              selectedApprover.length > 0
-                ? selectedApprover.map(
-                    (approver) => approver.empId || approver.empId
-                  )
-                : [1, 2, 7],
+            assignTo: approverIds,
             createdBy: userData?.empId,
           });
-
-          if (ticketResponse?.data?.success) {
-            toast.success("Ticket Created Successfully");
-          }
-
-          console.log("Ticket response:", ticketResponse); // Log ticket response for debugging
-          const ticketId = ticketResponse?.data?.data?.ticketId;
-          const projectName = ticketResponse?.data?.data?.projectName;
-
-          if (ticketId) {
-            // Create notification with ticket ID as sourceEntityId
-            const notificationPayload = {
-              empId:
-                selectedApprover.length > 0
-                  ? selectedApprover.map(
-                      (approver) => approver.emp_id || approver.id
-                    )
-                  : [1, 2, 7],
-              notificationType: "Generate_Purchase_Order ",
-              sourceEntityId: ticketId,
-              message: `We would like to update you that we are currently awaiting your PO on the for ${projectName}. Kindly review and provide your confirmation at the earliest to avoid any delays in the process.`,
-            };
-
-            // Create notification
-            await createNotify(notificationPayload);
-          }
         } else {
           // Default approvers if none selected
           const ticketResponse = await createTicket({
             poId: response?.data?.purchaseOrderId,
             ticketType: "PO_APPROVAL",
-            assignTo:
-              selectedApprover.length > 0
-                ? selectedApprover.map(
-                    (approver) => approver.empId || approver.id
-                  )
-                : [1, 2, 7], // array of empIds
+            assignTo: [1, 2, 7], // array of empIds
             createdBy: userData?.empId,
           });
-          const ticketId = ticketResponse?.data?.data?.ticketId;
-          const projectName = ticketResponse?.data?.data?.projectName;
-
-          if (ticketId) {
-            // Create notification with ticket ID as sourceEntityId
-            const notificationPayload = {
-              empId:
-                selectedApprover.length > 0
-                  ? selectedApprover.map(
-                      (approver) => approver.empId || approver.id
-                    )
-                  : [1, 2, 7],
-              notificationType: "Generate_Purchase_Order ",
-              sourceEntityId: ticketId,
-              message: `We would like to update you that we are currently awaiting your PO on the for ${projectName}. Kindly review and provide your confirmation at the earliest to avoid any delays in the process.`,
-            };
-
-            // Create notification
-            await createNotify(notificationPayload);
-          }
         }
 
         navigate("../po"); // Redirect after success
@@ -388,10 +341,24 @@ useEffect(() => {
   }, [dispatch]);
 
   // Calculate total amount
-  const totalAmount = lineItems.reduce(
+  const totalAmount = purchaseData?.purchaseOrderItems?.reduce(
     (sum, item) => sum + (parseFloat(item.total) || 0),
     0
   );
+
+  const getApproverName = () => {
+    if (purchaseData?.approvers?.length > 0) {
+      const employeeOptions = purchaseData?.approvers?.map((emp) => ({
+        ...emp,
+        label: emp.employeeName,
+        value: emp.employeeName,
+      }));
+      console.log("employeeOptions_employeeOptions", employeeOptions);
+      return employeeOptions;
+    }
+  };
+
+  console.log("AppovedBy", getApproverName());
 
   return (
     <div className="container mt-4 mb-5">
@@ -415,7 +382,7 @@ useEffect(() => {
             <input
               type="text"
               className="form-control"
-              value={loading ? "Loading..." : poId || ""}
+              value={loading ? "Loading..." : purchaseData?.poId || ""}
               readOnly
               style={{
                 padding: "10px 12px",
@@ -431,7 +398,18 @@ useEffect(() => {
             <label style={{ fontWeight: "500", marginBottom: "8px" }}>
               Projects <span style={{ color: "red" }}>*</span>
             </label>
-            <select
+            <input
+              type="text"
+              className="form-control"
+              value={loading ? "Loading..." : purchaseData?.projectName || ""}
+              readOnly
+              style={{
+                padding: "10px 12px",
+                border: "1px solid #ced4da",
+                borderRadius: "4px",
+              }}
+            />
+            {/* <select
               className="form-control"
               value={selectedProjectId}
               onChange={handleProjectChange}
@@ -447,7 +425,7 @@ useEffect(() => {
                   {proj.project_name}
                 </option>
               ))}
-            </select>
+            </select> */}
           </div>
         </div>
       </div>
@@ -461,7 +439,7 @@ useEffect(() => {
             <input
               type="text"
               className="form-control"
-              value={boqDetails?.boqName || boqData?.boqName || ""}
+              value={purchaseData?.boqName || purchaseData?.boqName || ""}
               readOnly
               style={{
                 padding: "10px 12px",
@@ -481,7 +459,7 @@ useEffect(() => {
               <input
                 type="text"
                 className="form-control"
-                value={boqCodeInput}
+                value={purchaseData?.boqCode}
                 onChange={handleBoqCodeChange}
                 placeholder="Enter BOQ Code (e.g. 47 or boq#47)"
                 style={{
@@ -525,7 +503,7 @@ useEffect(() => {
             <input
               type="text"
               className="form-control"
-              value={boqDetails?.vendorName || poData.vendorName || ""}
+              value={purchaseData?.vendorName || poData.vendorName || ""}
               readOnly
               style={{
                 padding: "10px 12px",
@@ -539,12 +517,20 @@ useEffect(() => {
         <div className="col-md-6">
           <Form.Group className="mb-3">
             <Form.Label className="text-black fs-5">Approved By</Form.Label>
-            <MultipleSelect
+            {/* <MultipleSelect
               selectedOptions={selectedApprover}
               handleSelected={setSelectedApprover}
               data={initialApproverArray}
+
               isSearchable={true}
               placeholder={"Select Approver"}
+              isMulti={true}
+
+            /> */}
+            <MultipleSelect
+              placeholder="Approved By"
+              selectedOptions={getApproverName()}
+              disabled
               isMulti={true}
             />
           </Form.Group>
@@ -623,7 +609,7 @@ useEffect(() => {
             </tr>
           </thead>
           <tbody>
-            {lineItems.map((item, index) => (
+            {purchaseData?.purchaseOrderItems?.map((item, index) => (
               <tr key={item.id} style={{ borderBottom: "1px solid #dee2e6" }}>
                 <td className="text-center" style={{ padding: "12px 16px" }}>
                   {item.id}
@@ -632,7 +618,7 @@ useEffect(() => {
                   <input
                     type="text"
                     className="form-control"
-                    value={item.name}
+                    value={item.itemName}
                     onChange={(e) =>
                       handleInputChange(index, "name", e.target.value)
                     }
@@ -652,7 +638,7 @@ useEffect(() => {
                   <input
                     type="number"
                     className="form-control"
-                    value={item.rate}
+                    value={item.price}
                     onChange={(e) =>
                       handleInputChange(index, "rate", e.target.value)
                     }
@@ -677,23 +663,26 @@ useEffect(() => {
           <tfoot>
             <tr>
               <td
-                colSpan="5"
-                className="text-end"
-                style={{ fontWeight: "bold", padding: "12px 16px" }}
+                colSpan="6"
+                className=""
+                style={{
+                  fontWeight: "bold",
+                  padding: "12px 16px",
+                  backgroundColor: "#FF6F00",
+                }}
               >
-                Grand Total:
-              </td>
-              <td
-                className="text-center"
-                style={{ fontWeight: "bold", padding: "12px 16px" }}
-              >
-                ₹ {totalAmount.toLocaleString()}
+                <div className="d-flex justify-content-between">
+                  <p className="m-0 text-dark">Grand Total:</p>{" "}
+                  <p className="m-0 text-dark">
+                    ₹ {totalAmount?.toLocaleString()}
+                  </p>
+                </div>
               </td>
             </tr>
           </tfoot>
         </table>
 
-        <button
+        {/* <button
           className="btn"
           onClick={handleAddRow}
           style={{
@@ -704,10 +693,10 @@ useEffect(() => {
           }}
         >
           + Add New Row
-        </button>
+        </button> */}
       </div>
 
-      <div className="row mt-4">
+      {/* <div className="row mt-4">
         <div className="col-12 d-flex justify-content-end">
           <button
             className="btn btn-secondary me-2"
@@ -728,7 +717,7 @@ useEffect(() => {
             Save
           </button>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }
