@@ -50,6 +50,8 @@ export const API = {
   GET_TICKET_BY_BOARD_LABEL: "/api/BoardManagement/ticketsbyboardlabel",
   GET_FILTERED_BOARD_DATA: "/api/BoardManagement/boardfilter",
   GET_FILTERED_UPDATE_BOARD_DATA: "/api/UpdatesBoardList/boardfilter",
+  /** GET BOQ ITEMS BY ID */
+GET_BOQ_ITEMS_BY_ID: '/api/Project/boq-items',
   // LOGIN BOARD DETAILS 
   LOGIN_BOARD_DETAILS: '/api/Login/board-details',
 /** GET PURCHASE ORDER DETAILS */

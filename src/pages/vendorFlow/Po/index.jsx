@@ -10,11 +10,14 @@ export default function VendorPurchaseOrder() {
   localStorage.setItem("vendorId", vendorId);
 
   useEffect(() => {
-    const vendorId = localStorage.getItem("vendorId");
-    if (vendorId) {
-      dispatch(getPurchaseOrdersByVendorId(vendorId));
-    }
-  }, [dispatch]);
+  const userData = JSON.parse(localStorage.getItem("userData"));
+  const vendorId = userData?.vendorId;
+  
+  if (vendorId) {
+    dispatch(getPurchaseOrdersByVendorId(vendorId));
+  }
+}, [dispatch]);
+
   
 
   const formatDate = (dateStr) => new Date(dateStr).toLocaleDateString("en-GB", {
