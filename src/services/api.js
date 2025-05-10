@@ -9,50 +9,59 @@ const POST = "POST";
 const PUT = "PUT";
 const DELETE = "DELETE";
 
-/**
- * Set headers & base url
- */
-export function getHttpHeader() {
-  // Set default headers
-  const headers = {
-    "Content-Type": "application/json",
-    "Access-Control-Allow-Origin": "*",
-    Timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-  };
+// Create axios instance with basic configuration
+const createAxiosInstance = () => {
+  const instance = axios.create({
+    baseURL: Config.apiBaseUrl,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+      Timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    },
+  });
 
-  // if (issetAuthToken()) {
-  //   headers['Authorization'] = `Bearer ${getAuthToken()}`;
-  //   console.log(issetAuthToken(), getAuthToken())
-  // }else{
-  //   console.log(issetAuthToken(), getAuthToken())
-  // }
-  return headers;
-}
+  // Track login state
+  let justLoggedIn = false;
 
-export const axiosBase = axios.create({
-  baseURL: Config.apiBaseUrl,
-  headers: getHttpHeader(),
-});
-
-// Create an Axios request interceptor
-axiosBase.interceptors.request.use(
-  (config) => {
-    // Get the user's authentication status (you can use a state management library like Redux or React Context)
-
-    // Update the headers based on the user's authentication status
-    if (issetAuthToken()) {
-      config.headers["Authorization"] = `Bearer ${getAuthToken()}`;
-    } else {
-      // Remove the Authorization header if the user is not authenticated
-      delete config.headers["Authorization"];
+  // Request interceptor
+  instance.interceptors.request.use(
+    (config) => {
+      if (issetAuthToken()) {
+        config.headers["Authorization"] = `Bearer ${getAuthToken()}`;
+      } else {
+        delete config.headers["Authorization"];
+      }
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
     }
+  );
 
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+  // Response interceptor
+  instance.interceptors.response.use(
+    (response) => {
+      justLoggedIn = false;
+      return response;
+    },
+    (error) => {
+      if (error.response) {
+        if ((error.response.status === 401 || error.response.status === 403) && !justLoggedIn) {
+          const event = new Event('session_expired');
+          document.dispatchEvent(event);
+        }
+      }
+      return Promise.reject(error);
+    }
+  );
+
+  return {
+    instance,
+    setJustLoggedIn: (value) => { justLoggedIn = value; }
+  };
+};
+
+const { instance: axiosBase, setJustLoggedIn } = createAxiosInstance();
 
 /**
  * Http request
@@ -64,74 +73,32 @@ export const request = async (
   body,
   disableLoader = false
 ) => {
-  // Console request time
   consoleRequestResponseTime("request", Config.apiBaseUrl + "" + path);
 
-  // Check method
-  // eslint-disable-next-line default-case
-  switch (method) {
-    // Get
-    case GET:
-      return axiosBase
-        .get(path, { params: httpParams })
-        .then(function (response) {
-          // handle success
-          const processedData = processResponseData("success", path, response);
-          return processedData;
-        })
-        .catch(function (error) {
-          // handle error
-          processResponseData("failure", path, error);
-          throw error;
-        })
-        .finally(function () {});
+  try {
+    let response;
+    switch (method) {
+      case GET:
+        response = await axiosBase.get(path, { params: httpParams });
+        break;
+      case POST:
+        response = await axiosBase.post(path, body, { params: httpParams });
+        break;
+      case PUT:
+        response = await axiosBase.put(path, body, { params: httpParams });
+        break;
+      case DELETE:
+        response = await axiosBase.delete(path, { params: httpParams, data: body });
+        break;
+      default:
+        throw new Error(`Unsupported method: ${method}`);
+    }
 
-    // Post
-    case POST:
-      return axiosBase
-        .post(path, body, { params: httpParams })
-        .then(function (response) {
-          // handle success
-          const processedData = processResponseData("success", path, response);
-          return processedData;
-        })
-        .catch(function (error) {
-          // handle error
-          processResponseData("failure", path, error);
-          throw error;
-        })
-        .finally(function () {});
-
-    // Put
-    case PUT:
-      return axiosBase
-        .put(path, body, { params: httpParams })
-        .then(function (response) {
-          // handle success
-          const processedData = processResponseData("success", path, response);
-          return processedData;
-        })
-        .catch(function (error) {
-          // handle error
-          processResponseData("failure", path, error);
-          throw error;
-        })
-        .finally(function () {});
-    // DELETE
-    case DELETE:
-      return axiosBase
-        .delete(path, body, { params: httpParams })
-        .then(function (response) {
-          // handle success
-          const processedData = processResponseData("success", path, response);
-          return processedData;
-        })
-        .catch(function (error) {
-          // handle error
-          processResponseData("failure", path, error);
-          throw error;
-        })
-        .finally(function () {});
+    const processedData = processResponseData("success", path, response);
+    return processedData;
+  } catch (error) {
+    processResponseData("failure", path, error);
+    throw error;
   }
 };
 
@@ -139,9 +106,7 @@ export const request = async (
  * Process the response data
  */
 export const processResponseData = (type, path, data, failureMsg) => {
-  // If success and data is object
   if (type === "success") {
-    // data = convertNulltoEmpty(data);
     if (Config.trackHttpResponseInConsole) {
       loggerService.showLog("Response Success");
       loggerService.showLog(["Request Url", Config.apiBaseUrl + "" + path]);
@@ -154,14 +119,6 @@ export const processResponseData = (type, path, data, failureMsg) => {
       loggerService.showLog(["Url", Config.apiBaseUrl + "" + path]);
       loggerService.showLog(["Body", data]);
     }
-
-    /**
-     * Show error msg if
-     * 1. Message available in service
-     * 2. Otherwise show custom error from each service request
-     * 3. Otherwise, show default message 'Service Failure'
-     */
-    // Need to Confirm params
     console.log(failureMsg);
   }
 };
@@ -172,8 +129,7 @@ export const processResponseData = (type, path, data, failureMsg) => {
 export const convertNulltoEmpty = (data) => {
   let stringifyData = JSON.stringify(data).replace(/null/i, '""');
   stringifyData = stringifyData.replace(/null/g, '""');
-  const json = JSON.parse(stringifyData);
-  return json;
+  return JSON.parse(stringifyData);
 };
 
 /**
@@ -215,25 +171,17 @@ export const doFileUpload = async (url, params) => {
       formData.append("comment_id", params[0].body?.comment_id);
       formData.append("content", params[0].body?.content);
       formData.append("mentions", params[0].body?.mentions);
-      // formData.append('deleted_attachments', params[0].body?.deleted_attachments );
-      const deletedAttachmentIds = params[0].body?.deleted_attachments.join(
-        ","
-      );
+      const deletedAttachmentIds = params[0].body?.deleted_attachments.join(",");
       formData.append("deleted_attachments", deletedAttachmentIds);
     }
 
-    // if (params[0]) {
-    //   formData.append('data', JSON.stringify(params[0]));
-    // }
-    const createXHR = () => new XMLHttpRequest();
     const response = await axios.post(url, formData, {
       baseURL: Config.apiBaseUrl,
       headers: {
         Accept: "multipart/form-data",
         "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${getAuthToken()}`, // Include your auth token if needed
+        Authorization: `Bearer ${getAuthToken()}`,
       },
-      httpAgent: createXHR,
     });
 
     const validResponse = response.data;
@@ -241,7 +189,6 @@ export const doFileUpload = async (url, params) => {
     return processedData;
   } catch (error) {
     console.error("Error during file upload:", error);
-    // processResponseData('failure', url, error.response.data, failureMsg);
     throw error;
   }
 };
@@ -249,43 +196,31 @@ export const doFileUpload = async (url, params) => {
 /**
  * File Download
  */
-export const doFileDownload = async (
-  path,
-  httpParams,
-  body,
-  disableLoader = false
-) => {
-  // Console request time
+export const doFileDownload = async (path, httpParams, body, disableLoader = false) => {
   consoleRequestResponseTime("request", Config.apiBaseUrl + "" + path);
 
   try {
-    return axiosBase
-      .post(path, body, { params: httpParams, responseType: "blob" })
-      .then((res) => {
-        if (res?.data) {
-          const blobData = new Blob([res?.data]);
-          const blobUrl = URL.createObjectURL(blobData);
-          var a = document.createElement("a");
-          a.href = blobUrl;
-          a.download = body.file_name;
-          a.click(); //Downloaded file
-
-          // Revoke the Blob URL to free up memory
-          URL.revokeObjectURL(blobUrl);
-        }
-      })
-      .catch(function (error) {
-        // handle error
-        processResponseData("failure", path, error);
-        throw error;
-      })
-      .finally(function () {});
+    const response = await axiosBase.post(path, body, { 
+      params: httpParams, 
+      responseType: "blob" 
+    });
+    
+    if (response?.data) {
+      const blobData = new Blob([response.data]);
+      const blobUrl = URL.createObjectURL(blobData);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = body.file_name;
+      a.click();
+      URL.revokeObjectURL(blobUrl);
+    }
   } catch (error) {
-    console.error("Error during file upload:", error);
-    // processResponseData('failure', url, error.response.data, failureMsg);
+    processResponseData("failure", path, error);
     throw error;
   }
 };
+
+export { setJustLoggedIn };
 
 export default {
   GET: (path, ...props) => request(GET, path, ...props),
@@ -293,6 +228,5 @@ export default {
   PUT: (path, ...props) => request(PUT, path, props.params, ...props),
   DELETE: (path, ...props) => request(DELETE, path, props.params, ...props),
   FILEUPLOAD: (path, ...props) => doFileUpload(path, props),
-  FILEDOWNLOAD: (path, ...props) =>
-    doFileDownload(path, props.params, ...props),
+  FILEDOWNLOAD: (path, ...props) => doFileDownload(path, props.params, ...props),
 };
