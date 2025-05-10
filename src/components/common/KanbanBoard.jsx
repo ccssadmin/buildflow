@@ -43,8 +43,14 @@ const KanbanBoard = () => {
     return userRoleId ? parseInt(userRoleId) : null;
   };
 
+  const getUserRoleName = () => {
+    return localStorage.getItem("userRole") || null;
+  };
+
   const userRoleId = getUserRole();
+  const userRoleName = getUserRoleName();
   console.log("Current user role ID:", userRoleId);
+  console.log("Current user role Name:", userRoleName);
 
   // get the emp details
   useEffect(() => {
@@ -52,24 +58,30 @@ const KanbanBoard = () => {
   }, []);
 
   useEffect(() => {
-    const getEmpId = () => {
+    const getUserId = () => {
       if (state?.emp_id) return state.emp_id;
+      
       const userDataString = localStorage.getItem("userData");
       const userData = userDataString ? JSON.parse(userDataString) : null;
+      
+      // Check if user is a Vendor, use vendorId instead of empId
+      if (userRoleName === "Vendor") {
+        return userData?.vendorId;
+      }
       return userData?.empId;
     };
 
-    const empId = getEmpId();
+    const userId = getUserId();
 
-    if (empId) {
-      console.log("Dispatching getLoginBoardDetailsdAction with empId:", empId);
-      dispatch(getLoginBoardDetailsdAction(empId));
+    if (userId) {
+      console.log(`Dispatching getLoginBoardDetailsdAction with ${userRoleName === "Vendor" ? "vendorId" : "empId"}:`, userId);
+      dispatch(getLoginBoardDetailsdAction(userId, userRoleId)); // Pass both userId and roleId
     } else {
-      console.warn("❌ empId not found in localStorage");
+      console.warn(`❌ ${userRoleName === "Vendor" ? "vendorId" : "empId"} not found in localStorage`);
       setError("User information not found. Please log in again.");
       setLoading(false);
     }
-  }, [dispatch]);
+  }, [dispatch, userRoleId, userRoleName]);
 
   // Process data when it arrives from Redux
   useEffect(() => {
@@ -157,7 +169,6 @@ const KanbanBoard = () => {
             ...col.tasks,
             {
               title: newTaskTitle,
-
               description: "New task description",
               date: new Date().toLocaleDateString("en-GB"),
               comments: 0,
@@ -180,23 +191,20 @@ const KanbanBoard = () => {
     // Map role IDs to their respective routes
     const roleRoutes = {
       1: `/ceo/ticket/${ticketId}`, // CEO
-      2: `/admin/engineerticketdetails/${ticketId}`, // Site Engineer
-      3: `/aqs/aqsticketdetails/${ticketId}`, // Assistant QS
-      4: `/aqs/aqsticketdetails/${ticketId}`, // QS
-      5: `/admin/engineerticketdetails/${ticketId}`, // Site Supervisor
-      6: `/admin/engineerticketdetails/${ticketId}`, // Lead Engineer
-      7: `/pm/pmticket/${ticketId}`, // Assistant Project Manager
-      8: `/pm/pmticket/${ticketId}`, // Project Manager
-      9: `/admin/engineerticketdetails/${ticketId}`, // Designer
-      10: `/admin/engineerticketdetails/${ticketId}`, // Engineer
+      10: `/admin/engineerticketdetails/${ticketId}`, // Site Engineer
+      4: `/aqs/aqsticketdetails/${ticketId}`,
+      8: `/pm/pmticket/${ticketId}`,
       11: `/ticket/${ticketId}`, // Managing Director
       13: `/finance/ticket/${ticketId}`, // Head Finance
-      12: `/ceo/ticket/${ticketId}`, // GM Technology
       15: `/hr/hrticketdetails/${ticketId}`, // HR
-      17: `/purchasemanager/ticket/${ticketId}`, 
+      17: `/purchasemanager/ticket/${ticketId}`, // Purchase Manager
+      20: `/vendor/ticket/${ticketId}`, // Vendor - Added specific route for vendor
     };
 
-    return roleRoutes[userRoleId] || `/ticket/${ticketId}`;
+    // If role ID is not found in the mapping, use a default route or vendor-specific route
+    return roleRoutes[userRoleId] || (
+      userRoleName === "Vendor" ? `/vendor/ticket/${ticketId}` : `/ticket/${ticketId}`
+    );
   };
 
   const handleTaskClick = async (task) => {
@@ -264,6 +272,7 @@ const KanbanBoard = () => {
     boardData,
     columnsCount: columns.length,
     userRoleId,
+    userRoleName,
   });
 
   if (loading) {
@@ -313,9 +322,9 @@ const KanbanBoard = () => {
     );
   }
 
-  //tag name chage
+  //tag name change
   const formatTag = (tag) => {
-    console.log("Tag Nmae=>", tag);
+    console.log("Tag Name=>", tag);
     let text = "";
     if (tag === "PO_APPROVAL") {
       text = "Po Approval";

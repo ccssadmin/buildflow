@@ -1,3 +1,4 @@
+//D:\ccs\Project\React JS\latest\buildflow\src\components\common\MaterialViewScreen.jsx
 import React, { useEffect, useState } from "react";
 import { Form, Table, Dropdown } from "react-bootstrap";
 import { RiArrowDropDownLine } from "react-icons/ri";
@@ -148,18 +149,22 @@ const MaterialViewScreen = () => {
     }
   };
   const handleConvertToPO = () => {
-    // Navigate to PO create page with boqDetails and ticket data
-    if (boqDetails) {
-      navigate("/purchasemanager/PoCreateAutoGenrate", {
-        state: {
-          boqData: boqDetails,
-          ticket: ticket,
+  // Navigate to PO create page with boqDetails and ticket data
+  if (boqDetails) {
+    navigate("/purchasemanager/pocreateautogenrate", {
+      state: {
+        boqData: {
+          ...boqDetails,
+          boqCode: boqDetails.boqCode || `boq#${boqDetails.boqId}` // Ensure boqCode is available
         },
-      });
-    } else {
-      toast.warning("No BOQ details available to convert");
-    }
-  };
+        ticket: ticket,
+      },
+    });
+  } else {
+    toast.warning("No BOQ details available to convert");
+  }
+};
+
 
   return (
     <div className="container mt-4">

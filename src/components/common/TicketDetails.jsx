@@ -106,29 +106,7 @@ const EngineerTicketDetails = () => {
     },
   ]);
 
-  //approvalData
-
-  const roleColorMap = {
-    approved: { color: "success", label: "Approved" },
-    pending: { color: "warning", label: "Pending" },
-    rejected: { color: "danger", label: "Rejected" },
-  };
-
-  const transformedData = Object.entries(ticket?.approvalsGrouped || {}).map(
-    ([role, approvals]) => {
-      const approval = approvals[0]; // Assuming single approval per role
-      const statusType = approval?.approval_type || "pending";
-
-      return {
-        role,
-        statuses: ["rejected", "pending", "approved"].map((type) => ({
-          type: roleColorMap[type].label,
-          color: roleColorMap[type].color,
-          active: type === statusType,
-        })),
-      };
-    }
-  );
+ 
 
   // Date state management
   const [orderDate, setOrderDate] = useState(
@@ -220,7 +198,9 @@ const EngineerTicketDetails = () => {
       fetchTicketDetails();
     }
   }, [dispatch, id]);
-  const fetchTicketDetails = async () => {
+
+
+const fetchTicketDetails = async () => {
     try {
       const data = await dispatch(getticketbyidAction(id?.ticketId)).unwrap();
 
@@ -323,6 +303,19 @@ const EngineerTicketDetails = () => {
     showToastNotification(`Status set to ${status}`);
   };
 
+  const getApprovalStatus = (status) => {
+  const numericStatus = Number(status);
+  if (numericStatus === 1) {
+    return { text: "Approved", color: "success" };
+  } else if (numericStatus === 0) {
+    return { text: "Rejected", color: "danger" };
+  } else if (numericStatus === 2) {
+    return { text: "Pending", color: "warning" };
+  } else {
+    return { text: "Unknown", color: "secondary" };
+  }
+};
+
   const handleSave = async () => {
     // if (!approvalStatus) {
     //   showToastNotification("Please select Approve or Reject");
@@ -367,7 +360,7 @@ const EngineerTicketDetails = () => {
 
       if (result.success) {
         showToastNotification("Ticket updated successfully");
-
+        fetchTicketDetails();
         // ✅ Refetch the updated ticket
         const updatedData = await dispatch(
           getticketbyidAction(payload.ticketId)
@@ -391,7 +384,7 @@ const EngineerTicketDetails = () => {
       setIsLoading(false);
     }
   };
-
+const BASE_URL = process.env.REACT_APP_MASTER_API_BASE_URL;
   const handleSendComment = async () => {
     if (!commentText.trim()) {
       showToastNotification("Please enter a comment.");
@@ -431,7 +424,7 @@ const EngineerTicketDetails = () => {
     try {
       await dispatch(createTicketDetailsAction(formData)).unwrap();
       showToastNotification("Comment sent successfully!");
-
+      fetchTicketDetails()
       // Update local state with the new comment
       const newComment = {
         id: Date.now(),
@@ -466,18 +459,17 @@ const EngineerTicketDetails = () => {
 
   let hasUserApprovedStatusShow = false;
 
-  const grouped = ticket?.approvalsGrouped || {};
+  const grouped = ticketData?.approvalsGrouped || {};
 
   Object.values(grouped).forEach((approvals) => {
     approvals.forEach((approval) => {
-      if (
-        (approval.approved_by_id === userData?.empId &&
-          approval.approval_type === "approved") ||
-        "rejected"
-      ) {
+      const userApproved = approval?.approved_by_id === userData?.empId;
+      const statusProcessed = ["approved", "rejected"].includes(approval?.approval_type);
+  
+      if (userApproved && statusProcessed) {
         hasUserApprovedStatusShow = true;
-      }
-    });
+  }
+  });
   });
 
   console.log("Has user approved?", hasUserApprovedStatusShow); // true or false
@@ -625,6 +617,31 @@ const EngineerTicketDetails = () => {
       .join("")
       .toUpperCase();
   };
+
+
+    const roleColorMap = {
+    approved: { color: "success", label: "Approved" },
+    pending: { color: "warning", label: "Pending" },
+    rejected: { color: "danger", label: "Rejected" },
+  };
+
+  const transformedData = Object.entries(
+    ticketData?.approvalsGrouped || {}
+  ).map(([role, approvals]) => {
+    const approval = approvals[0]; // Assuming single approval per role
+    const statusType = approval?.approval_type || "pending";
+
+    return {
+      role,
+      statuses: ["rejected", "pending", "approved"].map((type) => ({
+        type: roleColorMap[type].label,
+        color: roleColorMap[type].color,
+        active: type === statusType,
+      })),
+    };
+  });
+
+
 
   const get_boq_Ticket = (ticket) => {
     if (!ticket || !ticket.transaction_id) {
@@ -1148,7 +1165,7 @@ const EngineerTicketDetails = () => {
                           </div>
                           <div className="d-flex align-items-center p-1">
                             <a
-                              href={comment.file_path}
+                              href={`${BASE_URL}/${comment.file_path}`}
                               target="_blank"
                               rel="noopener noreferrer"
                             >
@@ -1157,7 +1174,7 @@ const EngineerTicketDetails = () => {
                           </div>
                           <div key={index} className="me-2 mb-2 mt-3">
                             <img
-                              src={comment.file_path}
+                              src={`${BASE_URL}/${comment.file_path}`}
                               alt={comment.filename}
                               style={{
                                 width: "100px",
@@ -1388,18 +1405,7 @@ const EngineerTicketDetails = () => {
                           marginRight: "10px",
                         }}
                       ></div>
-                      <div>
-                        <div className="d-flex align-items-center">
-                          <span className="fw-bold">Approval Status</span>
-                          <span className="text-muted ms-2 small">
-                            {ticketData?.isapproved ? "Approved" : "Rejected"}
-                          </span>
-                        </div>
-                        <p className="text-muted small mb-0">
-                          Status:{" "}
-                          {ticketData?.isapproved ? "Approved" : "Rejected"}
-                        </p>
-                      </div>
+                      
                     </div>
                   )}
                 </div>
@@ -1623,10 +1629,13 @@ const EngineerTicketDetails = () => {
               ) : null}
             </div>
 
-            {/* Approved By */}
+
+
+
+              {/* Approved By */}
             <div
-              className={`mb-3 mt-3 d-flex justify-content-between align-items-center border-bottom pb-3 ${
-                userData?.empId === ticket?.created_by ? "d-none" : "d-block"
+              className={` mb-3 mt-3 d-flex justify-content-between align-items-center border-bottom pb-3 pt-3 ${
+                hasUserApprovedStatusShow ? "d-none" : "d-block"
               }`}
             >
               <span className="text-muted">Action</span>
@@ -1656,18 +1665,24 @@ const EngineerTicketDetails = () => {
               </div>
             </div>
 
+
+
+
             {/* Approval Status */}
-            {ticketData?.isapproved !== null && (
+          
+            {ticketData?.isapproved !== null && ticketData?.isapproved !== undefined && (
               <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
-                <span className="text-muted">Approval Status</span>
-                <Badge
-                  bg={ticketData?.isapproved ? "success" : "danger"}
-                  className="px-2 py-1"
-                >
-                  {ticketData?.isapproved ? "Approved" : "Pending"}
-                </Badge>
-              </div>
+              <span className="text-muted">Approval Status</span>
+              <Badge
+                bg={getApprovalStatus(ticketData?.isapproved).color}
+                className="px-2 py-1"
+              >
+            {getApprovalStatus(ticketData?.isapproved).text}
+              </Badge>
+            </div>
             )}
+
+            
 
             {/* Approved By */}
             {ticketData?.approved_by && (

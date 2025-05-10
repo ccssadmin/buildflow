@@ -664,7 +664,7 @@ export const getPurchaseOrderDetailsAction = createAsyncThunk(
     return response.data;
   }
 );
-
+const BASE_URL = process.env.REACT_APP_MASTER_API_BASE_URL;
 export const createTicketDetailsAction = createAsyncThunk(
   'ticket/createDetails',
   async (formData, thunkAPI) => {
@@ -695,7 +695,7 @@ export const createTicketDetailsAction = createAsyncThunk(
       console.log('Using token:', token.substring(0, 10) + '...'); // Log first part of token for debugging
       
       const response = await axios.post(
-        'https://buildflowgraphql.crestclimbers.com/api/Ticket/add-comment-attachment',
+        `${BASE_URL}/api/Ticket/add-comment-attachment`,
         formData,
         {
           headers: {
