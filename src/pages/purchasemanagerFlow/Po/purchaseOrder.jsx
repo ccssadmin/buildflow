@@ -672,8 +672,8 @@ export default function POViewPage({ params }) {
                 }}
               >
                 <div className="d-flex justify-content-between">
-                  <p className="m-0 text-dark">Grand Total:</p>{" "}
-                  <p className="m-0 text-dark">
+                  <p className="m-0 text-white">Grand Total:</p>{" "}
+                  <p className="m-0 text-white">
                     ₹ {totalAmount?.toLocaleString()}
                   </p>
                 </div>

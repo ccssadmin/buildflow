@@ -252,92 +252,95 @@ useEffect(() => {
     console.log("Sending payload:", payload); // Log payload for debugging
 
     try {
-      const response = await dispatch(upsertPurchaseOrder(payload)).unwrap();
-      if (response?.success) {
-        toast.success("PO Created Successfully");
+  let ticketId = null;
+  const response = await dispatch(upsertPurchaseOrder(payload)).unwrap();
+  if (response?.success) {
+    toast.success("PO Created Successfully");
 
-        // Create ticket for approval
-        if (selectedApprover.length > 0) {
-          console.log("this if working");
-          const ticketResponse = await createTicket({
-            poId: response?.data?.purchaseOrderId,
-            ticketType: "PO_APPROVAL",
-            assignTo:
-              selectedApprover.length > 0
-                ? selectedApprover.map(
-                    (approver) => approver.empId || approver.empId
-                  )
-                : [1, 2, 7],
-            createdBy: userData?.empId,
-          });
+    // Create ticket for approval
+    if (selectedApprover.length > 0) {
+      console.log("this if working");
+      const ticketResponse = await createTicket({
+        poId: response?.data?.purchaseOrderId,
+        ticketType: "PO_APPROVAL",
+        assignTo:
+          selectedApprover.length > 0
+            ? selectedApprover.map(
+                (approver) => approver.empId || approver.empId
+              )
+            : [1, 2, 7],
+        createdBy: userData?.empId,
+      });
 
-          if (ticketResponse?.data?.success) {
-            toast.success("Ticket Created Successfully");
-          }
-
-          console.log("Ticket response:", ticketResponse); // Log ticket response for debugging
-          const ticketId = ticketResponse?.data?.data?.ticketId;
-          const projectName = ticketResponse?.data?.data?.projectName;
-
-          if (ticketId) {
-            // Create notification with ticket ID as sourceEntityId
-            const notificationPayload = {
-              empId:
-                selectedApprover.length > 0
-                ? selectedApprover.map(
-                    (approver) => approver.empId || approver.empId
-                  )
-                : [1, 2, 7],
-              notificationType: "Generate_Purchase_Order ",
-              sourceEntityId: ticketId,
-              message: `We would like to update you that we are currently awaiting your PO on the for ${projectName}. Kindly review and provide your confirmation at the earliest to avoid any delays in the process.`,
-            };
-
-            // Create notification
-            await createNotify(notificationPayload);
-            toast.success("Notification Created Successfully")
-          }
-        } else {
-          // Default approvers if none selected
-          const ticketResponse = await createTicket({
-            poId: response?.data?.purchaseOrderId,
-            ticketType: "PO_APPROVAL",
-            assignTo:
-              selectedApprover.length > 0
-                ? selectedApprover.map(
-                    (approver) => approver.empId || approver.id
-                  )
-                : [1, 2, 7], // array of empIds
-            createdBy: userData?.empId,
-          });
-          const ticketId = ticketResponse?.data?.data?.ticketId;
-          const projectName = ticketResponse?.data?.data?.projectName;
-
-          if (ticketId) {
-            // Create notification with ticket ID as sourceEntityId
-            const notificationPayload = {
-              empId:
-                selectedApprover.length > 0
-                ? selectedApprover.map(
-                    (approver) => approver.empId || approver.empId
-                  )
-                : [1, 2, 7],
-              notificationType: "Generate_Purchase_Order ",
-              sourceEntityId: ticketId,
-              message: `We would like to update you that we are currently awaiting your PO on the for ${projectName}. Kindly review and provide your confirmation at the earliest to avoid any delays in the process.`,
-            };
-
-            // Create notification
-            await createNotify(notificationPayload);
-            toast.success("Notification Created Successfully")
-          }
-        }
-
-        navigate("../po"); // Redirect after success
-      } else {
-        toast.error(response?.message || "Failed to create PO");
+      if (ticketResponse?.data?.success) {
+        toast.success("Ticket Created Successfully");
       }
-    } catch (error) {
+
+      console.log("Ticket response:", ticketResponse); // Log ticket response for debugging
+      ticketId = ticketResponse?.data?.data?.ticketId; // ✅ FIXED: no const
+      const projectName = ticketResponse?.data?.data?.projectName;
+
+      if (ticketId) {
+        // Create notification with ticket ID as sourceEntityId
+        const notificationPayload = {
+          empId:
+            selectedApprover.length > 0
+              ? selectedApprover.map(
+                  (approver) => approver.empId || approver.empId
+                )
+              : [1, 2, 7],
+          notificationType: "Generate_Purchase_Order ",
+          sourceEntityId: ticketId,
+          message: `We would like to update you that we are currently awaiting your PO on the for ${projectName}. Kindly review and provide your confirmation at the earliest to avoid any delays in the process.`,
+        };
+
+        // Create notification
+        await createNotify(notificationPayload);
+        toast.success("Notification Created Successfully");
+      }
+    } else {
+      // Default approvers if none selected
+      const ticketResponse = await createTicket({
+        poId: response?.data?.purchaseOrderId,
+        ticketType: "PO_APPROVAL",
+        assignTo:
+          selectedApprover.length > 0
+            ? selectedApprover.map(
+                (approver) => approver.empId || approver.id
+              )
+            : [1, 2, 7], // array of empIds
+        createdBy: userData?.empId,
+      });
+
+      const projectName = ticketResponse?.data?.data?.projectName;
+      ticketId = ticketResponse?.data?.data?.ticketId; // ✅ correctly assigned
+
+      if (ticketId) {
+        // Create notification with ticket ID as sourceEntityId
+        const notificationPayload = {
+          empId:
+            selectedApprover.length > 0
+              ? selectedApprover.map(
+                  (approver) => approver.empId || approver.empId
+                )
+              : [1, 2, 7],
+          notificationType: "Generate_Purchase_Order ",
+          sourceEntityId: ticketId,
+          message: `We would like to update you that we are currently awaiting your PO on the for ${projectName}. Kindly review and provide your confirmation at the earliest to avoid any delays in the process.`,
+        };
+
+        // Create notification
+        await createNotify(notificationPayload);
+        toast.success("Notification Created Successfully");
+      }
+    }
+
+    navigate(`../ticket/${ticketId}`); // ✅ will now have the correct ticketId
+  } else {
+    toast.error(response?.message || "Failed to create PO");
+  }
+}
+ catch (error) {
       // Show more specific error message from API if available
       if (error.response && error.response.data && error.response.data.errors) {
         const errorMessages = Object.values(error.response.data.errors)

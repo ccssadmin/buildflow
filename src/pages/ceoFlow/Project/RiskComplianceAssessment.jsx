@@ -83,7 +83,7 @@ const RiskComplianceAssessment = ({ formData, handleAddColumn, setFormData }) =>
     });
     setFormData((prev) => ({ ...prev, risks: updatedRisks }));
 
-   
+
   };
 
   const handleUpload = async (risk) => {
@@ -129,23 +129,23 @@ const RiskComplianceAssessment = ({ formData, handleAddColumn, setFormData }) =>
         allowOutsideClick: false,
         didOpen: () => Swal.showLoading()
       });
-  
+
       // Add more explicit validation and logging here
       console.log("Before Upload - Risk Data:", {
         id: risk.id,
         category: risk.category,
         status: risk.status,
-        file: risk.file ? {name: risk.file.name, size: risk.file.size, type: risk.file.type} : null,
+        file: risk.file ? { name: risk.file.name, size: risk.file.size, type: risk.file.type } : null,
         projectId: localProjectId
       });
-  
+
       // Validate file
       if (!risk.file || !(risk.file instanceof File) || risk.file.size === 0) {
         Swal.close();
         Swal.fire({ icon: "warning", title: "Invalid file. Please select a valid file." });
         return;
       }
-  
+
       // Create payload with explicit typing
       const riskData = {
         riskId: risk.dbId || 0,
@@ -155,12 +155,12 @@ const RiskComplianceAssessment = ({ formData, handleAddColumn, setFormData }) =>
         file: risk.file,
         id: risk.id
       };
-  
+
       console.log("Final payload being sent to dispatch:", riskData);
-  
+
       const resultAction = await dispatch(uploadRiskData(riskData));
       Swal.close();
-  
+
       // Rest of the function...
     } catch (error) {
       // Error handling...
@@ -173,42 +173,56 @@ const RiskComplianceAssessment = ({ formData, handleAddColumn, setFormData }) =>
       <table className="tbl mt-4 w-100 table table-bordered">
         <thead>
           <tr>
-            <th>S. No</th>
-            <th>Category</th>
-            <th>Status</th>
-            <th>File</th>
+            <th className="text-center text-dark fs-18-500">S. No</th>
+            <th className="text-center text-dark fs-18-500">Category</th>
+            <th className="text-center text-dark fs-18-500">Status</th>
+            <th className="text-center text-dark fs-18-500">File</th>
             {/* <th>Upload</th> */}
           </tr>
         </thead>
         <tbody>
           {formData.risks.map((risk) => (
             <tr key={risk.id}>
-              <td>{String(risk.id).padStart(2, "0")}</td>
-              <td>{risk.category}</td>
-              <td>
-                <Dropdown>
-                  <Dropdown.Toggle variant="light" id={`dropdown-${risk.id}`}>
-                    {risk.status}
-                  </Dropdown.Toggle>
-                  <Dropdown.Menu>
-                    <Dropdown.Item onClick={() => handleStatusChange(risk.id, "Completed")}>Completed</Dropdown.Item>
-                    <Dropdown.Item onClick={() => handleStatusChange(risk.id, "Pending")}>Pending</Dropdown.Item>
-                  </Dropdown.Menu>
-                </Dropdown>
+              <td className="text-center text-dark-gray fs-16-400 ">{String(risk.id).padStart(2, "0")}</td>
+              <td className="text-center text-dark-gray fs-16-500">
+                <Form.Control
+                  type="text"
+                  value={risk.category}
+                  onChange={(e) => {
+                    const updatedRisks = formData.risks.map((r) =>
+                      r.id === risk.id ? { ...r, category: e.target.value } : r
+                    );
+                    setFormData((prev) => ({ ...prev, risks: updatedRisks }));
+                  }}
+                  size="sm"
+                />
+              </td>
+              <td className="text-center text-dark-gray fs-16-500">
+                <Form.Select
+                  value={risk.status}
+                  onChange={(e) => handleStatusChange(risk.id, e.target.value)}
+                  size="sm"
+                >
+                  <option value="">Select Status</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Pending">Pending</option>
+                </Form.Select>
               </td>
               <td>
-                {uploadingForId === risk.id ? (
-                  <Form.Control
-                    type="file"
-                    onChange={(e) => handleFileChange(risk.id, e)}
-                    size="sm"
-                    autoFocus
-                  />
-                ) : (
-                  <Button variant="link" onClick={() => setUploadingForId(risk.id)}>
-                    {risk.file ? risk.file.name : "Upload"}
-                  </Button>
-                )}
+                <input
+                  type="file"
+                  id={`file-input-${risk.id}`}
+                  style={{ display: "none" }}
+                  onChange={(e) => handleFileChange(risk.id, e)}
+                />
+                <Button
+                  variant="link"
+                  onClick={() => {
+                    document.getElementById(`file-input-${risk.id}`).click();
+                  }}
+                >
+                  {risk.file ? risk.file.name : "Upload"}
+                </Button>
               </td>
               {/* <td>
                 {uploadedRisks[risk.id] ? (
@@ -234,8 +248,8 @@ const RiskComplianceAssessment = ({ formData, handleAddColumn, setFormData }) =>
           ))}
         </tbody>
       </table>
-      <div className="add-column">
-        <Button className="text-primary bg-transparent border-0" onClick={handleAddColumn}>
+      <div className="text-end mt-3">
+        <Button className="text-primary bg-transparent border-0 fs-16-500 me-0 ms-auto" onClick={handleAddColumn}>
           + Add Row
         </Button>
       </div>
