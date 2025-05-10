@@ -7,6 +7,7 @@ import DatePicker from "react-datepicker"; // Import DatePicker
 import "react-datepicker/dist/react-datepicker.css"; // Import styles
 import { profile } from "../../../assets/images";
 
+
 const TimelineMilestonePlanning = ({
   formData,
   handleMilestoneChange,
@@ -30,10 +31,11 @@ const TimelineMilestonePlanning = ({
     );
   };
 
+
   const handleTicketSubmission = async () => {
     const projectId = formData.projectId || localProjectId || parseInt(localStorage.getItem("projectId"));
     const createdBy = parseInt(localStorage.getItem("userRoleId")); // This is CEO's user id (creator)
-  
+
     if (selectedUsers.length === 0) {
       Swal.fire({
         icon: "warning",
@@ -42,33 +44,33 @@ const TimelineMilestonePlanning = ({
       });
       return;
     }
-  
+
     const ticketPayload = {
       projectId,
       ticketType: "milestone",
       assignTo: selectedUsers,
       createdBy: createdBy,
     };
-  
+
     try {
-      const ticketResponse = await createTicket(ticketPayload); 
-      const ticketId = ticketResponse?.data?.data?.ticketId; 
+      const ticketResponse = await createTicket(ticketPayload);
+      const ticketId = ticketResponse?.data?.data?.ticketId;
       const projectName = ticketResponse?.data?.data?.projectName;
-  
+
       if (!ticketId) {
         throw new Error("Ticket ID not returned from createTicket");
       }
-  
+
       const notificationPayload = {
         empId: selectedUsers,
         notificationType: "Timeline_and_Milestone_Planning",
         sourceEntityId: ticketId,
         message: `We would like you to Evaluate and determine the Timeline and Milestones of ${projectName} Project with consideration.Kindly  provide your confirmation at the earliest to avoid any delays in the process.`,
       };
-  
+
       await createNotify(notificationPayload);
       console.log("🔔 Notification created");
-  
+
       Swal.fire({
         icon: "success",
         title: "Tickets and Notifications Created",
@@ -76,13 +78,13 @@ const TimelineMilestonePlanning = ({
         timer: 1500,
         showConfirmButton: false,
       });
-  
+
       setShowModal(false);
     } catch (err) {
       console.error("❌ Failed to create ticket or notification:", err);
     }
   };
-  
+
 
   useEffect(() => {
     // On component mount - get project ID from all possible sources
@@ -175,6 +177,20 @@ const TimelineMilestonePlanning = ({
       ],
     }));
   };
+
+  const inputStyle = {
+    border: "1px solid #007bff",
+    borderRadius: "6px",
+    padding: "6px 12px",
+    backgroundColor: "#fff",
+    color: "#007bff",
+    fontWeight: "500",
+    textAlign: "center",
+    width: "100%",
+    cursor: "pointer",
+  };
+
+
 
   // Modified function to handle date changes with DatePicker
   const handleDateChange = (id, field, date) => {
@@ -335,7 +351,7 @@ const TimelineMilestonePlanning = ({
                   <td className="text-center text-dark-gray fs-16-500">
                     <Form.Control
                       type="text"
-                      className="border-0 shadow-none bg-transparent"
+                      className="border-1 shadow-none bg-transparent"
                       value={milestone.name}
                       onChange={(e) =>
                         handleMilestoneChange(
@@ -350,7 +366,7 @@ const TimelineMilestonePlanning = ({
                   <td className="text-center text-dark-gray fs-16-500">
                     <Form.Control
                       type="text"
-                      className="border-0 shadow-none bg-transparent"
+                      className="border-1 shadow-none bg-transparent"
                       value={milestone.description}
                       onChange={(e) =>
                         handleMilestoneChange(
@@ -363,35 +379,88 @@ const TimelineMilestonePlanning = ({
                     />
                   </td>
                   <td className="text-center text-dark-gray fs-16-500">
-                    <div className="date-input-container">
+                    <div style={{ position: "relative" }}>
                       <DatePicker
                         selected={parseDate(milestone.startDate)}
-                        onChange={(date) =>
-                          handleDateChange(milestone.id, "startDate", date)
-                        }
-                        className="form-control border-0 shadow-none bg-transparent w-100"
-                        dateFormat="d MMMM yyyy" // Changed from "yyyy-MM-dd" to "d MMMM yyyy"
-                        placeholderText="Select start date"
+                        onChange={(date) => handleDateChange(milestone.id, "startDate", date)}
+                        className="form-control pe-3 border-1 shadow-none bg-transparent"
+                        dateFormat="d MMMM yyyy"
+                        placeholderText="Select date"
+                        style={{
+                          border: "1px solid #007bff",
+                          borderRadius: "6px",
+                          padding: "6px 12px",
+                          backgroundColor: "#fff",
+                          color: "#007bff",
+                          fontWeight: "500",
+                          textAlign: "center",
+                          width: "100%",
+                          cursor: "pointer",
+                        }}
                       />
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        style={{
+                          position: "absolute",
+                          top: "50%",
+                          right: "25px",
+                          transform: "translateY(-50%)",
+                          pointerEvents: "none",
+                        }}
+                      >
+                        <path d="M7 10h5v5H7z" />
+                        <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z" />
+                      </svg>
                     </div>
+
+
                   </td>
                   <td className="text-center text-dark-gray fs-16-500">
-                    <div className="date-input-container">
+                    <div style={{ position: "relative" }}>
                       <DatePicker
                         selected={parseDate(milestone.endDate)}
-                        onChange={(date) =>
-                          handleDateChange(milestone.id, "endDate", date)
-                        }
-                        className="form-control border-0 shadow-none bg-transparent"
-                        dateFormat="d MMMM yyyy" // Changed from "yyyy-MM-dd" to "d MMMM yyyy"
-                        placeholderText="Select end date"
+                        onChange={(date) => handleDateChange(milestone.id, "endDate", date)}
+                        className="form-control pe-3 border-1 shadow-none bg-transparent"
+                        dateFormat="d MMMM yyyy"
+                        placeholderText="Select date"
                         minDate={parseDate(milestone.startDate)}
+                        style={{
+                          border: "1px solid #007bff",
+                          borderRadius: "6px",
+                          padding: "6px 12px",
+                          backgroundColor: "#fff",
+                          color: "#007bff",
+                          fontWeight: "500",
+                          textAlign: "center",
+                          width: "100%",
+                          cursor: "pointer",
+                        }}
                       />
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        style={{
+                          position: "absolute",
+                          top: "50%",
+                          right: "25px",
+                          transform: "translateY(-50%)",
+                          pointerEvents: "none",
+                        }}
+                      >
+                        <path d="M7 10h5v5H7z" />
+                        <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z" />
+                      </svg>
                     </div>
                   </td>
                   <td className="text-center text-dark-gray fs-16-500">
                     <Form.Select
-                      className="border-0 shadow-none bg-transparent text-dark"
+                      style={inputStyle}
+                      className="form-control border-1 shadow-none bg-transparent text-dark"
                       value={milestone.status}
                       onChange={(e) =>
                         handleMilestoneChange(
@@ -445,10 +514,10 @@ const TimelineMilestonePlanning = ({
           >
             Send To
           </Button> */}
-          <Button 
-          onClick={() => setShowModal(true)}
-          disabled={formData.projectManager.length === 0}
-          className="btn-primary btn fs-14-600 bg-transparent text-primary border-0 border-radius-2">
+          <Button
+            onClick={() => setShowModal(true)}
+            disabled={formData.projectManager.length === 0}
+            className="btn-primary btn fs-14-600 bg-transparent text-primary border-0 border-radius-2">
             <svg
               className="me-2"
               width="20"
