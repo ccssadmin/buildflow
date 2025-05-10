@@ -261,10 +261,9 @@ const ProjectSummary = ({ formData, onBackClick }) => {
               <Form.Control
                 disabled
                 type="text"
-                value={`₹ ${
-                  projectData?.project?.project_total_budget?.toLocaleString() ||
+                value={`₹ ${projectData?.project?.project_total_budget?.toLocaleString() ||
                   "Not provided"
-                }`}
+                  }`}
               />
             </div>
           </Col>
@@ -309,6 +308,7 @@ const ProjectSummary = ({ formData, onBackClick }) => {
       </div>
 
       {/* 03. Project Team & Stakeholder Assignment */}
+
       <div className="summary-section">
         <div className="summary-header">
           <h3>03. Project Team & Stakeholder Assignment</h3>
@@ -321,24 +321,22 @@ const ProjectSummary = ({ formData, onBackClick }) => {
           </Button>
         </div>
         <Row className="mb-3">
-          <Col md={6} lg={4}>
-            <div className="summary-field">
-              <label>Project Manager</label>
-              <div className="summary-multi-selectn">
-                {projectData?.team_details
-                  ?.filter((t) => t.role === "Project Manager")
-                  .map((item) => (
-                    <div key={item.emp_id} className="summary-tag width-100">
-                      <Form.Control
-                        disabled
-                        type="text"
-                        value={item.emp_name || "Not assigned"}
-                      />
-                    </div>
-                  ))}
+          {projectData?.team_details?.map((member, index) => (
+            <Col md={6} lg={4} key={member.emp_id}>
+              <div className="summary-field">
+                <label>{member.role}</label>
+                <div className="summary-multi-selectn">
+                  <div className="summary-tag width-100">
+                    <Form.Control
+                      disabled
+                      type="text"
+                      value={member.emp_name || "Not assigned"}
+                    />
+                  </div>
+                </div>
               </div>
-            </div>
-          </Col>
+            </Col>
+          ))}
         </Row>
         <div className="permission-approval-summary">
           <h4>Permission and Finance Approval</h4>
@@ -500,64 +498,64 @@ const ProjectSummary = ({ formData, onBackClick }) => {
       </div>
 
       <div className="form-actions text-center mt-4 w-100 flex-end d-flex  justify-content-end">
-      {(() => {
-    const userRoleId = parseInt(localStorage.getItem("userRoleId"));
-    const isRole1 = userRoleId === 1;
-    return (
-        <Button
-        className={`submit-btn w-auto border-0 ${userRoleId === 1 ? "d-block" : "d-none"}`}
-          onClick={async () => {
-            try {
-              const rolesResponse = await dispatch(fetchRoles());
-              console.log("Roles Response:", rolesResponse);
+        {(() => {
+          const userRoleId = parseInt(localStorage.getItem("userRoleId"));
+          const isRole1 = userRoleId === 1;
+          return (
+            <Button
+              className={`submit-btn w-auto border-0 ${userRoleId === 1 ? "d-block" : "d-none"}`}
+              onClick={async () => {
+                try {
+                  const rolesResponse = await dispatch(fetchRoles());
+                  console.log("Roles Response:", rolesResponse);
 
-              if (rolesResponse?.payload?.length > 0) {
-                const targetRoles = [
-                  "Managing Director",
-                  "Director",
-                  "Head Finance",
-                  "GM Technology",
-                ];
+                  if (rolesResponse?.payload?.length > 0) {
+                    const targetRoles = [
+                      "Managing Director",
+                      "Director",
+                      "Head Finance",
+                      "GM Technology",
+                    ];
 
-                const filteredRoles = rolesResponse?.payload?.filter((role) =>
-                  targetRoles.includes(role.roleName)
-                );
+                    const filteredRoles = rolesResponse?.payload?.filter((role) =>
+                      targetRoles.includes(role.roleName)
+                    );
 
-                const allEmployees = [];
+                    const allEmployees = [];
 
-                for (const role of filteredRoles) {
-                  const empResponse = await fetchAllEmployees(role.roleId);
+                    for (const role of filteredRoles) {
+                      const empResponse = await fetchAllEmployees(role.roleId);
 
-                  const employeesByRole = empResponse?.data?.employeesByRole;
+                      const employeesByRole = empResponse?.data?.employeesByRole;
 
-                  if (employeesByRole) {
-                    const employeesForExactRole =
-                      employeesByRole[role.roleName];
-                    if (Array.isArray(employeesForExactRole)) {
-                      allEmployees.push(
-                        ...employeesForExactRole.map((emp) => ({
-                          ...emp,
-                          roleName: role.roleName,
-                        }))
-                      );
+                      if (employeesByRole) {
+                        const employeesForExactRole =
+                          employeesByRole[role.roleName];
+                        if (Array.isArray(employeesForExactRole)) {
+                          allEmployees.push(
+                            ...employeesForExactRole.map((emp) => ({
+                              ...emp,
+                              roleName: role.roleName,
+                            }))
+                          );
+                        }
+                      }
                     }
+
+                    console.log("All Employees:", allEmployees);
+
+                    setEmployeesByRole(allEmployees);
+                    setShowModal(true);
                   }
+                } catch (error) {
+                  console.error("Error fetching roles/employees:", error);
                 }
-
-                console.log("All Employees:", allEmployees);
-
-                setEmployeesByRole(allEmployees);
-                setShowModal(true);
-              }
-            } catch (error) {
-              console.error("Error fetching roles/employees:", error);
-            }
-          }}
-        >
-          Submit for Approval
-        </Button>
-        );
-      })()}
+              }}
+            >
+              Submit for Approval
+            </Button>
+          );
+        })()}
       </div>
 
       {/* Approval Modal */}

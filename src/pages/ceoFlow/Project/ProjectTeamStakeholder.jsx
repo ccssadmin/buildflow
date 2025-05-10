@@ -72,7 +72,6 @@ const ProjectTeamStakeholder = ({
     const getFilteredRoles = async () => {
       try {
         const { success, data } = await fetchroles();
-        console.log("Roles fetched in BudgetFinancialAllocation:", data); // Add this log
         if (success && data) {
           const filtered = data.filter(
             (r) => r.roleName === "HR" 
@@ -98,7 +97,6 @@ const ProjectTeamStakeholder = ({
           data.employeesByRole[roleName]
         ) {
           const filteredEmployees = data.employeesByRole[roleName];
-          console.log("employee", filteredEmployees);
           setEmployees(filteredEmployees);
         } else {
           setEmployees([]);
@@ -146,11 +144,10 @@ const ProjectTeamStakeholder = ({
         empId: selectedUsers,
         notificationType: "Resource_Allocation",
         sourceEntityId: ticketId,
-        message: `We would like you to Allocate Resources for our ${projectName} Project with consideration to all criteria’s required.Kindly  provide your confirmation at the earliest to avoid any delays in the process.`,
+        message: `We would like you to Allocate Resources for our ${projectName} Project with consideration to all criteria's required.Kindly provide your confirmation at the earliest to avoid any delays in the process.`,
       };
   
       await createNotify(notificationPayload);
-      console.log("🔔 Notification created");
   
       Swal.fire({
         icon: "success",
@@ -162,11 +159,10 @@ const ProjectTeamStakeholder = ({
   
       setShowModal(false);
     } catch (err) {
-      console.error("❌ Failed to create ticket or notification:", err);
+      console.error("Failed to create ticket or notification:", err);
     }
   };
   
-  // Helper function to find the role mapping for a position in the finance table
   const getRoleMapping = (position) => {
     const roleMapping = {
       projectManager: "Project Manager",
@@ -182,11 +178,11 @@ const ProjectTeamStakeholder = ({
     return roleMapping[position] || position;
   };
 
-  // Function to update the finance approval table when team selection changes
   const updateFinanceApprovalWithSelectedTeam = () => {
-    const newPermissionData = [...permissionData];
+    const newPermissionData = [];
+    let idCounter = 1;
     
-    // Process each role in the formData
+    // Only process roles that have selected team members
     Object.keys(formData).forEach((field) => {
       if (
         ["projectManager", "assistantProjectManager", "leadEngineer", 
@@ -196,34 +192,15 @@ const ProjectTeamStakeholder = ({
         formData[field].length > 0
       ) {
         const roleName = getRoleMapping(field);
-        
-        // Check if the role already exists in permission data
-        const existingRoleIndex = newPermissionData.findIndex(
-          (item) => item.role === roleName
-        );
-        
-        // Get the first employee from the field
         const selectedEmployee = formData[field][0];
         
-        if (existingRoleIndex >= 0) {
-          // Update existing entry
-          newPermissionData[existingRoleIndex] = {
-            ...newPermissionData[existingRoleIndex],
-            employee: selectedEmployee.name || selectedEmployee.employeeName,
-            employeeId: selectedEmployee.id || selectedEmployee.empId,
-          };
-        } else {
-          // Add new entry if role doesn't exist
-          newPermissionData.push({
-            id: newPermissionData.length > 0 
-               ? Math.max(...newPermissionData.map(item => item.id)) + 1 
-               : 1,
-            role: roleName,
-            employee: selectedEmployee.name || selectedEmployee.employeeName,
-            employeeId: selectedEmployee.id || selectedEmployee.empId,
-            amount: "",
-          });
-        }
+        newPermissionData.push({
+          id: idCounter++,
+          role: roleName,
+          employee: selectedEmployee.name || selectedEmployee.employeeName,
+          employeeId: selectedEmployee.id || selectedEmployee.empId,
+          amount: "",
+        });
       }
     });
     
@@ -236,7 +213,6 @@ const ProjectTeamStakeholder = ({
         try {
           await fetchAllEmployees();
           await fetchVendorsAndSubcontractors();
-          generateFinanceApprovalRoles();
           setDataLoaded(true);
         } catch (error) {
           console.error("Error loading role data:", error);
@@ -248,94 +224,6 @@ const ProjectTeamStakeholder = ({
       loadAllData();
     }
   }, [dataLoaded]);
-
-  const generateFinanceApprovalRoles = () => {
-    const newPermissionData = [];
-    let idCounter = 1;
-    const roleMap = new Map();
-
-    // Process all employee types
-    Object.keys(employees).forEach((empType) => {
-      if (Array.isArray(employees[empType])) {
-        employees[empType].forEach((emp) => {
-          if (emp.role && !roleMap.has(emp.role)) {
-            roleMap.set(emp.role, {
-              employeeName: emp.employeeName,
-              employeeId: Number(emp.empId), // Ensure ID is a number
-            });
-          }
-        });
-      }
-    });
-
-    const priorityRoles = [
-      "CEO",
-      "MD",
-      "Directors",
-      "Head Finance",
-      "Finance",
-      "General Manager (Technology)",
-      "General Manager (Operation)",
-    ];
-
-    priorityRoles.forEach((role) => {
-      if (roleMap.has(role)) {
-        const empData = roleMap.get(role);
-        newPermissionData.push({
-          id: idCounter++,
-          role: role,
-          employee: empData.employeeName,
-          employeeId: empData.employeeId,
-          amount: "",
-        });
-        roleMap.delete(role);
-      }
-    });
-
-    roleMap.forEach((empData, role) => {
-      newPermissionData.push({
-        id: idCounter++,
-        role: role,
-        employee: empData.employeeName,
-        employeeId: empData.employeeId,
-        amount: "",
-      });
-    });
-
-    handleSpecificEmployeeData(newPermissionData);
-    setPermissionData(newPermissionData.length > 0 ? newPermissionData : []);
-
-    // Debug info
-    console.log("Generated permission data:", newPermissionData);
-  };
-
-  const handleSpecificEmployeeData = (permissionDataArray) => {
-    if (employees?.CEOEmployees && employees.CEOEmployees.length > 0) {
-      const ceoEmployee = employees.CEOEmployees[0];
-      const ceoIndex = permissionDataArray.findIndex(
-        (item) => item.role === "CEO"
-      );
-
-      if (ceoIndex >= 0) {
-        permissionDataArray[ceoIndex] = {
-          ...permissionDataArray[ceoIndex],
-          employee: ceoEmployee.employeeName,
-          employeeId: ceoEmployee.empId,
-        };
-      } else {
-        permissionDataArray.unshift({
-          id:
-            permissionDataArray.length > 0
-              ? Math.max(...permissionDataArray.map((item) => item.id)) + 1
-              : 1,
-          role: "CEO",
-          employee: ceoEmployee.employeeName,
-          employeeId: ceoEmployee.empId,
-          amount: "",
-        });
-      }
-    }
-  };
 
   const handleToggleDropdown = (field) => {
     setLocalDropdownVisible((prev) => ({
@@ -358,12 +246,10 @@ const ProjectTeamStakeholder = ({
     );
   };
 
-  // Modified handleSubmit function to ensure navigation to the project milestone page
   const handleSubmit = async () => {
     if (isSubmitting.current) return;
     isSubmitting.current = true;
 
-    console.log("🔁 Submitting project team and finance data...");
     setSubmitLoading(true);
     setErrorMessage(null);
 
@@ -421,13 +307,11 @@ const ProjectTeamStakeholder = ({
           })),
       };
 
-      // Execute both actions
       const [teamResult, financeResult] = await Promise.all([
         dispatch(createProjectTeamAction(teamData)),
         dispatch(createProjectFinanceApprovedAction(financeData)),
       ]);
 
-      // Check if both actions were successful
       const teamSuccess = teamResult?.payload?.success;
       const financeSuccess = financeResult?.payload?.success;
 
@@ -435,7 +319,6 @@ const ProjectTeamStakeholder = ({
         throw new Error("One or more operations failed");
       }
 
-      // Show success message
       await Swal.fire({
         title: "Success!",
         text: "Project team and finance data saved successfully",
@@ -443,16 +326,12 @@ const ProjectTeamStakeholder = ({
         timer: 1500,
         showConfirmButton: false,
       });
+
       const nextPath = `/ceo/project/timelinemilestone/${projectId}`;
-      console.log("Navigating to:", nextPath); // Debug log
-      // Navigate after success
       if (onNext) {
-        const nextPath = `/ceo/project/timelinemilestone/${projectId}`;
-        console.log("Navigating to:", nextPath); // Debug log
-        // onNext(); // Use the provided navigation function if available
+        onNext();
       } else {
-        // Fallback navigation
-        navigate(`/ceo/project/timelinemilestone/${projectId}`, {
+        navigate(nextPath, {
           state: { projectId },
           replace: true,
         });
@@ -478,7 +357,6 @@ const ProjectTeamStakeholder = ({
     };
   }, []);
 
-  // Watch for changes in formData team selections and update finance table
   useEffect(() => {
     if (dataLoaded) {
       updateFinanceApprovalWithSelectedTeam();
@@ -579,20 +457,14 @@ const ProjectTeamStakeholder = ({
     }
   };
 
-  // Replace the existing handleLocalSelectItem function with this one
   const handleLocalSelectItem = (field, item) => {
     setFormData((prevState) => {
       const currentSelection = prevState[field] || [];
-
-      // Check if the item is already selected
       const isSelected = currentSelection.some(
         (selected) =>
           (selected.id && String(selected.id) === String(item.id)) ||
           (selected.empId && String(selected.empId) === String(item.id))
       );
-
-      // If already selected, keep the current selection
-      // Otherwise add the new item to the selection
       const updatedSelection = isSelected
         ? currentSelection
         : [...currentSelection, item];
@@ -603,14 +475,12 @@ const ProjectTeamStakeholder = ({
       };
     });
 
-    // Keep the dropdown open for further selection
     setLocalDropdownVisible((prev) => ({
       ...prev,
       [field]: true,
     }));
   };
 
-  // Also update the isItemSelected function for better checking
   const isItemSelected = (field, itemId) => {
     return (formData[field] || []).some(
       (item) =>
@@ -638,8 +508,7 @@ const ProjectTeamStakeholder = ({
     }, [isDropdownVisible]);
 
     const handleItemClick = (item) => {
-      handleLocalSelectItem(field, item); // Add the selected item
-      // Clear search input immediately after selecting
+      handleLocalSelectItem(field, item);
       handleSearchFilterChange({ target: { value: '' } }, field);
       handleToggleDropdown(field);
     };
@@ -648,7 +517,6 @@ const ProjectTeamStakeholder = ({
       <Form.Group style={{ position: "relative", marginBottom: "15px" }}>
         <Form.Label className="text-dark">{label}</Form.Label>
         <div className="multi-select-container" style={{ position: "relative" }}>
-          {/* Render selected items */}
           <div className="selected-items mb-2">
             {formData[field]?.map((item) => (
               <div
@@ -670,7 +538,6 @@ const ProjectTeamStakeholder = ({
             ))}
           </div>
 
-          {/* Search input */}
           <Form.Control
             ref={inputRef}
             type="text"
@@ -685,7 +552,6 @@ const ProjectTeamStakeholder = ({
             autoComplete="off"
           />
 
-          {/* Dropdown list */}
           {isDropdownVisible && (
             <div
               className="dropdown-menu show w-100"
@@ -694,19 +560,18 @@ const ProjectTeamStakeholder = ({
               {getFilteredItems(field).length > 0 ? (
                 getFilteredItems(field).map((item) => (
                   <div
-                  key={item.id}
-                  className={`dropdown-item ${isItemSelected(field, item.id) ? "active" : ""}`}
-                  onClick={() => handleItemClick(item)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <div className="d-flex justify-content-between align-items-center text-capitalize">
-                    <span>{item.name}</span>
-                    <span className={`small fs-12-400 ms-2 ${item.value ? "text-danger" : "text-success"}`}>
-                      {item.value ? "Allocated" : "Not Allocated"}
-                    </span>
+                    key={item.id}
+                    className={`dropdown-item ${isItemSelected(field, item.id) ? "active" : ""}`}
+                    onClick={() => handleItemClick(item)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <div className="d-flex justify-content-between align-items-center text-capitalize">
+                      <span>{item.name}</span>
+                      <span className={`small fs-12-400 ms-2 ${item.value ? "text-danger" : "text-success"}`}>
+                        {item.value ? "Allocated" : "Not Allocated"}
+                      </span>
+                    </div>
                   </div>
-                </div>
-                
                 ))
               ) : (
                 <div className="dropdown-item text-muted">No results found</div>
@@ -790,23 +655,31 @@ const ProjectTeamStakeholder = ({
               </tr>
             </thead>
             <tbody>
-              {permissionData.map((item, index) => (
-                <tr key={item.id}>
-                  <td>{index + 1}</td>
-                  <td>{item.role}</td>
-                  <td>{item.employee || "Not assigned"}</td>
-                  <td>
-                    <Form.Control
-                      type="text"
-                      value={item.amount}
-                      placeholder="Amount"
-                      onChange={(e) =>
-                        handleAmountChange(item.id, e.target.value)
-                      }
-                    />
+              {permissionData.length > 0 ? (
+                permissionData.map((item, index) => (
+                  <tr key={item.id}>
+                    <td>{index + 1}</td>
+                    <td>{item.role}</td>
+                    <td>{item.employee || "Not assigned"}</td>
+                    <td>
+                      <Form.Control
+                        type="text"
+                        value={item.amount}
+                        placeholder="Amount"
+                        onChange={(e) =>
+                          handleAmountChange(item.id, e.target.value)
+                        }
+                      />
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="4" className="text-center text-muted">
+                    No team members selected yet. Please select team members above to populate this table.
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </Table>
         </>
