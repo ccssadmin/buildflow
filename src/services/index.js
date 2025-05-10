@@ -94,6 +94,12 @@ export const getroles = (params) => api.GET(API.GET_ROLE, params);
 /* get login board details  */
 export const loginBoardDetails = (params) =>
   api.GET(API.LOGIN_BOARD_DETAILS + "/" + params);
+
+
+/** BOQ ITEMS BY ID */
+export const getBoqItemsById = (params) =>
+  api.GET(API.GET_BOQ_ITEMS_BY_ID + "/" + params);
+
 /* PM Project*/
 export const getPmProjectDetails = (params) =>
   api.GET(API.GET_PROJECT_DETAILS, params);

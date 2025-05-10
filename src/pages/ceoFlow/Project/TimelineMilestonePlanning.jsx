@@ -3,8 +3,8 @@ import { Form, Button, Modal } from "react-bootstrap";
 import Swal from "sweetalert2";
 import { useProject } from "../../../hooks/Ceo/useCeoProject";
 import { useParams } from "react-router-dom";
-import DatePicker from "react-datepicker"; // Import DatePicker
-import "react-datepicker/dist/react-datepicker.css"; // Import styles
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import { profile } from "../../../assets/images";
 
 
@@ -34,7 +34,7 @@ const TimelineMilestonePlanning = ({
 
   const handleTicketSubmission = async () => {
     const projectId = formData.projectId || localProjectId || parseInt(localStorage.getItem("projectId"));
-    const createdBy = parseInt(localStorage.getItem("userRoleId")); // This is CEO's user id (creator)
+    const createdBy = parseInt(localStorage.getItem("userRoleId"));
 
     if (selectedUsers.length === 0) {
       Swal.fire({
@@ -84,25 +84,21 @@ const TimelineMilestonePlanning = ({
       console.error("❌ Failed to create ticket or notification:", err);
     }
   };
-
+  
 
   useEffect(() => {
-    // On component mount - get project ID from all possible sources
     const getProjectId = () => {
-      // First check formData
       if (formData && formData.projectId) {
         console.log("🔍 Found projectId in formData:", formData.projectId);
         setLocalProjectId(formData.projectId);
         return formData.projectId;
       }
 
-      // Then check localStorage as backup
       const storedId = localStorage.getItem("projectId");
       if (storedId) {
         console.log("🔍 Found projectId in localStorage:", storedId);
         setLocalProjectId(parseInt(storedId));
 
-        // Update formData if needed
         if (!formData.projectId) {
           setFormData((prev) => ({
             ...prev,
@@ -119,7 +115,6 @@ const TimelineMilestonePlanning = ({
 
     const projectId = getProjectId();
 
-    // Alert if no project ID found
     if (!projectId) {
       Swal.fire({
         icon: "warning",
@@ -128,15 +123,6 @@ const TimelineMilestonePlanning = ({
       });
     }
   }, []);
-  // Progress steps
-  const steps = [
-    "Project Basic Details",
-    "Budget & Financial Allocation",
-    "Project Team & Stakeholder Assignment",
-    "Timeline & Milestone Planning",
-    "Risk & Compliance Assessment",
-  ];
-  const [currentStep, setCurrentStep] = useState(3); // Timeline is step 3
 
   useEffect(() => {
     const storedProjectId = localStorage.getItem("projectId");
@@ -194,41 +180,40 @@ const TimelineMilestonePlanning = ({
 
   // Modified function to handle date changes with DatePicker
   const handleDateChange = (id, field, date) => {
-    // Convert date to string format if it exists
-    const dateString = date ? date.toISOString().split("T")[0] : "";
+    if (!date) {
+      handleMilestoneChange(id, field, "");
+      return;
+    }
 
-    // Call the original handleMilestoneChange with the formatted date
+    // Create a new date object with the local timezone
+    const localDate = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate()
+    );
+    
+    // Format as YYYY-MM-DD without timezone conversion
+    const year = localDate.getFullYear();
+    const month = String(localDate.getMonth() + 1).padStart(2, "0");
+    const day = String(localDate.getDate()).padStart(2, "0");
+    
+    const dateString = `${year}-${month}-${day}`;
+    
     handleMilestoneChange(id, field, dateString);
   };
 
-  // Helper function to format dates
-  const formatDateString = (dateStr) => {
-    if (!dateStr) return null;
-
-    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
-      return dateStr;
-    }
-
-    try {
-      const date = new Date(dateStr);
-      if (isNaN(date.getTime())) return null;
-
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const day = String(date.getDate()).padStart(2, "0");
-
-      return `${year}-${month}-${day}`;
-    } catch (e) {
-      console.error("Date parsing error:", e);
-      return null;
-    }
-  };
-
-  // Helper function to convert string date to Date object for DatePicker
   const parseDate = (dateStr) => {
     if (!dateStr) return null;
-    const date = new Date(dateStr);
-    return isNaN(date.getTime()) ? null : date;
+    
+    // Parse the date string directly without timezone conversion
+    const parts = dateStr.split("-");
+    if (parts.length !== 3) return null;
+    
+    const year = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1; // months are 0-based
+    const day = parseInt(parts[2], 10);
+    
+    return new Date(year, month, day);
   };
 
   const handleSubmit = async () => {
@@ -241,13 +226,30 @@ const TimelineMilestonePlanning = ({
       return;
     }
 
-    // Only validate milestones that have data entered
-    // Skip empty milestones instead of showing warnings
+    // Filter out completely empty milestones (all fields empty)
     const milestonesToSubmit = formData.milestones.filter(
-      (m) => m.name.trim() || m.startDate || m.endDate || m.description.trim()
+      milestone => 
+        milestone.name.trim() !== "" || 
+        milestone.description.trim() !== "" || 
+        milestone.startDate || 
+        milestone.endDate
     );
 
-    // Check if any milestone with data has missing required fields
+    // Validate that at least one milestone has a name (if any milestones exist)
+    if (milestonesToSubmit.length > 0) {
+      const invalidMilestones = milestonesToSubmit.filter(
+        milestone => !milestone.name.trim()
+      );
+
+      if (invalidMilestones.length > 0) {
+        Swal.fire({
+          icon: "warning",
+          title: "Missing Milestone Names",
+          text: "All milestones must have a name if any fields are filled.",
+        });
+        return;
+      }
+    }
 
     // Validate date ranges for milestones that have both dates
     const invalidDateRanges = milestonesToSubmit.filter(
@@ -264,22 +266,19 @@ const TimelineMilestonePlanning = ({
       return;
     }
 
-    // Prepare the milestone list with only valid entries
+    // Prepare the milestone list
     const milestoneList = milestonesToSubmit.map((milestone) => ({
-      milestoneId: 0, // Default ID as 0 for new milestones
+      milestoneId: 0,
       milestoneName: milestone.name.trim(),
-      milestoneDescription: milestone.description
-        ? milestone.description.trim()
-        : "",
-      milestoneStartDate: formatDateString(milestone.startDate),
-      milestoneEndDate: formatDateString(milestone.endDate),
+      milestoneDescription: milestone.description.trim(),
+      milestoneStartDate: milestone.startDate || null,
+      milestoneEndDate: milestone.endDate || null,
       Status: milestone.status || "Planned",
     }));
 
-    // Fixed payload structure according to API requirements
     const payload = {
       projectId: parseInt(formData.projectId, 10),
-      milestoneList: milestoneList, // This could be an empty array if no milestones have data
+      milestoneList: milestoneList,
     };
 
     console.log("Payload being sent to API:", payload);
@@ -482,21 +481,6 @@ const TimelineMilestonePlanning = ({
           </table>
 
           <div className="text-end mt-3">
-            {/* <Button
-              variant="outline-primary"
-              onClick={handleAddMilestone}
-              className="btn-add-milestone"
-              style={{
-                backgroundColor: '#FF6F00',
-                border: 'none',
-                color: 'white',
-                marginTop: '10px',
-                padding: '8px 20px',
-                fontSize: '14px',
-              }}
-            >
-              + Add Milestone
-            </Button> */}
             <Button
               onClick={handleAddMilestone}
               className="text-primary bg-transparent border-0 fs-16-500 me-0 ms-auto"
