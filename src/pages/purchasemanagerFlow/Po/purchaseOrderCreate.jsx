@@ -245,7 +245,7 @@ useEffect(() => {
                 ? selectedApprover.map(
                     (approver) => approver.empId || approver.empId
                   )
-                : [1, 2, 7],
+                : [1],
             createdBy: userData?.empId,
           });
 
@@ -265,7 +265,7 @@ useEffect(() => {
                 ? selectedApprover.map(
                     (approver) => approver.empId || approver.empId
                   )
-                : [1, 2, 7],
+                : [1],
               notificationType: "Generate_Purchase_Order ",
               sourceEntityId: ticketId,
               message: `We would like to update you that we are currently awaiting your PO on the for ${projectName}. Kindly review and provide your confirmation at the earliest to avoid any delays in the process.`,
@@ -285,7 +285,7 @@ useEffect(() => {
                 ? selectedApprover.map(
                     (approver) => approver.empId || approver.id
                   )
-                : [1, 2, 7], // array of empIds
+                : [1], // array of empIds
             createdBy: userData?.empId,
           });
           const ticketId = ticketResponse?.data?.data?.ticketId;
@@ -299,7 +299,7 @@ useEffect(() => {
                 ? selectedApprover.map(
                     (approver) => approver.empId || approver.empId
                   )
-                : [1, 2, 7],
+                : [1],
               notificationType: "Generate_Purchase_Order ",
               sourceEntityId: ticketId,
               message: `We would like to update you that we are currently awaiting your PO on the for ${projectName}. Kindly review and provide your confirmation at the earliest to avoid any delays in the process.`,
