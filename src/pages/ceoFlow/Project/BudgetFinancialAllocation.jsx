@@ -143,14 +143,18 @@ const BudgetFinancialAllocation = ({
     };
   
     try {
-      await createTicket(ticketPayload);
-      console.log("✅ Ticket created");
+      const ticketResponse = await createTicket(ticketPayload); 
+      const ticketId = ticketResponse?.data?.data?.ticketId; 
+  
+      if (!ticketId) {
+        throw new Error("Ticket ID not returned from createTicket");
+      }
   
       const notificationPayload = {
         empId: selectedUsers,
-        notificationType: "Ticket Assigned",
-        sourceEntityId: 0,
-        message: "A new budget ticket has been assigned to you.",
+        notificationType: "BOQ_Request",
+        sourceEntityId: ticketId,
+        message: "We would like you to update BOQ’s for Project cost estimation on multiple Expense categories given.Kindly review and provide your confirmation at the earliest to avoid any delays in the process.",
       };
   
       await createNotify(notificationPayload);
@@ -167,8 +171,14 @@ const BudgetFinancialAllocation = ({
       setShowModal(false);
     } catch (err) {
       console.error("❌ Failed to create ticket or notification:", err);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to create ticket or send notification.",
+      });
     }
   };
+  
   
   const calculateTotalBudget = () => {
     const totalApprovedBudget = formData.budgetBreakdown.reduce((acc, item) => {

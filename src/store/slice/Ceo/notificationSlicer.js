@@ -1,8 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { createnotificationAction } from "../../actions/Ceo/createNotification";
+import { createnotificationAction, getnotificationAction } from "../../actions/Ceo/createNotification";
 
 const initialState = {
     createnotify: [],
+    getnotify: [],
     loading: false,
     error: null,
     success: false,
@@ -14,6 +15,18 @@ const createnotifySlice = createSlice({
     reducers:{ },
     extraReducers: (builder)=>{
         builder 
+        .addCase(getnotificationAction.pending, (state) =>{
+            state.loading = true;
+            state.error = null;
+        })
+        .addCase(getnotificationAction.fulfilled, (state, action) =>{
+            state.loading = false;
+            state.getnotify = action.payload;
+        })
+        .addCase(getnotificationAction.rejected, (state, action) =>{
+            state.loading = false;
+            state.error = action.error.message;
+        })
         .addCase(createnotificationAction.pending, (state)=>{
             state.loading = true;
             state.error = null;

@@ -177,8 +177,8 @@ const KanbanBoard = () => {
       12: `/finance/financeticketdetails/${ticketId}`, // Head Finance
       13: `/ceo/ticket/${ticketId}`, // GM Technology
       15: `/hr/hrticketdetails/${ticketId}`, // HR
-      16: `/purchasemanager/hrticketdetails/${ticketId}`, // Purchase Manager
-      17: `/purchasemanager/hrticketdetails/${ticketId}`, // Purchase Manager (duplicate)
+      16: `/purchasemanager/purchaseticketdetails/${ticketId}`, // Purchase Manager
+      17: `/purchasemanager/purchaseticketdetails/${ticketId}`, // Purchase Manager (duplicate)
     };
 
     return roleRoutes[userRoleId] || `/ticket/${ticketId}`;

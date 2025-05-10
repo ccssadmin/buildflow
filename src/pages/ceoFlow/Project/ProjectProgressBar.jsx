@@ -7,6 +7,7 @@ const ProjectProgressBar = ({ progress }) => {
     progress === "Planned" || 
     progress === "NotApproved" || 
     progress === "Approved" || 
+    progress === "approved" || 
     progress === "OnHold"
       ? 0
       : progress === "InProgress"
@@ -14,7 +15,7 @@ const ProjectProgressBar = ({ progress }) => {
       : progress;
 
   // Ensure left is never less than 3%
-  const leftPosition = Math.max(normalizedProgress, 3);
+  const leftPosition = Math.max(normalizedProgress, 2);
 
   return (
     <div className="progress-container mt-3 mb-2">

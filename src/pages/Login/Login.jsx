@@ -14,6 +14,8 @@ import useAuth from "../../hooks/useAuth";
 import { useTranslation } from "react-i18next";
 import { PRODUCT_LOGO } from "../../assets/images";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { IoPerson } from "react-icons/io5";
+import { PiBuildingOffice } from "react-icons/pi";
 import '../../styles/components/css/login.css';
 
 export default function Login({ onLoginSuccess }) {
@@ -22,6 +24,9 @@ export default function Login({ onLoginSuccess }) {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   
+  // Login mode state (employee or vendor)
+  const [loginMode, setLoginMode] = useState("employee");
+  
   // Form state
   const [activeForm, setActiveForm] = useState("login");
   const [inProgress, setInProgress] = useState(false);
@@ -29,14 +34,32 @@ export default function Login({ onLoginSuccess }) {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
-    email: "",  // Added explicit email field
+    email: "",
     phone: "",
     username: "",
     password: "",
+    type: "", // Will be set to "vendor" for vendor login
   });
   const [errorMsg, setErrorMsg] = useState({});
   
   const inputRef = useRef(null);
+
+  // Toggle between employee and vendor login
+  const toggleLoginMode = () => {
+    const newMode = loginMode === "employee" ? "vendor" : "employee";
+    setLoginMode(newMode);
+    
+    // Reset form data when switching modes
+    setFormData(prev => ({
+      ...prev,
+      username: "",
+      password: "",
+      type: newMode === "vendor" ? "vendor" : "", // Set type for vendor login
+    }));
+    
+    // Clear any error messages
+    setErrorMsg({});
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -53,13 +76,19 @@ export default function Login({ onLoginSuccess }) {
     
     setInProgress(true);
     try {
-      // Send email field as required by the API
-      // Use username value for both username and email fields to ensure compatibility
-      const response = await getAuth({
+      // Create payload based on login mode
+      const payload = {
         username: formData.username,
         password: formData.password,
         Email: formData.username, // This is the key change - providing the Email field expected by the API
-      });
+      };
+      
+      // Add type for vendor login
+      if (loginMode === "vendor") {
+        payload.type = "vendor";
+      }
+      
+      const response = await getAuth(payload);
   
       if (response?.payload?.token) {
         // Store authentication token
@@ -83,9 +112,10 @@ export default function Login({ onLoginSuccess }) {
           // Assuming role hierarchy: SuperAdmin > Admin > User
           const userData = {
             ...userDetails,
-            roleName: userDetails.roleName || "ManagingDirector",
-            roleId: userDetails.roleId || "1",
-            token: response.payload.token, // ✅ Add here
+            roleName: userDetails.roleName || (loginMode === "vendor" ? "Vendor" : "ManagingDirector"),
+            roleId: userDetails.roleId || (loginMode === "vendor" ? "Vendor" : "1"),
+            token: response.payload.token,
+            isVendor: loginMode === "vendor", // Flag to identify vendor users
           };
           localStorage.setItem("userData", JSON.stringify(userData));
           
@@ -95,6 +125,13 @@ export default function Login({ onLoginSuccess }) {
           localStorage.setItem("userData", JSON.stringify(userData));
           localStorage.setItem("userRole", userData.roleName);
           localStorage.setItem("userRoleId", userData.roleId);
+          
+          // For vendor users, set a special identifier
+          if (loginMode === "vendor") {
+            localStorage.setItem("userType", "vendor");
+          } else {
+            localStorage.removeItem("userType"); // Remove if exists from previous login
+          }
   
           // Call onLoginSuccess callback
           if (onLoginSuccess) {
@@ -104,8 +141,11 @@ export default function Login({ onLoginSuccess }) {
           // If details are not in the expected structure, try to use the payload directly
           const userData = {
             ...userInfoResponse.payload,
-            roleName: userInfoResponse.payload.roleName || userInfoResponse.payload.role_name || "ManagingDirector",
-            roleId: userInfoResponse.payload.roleId || userInfoResponse.payload.role_id || "1",
+            roleName: userInfoResponse.payload.roleName || userInfoResponse.payload.role_name || 
+                     (loginMode === "vendor" ? "Vendor" : "ManagingDirector"),
+            roleId: userInfoResponse.payload.roleId || userInfoResponse.payload.role_id || 
+                  (loginMode === "vendor" ? "Vendor" : "1"),
+            isVendor: loginMode === "vendor",
           };
           
           console.log("Using payload as user data:", userData); // Debug log
@@ -113,6 +153,12 @@ export default function Login({ onLoginSuccess }) {
           localStorage.setItem("userData", JSON.stringify(userData));
           localStorage.setItem("userRole", userData.roleName);
           localStorage.setItem("userRoleId", userData.roleId);
+          
+          if (loginMode === "vendor") {
+            localStorage.setItem("userType", "vendor");
+          } else {
+            localStorage.removeItem("userType");
+          }
           
           if (onLoginSuccess) {
             onLoginSuccess(userData);
@@ -125,13 +171,20 @@ export default function Login({ onLoginSuccess }) {
           const defaultUserData = {
             username: formData.username,
             email: formData.username, // Store email too
-            roleName: "ManagingDirector",
-            roleId: "1",
+            roleName: loginMode === "vendor" ? "Vendor" : "ManagingDirector",
+            roleId: loginMode === "vendor" ? "Vendor" : "1",
+            isVendor: loginMode === "vendor",
           };
           
           localStorage.setItem("userData", JSON.stringify(defaultUserData));
           localStorage.setItem("userRole", defaultUserData.roleName);
           localStorage.setItem("userRoleId", defaultUserData.roleId);
+          
+          if (loginMode === "vendor") {
+            localStorage.setItem("userType", "vendor");
+          } else {
+            localStorage.removeItem("userType");
+          }
           
           if (onLoginSuccess) {
             onLoginSuccess(defaultUserData);
@@ -164,14 +217,20 @@ export default function Login({ onLoginSuccess }) {
         try {
           const userInfo = await getUserInfo();
           
+          // Check if this is a vendor login
+          const isVendor = localStorage.getItem("userType") === "vendor";
+          
           if (userInfo?.payload?.details) {
             const userDetails = userInfo.payload.details;
             
             // Create user data object with role information
             const userData = {
               ...userDetails,
-              roleName: userDetails.roleName || userDetails.role_name || "ManagingDirector",
-              roleId: userDetails.roleId || userDetails.role_id || "1"
+              roleName: userDetails.roleName || userDetails.role_name || 
+                       (isVendor ? "Vendor" : "ManagingDirector"),
+              roleId: userDetails.roleId || userDetails.role_id || 
+                     (isVendor ? "Vendor" : "1"),
+              isVendor
             };
             
             // Store user data and role information in localStorage
@@ -187,8 +246,11 @@ export default function Login({ onLoginSuccess }) {
             // If details are not in the expected structure, try to use the payload directly
             const userData = {
               ...userInfo.payload,
-              roleName: userInfo.payload.roleName || userInfo.payload.role_name || "ManagingDirector",
-              roleId: userInfo.payload.roleId || userInfo.payload.role_id || "1"
+              roleName: userInfo.payload.roleName || userInfo.payload.role_name || 
+                       (isVendor ? "Vendor" : "ManagingDirector"),
+              roleId: userInfo.payload.roleId || userInfo.payload.role_id || 
+                     (isVendor ? "Vendor" : "1"),
+              isVendor
             };
             
             localStorage.setItem("userData", JSON.stringify(userData));
@@ -204,6 +266,7 @@ export default function Login({ onLoginSuccess }) {
             localStorage.removeItem("userRole");
             localStorage.removeItem("userRoleId");
             localStorage.removeItem("userData");
+            localStorage.removeItem("userType");
             setAuthToken("");
           }
         } catch (error) {
@@ -213,6 +276,7 @@ export default function Login({ onLoginSuccess }) {
           localStorage.removeItem("userRole");
           localStorage.removeItem("userRoleId");
           localStorage.removeItem("userData");
+          localStorage.removeItem("userType");
           setAuthToken("");
         }
       }
@@ -251,6 +315,22 @@ export default function Login({ onLoginSuccess }) {
                     src={PRODUCT_LOGO}
                     alt="Agent Board Icon"
                   />
+                  
+                  {/* Login title showing current mode with appropriate icon */}
+                  <h3 className="mb-4">
+                    {loginMode === "employee" ? (
+                      <span className="d-flex align-items-center justify-content-center">
+                        <IoPerson className="me-2" size={24} />
+                        Employee Login
+                      </span>
+                    ) : (
+                      <span className="d-flex align-items-center justify-content-center">
+                        <PiBuildingOffice className="me-2" size={24} />
+                        Vendor Login
+                      </span>
+                    )}
+                  </h3>
+                  
                   <div className="user-row">
                     <label>{t("Email Id")} </label>
                     <input
@@ -309,21 +389,48 @@ export default function Login({ onLoginSuccess }) {
                   onClick={(e) => handleLogin(e)}
                   disabled={inProgress}
                 >
-                  {inProgress
-                    ? t("login.inprogress")
-                    : t("login.with_eurolandID")}
+                  {inProgress ? (
+                    t("login.inprogress")
+                  ) : (
+                    <span className="d-flex align-items-center justify-content-center">
+                      {loginMode === "employee" ? (
+                        <>
+                          <IoPerson className="me-2" />
+                          {t("login.with_eurolandID")}
+                        </>
+                      ) : (
+                        <>
+                          <PiBuildingOffice className="me-2" />
+                          Login as Vendor
+                        </>
+                      )}
+                    </span>
+                  )}
                 </button>
-                <div className="google mt-3">
-                  <Link className="text-decoration-none">                    
-                    <svg className="me-2" width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M22.3055 10.0415H21.5V10H12.5V14H18.1515C17.327 16.3285 15.1115 18 12.5 18C9.1865 18 6.5 15.3135 6.5 12C6.5 8.6865 9.1865 6 12.5 6C14.0295 6 15.421 6.577 16.4805 7.5195L19.309 4.691C17.523 3.0265 15.134 2 12.5 2C6.9775 2 2.5 6.4775 2.5 12C2.5 17.5225 6.9775 22 12.5 22C18.0225 22 22.5 17.5225 22.5 12C22.5 11.3295 22.431 10.675 22.3055 10.0415Z" fill="#FFC107"/>
-                    <path d="M3.65295 7.3455L6.93845 9.755C7.82745 7.554 9.98045 6 12.5 6C14.0295 6 15.421 6.577 16.4805 7.5195L19.309 4.691C17.523 3.0265 15.134 2 12.5 2C8.65895 2 5.32795 4.1685 3.65295 7.3455Z" fill="#FF3D00"/>
-                    <path d="M12.5 22C15.083 22 17.43 21.0115 19.2045 19.404L16.1095 16.785C15.072 17.5745 13.8038 18.0014 12.5 18C9.89903 18 7.69053 16.3415 6.85853 14.027L3.59753 16.5395C5.25253 19.778 8.61353 22 12.5 22Z" fill="#4CAF50"/>
-                    <path d="M22.3055 10.0415H21.5V10H12.5V14H18.1515C17.7571 15.1082 17.0467 16.0766 16.108 16.7855L16.1095 16.7845L19.2045 19.4035C18.9855 19.6025 22.5 17 22.5 12C22.5 11.3295 22.431 10.675 22.3055 10.0415Z" fill="#1976D2"/>
-                    </svg>
-                    Login with Google Account
-                  </Link>
-                </div>
+                
+                {/* Toggle button to switch between employee and vendor login with icons */}
+                <button
+                  className="login-form-container-button-common btn-toggle-login my-2"
+                  onClick={toggleLoginMode}
+                  type="button"
+                  style={{
+                    backgroundColor: "#EBEBEB",
+                    color: "#606060",
+                    border: "1px solid blue"
+                  }}
+                >
+                  {loginMode === "employee" ? (
+                    <span className="d-flex align-items-center justify-content-center">
+                      <PiBuildingOffice className="me-2" />
+                      Switch to Vendor Login
+                    </span>
+                  ) : (
+                    <span className="d-flex align-items-center justify-content-center">
+                      <IoPerson className="me-2" />
+                      Switch to Employee Login
+                    </span>
+                  )}
+                </button>
               </div>
             )}
           </div>

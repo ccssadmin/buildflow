@@ -48,3 +48,19 @@ export const getEmployees = createAsyncThunk(
     }
   }
 );
+
+// actions/hr/createemployeaction.js
+
+
+
+export const getNewEmpId = createAsyncThunk(
+  "employee/getNewEmpId",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.GET("/api/Employee/Get-NewEmpId");
+      return response.data; // returns "EMP#322"
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Failed to fetch new employee ID");
+    }
+  }
+);

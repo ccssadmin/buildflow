@@ -25,6 +25,7 @@ export const API = {
  GET_DEPARTMENTS_BY_ID : "/api/Login/getEmployeesByDepartment/",
   /*PM FLOW  */
   GET_PROJECT_DETAILS:"/api/Project/getProjectDetails",
+
   
  /* Employee data */
  GET_EMPLOYEES_BY_ROLES: "/api/Login/getEmployeesByRoles",
@@ -32,6 +33,7 @@ export const API = {
 
 //Notification
   CREATE_NOTIFICATION: "/api/Notification/create-notification",
+  GET_NOTIFICATION: "/api/Notification/get-notification",
   //Ticket Comment Create
   CREATE_TICKET_DETAILS: '/api/Ticket/add-comment-attachment',
 
@@ -48,9 +50,16 @@ export const API = {
   GET_TICKET_BY_BOARD_LABEL: "/api/BoardManagement/ticketsbyboardlabel",
   GET_FILTERED_BOARD_DATA: "/api/BoardManagement/boardfilter",
   GET_FILTERED_UPDATE_BOARD_DATA: "/api/UpdatesBoardList/boardfilter",
+  /** GET BOQ ITEMS BY ID */
+GET_BOQ_ITEMS_BY_ID: '/api/Project/boq-items',
   // LOGIN BOARD DETAILS 
   LOGIN_BOARD_DETAILS: '/api/Login/board-details',
+/** GET PURCHASE ORDER DETAILS */
+GET_PURCHASE_ORDER_DETAILS : '/api/Vendor/Getpurchase-order-details',
+GET_BOQCODE : '/api/Project/getBoqDetailsBy-BOQCode',
 
+  //** BOQ Get DATA ***/
+  GET_BOQ_DETAILS: "/api/Project/getBoqDetails",
   /** MASTER */
   GET_COLOR: "/api/CoreColor/corecolors",
   ADD_COLOR: "/api/CoreColor/add",

@@ -65,7 +65,9 @@ import {
   addBoard,
   getBoard,
   updateBoard,
-  editBoard
+  editBoard,
+  getPurchaseOrderDetails,
+  getBoqItemsById
 } from "../../services";
 import axios from "axios";
 import { getAuthToken } from "../../utils/storage";
@@ -655,7 +657,15 @@ export const getTicketsbyboardParticipantsAction = createAsyncThunk(
     return response.data;
   }
 );
-
+/** USED TO GET ROLES RESTRICTIONS SETTING */
+export const getPurchaseOrderDetailsAction = createAsyncThunk(
+  "getPurchaseOrderDetails",
+  async (params) => {
+    const response = await getPurchaseOrderDetails(params);
+    return response.data;
+  }
+);
+const BASE_URL = process.env.REACT_APP_MASTER_API_BASE_URL;
 export const createTicketDetailsAction = createAsyncThunk(
   'ticket/createDetails',
   async (formData, thunkAPI) => {
@@ -686,7 +696,7 @@ export const createTicketDetailsAction = createAsyncThunk(
       console.log('Using token:', token.substring(0, 10) + '...'); // Log first part of token for debugging
       
       const response = await axios.post(
-        'https://buildflowgraphql.crestclimbers.com/api/Ticket/add-comment-attachment',
+        `${BASE_URL}/api/Ticket/add-comment-attachment`,
         formData,
         {
           headers: {
@@ -725,5 +735,13 @@ export const createTicketDetailsAction = createAsyncThunk(
       
       return thunkAPI.rejectWithValue(error.response?.data || error.message);
     }
+  }
+);
+/** USED TO GET BOQ ITEMS BY ID */
+export const getBoqItemsAction = createAsyncThunk(
+  "getBoqItemsByID",
+  async (params) => {
+    const response = await getBoqItemsById(params);
+    return response.data;
   }
 );
