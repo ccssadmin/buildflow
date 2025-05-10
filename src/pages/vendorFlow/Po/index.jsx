@@ -9,14 +9,20 @@ export default function VendorPurchaseOrder() {
   const vendorId = localStorage.getItem("vendorId");
   localStorage.setItem("vendorId", vendorId);
 
-  useEffect(() => {
-  const userData = JSON.parse(localStorage.getItem("userData"));
-  const vendorId = userData?.vendorId;
-  
-  if (vendorId) {
-    dispatch(getPurchaseOrdersByVendorId(vendorId));
+useEffect(() => {
+  const storedUserData = localStorage.getItem("userData");
+  if (storedUserData) {
+    const userData = JSON.parse(storedUserData);
+    const vendorId = userData?.vendorId;
+
+    console.log("Vendor ID =>", vendorId);
+
+    if (vendorId) {
+      dispatch(getPurchaseOrdersByVendorId(vendorId));
+    }
   }
 }, [dispatch]);
+
 
   
 

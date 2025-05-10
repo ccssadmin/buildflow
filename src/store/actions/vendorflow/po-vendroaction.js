@@ -4,17 +4,17 @@ import api from "../../../services/api";
 
 
 export const getPurchaseOrdersByVendorId = createAsyncThunk(
-    "purchaseOrder/getByVendorId",
-    async (_, { rejectWithValue }) => {
-      try {
-        const vendorId = localStorage.getItem("vendorId");
-        const response = await api.GET(`/api/Vendor/Get-po-by-vendor-id?vendorId=${vendorId}`);
-        return response.data;
-      } catch (error) {
-        return rejectWithValue(error.response?.data?.message || "Failed to load purchase orders");
-      }
+  "purchaseOrder/getByVendorId",
+  async (vendorId, { rejectWithValue }) => {
+    try {
+      const response = await api.GET(`/api/Vendor/Get-po-by-vendor-id?vendorId=${vendorId}`);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Failed to load purchase orders");
     }
+  }
 );
+
 
 export const getPurchaseOrderDetails = createAsyncThunk(
     "purchaseOrder/getDetails",
