@@ -66,7 +66,8 @@ import {
   getBoard,
   updateBoard,
   editBoard,
-  getPurchaseOrderDetails
+  getPurchaseOrderDetails,
+  getBoqItemsById
 } from "../../services";
 import axios from "axios";
 import { getAuthToken } from "../../utils/storage";
@@ -734,5 +735,13 @@ export const createTicketDetailsAction = createAsyncThunk(
       
       return thunkAPI.rejectWithValue(error.response?.data || error.message);
     }
+  }
+);
+/** USED TO GET BOQ ITEMS BY ID */
+export const getBoqItemsAction = createAsyncThunk(
+  "getBoqItemsByID",
+  async (params) => {
+    const response = await getBoqItemsById(params);
+    return response.data;
   }
 );

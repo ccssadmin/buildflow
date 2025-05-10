@@ -284,10 +284,10 @@ useEffect(() => {
             const notificationPayload = {
               empId:
                 selectedApprover.length > 0
-                  ? selectedApprover.map(
-                      (approver) => approver.emp_id || approver.id
-                    )
-                  : [1, 2, 7],
+                ? selectedApprover.map(
+                    (approver) => approver.empId || approver.empId
+                  )
+                : [1, 2, 7],
               notificationType: "Generate_Purchase_Order ",
               sourceEntityId: ticketId,
               message: `We would like to update you that we are currently awaiting your PO on the for ${projectName}. Kindly review and provide your confirmation at the earliest to avoid any delays in the process.`,
@@ -295,40 +295,42 @@ useEffect(() => {
 
             // Create notification
             await createNotify(notificationPayload);
+            toast.success("Notification Created Successfully")
           }
         } else {
           // Default approvers if none selected
-          // const ticketResponse = await createTicket({
-          //   poId: response?.data?.purchaseOrderId,
-          //   ticketType: "PO_APPROVAL",
-          //   assignTo:
-          //     selectedApprover.length > 0
-          //       ? selectedApprover.map(
-          //           (approver) => approver.empId || approver.id
-          //         )
-          //       : [1, 2, 7], // array of empIds
-          //   createdBy: userData?.empId,
-          // });
-          // const ticketId = ticketResponse?.data?.data?.ticketId;
-          // const projectName = ticketResponse?.data?.data?.projectName;
+          const ticketResponse = await createTicket({
+            poId: response?.data?.purchaseOrderId,
+            ticketType: "PO_APPROVAL",
+            assignTo:
+              selectedApprover.length > 0
+                ? selectedApprover.map(
+                    (approver) => approver.empId || approver.id
+                  )
+                : [1, 2, 7], // array of empIds
+            createdBy: userData?.empId,
+          });
+          const ticketId = ticketResponse?.data?.data?.ticketId;
+          const projectName = ticketResponse?.data?.data?.projectName;
 
-          // if (ticketId) {
-          //   // Create notification with ticket ID as sourceEntityId
-          //   const notificationPayload = {
-          //     empId:
-          //       selectedApprover.length > 0
-          //         ? selectedApprover.map(
-          //             (approver) => approver.empId || approver.id
-          //           )
-          //         : [1, 2, 7],
-          //     notificationType: "Generate_Purchase_Order ",
-          //     sourceEntityId: ticketId,
-          //     message: `We would like to update you that we are currently awaiting your PO on the for ${projectName}. Kindly review and provide your confirmation at the earliest to avoid any delays in the process.`,
-          //   };
+          if (ticketId) {
+            // Create notification with ticket ID as sourceEntityId
+            const notificationPayload = {
+              empId:
+                selectedApprover.length > 0
+                ? selectedApprover.map(
+                    (approver) => approver.empId || approver.empId
+                  )
+                : [1, 2, 7],
+              notificationType: "Generate_Purchase_Order ",
+              sourceEntityId: ticketId,
+              message: `We would like to update you that we are currently awaiting your PO on the for ${projectName}. Kindly review and provide your confirmation at the earliest to avoid any delays in the process.`,
+            };
 
-          //   // Create notification
-          //   await createNotify(notificationPayload);
-          // }
+            // Create notification
+            await createNotify(notificationPayload);
+            toast.success("Notification Created Successfully")
+          }
         }
 
         navigate("../po"); // Redirect after success
