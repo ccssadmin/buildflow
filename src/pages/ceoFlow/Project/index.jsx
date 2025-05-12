@@ -83,7 +83,7 @@ const CeoProjects = () => {
           <h6 className="site-category">{project.siteCategory}</h6>
         </div>
         <div>
-          <span className="project-status">{project.project_status}</span>
+          <span className="project-status  text-uppercase">{project.project_status}</span>
         </div>
       </div>
       <div className="d-flex justify-content-between project-date">

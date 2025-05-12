@@ -1,11 +1,12 @@
 import { useDispatch, useSelector } from "react-redux"
-import { createNotification } from "../../store/selector/ceo/notificationSelector";
-import { createnotificationAction } from "../../store/actions/Ceo/createNotification";
+import { createNotification, getNotification } from "../../store/selector/ceo/notificationSelector";
+import { createnotificationAction, getnotificationAction } from "../../store/actions/Ceo/createNotification";
 
 export const useNotification = () =>{
     const dispatch = useDispatch();
 
     const notification = useSelector(createNotification);
+    const getnotify = useSelector(getNotification);
 
     const createNotify = async (notificationData) =>{
         try{
@@ -17,9 +18,22 @@ export const useNotification = () =>{
         }
     };
 
+    const getnotification = async (userId) => {
+        try{
+            const result = await dispatch(getnotificationAction(userId)).unwrap();
+            return result;
+        }catch(error){
+            console.log("Failed to get notification:", error);
+            return {success:false, error};
+        }
+
+    }
+
     return{
         notification,
+        getnotify,
 
-        createNotify
+        createNotify,
+        getnotification
     }
 }

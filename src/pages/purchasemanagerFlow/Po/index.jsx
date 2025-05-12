@@ -1,23 +1,21 @@
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-
-import "bootstrap/dist/css/bootstrap.min.css"
+import "bootstrap/dist/css/bootstrap.min.css";
+import { getAllPurchaseOrder } from "../../../store/actions/Purchase/purcharseorderidaction";
 
 export default function PurchaseOrdersPage() {
-  
-      const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  // Sample data based on the screenshot
+  const { allPurchaseOrders, loading, error } = useSelector((state) => state.purchase);
 
-  const purchaseOrders = Array(13).fill({
-    id: "#PO001",
-    project: "Chennai Site",
-    vendor: "SS Enterprise",
-    date: "24-04-2025",
-    status: "In Transit",
-    contactNo: "9876XXXXXX",
-  })
+  useEffect(() => {
+    dispatch(getAllPurchaseOrder());
+  }, [dispatch]);
 
- 
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p className="text-danger">Error: {error}</p>;
 
   return (
     <div className="container mt-4">
@@ -27,18 +25,20 @@ export default function PurchaseOrdersPage() {
         </div>
         <div className="col-md-6 d-flex justify-content-end">
           <div className="d-flex gap-2">
-            <div className="position-relative">
-              <select
-                className="form-select"
-                style={{ minWidth: "120px", backgroundColor: "#f8f9fa", border: "1px solid #ced4da" }}
-              >
-                <option>All</option>
-                <option>In Transit</option>
-                <option>Delivered</option>
-                <option>Pending</option>
-              </select>
-            </div>
-            <button className="btn" style={{ backgroundColor: "#ff6600", color: "white", fontWeight: "500" }}>
+            <select
+              className="form-select"
+              style={{ minWidth: "120px", backgroundColor: "#f8f9fa", border: "1px solid #ced4da" }}
+            >
+              <option>All</option>
+              <option>In Transit</option>
+              <option>Delivered</option>
+              <option>Pending</option>
+            </select>
+            <button
+              className="btn"
+              style={{ backgroundColor: "#ff6600", color: "white", fontWeight: "500" }}
+              onClick={() => navigate("/purchasemanager/poCreate")}
+            >
               + Create PO
             </button>
           </div>
@@ -49,41 +49,51 @@ export default function PurchaseOrdersPage() {
         <table className="table table-bordered">
           <thead style={{ backgroundColor: "#f8f9fa" }}>
             <tr>
-              <th className="text-center"  style={{ padding: "12px 16px", fontWeight: "500", color: "#555" }}>PO ID</th>
-              <th className="text-center" style={{ padding: "12px 16px", fontWeight: "500", color: "#555" }}>Project</th>
-              <th className="text-center" style={{ padding: "12px 16px", fontWeight: "500", color: "#555" }}>Vendor</th>
-              <th className="text-center"  style={{ padding: "12px 16px", fontWeight: "500", color: "#555" }}>Date</th>
-              <th className="text-center" style={{ padding: "12px 16px", fontWeight: "500", color: "#555" }}>Status</th>
-              <th className="text-center" style={{ padding: "12px 16px", fontWeight: "500", color: "#555" }}>Contact No</th>
-              <th className="text-center" style={{ padding: "12px 16px", fontWeight: "500", color: "#555" }}>Action</th>
+              <th className="text-center">PO ID</th>
+              <th className="text-center">Project</th>
+              <th className="text-center">Vendor</th>
+              <th className="text-center">Date</th>
+              <th className="text-center">Status</th>
+              <th className="text-center">Contact</th>
+              <th className="text-center">Action</th>
             </tr>
           </thead>
           <tbody>
-            {purchaseOrders.map((po, index) => (
-              <tr key={index} style={{ borderBottom: "1px solid #dee2e6" }}>
-                <td style={{ padding: "12px 16px" }}>{po.id}</td>
-                <td style={{ padding: "12px 16px" }}>{po.project}</td>
-                <td style={{ padding: "12px 16px" }}>{po.vendor}</td>
-                <td style={{ padding: "12px 16px" }}>{po.date}</td>
-                <td style={{ padding: "12px 16px" }}>
-                  <span style={{ color: "#28a745", fontWeight: "500" }}>{po.status}</span>
-                </td>
-                <td style={{ padding: "12px 16px" }}>{po.contactNo}</td>
-                <td style={{ padding: "12px 16px" }}>
-                  <a
-                    href="#"
-                    
-                    style={{ color: "#0d6efd", textDecoration: "none" }}
-                    onClick={() => navigate('../poDetails')}
-                  >
-                    View
-                  </a>
-                </td>
-              </tr>
-            ))}
-          </tbody>
+  {allPurchaseOrders?.length > 0 ? (
+    allPurchaseOrders.map((po, index) => (
+      <tr key={index}>
+        <td className="text-center">{po.poId || "-"}</td>
+        <td className="text-center">{po.projectName || "-"}</td>
+        <td className="text-center">{po.vendor || "-"}</td>
+        <td className="text-center">{po.deliveryStatusDate || "-"}</td>
+        <td className="text-center">
+        <span className="text-success">
+    {po.deliveryStatus ? po.deliveryStatus : "Pending"}
+  </span>
+        </td>
+        <td className="text-center">{po.vendorMobileNumber || "-"}</td>
+        <td className="text-center">
+          <button
+            className="btn btn-link"
+            style={{ color: "#0d6efd", textDecoration: "none" }}
+            onClick={() => navigate(`/purchasemanager/poDetails/${po.purchaseOrderId}`)}
+          >
+            View
+          </button>
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan="7" className="text-center text-muted">
+        No Purchase Orders found.
+      </td>
+    </tr>
+  )}
+</tbody>
+
         </table>
       </div>
     </div>
-  )
+  );
 }

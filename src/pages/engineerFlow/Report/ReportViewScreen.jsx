@@ -1,69 +1,62 @@
-import React from 'react';
-import { useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { getReportAttachmentsById, getReportById } from '../../../store/actions/report/reportcreateaction';
 
 const ReportViewScreen = () => {
+  const { reportId } = useParams(); // get the reportId from the URL
+  const dispatch = useDispatch();
+  
+  const { reportDetails, attachments, loading, error } = useSelector((state) => state.report);
 
-  const [selectedStatus, setSelectedStatus] = useState('High');
-  const [selectedStock, setSelectedStock] = useState("LowStock");
+  useEffect(() => {
+    if (reportId) {
+      dispatch(getReportById(reportId));
+      dispatch(getReportAttachmentsById(reportId));
+    }
+  }, [reportId, dispatch]);
 
-  const handleStatusChange = (event) => {
-    setSelectedStatus(event.target.value);
-  };
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div className="text-danger">{error}</div>;
 
+  if (!reportDetails) return null;
 
-  const handleStockColorChange = (event) => {
-    setSelectedStock(event.target.value);
-  }
+  // Destructure data from API response
 
-  // Define colors for each status
-  const statusColors = {
-    High: 'red',
-    Medium: 'blue',
-    Low: 'green',
-  };
-
-
-  const stockColors = {
-    LowStock : "red",
-    InStock : 'blue',
-    OverStock : 'green'
-    
-  }
-
+  const {
+    reportcode,
+    reporttype,
+    reportdate,
+    reportedby,
+    reportdata = {},
+  } = reportDetails;
+  
+  const {
+    dailyprogresssummary = [],
+    materialusagereport = [],
+    safetycompliancereport = [],
+    issueriskreport = [],
+  } = reportdata;
 
   return (
     <div className="report-container">
+      {/* render reportcode, reporttype, reportedby etc. */}
       <div className="header-section">
         <div className="input-group">
           <label>Report ID</label>
-          <input type="text" value="DPR2025–00152" readOnly />
+          <input type="text" value={reportcode} readOnly />
         </div>
         <div className="input-group">
-          <label>Report Type</label><span className='text-danger'>*</span>
-          <select>
-            <option>Daily Report</option>
-            <option>Weekly Report</option>
-            <option>Monthly Report</option>
-          </select>
+          <label>Report Type</label>
+          <input type="text" value={reporttype} readOnly />
         </div>
         <div className="input-group">
-          <label>Project</label><span className='text-danger'>*</span>
-          <select>
-            <option>BOQ TITLE</option>
-            <option>Project A</option>
-            <option>Project B</option>
-          </select>
-        </div>
-      </div>
-
-      <div className="header-section">
-        <div className="input-group">
-          <label>Date & Time</label>
-          <input type="text" value="15–03–2025 • 06:04 pm" readOnly />
+          <label>Date</label>
+          <input type="text" value={new Date(reportdate).toLocaleDateString()} readOnly />
         </div>
         <div className="input-group">
-          <label>Reported By</label><span className='text-danger'>*</span>
-          <input type="text" value="Marvin McKinney" readOnly />
+          <label>Reported By</label>
+          <input type="text" value={reportedby} readOnly />
         </div>
       </div>
 
@@ -78,18 +71,14 @@ const ReportViewScreen = () => {
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>01</td>
-            <td>Steel Reinforcement</td>
-            <td>80 % Completed</td>
-            <td><a className= "view">View</a></td>
-          </tr>
-          <tr>
-            <td>02</td>
-            <td>Concrete Pouring</td>
-            <td>Delayed (Weather Issue)</td>
-            <td></td>
-          </tr>
+          {dailyprogresssummary.map((item) => (
+            <tr key={item.serialno}>
+              <td>{item.serialno}</td>
+              <td>{item.workactivity}</td>
+              <td>{item.status}</td>
+              <td>{item.action}</td>
+            </tr>
+          ))}
         </tbody>
       </table>
 
@@ -104,24 +93,14 @@ const ReportViewScreen = () => {
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>01</td>
-            <td>Cement</td>
-            <td>200 Bags</td>
-            <td>
-              <select className="status-dropdown"
-              value={selectedStock}
-              onChange={handleStockColorChange}
-              style={{ color: stockColors[selectedStock] }} 
-              
-              
-              >
-                <option value="LowStock" style={ { color : 'red'}}>Low Stock</option>
-                <option value="InStock" style={ { color : 'blue'}}>In Stock</option>
-                <option value="OverStock" style={ { color : 'green'}}>Over Stock</option>
-              </select>
-            </td>
-          </tr>
+          {materialusagereport.map((item) => (
+            <tr key={item.serialno}>
+              <td>{item.serialno}</td>
+              <td>{item.material}</td>
+              <td>{item.stock}</td>
+              <td>{item.level}</td>
+            </tr>
+          ))}
         </tbody>
       </table>
 
@@ -130,26 +109,18 @@ const ReportViewScreen = () => {
         <thead>
           <tr>
             <th>S.No</th>
-            <th>Safety & Compliance</th>
+            <th>Item</th>
             <th>Report</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>01</td>
-            <td>PPE Compliance</td>
-            <td>Helmet – 90% | Gloves – 80%</td>
-          </tr>
-          <tr>
-            <td>02</td>
-            <td>Safety Incident</td>
-            <td>Slip & Fall – First Aid</td>
-          </tr>
-          <tr>
-            <td>03</td>
-            <td>Inspection</td>
-            <td>Passed Scaffolding Safety</td>
-          </tr>
+          {safetycompliancereport.map((item) => (
+            <tr key={item.serialno}>
+              <td>{item.serialno}</td>
+              <td>{item.item}</td>
+              <td>{item.report}</td>
+            </tr>
+          ))}
         </tbody>
       </table>
 
@@ -158,38 +129,42 @@ const ReportViewScreen = () => {
         <thead>
           <tr>
             <th>S.No</th>
-            <th>Issue & Risk</th>
+            <th>Issue</th>
             <th>Impact</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>01</td>
-            <td>Material Delay</td>
-            
-            <td>
-              
-              <select
-              className=""
-              value={selectedStatus}
-              onChange={handleStatusChange}
-              style={{ color: statusColors[selectedStatus] }} 
-            >
-              <option value="High" style={{ color: 'red' }}>High</option>
-              <option value="Medium" style={{ color: 'blue' }}>Medium</option>
-              <option value="Low" style={{ color: 'green' }}>Low</option>
-            </select>
-            </td>
-            
-          </tr>
+          {issueriskreport.map((item) => (
+            <tr key={item.serialno}>
+              <td>{item.serialno}</td>
+              <td>{item.issue}</td>
+              <td>{item.impact}</td>
+            </tr>
+          ))}
         </tbody>
       </table>
-
       <h3>Attached File</h3>
       <div className="attached-files">
-        <label>
-          
-        </label>
+        {loading && <p>Loading attachments...</p>}
+        {error && <p style={{ color: 'red' }}>{error}</p>}
+        {!loading && attachments?.length > 0 ? (
+  <ul>
+    {attachments.map((file) => (
+      <li key={file.attachmentId}>
+        <a
+          href={`https://buildflowgraphql.crestclimbers.com/${file.filePath.replace(/\\/g, '/')}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {file.fileName}
+        </a>
+      </li>
+    ))}
+  </ul>
+) : (
+  !loading && <p>No attachments found.</p>
+)}
+
       </div>
     </div>
   );

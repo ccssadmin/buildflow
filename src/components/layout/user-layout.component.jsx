@@ -52,11 +52,7 @@ const UserLayout = ({ onLogout }) => {
       <div className={`layout-container ${collapseNav ? "" : "left-sidebar"}`}>
         <SideNav onChange={tempChange} />
         <div className="body-content">
-          {(data?.error && (
-            <h3 className="server-error">
-              <img src={serverErrorIcon} alt="serverErrorIcon" /> {data?.error}
-            </h3>
-          )) || <Outlet />}
+          <Outlet />
         </div>
       </div>
       {/* <Footer /> */}

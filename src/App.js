@@ -1,9 +1,11 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import Spinner from "./components/spinner/spinner.component";
-
+import SessionExpiredModal from "../src/pages/Login/SessionExpiredModel";
 import "./styles/index.scss";
 import "./styles/index.css";
+import { setJustLoggedIn } from "./services/api";
+
 
 /** LAYOUTS */
 const MdLayout = lazy(() => import("./components/layout/user-layout.component"));
@@ -14,13 +16,19 @@ const FinanceLayout = lazy(() => import('./components/layout/finance-layout.comp
 const PmLayout = lazy(() => import('./components/layout/pm-layout.component'));
 const HrLayout = lazy(() => import('./components/layout/hr-layout.component'));
 const PurchasemanagerLayout = lazy(() => import('./components/layout/purchasemanager-layout.component'));
-const VendorLayout = lazy ( ( ) => import('./components/layout/vendor-layout.component'))
+const VendorLayout = lazy(() => import('./components/layout/vendor-layout.component'));
 
 /** PAGES */
 const Login = lazy(() => import("./pages/Login/Login"));
 
 // [Keep all your existing page imports...]
+// common Ticket Details for all flows
 
+const CommonTicketDetails = lazy(() => import('./components/common/TicketDetails'));
+const CommonBOQDetails =  lazy(() => import('./components/common/MaterialViewScreen'));
+const CommonProjectSummary = lazy(() => import('./components/common/ProjectSummary'));
+const CommonKanban = lazy(() => import('./components/common/KanbanBoard'));
+const CommonPODetails = lazy(() => import('./components/common/purchaseOrder'));
 
 // SuperAdmin (MD Flow)
 const MdDashboard = lazy(() => import("./pages/mdflow/Dashboard/Home"));
@@ -74,6 +82,7 @@ const CeoDashboard1 = lazy(() => import('./pages/ceoFlow/Dashboard/index1'));
 const CeoProject = lazy(() => import('./pages/ceoFlow/Project/index'));
 const CeoProjectDetails = lazy(() => import('./pages/ceoFlow/Project/ProjectDeatils'));
 const CeoCreateProject = lazy(() => import('./pages/ceoFlow/Project/CreateProject'));
+const CeoProjectSummary = lazy(()=>import('./components/common/ProjectSummary'));
 const CeoTicketDetails = lazy(() => import('./pages/ceoFlow/KanbanBoard/TicketDetails'));
 const CeoChat = lazy(() => import('./pages/ceoFlow/ChatPage/Chat/ChatApp'));
 const KanbanCeo = lazy(() => import('./pages/ceoFlow/KanbanBoard/index'));
@@ -141,26 +150,30 @@ const PurchasemanagerVendorDetails = lazy(() => import('./pages/purchasemanagerF
 const PurchasemanagerVendorPriceDetails = lazy(() => import('./pages/purchasemanagerFlow/Vendors/VendorPriceDetails'));
 const PurchasemanagerPo = lazy(() => import('./pages/purchasemanagerFlow/Po/index'));
 const PurchasemanagerPoDetails = lazy(() => import('./pages/purchasemanagerFlow/Po/purchaseOrder'));
+const PurchasemanagerPoCreate = lazy(() => import('./pages/purchasemanagerFlow/Po/purchaseOrderCreate'));
 const PurchasemanagerKanban = lazy(() => import('./pages/purchasemanagerFlow/KanbanBoard/index'));
-const PurchasemanagerKanbanTicketDetails = lazy(() => import('./pages/purchasemanagerFlow/KanbanBoard/TicketDetails'));
+const PoCreateAutoGenrate = lazy(() => import('./pages/purchasemanagerFlow/Po/PoCreateAutoGenrate')); 
 const PurchasemanagerChat = lazy(() => import('./pages/purchasemanagerFlow/ChatPage/Chat/ChatApp'));
 const PurchasemanagerSettings = lazy(() => import('./pages/purchasemanagerFlow/Settings/index'));
+const PurchaseBoq = lazy(() => import('./pages/purchasemanagerFlow/BoqView/MaterialViewScreen'));
+
 
 
 //Vendor Flow
 
-const VendorDashboard = lazy( ( ) => import('./pages/vendorFlow/Dashboard/index'));
-const VendorPo = lazy( ( ) => import('./pages/vendorFlow/Po/index'));
-const VendorEditPo = lazy( ( ) => import('./pages/vendorFlow/Po/EditPurchaseOrder'));
-const VendorKanban = lazy( ( ) => import ('./pages/vendorFlow/KanbanBoard/index'));
-const VendorTicketDetails = lazy( ( ) => import ('./pages/vendorFlow/KanbanBoard/TicketDetails'));
-const VendorChat = lazy( ( ) => import('./pages/vendorFlow/ChatPage/Chat/ChatApp'));
-const VendorSettings = lazy( ( ) => import('./pages/vendorFlow/Settings/index'));
+const VendorDashboard = lazy(() => import('./pages/vendorFlow/Dashboard/index'));
+const VendorPo = lazy(() => import('./pages/vendorFlow/Po/index'));
+const VendorEditPo = lazy(() => import('./pages/vendorFlow/Po/EditPurchaseOrder'));
+const VendorKanban = lazy(() => import('./pages/vendorFlow/KanbanBoard/index'));
+const VendorTicketDetails = lazy(() => import('./pages/vendorFlow/KanbanBoard/TicketDetails'));
+const VendorChat = lazy(() => import('./pages/vendorFlow/ChatPage/Chat/ChatApp'));
+const VendorSettings = lazy(() => import('./pages/vendorFlow/Settings/index'));
 
 
 const App = () => {
   const [roleId, setRoleId] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showSessionExpiredModal, setShowSessionExpiredModal] = useState(false);
   const navigate = useNavigate();
 
   const roleRoutes = {
@@ -219,54 +232,142 @@ const App = () => {
     17: { // Purchase Manager (duplicate in your DB?)
       default: "/purchasemanager/dashboard",
       layout: PurchasemanagerLayout,
-    }
-      // layout: PurchasemanagerLayout
-    }
-    // "Vendor" : {
-    //   default:"/vendor/dashboard",
-    //   layout: VendorLayout
-    // },
+    },
+    14 : {
+      default: "/vendor/dashboard",
+      layout: VendorLayout
+    },
+  }
   
-
-  // const ProtectedRoute = ({ childre6n, allowedRoleIds }) => {
-  //   if (!roleId) {
-  //     return <Navigate to="/login" replace />;
-  //   }
-
-  //   if (!allowedRoleIds.includes(roleId)) {
-  //     return <Navigate to={roleRoutes[roleId]?.default || "/login"} replace />;
-  //   }
-
-  //   return children;
-  // };
-  const ProtectedRoute = ({ children, allowedRoleIds }) => {
+  // Fixed ProtectedRoute component to handle both numeric roleIds and string roles like "Vendor"
+   const ProtectedRoute = ({ children, allowedRoleIds, allowedRole }) => {
     if (!roleId) {
       return <Navigate to="/login" replace />;
     }
-  
-    if (!allowedRoleIds.includes(roleId)) {
+
+    // Handle both numeric roleIds and string roles
+    if (allowedRoleIds && !allowedRoleIds.includes(roleId)) {
       return <Navigate to={roleRoutes[roleId]?.default || "/login"} replace />;
     }
-  
-    return children; // ✅ correct
-  };
-  
 
-  useEffect(() => {
+    if (allowedRole && roleId !== allowedRole) {
+      return <Navigate to={roleRoutes[roleId]?.default || "/login"} replace />;
+    }
+
+    return children;
+  };
+   useEffect(() => {
+    // Add event listener for session expiration
+    const handleSessionExpiredEvent = () => {
+      handleSessionExpired();
+    };
+
+    
+    // Listen for the custom session expired event
+    document.addEventListener('session_expired', handleSessionExpiredEvent);
+    
+    // Clean up listener on unmount
+    return () => {
+      document.removeEventListener('session_expired', handleSessionExpiredEvent);
+    };
+  }, []);
+
+   const handleSessionExpired = () => {
+    setShowSessionExpiredModal(true);
+  };
+
+  // Handle modal close - perform logout and redirect to login
+  const handleModalClose = () => {
+    setShowSessionExpiredModal(false);
+    handleLogout();
+  };
+
+    useEffect(() => {
     const checkAuthStatus = () => {
       const storedRoleId = localStorage.getItem("userRoleId");
       const accessToken = localStorage.getItem("accessToken");
 
+      // Check if token exists
       if (accessToken && storedRoleId) {
-        setRoleId(Number(storedRoleId));
+        try {
+          // Check if token is valid
+          const isValidToken = isTokenValid(accessToken);
+          
+          if (!isValidToken) {
+            // If token is invalid/expired, show session expired modal
+            handleSessionExpired();
+            return;
+          }
+          
+          // If valid token, set the role ID
+          if (storedRoleId === "Vendor") {
+            setRoleId("Vendor");
+          } else {
+            setRoleId(Number(storedRoleId));
+          }
+        } catch (error) {
+          console.error("Error validating token:", error);
+          handleSessionExpired();
+          return;
+        }
       } else {
+        // Redirect to login if no token
         navigate("/login");
       }
+      
       setLoading(false);
     };
 
+    // Initial check
     checkAuthStatus();
+    
+    // Also set up interval to periodically check token validity
+    const tokenCheckInterval = setInterval(() => {
+      const accessToken = localStorage.getItem("accessToken");
+      if (accessToken && !isTokenValid(accessToken)) {
+        handleSessionExpired();
+      }
+    }, 60000); // Check every minute
+    
+    // Clean up interval
+    return () => clearInterval(tokenCheckInterval);
   }, [navigate]);
+
+ const isTokenValid = (token) => {
+    if (!token) return false;
+    
+    try {
+      // Check if token is a JWT and decode it
+      if (token.split('.').length === 3) {
+        // JWT token - decode and check expiration
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        
+        const { exp } = JSON.parse(jsonPayload);
+        
+        // Check if token is expired
+        if (exp) {
+          return Date.now() <= exp * 1000;
+        }
+      }
+      
+      // Check for manual expiration time in localStorage
+      const tokenExpiration = localStorage.getItem("tokenExpiration");
+      if (tokenExpiration) {
+        return Date.now() <= parseInt(tokenExpiration);
+      }
+      
+      // If we can't verify expiration from token itself
+      // We'll assume the token is valid (and rely on API calls to detect invalidity)
+      return true;
+    } catch (error) {
+      console.error("Error validating token:", error);
+      return false;
+    }
+  };
 
   // Handle successful login
   const handleLoginSuccess = (userData) => {
@@ -281,22 +382,26 @@ const App = () => {
       console.error("Invalid user data received:", userData);
     }
   };
-
   // Handle logout
-  const handleLogout = () => {
-    // Clear all items from localStorage
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("userRole");
-    localStorage.removeItem("userRoleId");
-    localStorage.removeItem("userData");
-    localStorage.removeItem('projectId');
+   const handleLogout = () => {
+  // Clear all items from localStorage
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("userRole");
+  localStorage.removeItem("userRoleId");
+  localStorage.removeItem("userData");
+  localStorage.removeItem('projectId');
+  localStorage.removeItem('userType');
+  localStorage.removeItem('tokenExpiration');
 
-    // Reset the state
-    setRoleId(null);
+  // Reset the state
+  setRoleId(null);
+  
+  // Reset the justLoggedIn flag
+  setJustLoggedIn(false);
 
-    // Redirect to login page
-    navigate("/login", { replace: true });
-  };
+  // Redirect to login page
+  navigate("/login", { replace: true });
+};
 
   if (loading) {
     return <Spinner />;
@@ -310,9 +415,14 @@ const App = () => {
 
   return (
     <Suspense fallback={<Spinner />}>
+         <SessionExpiredModal 
+        isOpen={showSessionExpiredModal} 
+        onClose={handleModalClose} 
+      />
+      
       <Routes>
         {/* LOGIN PAGE */}
-        <Route
+       <Route
           path="/login"
           element={
             roleId ? (
@@ -322,6 +432,7 @@ const App = () => {
             )
           }
         />
+        
 
         {/* SUPERADMIN ROUTES (MD Flow) */}
         <Route
@@ -333,14 +444,17 @@ const App = () => {
           }
         >
           <Route path="home" element={<MdDashboard />} />
-          <Route path="approvals" element={<Kanban />} />
-          <Route path="ticket/:ticketId" element={<TicketDetails />} />
+          <Route path="approvals" element={<CommonKanban />} />
+          <Route path="ticket/:ticketId" element={<CommonTicketDetails />} />
           <Route path="projects" element={<Projects />} />
           <Route path="projectdetails" element={<ProjectDetails />} />
           <Route path="task" element={<EngineerTask />} />
           <Route path="chat" element={<ChatApp />} />
           <Route path="settings" element={<Settings />} />
           <Route path="*" element={<NotFound />} />
+          <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
+          <Route path="projectsummary/:projectId" element={<CommonProjectSummary />} />
+          <Route path="poDetails/:purchaseOrderId" element={<CommonPODetails/>} />
         </Route>
 
         {/* ADMIN ROUTES (Engineering Flow) */}
@@ -354,17 +468,18 @@ const App = () => {
         >
           <Route path="engineerdashboard" element={<EngineerDashboard />} />
           <Route path="engineerproject" element={<EngineerProject />} />
-          <Route path="engineerapprovals" element={<KanbanEngineer />} />
-          <Route path="engineerticketdetails/:ticketId" element={<EngineerTicketDetails />} />
+          <Route path="engineerapprovals" element={<CommonKanban />} />
+          <Route path="engineerticketdetails/:ticketId" element={<CommonTicketDetails />} />
           <Route path="engineerchats" element={<EngineerChat />} />
           <Route path="engineerreport" element={<EngineerReport />} />
           <Route path="engineerreportview" element={<EngineerReportView />} />
           <Route path="engineerreportcreate" element={<EngineerReportCreate />} />
           <Route path="engineermaterial" element={<EngineerMaterial />} />
-          <Route path="engineermaterialview" element={<EngineerMaterialView />} />
+          <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
           <Route path="engineermaterialcreate" element={<EngineerMaterialCreate />} />
           <Route path="engineertask" element={<EngineerTask />} />
           <Route path="engineersetting" element={<EngineerSetting />} />
+          <Route path="engineermaterialviewscreen/:boqId" element={<EngineerMaterialView />} />
           <Route path="*" element={<NotFound />} />
         </Route>
 
@@ -378,8 +493,8 @@ const App = () => {
           }
         >
           <Route path="aqsdashboard" element={<AqsDashboard />} />
-          <Route path="aqsapprovals" element={<KanbanAqs />} />
-          <Route path="aqsticketdetails/:ticketId" element={<AqsTicketDetails />} />
+          <Route path="aqsapprovals" element={<CommonKanban />} />
+          <Route path="aqsticketdetails/:ticketId" element={<CommonTicketDetails />} />
           <Route path="aqschats" element={<AqsChat />} />
           <Route path="aqsmaterial" element={<AqsMaterial />} />
           <Route path="aqsinventory" element={<AqsInventory />} />
@@ -393,33 +508,42 @@ const App = () => {
           <Route path="aqsvendordetails" element={<AqsVendorDetails />} />
           <Route path="aqsvendorpricedetails" element={<AqsVendorPriceDetails />} />
           <Route path="aqssetting" element={<AqsSetting />} />
+          <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
+
         </Route>
 
         {/* CEO ROUTES */}
-        <Route
-          path="/ceo"
-          element={
-            <ProtectedRoute allowedRoleIds={[1, 15]}>
-              {renderLayout(1)}
-            </ProtectedRoute>
-          }
-        >
-          <Route path="dashboard" element={<CeoDashboard />} />
-          <Route path="dashboard1" element={<CeoDashboard1 />} />
-          <Route path="project" element={<CeoProject />} />
-          <Route path="projectdetails" element={<CeoProjectDetails />} />
-          <Route path="createproject" element={<CeoCreateProject />} />
-          <Route path="projectmilestone" element={<ProjectTimeline />} />
-          <Route path="approvals" element={<KanbanCeo />} />
-          <Route path="ticket/:ticketId" element={<CeoTicketDetails />} />
-          <Route path="chats" element={<CeoChat />} />
-          <Route path="finance" element={<CeoFinance />} />
-          <Route path="resources" element={<CeoResources />} />
-          <Route path="departments" element={<Ceodepartments />} />
-          <Route path="reports" element={<CeoReport />} />
-          <Route path="reportview" element={<CeoReportView />} />
-          <Route path="settings" element={<CeoSettings />} />
-        </Route>
+      
+<Route
+  path="/ceo"
+  element={
+    <ProtectedRoute allowedRoleIds={[1]}>
+      {renderLayout(1)}
+    </ProtectedRoute>
+  }
+>
+  <Route path="dashboard" element={<CeoDashboard />} />
+  <Route path="dashboard1" element={<CeoDashboard1 />} />
+  <Route path="project" element={<CeoProject />} />
+  <Route path="projectdetails/:projectId" element={<CeoProjectDetails />} />
+  <Route path="projectdetails" element={<CeoProjectDetails />} />
+  <Route path="createproject/:projectId" element={<CeoCreateProject />} />
+  <Route path="createproject/" element={<CeoCreateProject />} />
+  <Route path="projectmilestone" element={<ProjectTimeline />} />
+  <Route path="approvals" element={<CommonKanban />} />
+  <Route path="ticket/:ticketId" element={<CommonTicketDetails />} />
+  <Route path="chats" element={<CeoChat />} />
+  <Route path="finance" element={<CeoFinance />} />
+  <Route path="resources" element={<CeoResources />} />
+  <Route path="departments" element={<Ceodepartments />} />
+  <Route path="reports" element={<CeoReport />} />
+  <Route path="reportview" element={<CeoReportView />} />
+  <Route path="settings" element={<CeoSettings />} />
+  <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
+  <Route path="projectsummary/:projectId" element={<CommonProjectSummary />} />
+  <Route path="poDetails/:purchaseOrderId" element={<CommonPODetails/>} />
+
+</Route>
 
         {/* FINANCE ROUTES */}
         <Route
@@ -434,8 +558,8 @@ const App = () => {
           <Route path="budget" element={<FinanceBudget />} />
           <Route path="budgetcreate" element={<FinanceBudgetCreate />} />
           <Route path="budgetdetails" element={<FinanceBudgetDetails />} />
-          <Route path="approvals" element={<KanbanFinance />} />
-          <Route path="financeticketdetails/:ticketId" element={<FinanceTicketDetails />} />
+          <Route path="approvals" element={<CommonKanban />} />
+          <Route path="ticket/:ticketId" element={<CommonTicketDetails />} />
           <Route path="chats" element={<FinanceChat />} />
           <Route path="invoice" element={<FinanceInvoice />} />
           <Route path="invoicedetails" element={<FinanceInvoiceDetails />} />
@@ -445,6 +569,9 @@ const App = () => {
           <Route path="report" element={<FinanceReport />} />
           <Route path="reportcreate" element={<FinanceReportCreate />} />
           <Route path="settings" element={<FinanceSettings />} />
+          <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
+          <Route path="projectsummary/:projectId" element={<CommonProjectSummary />} />
+          <Route path="poDetails/:purchaseOrderId" element={<CommonPODetails/>} />
         </Route>
 
         {/* PM ROUTES */}
@@ -458,8 +585,8 @@ const App = () => {
         >
           <Route path="dashboard" element={<PmDashboard />} />
           <Route path="project" element={<PmProject />} />
-          <Route path="approvals" element={<KanbanPm />} />
-          <Route path="pmticket/:ticketId" element={<PmTicketDetails />} />
+          <Route path="approvals" element={<CommonKanban />} />
+          <Route path="pmticket/:ticketId" element={<CommonTicketDetails />} />
           <Route path="chats" element={<PmChat />} />
           <Route path="task" element={<PmTask />} />
           <Route path="resources" element={<PmResources />} />
@@ -470,6 +597,8 @@ const App = () => {
           <Route path="reports" element={<PmReport />} />
           <Route path="reportview" element={<PmReportView />} />
           <Route path="settings" element={<PmSettings />} />
+          <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
+          <Route path="projectsummary/:projectId" element={<CommonProjectSummary />} />
         </Route>
 
         {/* HR ROUTES */}
@@ -483,10 +612,10 @@ const App = () => {
         >
           <Route path="dashboard" element={<HrDashboard />} />
           <Route path="employee" element={<HrEmployee />} />
-          <Route path="addemployee" element={<AddHrEmployee />} />
+          <Route path="addemployee/:empId?" element={<AddHrEmployee />} />
           <Route path="employeedetail" element={<HrEmployeeDetail />} />
-          <Route path="approvals" element={<HrKanban />} />
-          <Route path="hrticketdetails/:ticketId" element={<HrKanbanTicketDetails />} />
+          <Route path="approvals" element={<CommonKanban />} />
+          <Route path="hrticketdetails/:ticketId" element={<CommonTicketDetails />} />
           <Route path="chats" element={<HrChat />} />
           <Route path="settings" element={<HrSettings />} />
         </Route>
@@ -505,34 +634,44 @@ const App = () => {
           <Route path="vendorsDetails" element={<PurchasemanagerVendorDetails/>} />
           <Route path="vendorsPriceDetails" element={<PurchasemanagerVendorPriceDetails/>} />
           <Route path="po" element={<PurchasemanagerPo />} />
-          <Route path="poDetails" element={<PurchasemanagerPoDetails/>} />
-          <Route path="approvals" element={<PurchasemanagerKanban />} />
-          <Route path="hrticketdetails/:ticketId" element={<PurchasemanagerKanbanTicketDetails />} />
+          <Route path="poCreate" element={<PurchasemanagerPoCreate />} />
+          <Route path="boqDetails/:boqId" element={<PurchaseBoq />} />
+          <Route path="approvals" element={<CommonKanban />} />
+          <Route path="purchaseticketdetails/:ticketId" element={<CommonTicketDetails />} />
           <Route path="chats" element={<PurchasemanagerChat />} />
           <Route path="settings" element={<PurchasemanagerSettings />} />
+          <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
+          <Route path="poDetails/:purchaseOrderId" element={<CommonPODetails/>} />
+          <Route path="pocreateautogenrate" element={<PoCreateAutoGenrate />} />
+          <Route path="ticket/:ticketId" element={<CommonTicketDetails />} />
+          
         </Route>
 
 
         {/* Vendor */}
 
-          <Route 
+        <Route 
           path="/vendor" 
-          element={<ProtectedRoute allowedRole="Vendor"><VendorLayout onLogout={handleLogout} /></ProtectedRoute>}
-          >
-
-            <Route  path="dashboard" element={<VendorDashboard />}/>
-            <Route path="po" element={<VendorPo />} />
-            <Route path="editpo" element={<VendorEditPo />} />
-            <Route path="approvals" element={<VendorKanban />} />
-            <Route path="vendorticketdetails/:ticketId" element={<VendorTicketDetails />} />
-            <Route path="chats" element={<VendorChat />} />
-            <Route path="settings" element={<VendorSettings />} />
-          </Route>
+          element={
+            <ProtectedRoute allowedRoleIds="14">
+              {renderLayout("14")}
+            </ProtectedRoute>
+          }
+        >
+          <Route path="dashboard" element={<VendorDashboard />}/>
+          <Route path="po" element={<VendorPo />} />
+          <Route path="editpo/:purchaseOrderId" element={<VendorEditPo />} />
+          <Route path="approvals" element={<CommonKanban />} />
+          <Route path="ticket/:ticketId" element={<CommonTicketDetails />} />
+          <Route path="chats" element={<VendorChat />} />
+          <Route path="settings" element={<VendorSettings />} />
+        </Route>
         {/* Catch all redirect */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Suspense>
   );
 };
+
 
 export default App;

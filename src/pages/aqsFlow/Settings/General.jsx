@@ -5,23 +5,20 @@ import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setAuthToken, setAuthType, setExpiresOn } from "../../../utils/storage";
 import { useTranslation } from "react-i18next";
-import { userInfoAction } from "../../../store/actions"; 
+import { userInfoAction } from "../../../store/actions";
 import { authSelector } from "../../../store/slice/auth";
 
 export const GeneralSettings = () => {
   const [showInfo, setShowInfo] = useState(false);
   const [showNotify, setShowNotify] = useState(false);
-  const [showWPSwitch, setShowWPSwitch] = useState(false);
   const popupRef = useRef(null);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  // Redux selector to get logged-in user data
   const { data: user, loading, error } = useSelector(authSelector);
 
-  // On component mount, dispatch the user info API using localStorage values
   useEffect(() => {
     dispatch(userInfoAction());
   }, [dispatch]);
@@ -42,7 +39,6 @@ export const GeneralSettings = () => {
     };
   }, []);
 
-  /** CLEAR TOKEN & LOGOUT USER */
   const userLogout = () => {
     setShowInfo(false);
     setShowNotify(false);
@@ -59,7 +55,7 @@ export const GeneralSettings = () => {
       <div className="profile-details">
         <h2>Admin Profile</h2>
 
-        {loading && <p>Loading user information...</p>}
+        {loading && <p>Loading vendor information...</p>}
         {error && <p className="text-danger">{error}</p>}
 
         {!loading && user?.details && (
@@ -67,8 +63,8 @@ export const GeneralSettings = () => {
             <div className="d-flex align-items-center mb-4">
               <img src={profile} alt="profile" className="img-profile" />
               <div>
-                <h4 className="mb-1">{user.details.firstName || "User Name"}</h4>
-                <p>{user.details.roleName || "Role"}</p>
+                <h4 className="mb-1">{user.details.firstName || "Vendor Name"}</h4>
+                <p>{user.details.roleName || "Vendor"}</p>
               </div>
             </div>
 

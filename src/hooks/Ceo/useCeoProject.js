@@ -122,11 +122,12 @@ const createProjectMilestone = async (projectId, milestoneDto) => {
 
 const fetchProjectDetails = async (projectId) => {
   try {
-   const result = await dispatch(getProjectDetailsAction(projectId)).unwrap();
-   console.log(" Project Details:", result);
-   return result;
+    const result = await dispatch(getProjectDetailsAction(projectId)).unwrap();
+    console.log("Project Details:", result);
+    return result;
   } catch (error) {
     console.error("Failed to fetch project Details:", error);
+    throw error; // Re-throw the error to handle it in the calling function
   }
 };
 // Fetch all projects with optional status filter

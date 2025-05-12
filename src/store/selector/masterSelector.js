@@ -13,6 +13,20 @@ export const colorSelector = createSelector(
       error,
     })
 );
+/** USE TO GET PURCHASE ORDER DETAILS  */
+export const getPurchaseOrderDetailsSelector = createSelector(
+  [
+    state => state.master.purchaseOrderDetails.data,
+    state => state.master.purchaseOrderDetails.loading,
+    state => state.master.purchaseOrderDetails.error,
+  ],
+  (data, loading, error) => ({
+    data,
+    loading,
+    error,
+  })
+);
+
 
 /** COUNTRY */
 export const countrySelector = createSelector(
@@ -541,6 +555,19 @@ export const loginBoardDetailsSelector = createSelector(
     state => state.master.loginBoardDetails.data,
     state => state.master.loginBoardDetails.loading,
     state => state.master.loginBoardDetails.error,
+  ],
+  (data, loading, error) => ({
+    data,
+    loading,
+    error,
+  })
+);
+/** TO GET BOQ ITEMS BY ID */
+export const getBoqItemsSelector = createSelector(
+  [
+    state => state.master.boqItems.data,
+    state => state.master.boqItems.loading,
+    state => state.master.boqItems.error,
   ],
   (data, loading, error) => ({
     data,

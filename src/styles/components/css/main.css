@@ -14,6 +14,7 @@
     --bright-shade-blue : #0077FF; */
     --burnt-orange : #C65600;
     --green : #30A335;
+    --bright-royal-blue-1 : #0456D0;
 }
 * {
     font-family: "DM Sans", sans-serif;
@@ -39,6 +40,9 @@ body .text-primary {
 }
 .text-crimson-red {
     color: var(--crimson-red) !important;
+}
+.text-bright-royal-blue-1 {
+    color: var(--bright-royal-blue-1) !important;
 }
 .text-green {
     color: var(--green) !important;
@@ -390,10 +394,27 @@ h5.sidenav-content__headings-lists--title {
     border: unset;
     border-radius: unset;
 }
-
-
-
-
+.approve-reject.same {
+    display: none !important;
+}
+.approve-reject.not-same {
+    display: block;
+}
+.moveto-dropdown {
+    display: none;
+}
+.moveto-dropdown.vendor-moveto {
+    display: block;
+}
+.moveto-dropdown.emp-moveto {
+    display: block;
+}
+.moveto-dropdown.ispprovedfalse {
+    display: none;
+}
+.moveto-dropdown.emp-moveto.ispprovedtrue {
+    display: block;
+}
 @media (max-width: 1440px) {
     
     main .left-container {

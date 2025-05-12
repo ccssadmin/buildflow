@@ -1,31 +1,25 @@
-
-import React, { useState } from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
+import React, { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-
-
+import "bootstrap/dist/css/bootstrap.min.css";
+import { getReports } from "../../../store/actions/report/reportcreateaction";
 
 function Report() {
-  const [selectedSite, setSelectedSite] = useState('MRM Site');
-
-  const sites = ['MRM Site', 'ABC Site', 'XYZ Site'];
-
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const { data: reportData, loading, error } = useSelector((state) => state.report);
 
-  const reports = Array.from({ length: 13 }, (_, index) => ({
-    id: index + 1,
-    reportId: "Daily Report - DPR2025",
-    projectName: "MAA - A Block",
-    date: "14-03-2025",
-    time: "06:00 pm",
-    reportedBy: "Darrell",
-    avatar: "https://via.placeholder.com/24",
-  }));
+  useEffect(() => {
+    dispatch(getReports());
+  }, [dispatch]);
+
+  const sites = ['MRM Site', 'ABC Site', 'XYZ Site'];
+  const [selectedSite, setSelectedSite] = React.useState('MRM Site');
 
   return (
     <div className="reports-container">
-      {/* Header Section */}
+      {/* Header */}
       <div className="reports-header">
         <select
           className="form-select select-custom"
@@ -37,52 +31,55 @@ function Report() {
             <option key={index} value={site}>{site}</option>
           ))}
         </select>
-        <button className="create-btn"
-          style={{}}
-          onClick={() => navigate('/admin/engineerreportcreate')}
-        >
+        <button className="create-btn" onClick={() => navigate('/admin/engineerreportcreate')}>
           Create
         </button>
       </div>
 
+      {/* Loading/Error State */}
+      {loading && <p>Loading reports...</p>}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+
       {/* Reports Table */}
-      <div className="table-responsive">
-        <table className="reports-table">
-          <thead>
-            <tr>
-              <th>S.No</th>
-              <th>Report ID</th>
-              <th>Project Name</th>
-              <th>Date</th>
-              <th>Time</th>
-              <th>Reported By</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {reports.map((report) => (
-              <tr key={report.id}>
-                <td>{report.id.toString().padStart(2, "0")}</td>
-                <td>{report.reportId}</td>
-                <td>{report.projectName}</td>
-                <td>{report.date}</td>
-                <td>{report.time}</td>
-                <td className="reported-by">
-                  <img src={report.avatar} alt="Avatar" />
-                  {report.reportedBy}
-                </td>
-                <td
-                  onClick={() => navigate('/admin/engineerreportview')}
-                >
-                  <a href=" " className="view-link">View</a>
-                </td>
+      {!loading && Array.isArray(reportData) && reportData.length > 0 && (
+        <div className="table-responsive">
+          <table className="reports-table">
+            <thead>
+              <tr>
+                <th>S.No</th>
+                <th>Report ID</th>
+                <th>Project Name</th>
+                <th>Date</th>
+                <th>Reported By</th>
+                <th>Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {reportData.map((report, index) => (
+                <tr key={report.reportid || index}>
+                  <td>{(index + 1).toString().padStart(2, '0')}</td>
+                  <td>{report.reportcode}</td>
+                  <td>{`Project ID - ${report.projectid}`}</td>
+                  <td>{report.reportdate ? new Date(report.reportdate).toLocaleDateString() : 'N/A'}</td>
+                  <td className="reported-by">
+                    <img src="https://via.placeholder.com/24" alt="Avatar" />
+                    {report.reportedby}
+                  </td>
+                  <td onClick={() => navigate(`/admin/engineerreportview/${report.reportid}`)}>
+                    <a href="#" className="view-link">View</a>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {!loading && Array.isArray(reportData) && reportData.length === 0 && (
+        <p>No reports found.</p>
+      )}
     </div>
   );
-};
+}
 
 export default Report;
