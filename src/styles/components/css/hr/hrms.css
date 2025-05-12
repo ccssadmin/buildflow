@@ -172,10 +172,20 @@
     flex: 1 1 30%;
     display: flex;
     flex-direction: column;
+  } 
+
+  .addemployee-form-row2{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    margin-right: 421px;
   }
 
- 
- 
+  .addemployee{  
+    border-top: 2px solid #E4E4E4;
+    margin-bottom : 20px;
+  }
   
   .flag-icon {
     width: 20px;
@@ -193,8 +203,8 @@
     outline: none;
     flex: 1;
     font-size: 14px;
-    width: 275px;
-    height: 48px;
+    width: 350px;
+    //height: 48px;
     border-radius: 4px;
     border: 1px;
     padding-top: 10px;
@@ -217,19 +227,14 @@
 
   .email-input {
   
-    width: 311px;
-    height: 48px;
-
-    padding-top: 10px;
-    padding-bottom: 10px;
-    padding-right: 20px;
-    padding-left: 20px;
+    width: 400px;
     font-size: 14px;
     border: 1px solid #ccc;
     border-radius: 6px;
-    margin-top: 4px;
-   
+    //margin-top: 4px;
+    padding: 10px 12px; 
   }
+  
 
   .addemployee-btn-delete span {
   display: flex;
@@ -242,7 +247,6 @@
   font-weight: 500;
   font-size: 14px;
 }
-
 
 .delete-icon {
   font-size: 20px;
@@ -266,6 +270,7 @@ button.addemployee-btn-delete {
     font-size: 14px;
     font-weight: 500;
     margin-bottom: 6px;
+
   }
   
   .addemployee-form-group input,
@@ -283,10 +288,9 @@ button.addemployee-btn-delete {
   }
 
   .email-input:focus,
-.email-input:hover {
+  .email-input:hover {
   border-color: #FF6F00;
   outline: none;
-  color: #333;
 }
 
   
@@ -363,8 +367,7 @@ button.addemployee-btn-delete {
 }
 
 .project{
-width: 314px;
-height: 48px;
+width: 405px;
 border-radius: 4px;
 border: 1px;
 justify-content: space-between;
@@ -374,10 +377,10 @@ padding-bottom: 10px;
 padding-left: 20px;
 }
 
-.addemployee-form-group-email{
+/* .addemployee-form-group-email{
   width: 314px;
   height: 86px;
-}
+} */
 
 .hrms-btn-small {
   padding: 4px 10px;
