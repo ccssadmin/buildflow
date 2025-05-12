@@ -1,15 +1,15 @@
 import { useState } from "react";
-
 import { NavLink, useLocation } from "react-router-dom";
 import * as menu from "../../../assets/images";
 import useAuth from "../../../hooks/useAuth";
 import PopupModal from "../../common/PopupModal";
 import ContactUsForm from "../../common/ContactUsForm";
+
 const SideNav = ({ onChange }) => {
   const [collaps, setCollaps] = useState(false);
   const [{ data: auth }] = useAuth();
   const [contactUsForm, setContactUsForm] = useState(false);
-  const expandCollaps = (e) => {
+  const expandCollaps = () => {
     let showTitle = collaps ? !collaps : true;
     setCollaps(showTitle);
     onChange(showTitle);
@@ -18,112 +18,75 @@ const SideNav = ({ onChange }) => {
   const handleContactUs = () => {
     setContactUsForm(!contactUsForm);
   };
+
   const closeModal = () => {
     setContactUsForm(false);
   };
+
   const location = useLocation();
   const isProjectActive = location.pathname === "/projects" || location.pathname === "/projectdetails";
-  const isApprovelActive =
-    location.pathname === "/approvals" ||
-    location.pathname.startsWith("/ticket");
+  const isApprovelActive = location.pathname === "/approvals" || location.pathname.startsWith("/ticket");
 
   return (
     <>
       <div className="sidenav-content">
         <div className="sidenav-content__headings">
           <div
-            className={
-              !collaps
-                ? "sidenav-content__headings-lists collaps"
-                : "sidenav-content__headings-lists"
-            }
+            className={`sidenav-content__headings-lists ${!collaps ? "collaps" : ""}`}
           >
-            <h5
-              className="sidenav-content__headings-lists--title"
-              title="Home"
-              disabled={auth?.details?.roleName == null ? true : false}
-            >
+            <h5 className="sidenav-content__headings-lists--title" title="Home" disabled={auth?.details?.roleName == null}>
               <NavLink to="/home" className="link-tag">
-                {({ isActive, isPending }) => (
+                {() => (
                   <>
-                    <img
-                      src={menu.IconDashboard}
-                      alt={"Kanban"}
-                    />                    
+                    <img src={menu.IconDashboard} alt="Kanban" />
                     <span>Dashboard</span>
                     {collaps && "Kanban"}
                   </>
-                  
                 )}
               </NavLink>
             </h5>
-            {/* TEAM */}
-            <h5
-              className="sidenav-content__headings-lists--title"
-              title="Team"
-              disabled={auth?.details?.roleName == null ? true : false}
-            >
+
+            <h5 className="sidenav-content__headings-lists--title" title="Team" disabled={auth?.details?.roleName == null}>
               <NavLink to="/projects" className={`link-tag ${isProjectActive ? "active" : ""}`}>
-                {({ isActive, isPending }) => (
+                {() => (
                   <>
-                    <img
-                      src={menu.IconProjects}
-                      alt={"Projects"}
-                    />
+                    <img src={menu.IconProjects} alt="Projects" />
                     <span>Projects</span>
                     {collaps && "Projects"}
                   </>
                 )}
               </NavLink>
             </h5>
-            <h5
-              className="sidenav-content__headings-lists--title"
-              title="Team"
-              disabled={auth?.details?.roleName == null ? true : false}
-            >
+
+            <h5 className="sidenav-content__headings-lists--title" title="Approvals" disabled={auth?.details?.roleName == null}>
               <NavLink to="/approvals" className={`link-tag ${isApprovelActive ? "active" : ""}`}>
-                {({ isActive, isPending }) => (
+                {() => (
                   <>
-                    <img
-                      src={menu.IconApprovals}
-                      alt={"Projects"}
-                    />
+                    <img src={menu.IconApprovals} alt="Approvals" />
                     <span>Approvals</span>
                     {collaps && "Team"}
                   </>
                 )}
               </NavLink>
             </h5>
-            <h5
-              className="sidenav-content__headings-lists--title"
-              title="Team"
-              disabled={auth?.details?.roleName == null ? true : false}
-            >
+
+            <h5 className="sidenav-content__headings-lists--title" title="Chat" disabled={auth?.details?.roleName == null}>
               <NavLink to="/chat" className="link-tag">
-                {({ isActive, isPending }) => (
+                {() => (
                   <>
-                    <img
-                      src={menu.IconChat}
-                      alt={"Projects"} className="d-block"
-                    />
+                    <img src={menu.IconChat} alt="Chat" className="d-block" />
                     <span>Chat</span>
                     {collaps && "Team"}
                   </>
                 )}
               </NavLink>
             </h5>
-            <h5
-              className="sidenav-content__headings-lists--title"
-              title="Team"
-              disabled={auth?.details?.roleName == null ? true : false}
-            >
+
+            <h5 className="sidenav-content__headings-lists--title" title="Settings" disabled={auth?.details?.roleName == null}>
               <NavLink to="/settings" className="link-tag">
-                {({ isActive, isPending }) => (
+                {() => (
                   <>
-                    <img
-                      src={menu.IconSettings}
-                      alt={"Projects"}
-                    />
+                    <img src={menu.IconSettings} alt="Settings" />
                     <span>Settings</span>
                     {collaps && "Settings"}
                   </>
@@ -139,7 +102,7 @@ const SideNav = ({ onChange }) => {
           closeModal={closeModal}
           headerText=""
           children={<ContactUsForm closePopup={closeModal} />}
-          customClass={"contact-us-form"}
+          customClass="contact-us-form"
         />
       )}
     </>
