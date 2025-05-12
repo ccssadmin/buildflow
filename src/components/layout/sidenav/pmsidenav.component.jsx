@@ -1,5 +1,4 @@
 import { useState } from "react";
-
 import { NavLink, useLocation } from "react-router-dom";
 import * as menu from "../../../assets/images";
 import useAuth from "../../../hooks/useAuth";
@@ -16,6 +15,8 @@ const PmSidenav = ({ onChange }) => {
   const [collaps, setCollaps] = useState(false);
   const [{ data: auth }] = useAuth();
   const [contactUsForm, setContactUsForm] = useState(false);
+  const location = useLocation();
+
   const expandCollaps = (e) => {
     let showTitle = collaps ? !collaps : true;
     setCollaps(showTitle);
@@ -28,17 +29,26 @@ const PmSidenav = ({ onChange }) => {
   const closeModal = () => {
     setContactUsForm(false);
   };
-  const location = useLocation();
-  const isProjectActive =
-    location.pathname === "/pm/projects" ||
-    location.pathname === "/pm/projectdetails" ||
-    location.pathname === "/pm/createproject";
-  const isApprovelActive =
-    location.pathname === "/pm/approvals" ||
-    location.pathname.startsWith("/pm/ticketdetails");
-  const isReportviewlActive =
-    location.pathname === "/pm/report" ||
+
+  // Check active states for each nav item including sub-routes
+  const isDashboardActive = location.pathname.startsWith("/pm/dashboard");
+  const isProjectActive = 
+    location.pathname.startsWith("/pm/project") ||
+    location.pathname.startsWith("/pm/projectdetails") ||
+    location.pathname.startsWith("/pm/createproject");
+  const isApprovalsActive = 
+    location.pathname.startsWith("/pm/approvals") ||
+    location.pathname.startsWith("/pm/pmticket");
+  const isChatsActive = location.pathname.startsWith("/pm/chats");
+  const isTaskActive = location.pathname.startsWith("/pm/task");
+  const isResourcesActive = location.pathname.startsWith("/pm/resources");
+  const isMaterialActive = location.pathname.startsWith("/pm/material");
+  const isVendorActive = location.pathname.startsWith("/pm/vendor");
+  const isReportsActive = 
+    location.pathname.startsWith("/pm/reports") ||
     location.pathname.startsWith("/pm/reportview");
+  const isSettingsActive = location.pathname.startsWith("/pm/settings");
+
   return (
     <>
       <div className="sidenav-content">
@@ -51,22 +61,23 @@ const PmSidenav = ({ onChange }) => {
             }
           >
             {/* DASHBOARD */}
-
             <h5
               className="sidenav-content__headings-lists--title"
-              title="Home"
+              title="Dashboard"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/pm/dashboard" className="link-tag">
-                {({ isActive, isPending }) => (
-                  <>
-                    <img src={IconDashboard} alt={"Kanban"} />
-                    <span>Dashboard </span>
-                    {collaps && "Kanban"}
-                  </>
-                )}
+              <NavLink
+                to="/pm/dashboard"
+                className={`link-tag ${isDashboardActive ? "active" : ""}`}
+                isActive={(match, location) => location.pathname.startsWith('/pm/dashboard')}
+              >
+                <img src={IconDashboard} alt={"Dashboard"} />
+                <span>Dashboard</span>
+                {collaps && "Dashboard"}
               </NavLink>
             </h5>
+
+            {/* PROJECTS */}
             <h5
               className="sidenav-content__headings-lists--title"
               title="Projects"
@@ -75,17 +86,19 @@ const PmSidenav = ({ onChange }) => {
               <NavLink
                 to="/pm/project"
                 className={`link-tag ${isProjectActive ? "active" : ""}`}
+                isActive={(match, location) => 
+                  location.pathname.startsWith('/pm/project') ||
+                  location.pathname.startsWith('/pm/projectdetails') ||
+                  location.pathname.startsWith('/pm/createproject')
+                }
               >
-                {({ isActive, isPending }) => (
-                  <>
-                    <img src={menu.IconProjects} alt={"Projects"} />
-                    <span>Projects</span>
-                    {collaps && "Projects"}
-                  </>
-                )}
+                <img src={menu.IconProjects} alt={"Projects"} />
+                <span>Projects</span>
+                {collaps && "Projects"}
               </NavLink>
             </h5>
-            {/* TEAM */}
+
+            {/* APPROVALS */}
             <h5
               className="sidenav-content__headings-lists--title"
               title="Approvals"
@@ -93,102 +106,104 @@ const PmSidenav = ({ onChange }) => {
             >
               <NavLink
                 to="/pm/approvals"
-                className={`link-tag ${isApprovelActive ? "active" : ""}`}
+                className={`link-tag ${isApprovalsActive ? "active" : ""}`}
+                isActive={(match, location) => 
+                  location.pathname.startsWith('/pm/approvals') ||
+                  location.pathname.startsWith('/pm/pmticket')
+                }
               >
-                {({ isActive, isPending }) => (
-                  <>
-                    <img src={IconApprovals} alt={"Projects"} />
-                    <span>Approvals</span>
-                    {collaps && "Projects"}
-                  </>
-                )}
+                <img src={IconApprovals} alt={"Approvals"} />
+                <span>Approvals</span>
+                {collaps && "Approvals"}
               </NavLink>
             </h5>
+
+            {/* CHATS */}
             <h5
               className="sidenav-content__headings-lists--title"
               title="Chats"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/pm/chats" className="link-tag">
-                {({ isActive, isPending }) => (
-                  <>
-                    <img src={IconChat} alt={"Approval"} />
-                    <span>Chats</span>
-                    {collaps && "Chats"}
-                  </>
-                )}
+              <NavLink
+                to="/pm/chats"
+                className={`link-tag ${isChatsActive ? "active" : ""}`}
+                isActive={(match, location) => location.pathname.startsWith('/pm/chats')}
+              >
+                <img src={IconChat} alt={"Chats"} />
+                <span>Chats</span>
+                {collaps && "Chats"}
               </NavLink>
             </h5>
+
+            {/* TASK */}
             <h5
               className="sidenav-content__headings-lists--title"
-              title="Team"
+              title="Task"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/pm/task" className="link-tag">
-                {({ isActive, isPending }) => (
-                  <>
-                    <img
-                      src={menu.IconTasks}
-                      alt={"Task"}
-                      className="d-block"
-                    />
-                    <span>Task</span>
-                    {collaps && "Team"}
-                  </>
-                )}
+              <NavLink
+                to="/pm/task"
+                className={`link-tag ${isTaskActive ? "active" : ""}`}
+                isActive={(match, location) => location.pathname.startsWith('/pm/task')}
+              >
+                <img src={menu.IconTasks} alt={"Task"} />
+                <span>Task</span>
+                {collaps && "Task"}
               </NavLink>
             </h5>
+
+            {/* RESOURCES */}
             <h5
               className="sidenav-content__headings-lists--title"
               title="Resources"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/pm/resources" className="link-tag">
-                {({ isActive, isPending }) => (
-                  <>
-                    <img src={IconResources} alt={"Chat"} className="d-block" />
-                    <span>Resources</span>
-                    {collaps && "Resources"}
-                  </>
-                )}
+              <NavLink
+                to="/pm/resources"
+                className={`link-tag ${isResourcesActive ? "active" : ""}`}
+                isActive={(match, location) => location.pathname.startsWith('/pm/resources')}
+              >
+                <img src={IconResources} alt={"Resources"} />
+                <span>Resources</span>
+                {collaps && "Resources"}
               </NavLink>
             </h5>
-<h5
-              className="sidenav-content__headings-lists--title"
-              title="Team"
-              disabled={auth?.details?.roleName == null ? true : false}
-            >
-              <NavLink to="/pm/material" className="link-tag">
-                {({ isActive, isPending }) => (
-                  <>
-                    <img
-                      src={menu.IconMaterial}
-                      alt={"Material"} className="d-block"
-                    />
-                    <span>Material</span>
-                    {collaps && "Team"}
-                  </>
-                )}
-              </NavLink>
-            </h5>
+
+            {/* MATERIAL */}
             <h5
               className="sidenav-content__headings-lists--title"
-              title="Team"
+              title="Material"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/pm/vendor" className="link-tag">
-                {({ isActive, isPending }) => (
-                  <>
-                    <img
-                      src={IconVendor}
-                      alt={"Chat"} className="d-block"
-                    />
-                    <span>Vendors</span>
-                    {collaps && "Team"}
-                  </>
-                )}
+              <NavLink
+                to="/pm/material"
+                className={`link-tag ${isMaterialActive ? "active" : ""}`}
+                isActive={(match, location) => location.pathname.startsWith('/pm/material')}
+              >
+                <img src={menu.IconMaterial} alt={"Material"} />
+                <span>Material</span>
+                {collaps && "Material"}
               </NavLink>
             </h5>
+
+            {/* VENDOR */}
+            <h5
+              className="sidenav-content__headings-lists--title"
+              title="Vendors"
+              disabled={auth?.details?.roleName == null ? true : false}
+            >
+              <NavLink
+                to="/pm/vendor"
+                className={`link-tag ${isVendorActive ? "active" : ""}`}
+                isActive={(match, location) => location.pathname.startsWith('/pm/vendor')}
+              >
+                <img src={IconVendor} alt={"Vendors"} />
+                <span>Vendors</span>
+                {collaps && "Vendors"}
+              </NavLink>
+            </h5>
+
+            {/* REPORTS */}
             <h5
               className="sidenav-content__headings-lists--title"
               title="Reports"
@@ -196,41 +211,38 @@ const PmSidenav = ({ onChange }) => {
             >
               <NavLink
                 to="/pm/reports"
-                className={`link-tag ${isReportviewlActive ? "active" : ""}`}
+                className={`link-tag ${isReportsActive ? "active" : ""}`}
+                isActive={(match, location) => 
+                  location.pathname.startsWith('/pm/reports') ||
+                  location.pathname.startsWith('/pm/reportview')
+                }
               >
-                {({ isActive, isPending }) => (
-                  <>
-                    <img
-                      src={menu.IconReports}
-                      alt={"Chat"}
-                      className="d-block"
-                    />
-                    <span>Reports</span>
-                    {collaps && "Reports"}
-                  </>
-                )}
+                <img src={menu.IconReports} alt={"Reports"} />
+                <span>Reports</span>
+                {collaps && "Reports"}
               </NavLink>
             </h5>
+
+            {/* SETTINGS */}
             <h5
               className="sidenav-content__headings-lists--title"
               title="Settings"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/pm/settings" className="link-tag">
-                {({ isActive, isPending }) => (
-                  <>
-                    <img src={IconSettings} alt={"Chat"} className="d-block" />
-                    <span>Settings</span>
-                    {collaps && "Settings"}
-                  </>
-                )}
+              <NavLink
+                to="/pm/settings"
+                className={`link-tag ${isSettingsActive ? "active" : ""}`}
+                isActive={(match, location) => location.pathname.startsWith('/pm/settings')}
+              >
+                <img src={IconSettings} alt={"Settings"} />
+                <span>Settings</span>
+                {collaps && "Settings"}
               </NavLink>
             </h5>
           </div>
         </div>
-        <div
-          className={!collaps ? "others__options collaps" : "others__options"}
-        >
+
+        <div className={!collaps ? "others__options collaps" : "others__options"}>
           <div className="setting__info">
             {/* CONTACT US */}
             {auth.activeWorkSpace === 3 && (
@@ -240,7 +252,7 @@ const PmSidenav = ({ onChange }) => {
                 disabled={auth?.details?.roleName == null ? true : false}
               >
                 <button onClick={handleContactUs}>
-                  <img src={menu.ContactUs} />
+                  <img src={menu.ContactUs} alt="Contact Us" />
                   {collaps && "Contact us"}
                 </button>
               </p>

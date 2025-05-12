@@ -10,6 +10,10 @@ import IconSettings from "../../../assets/images/menu/icon-settings.svg";
 import IconApprovals from "../../../assets/images/menu/icon-approvals.svg";
 import IconChat from "../../../assets/images/menu/icon-chat.svg";
 import IconVendor from "../../../assets/images/menu/icon-vendor.svg";
+import Inventory from "../../../assets/images/menu/active/Inventory.svg";
+import Boq from "../../../assets/images/menu/active/Boq.svg";
+import CostEstimation from "../../../assets/images/menu/active/Cost-Estimation.svg";
+import Vendor from "../../../assets/images/menu/active/Vendor.svg";
 
 const AqssideNav = ({ onChange }) => {
   const [collaps, setCollaps] = useState(false);
@@ -150,7 +154,7 @@ const AqssideNav = ({ onChange }) => {
                 className={`link-tag ${isInventoryActive ? "active" : ""}`}
                 isActive={(match, location) => location.pathname.startsWith('/aqs/aqsinventory')}
               >
-                <img src={menu.IconProjects} alt={"Inventory"} className="d-block" />
+                <img src={Inventory} alt={"Inventory"} className="d-block" />
                 <span>Inventory</span>
                 {collaps && "Inventory"}
               </NavLink>
@@ -171,7 +175,7 @@ const AqssideNav = ({ onChange }) => {
                   location.pathname.startsWith('/aqs/aqsboqopen')
                 }
               >
-                <img src={menu.IconProjects} alt={"BOQ"} className="d-block" />
+                <img src={Boq} alt={"BOQ"} className="d-block" />
                 <span>BOQ</span>
                 {collaps && "BOQ"}
               </NavLink>
@@ -192,7 +196,7 @@ const AqssideNav = ({ onChange }) => {
                   location.pathname.startsWith('/aqs/aqscostestimationopen')
                 }
               >
-                <img src={menu.IconProjects} alt={"Cost Estimation"} className="d-block" />
+                <img src={CostEstimation} alt={"Cost Estimation"} className="d-block" />
                 <span>Cost Estimation</span>
                 {collaps && "Cost Estimation"}
               </NavLink>
@@ -213,7 +217,7 @@ const AqssideNav = ({ onChange }) => {
                   location.pathname.startsWith('/aqs/aqsvendorpricedetails')
                 }
               >
-                <img src={IconVendor} alt={"Vendors"} className="d-block" />
+                <img src={Vendor} alt={"Vendors"} className="d-block" />
                 <span>Vendors</span>
                 {collaps && "Vendors"}
               </NavLink>
