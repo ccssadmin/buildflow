@@ -41,7 +41,6 @@ import { GrAttachment } from "react-icons/gr";
 import Select, { components } from "react-select";
 import { getTicketDetailsAction } from "../../store/actions/kanbanAction";
 import { toast } from "react-toastify";
-import { getVendorsAndSubcontractors } from "../../store/actions/vendor/getvendoraction";
 
 const EngineerTicketDetails = () => {
   const [activeTab, setActiveTab] = useState("all");
@@ -72,8 +71,6 @@ const EngineerTicketDetails = () => {
   const userData = JSON.parse(localStorage.getItem("userData"));
   const token = userData?.token || localStorage.getItem("accessToken");
   const [groupedDepartments, setGroupedDepartments] = useState([]);
-  const [selectedVendor, setSelectedVendor] = useState(null);
-  const [selectedVendorId, setSelectedVendorId] = useState(null);
 
   const id = useParams(); // ✅ This gives you task.id from the URL
 
@@ -83,12 +80,6 @@ const EngineerTicketDetails = () => {
     fetchDepartments,
     fetchEmployeesByDepartment,
   } = useDepartments();
-
-  const { vendors } = useSelector((state) => state.vendor);
-
-  useEffect(() => {
-    dispatch(getVendorsAndSubcontractors());
-  }, [dispatch]);
 
   const [comments, setComments] = useState([
     {
@@ -114,6 +105,8 @@ const EngineerTicketDetails = () => {
       files: [],
     },
   ]);
+
+ 
 
   // Date state management
   const [orderDate, setOrderDate] = useState(
@@ -206,7 +199,8 @@ const EngineerTicketDetails = () => {
     }
   }, [dispatch, id]);
 
-  const fetchTicketDetails = async () => {
+
+const fetchTicketDetails = async () => {
     try {
       const data = await dispatch(getticketbyidAction(id?.ticketId)).unwrap();
 
@@ -310,17 +304,17 @@ const EngineerTicketDetails = () => {
   };
 
   const getApprovalStatus = (status) => {
-    const numericStatus = Number(status);
-    if (numericStatus === 1) {
-      return { text: "Approved", color: "success" };
-    } else if (numericStatus === 0) {
-      return { text: "Rejected", color: "danger" };
-    } else if (numericStatus === 2) {
-      return { text: "Pending", color: "warning" };
-    } else {
-      return { text: "Unknown", color: "secondary" };
-    }
-  };
+  const numericStatus = Number(status);
+  if (numericStatus === 1) {
+    return { text: "Approved", color: "success" };
+  } else if (numericStatus === 0) {
+    return { text: "Rejected", color: "danger" };
+  } else if (numericStatus === 2) {
+    return { text: "Pending", color: "warning" };
+  } else {
+    return { text: "Unknown", color: "secondary" };
+  }
+};
 
   const handleSave = async () => {
     // if (!approvalStatus) {
@@ -343,8 +337,8 @@ const EngineerTicketDetails = () => {
 
       // Prepare moveTo array
       const moveTo = [];
+      // if (currentDepartment?.deptId) moveTo.push(currentDepartment.deptId);
       if (selectedEmployee?.empId) moveTo.push(selectedEmployee.empId);
-      else if (selectedVendorId) moveTo.push(selectedVendorId);
 
       console.log("currentEmployee", selectedEmployee);
       // Construct the payload
@@ -353,7 +347,7 @@ const EngineerTicketDetails = () => {
         dueDate: dueDate ? dueDate.toISOString().split("T")[0] : null,
         isApproved: approvalStatus === "Approved",
         updatedBy: userData.empId,
-        moveTo: moveTo.length > 0 ? moveTo : vendors,
+        moveTo: moveTo.length > 0 ? moveTo : null,
         moveBy: userData.empId,
       };
 
@@ -390,7 +384,7 @@ const EngineerTicketDetails = () => {
       setIsLoading(false);
     }
   };
-  const BASE_URL = process.env.REACT_APP_MASTER_API_BASE_URL;
+const BASE_URL = process.env.REACT_APP_MASTER_API_BASE_URL;
   const handleSendComment = async () => {
     if (!commentText.trim()) {
       showToastNotification("Please enter a comment.");
@@ -430,7 +424,7 @@ const EngineerTicketDetails = () => {
     try {
       await dispatch(createTicketDetailsAction(formData)).unwrap();
       showToastNotification("Comment sent successfully!");
-      fetchTicketDetails();
+      fetchTicketDetails()
       // Update local state with the new comment
       const newComment = {
         id: Date.now(),
@@ -470,14 +464,12 @@ const EngineerTicketDetails = () => {
   Object.values(grouped).forEach((approvals) => {
     approvals.forEach((approval) => {
       const userApproved = approval?.approved_by_id === userData?.empId;
-      const statusProcessed = ["approved", "rejected"].includes(
-        approval?.approval_type
-      );
-
+      const statusProcessed = ["approved", "rejected"].includes(approval?.approval_type);
+  
       if (userApproved && statusProcessed) {
         hasUserApprovedStatusShow = true;
-      }
-    });
+  }
+  });
   });
 
   console.log("Has user approved?", hasUserApprovedStatusShow); // true or false
@@ -626,7 +618,8 @@ const EngineerTicketDetails = () => {
       .toUpperCase();
   };
 
-  const roleColorMap = {
+
+    const roleColorMap = {
     approved: { color: "success", label: "Approved" },
     pending: { color: "warning", label: "Pending" },
     rejected: { color: "danger", label: "Rejected" },
@@ -647,6 +640,8 @@ const EngineerTicketDetails = () => {
       })),
     };
   });
+
+
 
   const get_boq_Ticket = (ticket) => {
     if (!ticket || !ticket.transaction_id) {
@@ -688,7 +683,7 @@ const EngineerTicketDetails = () => {
   };
   const empId = userData?.empId;
   const createdby = ticketData?.created_by;
-  const ticket_type = ticketData?.ticket_type;
+
 
   const customMenuList = (props) => {
     return (
@@ -1414,6 +1409,7 @@ const EngineerTicketDetails = () => {
                           marginRight: "10px",
                         }}
                       ></div>
+                      
                     </div>
                   )}
                 </div>
@@ -1601,13 +1597,7 @@ const EngineerTicketDetails = () => {
             </div>
 
             {/* Move To */}
-            <div
-              className={`department-employee-selector moveto-dropdown border-bottom pb-3 ${empId === createdby ? "same" : "not-same"} ${
-                ticket_type === "BOQ_APPROVAL" || ticket_type === "submit"
-                  ? "emp-moveto"
-                  : ""
-              }`}
-            >
+            <div className="department-employee-selector border-bottom pb-3">
               {/* Move To Selector */}
               <div className="mb-3 d-flex justify-content-between align-items-center  flex-wrap">
                 <span className="text-muted">Move To</span>
@@ -1643,54 +1633,16 @@ const EngineerTicketDetails = () => {
               ) : null}
             </div>
 
-            {/* Vendor List Section */}
-            {/* Vendor Selector - Styled Like "Move To" Section */}
-            <div
-              className={`mt-4 moveto-dropdown border-top pt-3 ${
-                ticket_type === "PO_APPROVAL" ? "vendor-moveto" : ""
-              }`}
-            >
-              {loading ? (
-                <p>Loading vendors...</p>
-              ) : error ? (
-                <p className="text-danger">{error}</p>
-              ) : (
-                <div className="mb-3 d-flex justify-content-between align-items-center  flex-wrap">
-                  <span className="text-muted">Move To</span>
-                  <div style={{ justifyContent: "end", width: "300px" }}>
-                    <select
-                      className="form-select"
-                      value={selectedVendorId || ""}
-                      onChange={(e) =>
-                        setSelectedVendorId(Number(e.target.value))
-                      }
-                    >
-                      <option value="">Select Vendor</option>
-                      {vendors.map((vendor) => (
-                        <option key={vendor.id} value={vendor.id}>
-                          {vendor.vendorName}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              )}
 
-              {/* Display Selected Vendor (optional) */}
-              {selectedVendor && (
-                <div className="mt-3 p-2 border rounded bg-light">
-                  <h6 className="mb-1">Selected Vendor:</h6>
-                  <p className="mb-0">{selectedVendor.label}</p>
-                </div>
-              )}
-            </div>
-
-            {/* Approved By */}
+                
+              
+              {/* Approved By */}
             <div
-              className={`approve-reject mb-3 mt-3 d-flex justify-content-between align-items-center border-bottom pb-3 pt-3 
-              ${hasUserApprovedStatusShow ? "d-none" : "d-block"} 
-              ${empId === createdby ? "same" : "not-same"}`}
-            >
+  className={`approve-reject mb-3 mt-3 d-flex justify-content-between align-items-center border-bottom pb-3 pt-3 
+    ${hasUserApprovedStatusShow ? "d-none" : "d-block"} 
+    ${empId === createdby ? "same" : "not-same"}`}
+>
+
               <span className="text-muted">Action</span>
               <div className="d-flex align-items-center">
                 <button
@@ -1718,20 +1670,24 @@ const EngineerTicketDetails = () => {
               </div>
             </div>
 
-            {/* Approval Status */}
 
-            {ticketData?.isapproved !== null &&
-              ticketData?.isapproved !== undefined && (
-                <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
-                  <span className="text-muted">Approval Status</span>
-                  <Badge
-                    bg={getApprovalStatus(ticketData?.isapproved).color}
-                    className="px-2 py-1"
-                  >
-                    {getApprovalStatus(ticketData?.isapproved).text}
-                  </Badge>
-                </div>
-              )}
+
+
+            {/* Approval Status */}
+          
+            {ticketData?.isapproved !== null && ticketData?.isapproved !== undefined && (
+              <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
+              <span className="text-muted">Approval Status</span>
+              <Badge
+                bg={getApprovalStatus(ticketData?.isapproved).color}
+                className="px-2 py-1"
+              >
+            {getApprovalStatus(ticketData?.isapproved).text}
+              </Badge>
+            </div>
+            )}
+
+            
 
             {/* Approved By */}
             {ticketData?.approved_by && (
