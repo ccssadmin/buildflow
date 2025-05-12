@@ -325,7 +325,7 @@ const AddEmployee = () => {
 
           <div className="addemployee-form-group">
             <label>Date of Birth <span className="addemployee-required"></span></label>
-            <input type="date" name="dob" value={employee.dob} onChange={handleChange} />
+            <input type="date" name="dob" placeholder="Select DOB" value={employee.dob} onChange={handleChange} />
             {validationErrors.dob && <p className="error-text">{validationErrors.dob}</p>}
           </div>
 
@@ -339,7 +339,9 @@ const AddEmployee = () => {
             </select>
             {validationErrors.gender && <p className="error-text">{validationErrors.gender}</p>}
           </div>
+        </div>
 
+        <div className="addemployee-form-row2">
           <div className="addemployee-form-group">
             <label>Mobile No <span className="addemployee-required">*</span></label>
             <div className="mobile-input-wrapper">
@@ -354,7 +356,7 @@ const AddEmployee = () => {
                 name="mobile"
                 value={employee.mobile}
                 maxLength={10}
-                placeholder="Enter valid Indian mobile number"
+                placeholder="92xxx xxxxx"
                 className="mobile-input"
                 onChange={(e) => {
                   const value = e.target.value;
@@ -382,8 +384,7 @@ const AddEmployee = () => {
             )}
           </div>
 
-
-          <div className="addemployee-form-group-email">
+          <div className="addemployee-form-group">
             <label className="addemployee-form-group-label">Email ID <span className="addemployee-required">*</span> </label>
             <input
               type="email"
@@ -398,6 +399,8 @@ const AddEmployee = () => {
 
           </div>
         </div>
+
+        <div className="addemployee"></div>
 
         <h6 className="addemployee-section-title">Employment Details</h6>
 
@@ -466,7 +469,7 @@ const AddEmployee = () => {
           </div>
 
           {/* <div className="addemployee-form-group">
-            <label >Projects </label>
+            <label >Projects <span className="addemployee-required">*</span> </label>
             <select className="project" name="project" value={employee.project} onChange={handleChange} >
               <option value="">Select Project</option>
               {projects.map((proj) => (
