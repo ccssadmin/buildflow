@@ -81,7 +81,7 @@ const CeoDashboard = lazy(() => import('./pages/ceoFlow/Dashboard/index'));
 const CeoDashboard1 = lazy(() => import('./pages/ceoFlow/Dashboard/index1'));
 const CeoProject = lazy(() => import('./pages/ceoFlow/Project/index'));
 const CeoProjectDetails = lazy(() => import('./pages/ceoFlow/Project/ProjectDeatils'));
-const CeoCreateProject = lazy(() => import('./pages/ceoFlow/Project/CreateProject'));
+const CeoCreateProject = lazy(() => import('./pages/ceoFlow/Project/ProjectForm'));
 const CeoProjectSummary = lazy(()=>import('./components/common/ProjectSummary'));
 const CeoTicketDetails = lazy(() => import('./pages/ceoFlow/KanbanBoard/TicketDetails'));
 const CeoChat = lazy(() => import('./pages/ceoFlow/ChatPage/Chat/ChatApp'));
@@ -468,18 +468,18 @@ const App = () => {
         >
           <Route path="engineerdashboard" element={<EngineerDashboard />} />
           <Route path="engineerproject" element={<EngineerProject />} />
-          <Route path="engineerapprovals" element={<CommonKanban />} />
+          <Route path="engineerapprovals" element={<KanbanEngineer />} />
           <Route path="engineerticketdetails/:ticketId" element={<CommonTicketDetails />} />
           <Route path="engineerchats" element={<EngineerChat />} />
           <Route path="engineerreport" element={<EngineerReport />} />
-          <Route path="engineerreportview" element={<EngineerReportView />} />
+          <Route path="engineerreportview/:reportId" element={<EngineerReportView />} />
           <Route path="engineerreportcreate" element={<EngineerReportCreate />} />
           <Route path="engineermaterial" element={<EngineerMaterial />} />
           <Route path="materialview/:boqId" element={<CommonBOQDetails />} />
           <Route path="engineermaterialcreate" element={<EngineerMaterialCreate />} />
           <Route path="engineertask" element={<EngineerTask />} />
+          <Route path="engineerreportview/:reportId" element={<EngineerReportView />} />
           <Route path="engineersetting" element={<EngineerSetting />} />
-          <Route path="engineermaterialviewscreen/:boqId" element={<EngineerMaterialView />} />
           <Route path="*" element={<NotFound />} />
         </Route>
 
