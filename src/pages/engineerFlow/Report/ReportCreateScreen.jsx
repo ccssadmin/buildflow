@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { uploadReportAttachments, upsertReport } from '../../../store/actions/report/reportcreateaction';
+import { getNewReportCode, uploadReportAttachments, upsertReport } from '../../../store/actions/report/reportcreateaction';
 import { toast } from 'react-toastify'; // Import toast for notifications
 import { fetchProjects } from '../../../store/actions/hr/projectaction';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { resetReportState } from '../../../store/slice/report/reportslice';
 
 function ReportCreateScreen() {
   const { loading } = useSelector((state) => state.report);
@@ -15,6 +16,32 @@ function ReportCreateScreen() {
 
   const [attachedFile, setAttachedFile] = useState(null);
   const [formErrors, setFormErrors] = useState({});
+const { newReportCode } = useSelector((state) => state.report);
+const { uploadMessage, error } = useSelector((state) => state.report);
+
+
+useEffect(() => {
+  if (uploadMessage) {
+    const timer = setTimeout(() => {
+      dispatch(resetReportState());
+    }, 5000);
+    return () => clearTimeout(timer);
+  }
+}, [uploadMessage]);
+
+
+  useEffect(() => {
+  dispatch(getNewReportCode());
+}, []);
+
+  useEffect(() => {
+    if (newReportCode) {
+      setReportData((prev) => ({
+        ...prev,
+        reportId: newReportCode,
+      }));
+    }
+  }, [newReportCode]);
 
 
  useEffect(() => {
@@ -172,12 +199,15 @@ function ReportCreateScreen() {
     }
   };
   
-  const handleAttachedFileUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setAttachedFile(file);
-    }
-  };
+const handleAttachedFileUpload = (e) => {
+  const file = e.target.files[0];
+  if (file instanceof File) {
+    console.log("File selected:", file);
+    setAttachedFile(file);
+  } else {
+    console.warn("Not a valid File object:", file);
+  }
+};
 
   // Form validation
   const validateForm = () => {
@@ -257,12 +287,15 @@ function ReportCreateScreen() {
       if (upsertReport.fulfilled.match(resultAction)) {
         const savedReportId = resultAction.payload?.reportId || reportIdNumeric;
   
-        if (attachedFile) {
-          await dispatch(uploadReportAttachments({
-            reportId: savedReportId,
-            files: [attachedFile],
-            stringItem: 'your string data'  // Add any string item here
-          }))
+   if (attachedFile) {
+  console.log("Dispatching with attachedFile:", attachedFile);
+
+  await dispatch(uploadReportAttachments({
+    reportId: savedReportId,
+    files: [attachedFile], // ✅ MUST be array of File(s)
+    stringItem: 'your string data'
+  }))
+
             .unwrap()
             .then((res) => {
               toast.success(res.message || 'Attachment uploaded successfully');
@@ -296,19 +329,20 @@ function ReportCreateScreen() {
 
   return (
     <div className="report-container">
-      {/* First Row: Report ID, Report Type (dropdown), Project (dropdown) */}
       <div className="row mb-3">
-      <div className="col-md-4">
-  <label>Report ID</label>
-  <input
-    type="text"
-    className="form-control"
-    value={reportData.reportId}
-    onChange={(e) =>
-      setReportData({ ...reportData, reportId: e.target.value })
-    }
-  />
-</div>
+        <div className="col-md-4">
+          <label>Report ID</label>
+          <input
+            type="text"
+            className="form-control"
+            value={reportData.reportId}
+            onChange={(e) =>
+              setReportData({ ...reportData, reportId: e.target.value })
+            }
+          />
+        </div>
+      
+    
 
         <div className="col-md-4">
           <label>Report Type</label><span className='text-danger'>*</span>
@@ -320,9 +354,9 @@ function ReportCreateScreen() {
           
           >
             <option value="">Select</option>
-            <option value="Type 1">Type 1</option>
-            <option value="Type 2">Type 2</option>
-            <option value="Type 3">Type 3</option>
+            <option value="Type 1">Daily</option>
+            <option value="Type 2"> Weekly</option>
+            <option value="Type 3">Monthly</option>
           </select>
           {formErrors.reportType && <div className="text-danger">{formErrors.reportType}</div>}
         </div>
@@ -580,16 +614,30 @@ function ReportCreateScreen() {
       {/* Attached File Section */}
       <div className="attached-file">
         <h3>Attached File</h3>
-        <input
-          type="file"
-          className="form-control"
-          onChange={handleAttachedFileUpload}
-        />
+<input
+  type="file"
+  className="form-control"
+  onChange={handleAttachedFileUpload}
+/>
         {attachedFile && (
           <div className="mt-2">
-            <span>Selected file: {attachedFile.name}</span>
+               <span>Selected file: {attachedFile.name}</span>
           </div>
         )}
+
+          {/* ✅ Show upload result */}
+  {uploadMessage && (
+    <div className="mt-2 text-success">
+      ✅ {uploadMessage}
+    </div>
+  )}
+
+  {error && typeof error === 'string' && (
+    <div className="mt-2 text-danger">
+      ⚠️ {error}
+    </div>
+  )}
+
       </div>
 
       {/* Cancel and Submit Buttons */}
