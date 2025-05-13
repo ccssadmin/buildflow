@@ -20,10 +20,23 @@ const createAxiosInstance = () => {
     },
   });
 
-  // Track login state
+  let isRefreshing = false;
+  let failedQueue = [];
+  // Define justLoggedIn variable at the module scope
   let justLoggedIn = false;
 
-  // Request interceptor
+  const processQueue = (error, token = null) => {
+    failedQueue.forEach(prom => {
+      if (error) {
+        prom.reject(error);
+      } else {
+        prom.resolve(token);
+      }
+    });
+
+    failedQueue = [];
+  };
+
   instance.interceptors.request.use(
     (config) => {
       if (issetAuthToken()) {
@@ -38,19 +51,63 @@ const createAxiosInstance = () => {
     }
   );
 
-  // Response interceptor
   instance.interceptors.response.use(
     (response) => {
       justLoggedIn = false;
       return response;
     },
-    (error) => {
-      if (error.response) {
-        if ((error.response.status === 401 || error.response.status === 403) && !justLoggedIn) {
+    async (error) => {
+      const originalRequest = error.config;
+      
+      if (error.response?.status === 401 && !originalRequest._retry) {
+        if (isRefreshing) {
+          return new Promise((resolve, reject) => {
+            failedQueue.push({ resolve, reject });
+          })
+          .then(token => {
+            originalRequest.headers['Authorization'] = 'Bearer ' + token;
+            return axiosBase(originalRequest);
+          })
+          .catch(err => {
+            return Promise.reject(err);
+          });
+        }
+
+        originalRequest._retry = true;
+        isRefreshing = true;
+
+        const refreshToken = localStorage.getItem("refreshToken");
+        if (!refreshToken) {
           const event = new Event('session_expired');
           document.dispatchEvent(event);
+          return Promise.reject(error);
+        }
+
+        try {
+          const { data } = await refreshToken({ refreshToken });
+          localStorage.setItem("accessToken", data.token);
+          localStorage.setItem("refreshToken", data.refreshToken);
+          
+          if (data.expiresIn) {
+            const expirationTime = Date.now() + (data.expiresIn * 1000);
+            localStorage.setItem("tokenExpiration", expirationTime.toString());
+          }
+
+          axiosBase.defaults.headers.common['Authorization'] = 'Bearer ' + data.token;
+          originalRequest.headers['Authorization'] = 'Bearer ' + data.token;
+          
+          processQueue(null, data.token);
+          return axiosBase(originalRequest);
+        } catch (err) {
+          processQueue(err, null);
+          const event = new Event('session_expired');
+          document.dispatchEvent(event);
+          return Promise.reject(error);
+        } finally {
+          isRefreshing = false;
         }
       }
+
       return Promise.reject(error);
     }
   );
@@ -60,6 +117,7 @@ const createAxiosInstance = () => {
     setJustLoggedIn: (value) => { justLoggedIn = value; }
   };
 };
+
 
 const { instance: axiosBase, setJustLoggedIn } = createAxiosInstance();
 

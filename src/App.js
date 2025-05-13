@@ -5,6 +5,7 @@ import SessionExpiredModal from "../src/pages/Login/SessionExpiredModel";
 import "./styles/index.scss";
 import "./styles/index.css";
 import { setJustLoggedIn } from "./services/api";
+import useAuth from "./hooks/useAuth";
 
 
 /** LAYOUTS */
@@ -173,8 +174,9 @@ const VendorSettings = lazy(() => import('./pages/vendorFlow/Settings/index'));
 const App = () => {
   const [roleId, setRoleId] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [showSessionExpiredModal, setShowSessionExpiredModal] = useState(false);
+  // const [showSessionExpiredModal, setShowSessionExpiredModal] = useState(false);
   const navigate = useNavigate();
+  const [, { refreshToken }] = useAuth();
 
   const roleRoutes = {
     1: { // CEO
@@ -256,50 +258,50 @@ const App = () => {
 
     return children;
   };
-   useEffect(() => {
-    // Add event listener for session expiration
-    const handleSessionExpiredEvent = () => {
-      handleSessionExpired();
-    };
+  //  useEffect(() => {
+  //   // Add event listener for session expiration
+  //   // const handleSessionExpiredEvent = () => {
+  //   //   handleSessionExpired();
+  //   // };
 
     
-    // Listen for the custom session expired event
-    document.addEventListener('session_expired', handleSessionExpiredEvent);
+  //   // Listen for the custom session expired event
+  //   document.addEventListener('session_expired', handleSessionExpiredEvent);
     
-    // Clean up listener on unmount
-    return () => {
-      document.removeEventListener('session_expired', handleSessionExpiredEvent);
-    };
-  }, []);
+  //   // Clean up listener on unmount
+  //   return () => {
+  //     document.removeEventListener('session_expired', handleSessionExpiredEvent);
+  //   };
+  // }, []);
 
-   const handleSessionExpired = () => {
-    setShowSessionExpiredModal(true);
-  };
+  //  const handleSessionExpired = () => {
+  //   setShowSessionExpiredModal(true);
+  // };
 
   // Handle modal close - perform logout and redirect to login
-  const handleModalClose = () => {
-    setShowSessionExpiredModal(false);
-    handleLogout();
-  };
+  // const handleModalClose = () => {
+  //   setShowSessionExpiredModal(false);
+  //   handleLogout();
+  // };
 
-    useEffect(() => {
-    const checkAuthStatus = () => {
+  useEffect(() => {
+    const checkAuthStatus = async () => {
       const storedRoleId = localStorage.getItem("userRoleId");
       const accessToken = localStorage.getItem("accessToken");
 
-      // Check if token exists
       if (accessToken && storedRoleId) {
         try {
-          // Check if token is valid
-          const isValidToken = isTokenValid(accessToken);
+          let isValidToken = isTokenValid(accessToken);
           
           if (!isValidToken) {
-            // If token is invalid/expired, show session expired modal
-            handleSessionExpired();
-            return;
+            // Try to refresh the token if it's expired
+            const refreshSuccess = await handleRefreshToken();
+            if (!refreshSuccess) {
+              handleLogout();
+              return;
+            }
           }
           
-          // If valid token, set the role ID
           if (storedRoleId === "Vendor") {
             setRoleId("Vendor");
           } else {
@@ -307,39 +309,37 @@ const App = () => {
           }
         } catch (error) {
           console.error("Error validating token:", error);
-          handleSessionExpired();
+          handleLogout();
           return;
         }
       } else {
-        // Redirect to login if no token
         navigate("/login");
       }
       
       setLoading(false);
     };
 
-    // Initial check
     checkAuthStatus();
     
-    // Also set up interval to periodically check token validity
-    const tokenCheckInterval = setInterval(() => {
+    const tokenCheckInterval = setInterval(async () => {
       const accessToken = localStorage.getItem("accessToken");
       if (accessToken && !isTokenValid(accessToken)) {
-        handleSessionExpired();
+        const refreshSuccess = await handleRefreshToken();
+        if (!refreshSuccess) {
+          handleLogout();
+        }
       }
-    }, 60000); // Check every minute
+    }, 60000);
     
-    // Clean up interval
     return () => clearInterval(tokenCheckInterval);
-  }, [navigate]);
+  }, [navigate, refreshToken]);
 
- const isTokenValid = (token) => {
+
+  const isTokenValid = (token) => {
     if (!token) return false;
     
     try {
-      // Check if token is a JWT and decode it
       if (token.split('.').length === 3) {
-        // JWT token - decode and check expiration
         const base64Url = token.split('.')[1];
         const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
         const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
@@ -348,23 +348,47 @@ const App = () => {
         
         const { exp } = JSON.parse(jsonPayload);
         
-        // Check if token is expired
         if (exp) {
           return Date.now() <= exp * 1000;
         }
       }
       
-      // Check for manual expiration time in localStorage
       const tokenExpiration = localStorage.getItem("tokenExpiration");
       if (tokenExpiration) {
         return Date.now() <= parseInt(tokenExpiration);
       }
       
-      // If we can't verify expiration from token itself
-      // We'll assume the token is valid (and rely on API calls to detect invalidity)
       return true;
     } catch (error) {
       console.error("Error validating token:", error);
+      return false;
+    }
+  };
+
+  const handleRefreshToken = async () => {
+    try {
+      const refreshTokenValue = localStorage.getItem("refreshToken");
+      if (!refreshTokenValue) {
+        handleLogout();
+        return;
+      }
+
+      const response = await refreshToken(refreshTokenValue);
+      if (response?.token) {
+        localStorage.setItem("accessToken", response.token);
+        localStorage.setItem("refreshToken", response.refreshToken);
+        
+        if (response.expiresIn) {
+          const expirationTime = Date.now() + (response.expiresIn * 1000);
+          localStorage.setItem("tokenExpiration", expirationTime.toString());
+        }
+        
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error refreshing token:", error);
+      handleLogout();
       return false;
     }
   };
@@ -415,10 +439,7 @@ const App = () => {
 
   return (
     <Suspense fallback={<Spinner />}>
-         <SessionExpiredModal 
-        isOpen={showSessionExpiredModal} 
-        onClose={handleModalClose} 
-      />
+        
       
       <Routes>
         {/* LOGIN PAGE */}

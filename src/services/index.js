@@ -14,6 +14,7 @@ import { objectToQueryString } from "../utils/common";
  */
 /*login */
 export const getLogin = (...props) => api.POST(API.GET_LOGIN, ...props);
+export const refreshToken = (...props) => api.POST(API.REFRESH_TOKEN, ...props);
 export const logout = (...props) => api.POST(API.LOGOUT, ...props);
 
 /** USER PROFILE */

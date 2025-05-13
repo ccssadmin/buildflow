@@ -4,12 +4,14 @@ import {
   logoutAction,
   userInfoAction,
   userDetailsByIdAction,
+  refreshTokenAction
 } from "../actions";
 
 const initialState = {
   activeUser: {
     data: {
       accessToken: null,
+      refreshToken: null,
       details: null,
       restrictions: null,
       activeDepartmentPermission: null,
@@ -26,6 +28,10 @@ const initialState = {
     loading: false,
     error: null,
   },
+  refreshToken: {
+    loading: false,
+    error: null,
+  }
 };
 
 const authSlice = createSlice({
@@ -38,6 +44,9 @@ const authSlice = createSlice({
     setAuthAction: (state, action) => {      
       state.activeUser.data.accessToken = action.payload;
     },
+    setRefreshTokenAction: (state, action) => {
+      state.activeUser.data.refreshToken = action.payload;
+    },
     setActiveDepartmentPermissionAction: (state, action) => {
       state.activeUser.data.activeDepartmentPermission = action.payload;
     },
@@ -48,9 +57,6 @@ const authSlice = createSlice({
       state.activeUser.data.activeBoard = action.payload;
     },
     setDefaultWorkSpaceAction: (state, action) => {
-      // console.log('action', state.activeUser.data.details.workspaceDTO);
-
-      // Check if workspaceDTO exists and is an array
       if (
         state?.activeUser?.data?.details?.workspaceDTO &&
         Array.isArray(state?.activeUser?.data?.details?.workspaceDTO)
@@ -60,12 +66,9 @@ const authSlice = createSlice({
         );
 
         if (workspaceToUpdate) {
-          // Toggle the is_workspace_default field
           if (workspaceToUpdate.is_workspace_default) {
-            // If already true, set to false
             workspaceToUpdate.is_workspace_default = false;
           } else {
-            // If false, set to true and reset other workspaces
             state.activeUser.data.details.workspaceDTO.forEach((detail) => {
               if (detail.work_space_id !== action.payload.work_space_id) {
                 detail.is_workspace_default = false;
@@ -76,12 +79,10 @@ const authSlice = createSlice({
           }
         }
       } else {
-        // If workspaceDTO is null or undefined, handle this case (e.g., log or initialize as empty)
         console.warn("workspaceDTO is missing or not an array");
-        state.activeUser.data.details.workspaceDTO = []; // Initialize as empty array if missing
+        state.activeUser.data.details.workspaceDTO = [];
       }
     },
-
     setDefaultBoardAction: (state, action) => {
       const getWorkSpaceID =
         action.payload.workspaceId === 2
@@ -92,12 +93,9 @@ const authSlice = createSlice({
       );
 
       if (defaultBoardToUpdate) {
-        // Toggle the is_workspace_default field
         if (defaultBoardToUpdate.is_board_default) {
-          // If already true, set to false
           defaultBoardToUpdate.is_board_default = false;
         } else {
-          // If false, set to true and reset other workspaces
           getWorkSpaceID.forEach((detail) => {
             if (detail.boardId !== action.payload.ubId) {
               detail.is_board_default = false;
@@ -115,7 +113,8 @@ const authSlice = createSlice({
     });
     builder.addCase(loginAction.fulfilled, (state, action) => {
       const { data } = action.payload;
-      state.activeUser.data.accessToken = data;
+      state.activeUser.data.accessToken = data.token;
+      state.activeUser.data.refreshToken = data.refreshToken;
       state.activeUser.loading = false;
       state.activeUser.error = null;
     });
@@ -124,24 +123,24 @@ const authSlice = createSlice({
       state.activeUser.loading = false;
     });
 
-    // builder.addCase(userProfileAction.pending, (state, action) => {
-    //   state.userProfile.loading = true;
-    //   state.userProfile.data = {};
-    // });
-    // builder.addCase(userProfileAction.fulfilled, (state, action) => {
-    //   const { data } = action.payload;
-    //   state.userProfile.data = data;
-    //   state.userProfile.loading = false;
-    //   state.userProfile.error = null;
-    // });
-    // builder.addCase(userProfileAction.rejected, (state, action) => {
-    //   state.userProfile.error = action.error;
-    //   state.userProfile.loading = false;
-    // });
+    builder.addCase(refreshTokenAction.pending, (state, action) => {
+      state.refreshToken.loading = true;
+    });
+    builder.addCase(refreshTokenAction.fulfilled, (state, action) => {
+      const { data } = action.payload;
+      state.activeUser.data.accessToken = data.token;
+      state.activeUser.data.refreshToken = data.refreshToken;
+      state.refreshToken.loading = false;
+      state.refreshToken.error = null;
+    });
+    builder.addCase(refreshTokenAction.rejected, (state, action) => {
+      state.refreshToken.error = action.error;
+      state.refreshToken.loading = false;
+    });
 
     builder.addCase(logoutAction.pending, (state, action) => {
       state.logout.loading = true;
-      state.activeUser.data = {};  // clear activeUser when logging out
+      state.activeUser.data = {};
     });
     builder.addCase(logoutAction.fulfilled, (state, action) => {
       state.logout.loading = false;
@@ -151,9 +150,7 @@ const authSlice = createSlice({
       state.logout.error = action.error;
       state.logout.loading = false;
     });
-    
 
-    /** CURRENT USER INFO */
     builder.addCase(userInfoAction.pending, (state, action) => {
       state.activeUser.loading = true;
     });
@@ -161,23 +158,6 @@ const authSlice = createSlice({
       const data = action.payload;
       state.activeUser.data.details = data;
 
-      /** FORMAT USER RESTRICTION */
-      // if(data.userRoleResponseDetail){
-      //   const userRestrictions = data.userRoleResponseDetail.reduce((acc, item) => {
-      //     const { permission, details } = item;
-      //     const restriction = {};
-
-      //     details.forEach((detail) => {
-      //       const { type, ischecked } = detail;
-      //       restriction[`can${type.split(' ').join('_')}`] = ischecked;
-      //     });
-
-      //     acc[permission.split(' ').join('_').toLowerCase()] = restriction;
-
-      //     return acc;
-      //   }, {});
-      //   state.activeUser.data.restrictions = userRestrictions;
-      // }
       if (data.userRoleResponseDetail) {
         const userRestrictions = data.userRoleResponseDetail.reduce(
           (acc, item) => {
@@ -220,7 +200,6 @@ const authSlice = createSlice({
       state.activeUser.loading = false;
     });
 
-    /** USER INFO BY ID */
     builder.addCase(userDetailsByIdAction.pending, (state, action) => {
       state.userDetailsById.loading = true;
     });
@@ -239,6 +218,7 @@ const authSlice = createSlice({
 export const {
   setActiveUserAction,
   setAuthAction,
+  setRefreshTokenAction,
   setActiveDepartmentPermissionAction,
   setActiveWorkSpaceAction,
   setDefaultWorkSpaceAction,
@@ -254,12 +234,16 @@ export const authSelector = createSelector(
     (state) => state.auth.activeUser.error,
     (state) => state.auth.logout.loading,
     (state) => state.auth.logout.error,
+    (state) => state.auth.refreshToken.loading,
+    (state) => state.auth.refreshToken.error,
   ],
-  (data, loading, error, logoutLoading, logoutError) => ({
+  (data, loading, error, logoutLoading, logoutError, refreshTokenLoading, refreshTokenError) => ({
     data,
     loading,
     error,
     logoutLoading,
     logoutError,
+    refreshTokenLoading,
+    refreshTokenError,
   })
 );

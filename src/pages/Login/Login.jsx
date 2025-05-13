@@ -20,7 +20,7 @@ import '../../styles/components/css/login.css';
 import { setJustLoggedIn } from "../../services/api";
 
 export default function Login({ onLoginSuccess }) {
-  const [{ data }, { getAuth, setAuth, getUserInfo }] = useAuth();
+  const [{ data }, { getAuth, setAuth, getUserInfo , setRefreshToken }] = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const dispatch = useDispatch();
@@ -63,163 +63,115 @@ export default function Login({ onLoginSuccess }) {
   };
 
   const handleLogin = async (e) => {
-   e.preventDefault();
-  
-  if (!formData.username || !formData.password) {
-    setErrorMsg((prev) => ({
-      ...prev,
-      username: !formData.username,
-      password: !formData.password,
-    }));
-    return;
-  }
-  
-  setInProgress(true);
-  try {
-    const payload = {
-      username: formData.username,
-      password: formData.password,
-      Email: formData.username,
-    };
+    e.preventDefault();
     
-    if (loginMode === "vendor") {
-      payload.type = "vendor";
+    if (!formData.username || !formData.password) {
+      setErrorMsg((prev) => ({
+        ...prev,
+        username: !formData.username,
+        password: !formData.password,
+      }));
+      return;
     }
     
-    // Set flag before making login request
-    setJustLoggedIn(true);
-    
-    const response = await getAuth(payload);
-    
-    if (response?.payload?.token) {
-        // Store authentication token
+    setInProgress(true);
+    try {
+      const payload = {
+        username: formData.username,
+        password: formData.password,
+        Email: formData.username,
+      };
+      
+      if (loginMode === "vendor") {
+        payload.type = "vendor";
+      }
+      
+      setJustLoggedIn(true);
+      
+      const response = await getAuth(payload);
+      
+      if (response?.payload?.token) {
+        // Store authentication token and refresh token
         setAuthToken(response.payload.token);
         localStorage.setItem("accessToken", response.payload.token);
+        localStorage.setItem("refreshToken", response.payload.refreshToken);
         
-        // Store token expiration time if available
         if (response.payload.expiresIn || response.payload.expires_in) {
           const expiresIn = response.payload.expiresIn || response.payload.expires_in;
           const expirationTime = Date.now() + (expiresIn * 1000);
           localStorage.setItem("tokenExpiration", expirationTime.toString());
           
-          // If we have setExpiresOn function, use it too
           if (setExpiresOn) {
             setExpiresOn(expirationTime.toString());
           }
         }
         
         setAuth(response.payload.token);
-  
-        // Fetch user details
-        const userInfoResponse = await getUserInfo();
+        setRefreshToken(response.payload.refreshToken);
         
-        console.log("User info response:", userInfoResponse); // Debug log
+        // Fetch user information
+        const userInfo = await getUserInfo();
         
-        // Check if user details exist in the response
-        if (userInfoResponse?.payload?.details) {
-          const userDetails = userInfoResponse.payload.details;
-          
-          // For debugging, let's log what we received
-          console.log("User details:", userDetails);
-          
-          // Set default role if not present
-          // Assuming role hierarchy: SuperAdmin > Admin > User
-          const userData = {
-            ...userDetails,
-            roleName: userDetails.roleName || (loginMode === "vendor" ? "Vendor" : "ManagingDirector"),
-            roleId: userDetails.roleId || (loginMode === "vendor" ? "Vendor" : "1"),
-            token: response.payload.token,
-            isVendor: loginMode === "vendor", // Flag to identify vendor users
-          };
+        if (userInfo && userInfo.payload) {
+          const userData = userInfo.payload;
+          // Store user data in localStorage
           localStorage.setItem("userData", JSON.stringify(userData));
           
-          console.log("Processed user data:", userData); // Debug log
-  
-          // Store user data and role information
-          localStorage.setItem("userData", JSON.stringify(userData));
-          localStorage.setItem("userRole", userData.roleName);
-          localStorage.setItem("userRoleId", userData.roleId);
-          
-          // For vendor users, set a special identifier
-          if (loginMode === "vendor") {
-            localStorage.setItem("userType", "vendor");
-          } else {
-            localStorage.removeItem("userType"); // Remove if exists from previous login
+          // Store user role and roleId
+          if (userData.role) {
+            localStorage.setItem("userRole", userData.role);
           }
-  
-          // Call onLoginSuccess callback
-          if (onLoginSuccess) {
+          
+          if (loginMode === "vendor") {
+            localStorage.setItem("userRoleId", "14");  // Vendor role ID
+            localStorage.setItem("userType", "vendor");
+          } else if (userData.roleId) {
+            localStorage.setItem("userRoleId", userData.roleId.toString());
+            localStorage.setItem("userType", "employee");
+          }
+          
+          // If callback for login success exists, call it with user data
+          if (onLoginSuccess && typeof onLoginSuccess === 'function') {
             onLoginSuccess(userData);
-          }
-        } else if (userInfoResponse?.payload) {
-          // If details are not in the expected structure, try to use the payload directly
-          const userData = {
-            ...userInfoResponse.payload,
-            roleName: userInfoResponse.payload.roleName || userInfoResponse.payload.role_name || 
-                     (loginMode === "vendor" ? "Vendor" : "ManagingDirector"),
-            roleId: userInfoResponse.payload.roleId || userInfoResponse.payload.role_id || 
-                  (loginMode === "vendor" ? "Vendor" : "1"),
-            isVendor: loginMode === "vendor",
-          };
-          
-          console.log("Using payload as user data:", userData); // Debug log
-          
-          localStorage.setItem("userData", JSON.stringify(userData));
-          localStorage.setItem("userRole", userData.roleName);
-          localStorage.setItem("userRoleId", userData.roleId);
-          
-          if (loginMode === "vendor") {
-            localStorage.setItem("userType", "vendor");
           } else {
-            localStorage.removeItem("userType");
+            // Redirect based on role if no callback
+            const roleId = loginMode === "vendor" ? "14" : userData.roleId;
+            const redirectPath = getRedirectPathForRole(roleId);
+            navigate(redirectPath, { replace: true });
           }
-          
-          if (onLoginSuccess) {
-            onLoginSuccess(userData);
-          }
-        } else {
-          // If we have a token but no user details, create a default user
-          // This is a fallback to prevent login failures
-          console.log("No user details found, using default values"); // Debug log
-          
-          const defaultUserData = {
-            username: formData.username,
-            email: formData.username, // Store email too
-            roleName: loginMode === "vendor" ? "Vendor" : "ManagingDirector",
-            roleId: loginMode === "vendor" ? "Vendor" : "1",
-            isVendor: loginMode === "vendor",
-          };
-          
-          localStorage.setItem("userData", JSON.stringify(defaultUserData));
-          localStorage.setItem("userRole", defaultUserData.roleName);
-          localStorage.setItem("userRoleId", defaultUserData.roleId);
-          
-          if (loginMode === "vendor") {
-            localStorage.setItem("userType", "vendor");
-          } else {
-            localStorage.removeItem("userType");
-          }
-          
-          if (onLoginSuccess) {
-            onLoginSuccess(defaultUserData);
-          }
-          
-          // Show a warning that we're using default values
-          dispatch(showToast({ 
-            message: "Logged in with default permissions. Some features may be limited.", 
-            variant: "warning" 
-          }));
         }
-      } else {
-        throw new Error(response?.message || t("login.error.invalid"));
       }
-   } catch (error) {
-    console.error("Login Error:", error);
-    dispatch(showToast({ message: error.message, variant: "danger" }));
-  } finally {
-    setInProgress(false);
-  }
+    } catch (error) {
+      console.error("Login Error:", error);
+      dispatch(showToast({ message: error.message || "Login failed. Please try again.", variant: "danger" }));
+    } finally {
+      setInProgress(false);
+    }
   };
+  
+  // Helper function to determine redirect path based on role
+  const getRedirectPathForRole = (roleId) => {
+    const roleRoutes = {
+      1: "/ceo/dashboard",     // CEO
+      2: "/admin/engineerdashboard",  // Site Engineer
+      3: "/aqs/aqsdashboard",  // Assistant QS
+      4: "/aqs/aqsdashboard",  // QS
+      5: "/admin/engineerdashboard",  // Site Supervisor
+      6: "/admin/engineerdashboard",  // Lead Engineer
+      7: "/pm/dashboard",      // Assistant Project Manager
+      8: "/pm/dashboard",      // Project Manager
+      9: "/admin/engineerdashboard",  // Designer
+      10: "/admin/engineerdashboard", // Engineer
+      11: "/home",             // Managing Director
+      13: "/finance/dashboard", // Finance Head
+      14: "/vendor/dashboard",  // Vendor
+      15: "/hr/dashboard",      // HR
+      17: "/purchasemanager/dashboard" // Purchase Manager
+    };
+    
+    return roleRoutes[roleId] || "/login";
+  };
+  
   
   // Check if already authenticated on component mount
   useEffect(() => {

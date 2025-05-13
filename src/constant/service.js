@@ -1,6 +1,7 @@
 export const API = {
   /*Buildflow Login */
   GET_LOGIN: "/api/Login/login",
+  REFRESH_TOKEN : "/api/Login/refresh-token",
   LOGOUT: "/api/auth/logout",
   GET_USER_PROFILE: "/v1.0/me",
   GET_USER_INFO: "/api/Login/LoginUserDetail",
