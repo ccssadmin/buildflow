@@ -27,6 +27,7 @@ const AddEmployee = () => {
   const { projects = [] } = useSelector((state) => state.project);
   const [validationErrors, setValidationErrors] = useState({});
   const location = useLocation();
+  const [employeeList, setEmployeeList] = useState([]);
 
   const [editingEmployee, setEditingEmployee] = useState(
     location.state?.employeeData || null
@@ -43,6 +44,15 @@ const AddEmployee = () => {
     designation: "",
     project: "",
   });
+
+  // Get all employees for email validation
+  useEffect(() => {
+    dispatch(getEmployees()).then((res) => {
+      if (res && res.payload) {
+        setEmployeeList(res.payload);
+      }
+    });
+  }, [dispatch]);
 
   useEffect(() => {
     if (location.state?.employeeData) {
@@ -117,10 +127,6 @@ const AddEmployee = () => {
   };
 
   useEffect(() => {
-    dispatch(getEmployees());
-  }, [dispatch]);
-
-  useEffect(() => {
     dispatch(fetchProjects());
   }, [dispatch]);
 
@@ -130,6 +136,19 @@ const AddEmployee = () => {
 
   const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
+
+  // Email uniqueness validation function
+  const isEmailUnique = (email) => {
+    // If we're in edit mode, exclude the current employee's email from the check
+    if (editingEmployee) {
+      return !employeeList.some(
+        (emp) => emp.email === email && emp.empId !== editingEmployee.empId
+      );
+    } else {
+      // For new employee, check if email exists in any employee
+      return !employeeList.some((emp) => emp.email === email);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -145,7 +164,13 @@ const AddEmployee = () => {
         if (/^[6-9]\d{9}$/.test(value)) delete updatedErrors.mobile;
         break;
       case "email":
-        if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) delete updatedErrors.email;
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+          updatedErrors.email = "Invalid email format";
+        } else if (!isEmailUnique(value)) {
+          updatedErrors.email = "This email is already registered. Please use a different email.";
+        } else {
+          delete updatedErrors.email;
+        }
         break;
       case "dob":
         if (value) delete updatedErrors.dob;
@@ -193,6 +218,8 @@ const AddEmployee = () => {
       errors.email = "Email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(employee.email)) {
       errors.email = "Invalid email format";
+    } else if (!isEmailUnique(employee.email)) {
+      errors.email = "This email is already registered. Please use a different email.";
     }
 
     if (!employee.department) {
@@ -212,7 +239,6 @@ const AddEmployee = () => {
     }
 
     // 'project' is optional, no validation needed
-    // 'dob' and 'gender' are optional, no validation needed
 
     setValidationErrors(errors);
     if (Object.keys(errors).length > 0) return;
@@ -257,11 +283,22 @@ const AddEmployee = () => {
           designation: "",
           project: "",
         });
-
-        // Optional: clear location.state to remove edit context
       })
-      .catch(() => {
-        setSuccessMessage("Operation failed. Try again.");
+      .catch((error) => {
+        // Handle API error responses
+        if (error.response && error.response.data) {
+          // Check if error is related to email uniqueness
+          if (error.response.data.includes && error.response.data.includes("email")) {
+            setValidationErrors({
+              ...validationErrors,
+              email: "This email is already registered. Please use a different email."
+            });
+          } else {
+            setSuccessMessage("Operation failed. Try again.");
+          }
+        } else {
+          setSuccessMessage("Operation failed. Try again.");
+        }
       });
   };
 
@@ -396,7 +433,6 @@ const AddEmployee = () => {
               readOnly={!!editingEmployee}
             />
             {validationErrors.email && <p className="error-text">{validationErrors.email}</p>}
-
           </div>
         </div>
 
@@ -422,9 +458,7 @@ const AddEmployee = () => {
               name="department"
               value={employee.department}
               onChange={handleChange}
-
             >
-
               <option value="">Select Department</option>
               {loading ? (
                 <option disabled>Loading departments...</option>
@@ -451,7 +485,6 @@ const AddEmployee = () => {
               onChange={handleChange}
               disabled={!employee.department}
             >
-
               <option value="0">Select Designation</option>
               {Array.isArray(roles) ? (
                 roles.map((roles) => (
@@ -462,25 +495,9 @@ const AddEmployee = () => {
               ) : (
                 <option disabled>Loading roles...</option>
               )}
-
             </select>
             {validationErrors.designation && <p className="error-text">{validationErrors.designation}</p>}
-
           </div>
-
-          {/* <div className="addemployee-form-group">
-            <label >Projects <span className="addemployee-required">*</span> </label>
-            <select className="project" name="project" value={employee.project} onChange={handleChange} >
-              <option value="">Select Project</option>
-              {projects.map((proj) => (
-                <option key={proj.project_id} value={proj.project_id}>
-                  {proj.project_name}
-                </option>
-
-              ))}
-            </select>
-
-          </div> */}
         </div>
         <div className="addemployee-form-actions-wrapper">
           {editingEmployee && (
@@ -501,7 +518,6 @@ const AddEmployee = () => {
             Save
           </button>
         </div>
-
       </form>
     </div>
   );
