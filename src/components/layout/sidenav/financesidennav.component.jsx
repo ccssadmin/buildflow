@@ -5,6 +5,11 @@ import * as menu from "../../../assets/images";
 import useAuth from "../../../hooks/useAuth";
 import PopupModal from "../../common/PopupModal";
 import ContactUsForm from "../../common/ContactUsForm";
+import Budget from "../../../assets/images/menu/active/Budget.svg";
+import Invoice from "../../../assets/images/menu/active/Invoice.svg";
+import Cashflow from "../../../assets/images/menu/active/CashFlow.svg";
+import Vendor from "../../../assets/images/menu/active/Vendor&Po.svg";
+import Tax from "../../../assets/images/menu/active/Tax.svg";
 
 const FinancesideNav = ({ onChange }) => {
   const [collaps, setCollaps] = useState(false);
@@ -25,7 +30,7 @@ const FinancesideNav = ({ onChange }) => {
   const location = useLocation();
   const isApprovelActive =
     location.pathname === "/finance/approvals" ||
-    location.pathname.startsWith("/finance/financeticketdetails");
+    location.pathname.startsWith("/finance/ticket");
   const isReportActive =
     location.pathname === "/finance/report" ||
     location.pathname.startsWith("/finance/reportcreate");
@@ -78,7 +83,7 @@ const FinancesideNav = ({ onChange }) => {
                 {({ isActive, isPending }) => (
                   <>
                     <img
-                      src={menu.IconProjects}
+                      src={Budget}
                       alt={"Projects"}
                     />
                     <span>Budget</span>
@@ -132,7 +137,7 @@ const FinancesideNav = ({ onChange }) => {
                 {({ isActive, isPending }) => (
                   <>
                     <img
-                      src={menu.IconMaterial}
+                      src={Invoice}
                       alt={"Material"} className="d-block"
                     />
                     <span>Invoices</span>
@@ -150,7 +155,7 @@ const FinancesideNav = ({ onChange }) => {
                 {({ isActive, isPending }) => (
                   <>
                     <img
-                      src={menu.IconTasks}
+                      src={Cashflow}
                       alt={"CashFlow"} className="d-block"
                     />
                     <span>Cash Flow</span>
@@ -168,7 +173,7 @@ const FinancesideNav = ({ onChange }) => {
                 {({ isActive, isPending }) => (
                   <>
                     <img
-                      src={menu.IconReports}
+                      src={Vendor}
                       alt={"Vendor"} className="d-block"
                     />
                     <span>Vendor & PO</span>
@@ -186,7 +191,7 @@ const FinancesideNav = ({ onChange }) => {
                 {({ isActive, isPending }) => (
                   <>
                     <img
-                      src={menu.IconReports}
+                      src={Tax}
                       alt={"Report"} className="d-block"
                     />
                     <span>Tax</span>
