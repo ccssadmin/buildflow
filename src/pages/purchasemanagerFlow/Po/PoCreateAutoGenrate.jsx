@@ -1,5 +1,6 @@
+//D:\ccs\Project\React JS\latest\buildflow\src\pages\purchasemanagerFlow\Po\purchaseOrderCreate.jsx
 "use client";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
@@ -17,12 +18,12 @@ import { fetchProjects } from "../../../store/actions/hr/projectaction";
 import { toast } from "react-toastify";
 import { useTicket } from "../../../hooks/Ceo/useTicket";
 import { debounce } from "lodash";
-import { getPurchaseOrderDetails } from "../../../store/actions/vendorflow/po-vendroaction";
-import Select from "react-dropdown-select";
+import { useNotification } from "../../../hooks/Ceo/useNotification";
 
-export default function POViewPage({ params }) {
+export default function PoCreateAutoGenrate ({ params }) {
   const location = useLocation();
   const { createTicket } = useTicket();
+  const { createNotify } = useNotification();
   const navigate = useNavigate();
   const { poId, loading, boqDetails, boqLoading } = useSelector(
     (state) => state.purchase
@@ -35,34 +36,44 @@ export default function POViewPage({ params }) {
   const [selectedApprover, setSelectedApprover] = useState([]);
   const [initialApproverArray, setInitialApproverArray] = useState([]);
   const { boqData, ticket } = location.state || {};
-  const [boqCodeInput, setBoqCodeInput] = useState("");
+const [boqCodeInput, setBoqCodeInput] = useState(boqData?.boqCode || "");
   const [boqSearchError, setBoqSearchError] = useState("");
   const [lineItems, setLineItems] = useState([]);
-  const route = useParams();
-  const [purchaseData, setPurchaseData] = useState("");
-
+const [validationErrors, setValidationErrors] = useState({
+    approver: false
+  });
+  const handleApproverSelect = (selectedOptions) => {
+    setSelectedApprover(selectedOptions);
+    if (selectedOptions && selectedOptions.length > 0) {
+      setValidationErrors({...validationErrors, approver: false});
+    }
+  };
+const validateForm = () => {
+    const errors = {
+      approver: !selectedApprover.length
+    };
+    
+    setValidationErrors(errors);
+    
+    // Return true if no errors
+    return !Object.values(errors).some(error => error);
+  };
+  console.log("selectedApprover", selectedApprover);
+useEffect(() => {
+  if (boqData?.boqCode) {
+    // Set the BOQ code input
+    setBoqCodeInput(boqData.boqCode);
+    
+    // Automatically trigger the search with the provided BOQ code
+    debouncedSearch(boqData.boqCode);
+  }
+}, [boqData]);
   const [poData, setPoData] = useState({
     poNumber: "",
     poDate: new Date().toISOString().split("T")[0],
     vendorName: boqData?.vendorName || "",
     items: [],
   });
-
-  useEffect(() => {
-    if (route.purchaseOrderId) {
-      get_PO_Details();
-    }
-  }, [route]);
-
-  const get_PO_Details = async () => {
-    const response = await dispatch(
-      getPurchaseOrderDetails(route?.purchaseOrderId)
-    );
-    console.log("response", response);
-    if (response?.payload) {
-      setPurchaseData(response?.payload);
-    }
-  };
 
   // Create a debounced search function
   const debouncedSearch = debounce(async (code) => {
@@ -196,6 +207,10 @@ export default function POViewPage({ params }) {
   // Handle create PO
   // Handle create PO
   const handleCreatePO = async () => {
+    if (!validateForm()) {
+          if (validationErrors.approver) toast.warn("Please select at least one approver.");
+          return;
+        }
     if (lineItems.length === 0) {
       toast.error("Please add at least one item to the purchase order");
       return;
@@ -237,36 +252,95 @@ export default function POViewPage({ params }) {
     console.log("Sending payload:", payload); // Log payload for debugging
 
     try {
-      const response = await dispatch(upsertPurchaseOrder(payload)).unwrap();
-      if (response?.success) {
-        toast.success("PO Created Successfully");
+  let ticketId = null;
+  const response = await dispatch(upsertPurchaseOrder(payload)).unwrap();
+  if (response?.success) {
+    toast.success("PO Created Successfully");
 
-        // Create ticket for approval
-        if (selectedApprover.length > 0) {
-          const approverIds = selectedApprover.map(
-            (approver) => approver.emp_id || approver.id
-          );
-          const ticketResponse = await createTicket({
-            poId: response?.data?.purchaseOrderId,
-            ticketType: "PO_APPROVAL",
-            assignTo: approverIds,
-            createdBy: userData?.empId,
-          });
-        } else {
-          // Default approvers if none selected
-          const ticketResponse = await createTicket({
-            poId: response?.data?.purchaseOrderId,
-            ticketType: "PO_APPROVAL",
-            assignTo: [1, 2, 7], // array of empIds
-            createdBy: userData?.empId,
-          });
-        }
+    // Create ticket for approval
+    if (selectedApprover.length > 0) {
+      console.log("this if working");
+      const ticketResponse = await createTicket({
+        poId: response?.data?.purchaseOrderId,
+        ticketType: "PO_APPROVAL",
+        assignTo:
+          selectedApprover.length > 0
+            ? selectedApprover.map(
+                (approver) => approver.empId || approver.empId
+              )
+            : [1, 2, 7],
+        createdBy: userData?.empId,
+      });
 
-        navigate("../po"); // Redirect after success
-      } else {
-        toast.error(response?.message || "Failed to create PO");
+      if (ticketResponse?.data?.success) {
+        toast.success("Ticket Created Successfully");
       }
-    } catch (error) {
+
+      console.log("Ticket response:", ticketResponse); // Log ticket response for debugging
+      ticketId = ticketResponse?.data?.data?.ticketId; // ✅ FIXED: no const
+      const projectName = ticketResponse?.data?.data?.projectName;
+
+      if (ticketId) {
+        // Create notification with ticket ID as sourceEntityId
+        const notificationPayload = {
+          empId:
+            selectedApprover.length > 0
+              ? selectedApprover.map(
+                  (approver) => approver.empId || approver.empId
+                )
+              : [1, 2, 7],
+          notificationType: "Generate_Purchase_Order ",
+          sourceEntityId: ticketId,
+          message: `We would like to update you that we are currently awaiting your PO on the for ${projectName}. Kindly review and provide your confirmation at the earliest to avoid any delays in the process.`,
+        };
+
+        // Create notification
+        await createNotify(notificationPayload);
+        toast.success("Notification Created Successfully");
+      }
+    } else {
+      // Default approvers if none selected
+      const ticketResponse = await createTicket({
+        poId: response?.data?.purchaseOrderId,
+        ticketType: "PO_APPROVAL",
+        assignTo:
+          selectedApprover.length > 0
+            ? selectedApprover.map(
+                (approver) => approver.empId || approver.id
+              )
+            : [1, 2, 7], // array of empIds
+        createdBy: userData?.empId,
+      });
+
+      const projectName = ticketResponse?.data?.data?.projectName;
+      ticketId = ticketResponse?.data?.data?.ticketId; // ✅ correctly assigned
+
+      if (ticketId) {
+        // Create notification with ticket ID as sourceEntityId
+        const notificationPayload = {
+          empId:
+            selectedApprover.length > 0
+              ? selectedApprover.map(
+                  (approver) => approver.empId || approver.empId
+                )
+              : [1, 2, 7],
+          notificationType: "Generate_Purchase_Order ",
+          sourceEntityId: ticketId,
+          message: `We would like to update you that we are currently awaiting your PO on the for ${projectName}. Kindly review and provide your confirmation at the earliest to avoid any delays in the process.`,
+        };
+
+        // Create notification
+        await createNotify(notificationPayload);
+        toast.success("Notification Created Successfully");
+      }
+    }
+
+    navigate(`../ticket/${ticketId}`); // ✅ will now have the correct ticketId
+  } else {
+    toast.error(response?.message || "Failed to create PO");
+  }
+}
+ catch (error) {
       // Show more specific error message from API if available
       if (error.response && error.response.data && error.response.data.errors) {
         const errorMessages = Object.values(error.response.data.errors)
@@ -341,24 +415,10 @@ export default function POViewPage({ params }) {
   }, [dispatch]);
 
   // Calculate total amount
-  const totalAmount = purchaseData?.purchaseOrderItems?.reduce(
+  const totalAmount = lineItems.reduce(
     (sum, item) => sum + (parseFloat(item.total) || 0),
     0
   );
-
-  const getApproverName = () => {
-    if (purchaseData?.approvers?.length > 0) {
-      const employeeOptions = purchaseData?.approvers?.map((emp) => ({
-        ...emp,
-        label: emp.employeeName,
-        value: emp.employeeName,
-      }));
-      console.log("employeeOptions_employeeOptions", employeeOptions);
-      return employeeOptions;
-    }
-  };
-
-  console.log("AppovedBy", getApproverName());
 
   return (
     <div className="container mt-4 mb-5">
@@ -379,10 +439,10 @@ export default function POViewPage({ params }) {
             <label style={{ fontWeight: "500", marginBottom: "8px" }}>
               PO Id <span style={{ color: "red" }}>*</span>
             </label>
-            <input
+            <input disabled
               type="text"
               className="form-control"
-              value={loading ? "Loading..." : purchaseData?.poId || ""}
+              value={loading ? "Loading..." : poId || ""}
               readOnly
               style={{
                 padding: "10px 12px",
@@ -398,18 +458,7 @@ export default function POViewPage({ params }) {
             <label style={{ fontWeight: "500", marginBottom: "8px" }}>
               Projects <span style={{ color: "red" }}>*</span>
             </label>
-            <input
-              type="text"
-              className="form-control"
-              value={loading ? "Loading..." : purchaseData?.projectName || ""}
-              readOnly
-              style={{
-                padding: "10px 12px",
-                border: "1px solid #ced4da",
-                borderRadius: "4px",
-              }}
-            />
-            {/* <select
+            <select disabled
               className="form-control"
               value={selectedProjectId}
               onChange={handleProjectChange}
@@ -425,7 +474,7 @@ export default function POViewPage({ params }) {
                   {proj.project_name}
                 </option>
               ))}
-            </select> */}
+            </select>
           </div>
         </div>
       </div>
@@ -437,9 +486,9 @@ export default function POViewPage({ params }) {
               Title <span style={{ color: "red" }}>*</span>
             </label>
             <input
-              type="text"
+              type="text" disabled
               className="form-control"
-              value={purchaseData?.boqName || purchaseData?.boqName || ""}
+              value={boqDetails?.boqName || boqData?.boqName || ""}
               readOnly
               style={{
                 padding: "10px 12px",
@@ -456,10 +505,10 @@ export default function POViewPage({ params }) {
               BOQ Code <span style={{ color: "red" }}>*</span>
             </label>
             <div className="input-group">
-              <input
+              <input disabled
                 type="text"
                 className="form-control"
-                value={purchaseData?.boqCode}
+                value={boqCodeInput}
                 onChange={handleBoqCodeChange}
                 placeholder="Enter BOQ Code (e.g. 47 or boq#47)"
                 style={{
@@ -501,9 +550,9 @@ export default function POViewPage({ params }) {
               Vendor Name
             </label>
             <input
-              type="text"
+              type="text" disabled
               className="form-control"
-              value={purchaseData?.vendorName || poData.vendorName || ""}
+              value={boqDetails?.vendorName || poData.vendorName || ""}
               readOnly
               style={{
                 padding: "10px 12px",
@@ -514,28 +563,24 @@ export default function POViewPage({ params }) {
           </div>
         </div>
 
-        <div className="col-md-6">
+        <div className={validationErrors.approver ? "is-invalid col-sm-6" : "col-sm-6"}>
           <Form.Group className="mb-3">
             <Form.Label className="text-black fs-5">Approved By</Form.Label>
-            {/* <MultipleSelect
+            <MultipleSelect required
               selectedOptions={selectedApprover}
               handleSelected={setSelectedApprover}
               data={initialApproverArray}
-
               isSearchable={true}
               placeholder={"Select Approver"}
-              isMulti={true}
-
-            /> */}
-            <MultipleSelect
-              placeholder="Approved By"
-              selectedOptions={getApproverName()}
-              disabled
               isMulti={true}
             />
           </Form.Group>
         </div>
-      </div>
+      </div> {validationErrors.approver && (
+                <div className="invalid-feedback" style={{ display: "block" }}>
+                  Please select at least one approver.
+                </div>
+              )}
 
       <div className="table-responsive mt-4">
         <table className="table table-bordered">
@@ -609,16 +654,16 @@ export default function POViewPage({ params }) {
             </tr>
           </thead>
           <tbody>
-            {purchaseData?.purchaseOrderItems?.map((item, index) => (
+            {lineItems.map((item, index) => (
               <tr key={item.id} style={{ borderBottom: "1px solid #dee2e6" }}>
                 <td className="text-center" style={{ padding: "12px 16px" }}>
                   {item.id}
                 </td>
                 <td className="text-center">
                   <input
-                    type="text"
+                    type="text" disabled
                     className="form-control"
-                    value={item.itemName}
+                    value={item.name}
                     onChange={(e) =>
                       handleInputChange(index, "name", e.target.value)
                     }
@@ -626,7 +671,7 @@ export default function POViewPage({ params }) {
                 </td>
                 <td className="text-center">
                   <input
-                    type="text"
+                    type="text" disabled
                     className="form-control"
                     value={item.unit}
                     onChange={(e) =>
@@ -636,9 +681,9 @@ export default function POViewPage({ params }) {
                 </td>
                 <td className="text-center">
                   <input
-                    type="number"
+                    type="number" disabled
                     className="form-control"
-                    value={item.price}
+                    value={item.rate}
                     onChange={(e) =>
                       handleInputChange(index, "rate", e.target.value)
                     }
@@ -646,7 +691,7 @@ export default function POViewPage({ params }) {
                 </td>
                 <td className="text-center">
                   <input
-                    type="number"
+                    type="number" disabled
                     className="form-control"
                     value={item.quantity}
                     onChange={(e) =>
@@ -663,40 +708,26 @@ export default function POViewPage({ params }) {
           <tfoot>
             <tr>
               <td
-                colSpan="6"
-                className=""
-                style={{
-                  fontWeight: "bold",
-                  padding: "12px 16px",
-                  backgroundColor: "#FF6F00",
-                }}
+                colSpan="5"
+                className="text-end"
+                style={{ fontWeight: "bold", padding: "12px 16px" }}
               >
-                <div className="d-flex justify-content-between">
-                  <p className="m-0 text-dark">Grand Total:</p>{" "}
-                  <p className="m-0 text-dark">
-                    ₹ {totalAmount?.toLocaleString()}
-                  </p>
-                </div>
+                Grand Total:
+              </td>
+              <td
+                className="text-center"
+                style={{ fontWeight: "bold", padding: "12px 16px" }}
+              >
+                ₹ {totalAmount.toLocaleString()}
               </td>
             </tr>
           </tfoot>
         </table>
 
-        {/* <button
-          className="btn"
-          onClick={handleAddRow}
-          style={{
-            backgroundColor: "#007bff",
-            color: "white",
-            fontWeight: "500",
-            marginBottom: "10px",
-          }}
-        >
-          + Add New Row
-        </button> */}
+        
       </div>
 
-      {/* <div className="row mt-4">
+      <div className="row mt-4">
         <div className="col-12 d-flex justify-content-end">
           <button
             className="btn btn-secondary me-2"
@@ -717,7 +748,7 @@ export default function POViewPage({ params }) {
             Save
           </button>
         </div>
-      </div> */}
+      </div>
     </div>
   );
 }

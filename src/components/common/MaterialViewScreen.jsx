@@ -1,3 +1,4 @@
+//D:\ccs\Project\React JS\latest\buildflow\src\components\common\MaterialViewScreen.jsx
 import React, { useEffect, useState } from "react";
 import { Form, Table, Dropdown } from "react-bootstrap";
 import { RiArrowDropDownLine } from "react-icons/ri";
@@ -7,6 +8,7 @@ import { faClipboardCheck } from "@fortawesome/free-solid-svg-icons";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";
 import { getBoqDetails } from "../../services";
 import { toast } from "react-toastify";
+import * as XLSX from "xlsx";  // Import the xlsx library
 
 const MaterialViewScreen = () => {
   const navigate = useNavigate();
@@ -89,6 +91,30 @@ const MaterialViewScreen = () => {
     },
   ];
 
+  
+
+  const handleDownloadExcel = () => {
+    const items = boqDetails?.boqItems || []; // Ensure that boqItems are present
+    const formattedData = items.map(item => ({
+      "S. No": item.boqItemsId,
+      "Item Name": item.itemName,
+      "Unit": item.unit,
+      "Rate ₹": item.price,
+      "Quantity": item.quantity,
+      "Total": item.total,
+    }));
+  
+    const ws = XLSX.utils.json_to_sheet(formattedData); // Convert to sheet format
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "BOQ Data");
+  
+    // Generate and download the Excel file
+    XLSX.writeFile(wb, "BOQ_Data.xlsx");
+  };
+  
+
+  
+
   useEffect(() => {
     if (route?.boqId) {
       getBOQDetails(route.boqId);
@@ -123,18 +149,22 @@ const MaterialViewScreen = () => {
     }
   };
   const handleConvertToPO = () => {
-    // Navigate to PO create page with boqDetails and ticket data
-    if (boqDetails) {
-      navigate("/purchasemanager/poCreate", {
-        state: {
-          boqData: boqDetails,
-          ticket: ticket,
+  // Navigate to PO create page with boqDetails and ticket data
+  if (boqDetails) {
+    navigate("/purchasemanager/pocreateautogenrate", {
+      state: {
+        boqData: {
+          ...boqDetails,
+          boqCode: boqDetails.boqCode || `boq#${boqDetails.boqId}` // Ensure boqCode is available
         },
-      });
-    } else {
-      toast.warning("No BOQ details available to convert");
-    }
-  };
+        ticket: ticket,
+      },
+    });
+  } else {
+    toast.warning("No BOQ details available to convert");
+  }
+};
+
 
   return (
     <div className="container mt-4">
@@ -237,16 +267,19 @@ const MaterialViewScreen = () => {
           </thead>
           <tbody>
             {boqDetails?.boqItems?.length > 0 &&
-              boqDetails?.boqItems?.map((item, index) => (
-                <tr key={index}>
-                  <td style={{ textAlign: "center" }}>{item.boqItemsId}</td>
-                  <td style={{ textAlign: "center" }}>{item.itemName}</td>
-                  <td style={{ textAlign: "center" }}>{item.unit}</td>
-                  <td style={{ textAlign: "center" }}>{item.price}</td>
-                  <td style={{ textAlign: "center" }}>{item.quantity}</td>
-                  <td style={{ textAlign: "center" }}>{item.total}</td>
-                </tr>
-              ))}
+      boqDetails.boqItems.map((item, index) => {
+        const sno = index + 1;
+        return (
+          <tr key={index}>
+            <td style={{ textAlign: "center" }}>{sno}</td>
+            <td style={{ textAlign: "center" }}>{item.itemName}</td>
+            <td style={{ textAlign: "center" }}>{item.unit}</td>
+            <td style={{ textAlign: "center" }}>{item.price}</td>
+            <td style={{ textAlign: "center" }}>{item.quantity}</td>
+            <td style={{ textAlign: "center" }}>{item.total}</td>
+          </tr>
+        );
+      })}
           </tbody>
         </Table>
       </div>
@@ -262,9 +295,13 @@ const MaterialViewScreen = () => {
       </div>
 
       <div className="d-flex justify-content-end align-items-center mt-3 gap-2">
-        {isValidforApproval && (
+      {(() => {
+  const userRoleId = parseInt(localStorage.getItem("userRoleId"));
+  const isRole1 = userRoleId === 17;
+
+  return isValidforApproval && (
           <button
-            className="btn text-black d-flex align-items-center"
+          className={`btn text-black d-flex align-items-center ${isRole1 ? "d-block" : "d-none"}`}
             style={{ background: "transparent", border: "none" }}
             onClick={handleConvertToPO}
           >
@@ -274,8 +311,8 @@ const MaterialViewScreen = () => {
               color="black"
             />
             Convert To PO
-          </button>
-        )}
+          </button>);
+})()}
         <button
           className="btn text-black d-flex align-items-center"
           style={{ background: "transparent", border: "none" }}
@@ -290,6 +327,7 @@ const MaterialViewScreen = () => {
         <button
           className="btn text-white d-flex align-items-center"
           style={{ backgroundColor: "#ff6600" }}
+          onClick={handleDownloadExcel}
         >
           <FontAwesomeIcon
             icon={faDownload}

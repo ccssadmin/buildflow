@@ -1,7 +1,7 @@
 import { Calendar, ChevronLeft, ChevronRight, Plus, User } from "lucide-react";
 import { useState, Fragment, useRef, useEffect } from "react";
 import { Form, Button, Table, Row, Col } from "react-bootstrap";
-import ProjectSummary from "./ProjectSummary";
+import ProjectSummary from "../../../components/common/ProjectSummary";
 import BudgetFinancialAllocation from "./BudgetFinancialAllocation";
 import ProjectTeamStakeholder from "./ProjectTeamStakeholder";
 import TimelineMilestonePlanning from "./TimelineMilestonePlanning";
@@ -11,16 +11,22 @@ import ProjectBasicDetails from "./ProjectBasicDetails";
 import Swal from "sweetalert2";
 import { useRoleBasedEmp } from "../../../hooks/Ceo/useRoleBasedEmp";
 import { useTicket } from "../../../hooks/Ceo/useTicket";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useNotification } from "../../../hooks/Ceo/useNotification";
+import { getProjectDetailsAction } from "../../../store/actions/Ceo/ceoprojectAction";
+import { useDispatch } from "react-redux";
+import { set } from "lodash";
+
 // Form validation schema
 const validateForm = (step, formData) => {
   const errors = {};
 
   if (step === 0) {
     if (!formData.projectName) errors.projectName = "Project name is required";
-    if (!formData.projectTypeId) errors.projectTypeId = "Project type is required";
-    if (!formData.projectSectorId) errors.projectSectorId = "Project sector is required";
+    if (!formData.projectTypeId)
+      errors.projectTypeId = "Project type is required";
+    if (!formData.projectSectorId)
+      errors.projectSectorId = "Project sector is required";
     if (!formData.projectStartDate)
       errors.projectStartDate = "Start date is required";
   } else if (step === 1) {
@@ -32,16 +38,18 @@ const validateForm = (step, formData) => {
 
 const CeoCreateProject = () => {
   // Update the state to handle multiple selections for dropdowns
+  const dispatch = useDispatch();
   const [projectCreated, setProjectCreated] = useState(false);
   const { createProjectBudget, loading } = useProject();
-  const { createProjectMilestone } = useProject();
+  const { createProjectMilestone, fetchProjectDetails } = useProject();
   const navigate = useNavigate();
-  const {fetchroles, fetchAllEmployees, employees} = useRoleBasedEmp();
-  const{createTicket} = useTicket();
-  const {createNotify} = useNotification();
+  const { fetchroles, fetchAllEmployees, employees } = useRoleBasedEmp();
+  const { createTicket } = useTicket();
+  const { createNotify } = useNotification();
+  const route = useParams();
   const [formData, setFormData] = useState({
     // Step 1: Project Basic Details
-     projectId: null,
+    projectId: null,
     projectName: "",
     location: "",
     projectType: "",
@@ -190,46 +198,67 @@ const CeoCreateProject = () => {
     ],
   });
 
- // Update this function in CreateProject.jsx
- // In CreateProject.jsx, modify handleProjectCreated
-const handleProjectCreated = (projectId) => {
-  if (!projectId) {
-    console.error("❌ No project ID received!");
+  useEffect(() => {
+    if (route?.projectId) {
+      getProjectsData(route?.projectId);
+    }
+  }, [route]);
+
+  const getProjectsData = async () => {
+    const result = await dispatch(getProjectDetailsAction(route?.projectId));
+    if (result?.payload) {
+      let step1  = result?.payload?.value?.project;
+      console.log("result?.payloa" , result?.payload?.value)
+      setFormData((prevState) => ({
+        ...prevState,
+        projectId: step1?.project_id,
+        projectName: step1?.project_name,
+        location: step1?.project_location,
+        projectType: step1?.project_type_name,
+      }));
+    }
+  };
+
+
+  const handleProjectCreated = (projectId) => {
+    if (!projectId) {
+      console.error("❌ No project ID received!");
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Project creation failed: No project ID received.",
+      });
+      return;
+    }
+
+    const numericId = parseInt(projectId);
+
+    // Always overwrite localStorage
+    window.localStorage.setItem("projectId", numericId.toString());
+
+    // Update state with the projectId
+    setFormData((prevState) => ({
+      ...prevState,
+      projectId: numericId,
+    }));
+
+    // Set projectCreated to true
+    setProjectCreated(true);
+
     Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: "Project creation failed: No project ID received.",
+      icon: "success",
+      title: "Success!",
+      text: `Project #${numericId} created successfully.`,
+      timer: 1500,
+      showConfirmButton: false,
     });
-    return;
-  }
 
-  const numericId = parseInt(projectId);
+    // Move to next step AFTER state updates
+    setTimeout(() => {
+      setCurrentStep((prev) => prev + 1);
+    }, 1600);
+  };
 
-  // Always overwrite localStorage
-  window.localStorage.setItem("projectId", numericId.toString());
-
-  // Update state with the projectId
-  setFormData(prevState => ({
-    ...prevState,
-    projectId: numericId
-  }));
-
-  // Set projectCreated to true
-  setProjectCreated(true);
-
-  Swal.fire({
-    icon: "success",
-    title: "Success!",
-    text: `Project #${numericId} created successfully.`,
-    timer: 1500,
-    showConfirmButton: false
-  });
-
-  // Move to next step AFTER state updates
-  setTimeout(() => {
-    setCurrentStep(prev => prev + 1);
-  }, 1600);
-};
   // Add state for search filters
   const [searchFilters, setSearchFilters] = useState({
     projectManager: "",
@@ -263,76 +292,6 @@ const handleProjectCreated = (projectId) => {
   // Add state for showing summary page
   const [showSummary, setShowSummary] = useState(false);
 
-  // Sample data for dropdowns
-  // const teamMembers = {
-  //   projectManager: [
-  //     { id: 1, name: "John Doe" },
-  //     { id: 2, name: "Jane Smith" },
-  //     { id: 3, name: "Michael Johnson" },
-  //     { id: 4, name: "Emily Williams" },
-  //   ],
-  //   assistantProjectManager: [
-  //     { id: 1, name: "Mike Johnson" },
-  //     { id: 2, name: "Sarah Williams" },
-  //     { id: 3, name: "David Brown" },
-  //     { id: 4, name: "Lisa Davis" },
-  //   ],
-  //   leadEngineer: [
-  //     { id: 1, name: "Robert Brown" },
-  //     { id: 2, name: "Emily Davis" },
-  //     { id: 3, name: "Thomas Wilson" },
-  //     { id: 4, name: "Olivia Martin" },
-  //   ],
-  //   siteSupervisor: [
-  //     { id: 1, name: "David Wilson" },
-  //     { id: 2, name: "Lisa Miller" },
-  //     { id: 3, name: "James Taylor" },
-  //     { id: 4, name: "Emma Clark" },
-  //   ],
-  //   qs: [
-  //     { id: 1, name: "James Taylor" },
-  //     { id: 2, name: "Emma Clark" },
-  //     { id: 3, name: "William Harris" },
-  //     { id: 4, name: "Sophia Martin" },
-  //   ],
-  //   assistantQs: [
-  //     { id: 1, name: "Thomas White" },
-  //     { id: 2, name: "Olivia Green" },
-  //     { id: 3, name: "Daniel Thompson" },
-  //     { id: 4, name: "Ava Robinson" },
-  //   ],
-  //   siteEngineer: [
-  //     { id: 1, name: "William Harris" },
-  //     { id: 2, name: "Sophia Martin" },
-  //     { id: 3, name: "Joseph Lewis" },
-  //     { id: 4, name: "Mia Walker" },
-  //   ],
-  //   engineer: [
-  //     { id: 1, name: "Daniel Thompson" },
-  //     { id: 2, name: "Ava Robinson" },
-  //     { id: 3, name: "Alexander Hall" },
-  //     { id: 4, name: "Charlotte Young" },
-  //   ],
-  //   designer: [
-  //     { id: 1, name: "Joseph Lewis" },
-  //     { id: 2, name: "Mia Walker" },
-  //     { id: 3, name: "Benjamin Allen" },
-  //     { id: 4, name: "Amelia King" },
-  //   ],
-  //   vendors: [
-  //     { id: 1, name: "Acme Supplies" },
-  //     { id: 2, name: "Global Materials" },
-  //     { id: 3, name: "Quality Products" },
-  //     { id: 4, name: "Premium Vendors" },
-  //   ],
-  //   subcontractors: [
-  //     { id: 1, name: "Elite Construction" },
-  //     { id: 2, name: "Premier Services" },
-  //     { id: 3, name: "Expert Builders" },
-  //     { id: 4, name: "Professional Contractors" },
-  //   ],
-  // };
-
   // Handle search filter change
   const handleSearchFilterChange = (e, field) => {
     setSearchFilters({
@@ -350,52 +309,42 @@ const handleProjectCreated = (projectId) => {
   };
 
   // Handle selection of an item
-// Handle selection of an item
-const handleSelectItem = (field, item) => {
-  console.log(`Selecting item for ${field}:`, item);
+  const handleSelectItem = (field, item) => {
+    console.log(`Selecting item for ${field}:`, item);
 
-  setFormData((prevState) => {
-    const currentSelection = prevState[field] || [];
+    setFormData((prevState) => {
+      const currentSelection = prevState[field] || [];
 
-    // Check if the item is already selected
-    const isSelected = currentSelection.some(
-      (selected) => selected.id === item.id || selected.empId === item.empId
-    );
+      // Check if the item is already selected
+      const isSelected = currentSelection.some(
+        (selected) => selected.id === item.id || selected.empId === item.empId
+      );
 
-    // If selected, remove it; if not, add it
-    const updatedSelection = isSelected
-      ? currentSelection.filter(
-          (selected) => selected.id !== item.id && selected.empId !== item.empId
-        )
-      : [...currentSelection, item];
+      // If selected, remove it; if not, add it
+      const updatedSelection = isSelected
+        ? currentSelection.filter(
+            (selected) =>
+              selected.id !== item.id && selected.empId !== item.empId
+          )
+        : [...currentSelection, item];
 
-    console.log(`Updated ${field} data:`, updatedSelection);
+      console.log(`Updated ${field} data:`, updatedSelection);
 
-    return {
+      return {
+        ...prevState,
+        [field]: updatedSelection,
+      };
+    });
+  };
+
+  const handleRemoveItem = (field, itemId) => {
+    setFormData((prevState) => ({
       ...prevState,
-      [field]: updatedSelection,
-    };
-  });
-};
-
-  
-const handleRemoveItem = (field, itemId) => {
-  setFormData((prevState) => ({
-    ...prevState,
-    [field]: (prevState[field] || []).filter(
-      (item) => item.id !== itemId && item.empId !== itemId
-    ),
-  }));
-};
-
-  
-
-  // Filter items based on search text
-  // const getFilteredItems = (field) => {
-  //   return teamMembers[field].filter((item) =>
-  //     item.name.toLowerCase().includes(searchFilters[field].toLowerCase())
-  //   );
-  // };
+      [field]: (prevState[field] || []).filter(
+        (item) => item.id !== itemId && item.empId !== itemId
+      ),
+    }));
+  };
 
   // Handle form submission after final step
   const handleSubmit = () => {
@@ -408,17 +357,73 @@ const handleRemoveItem = (field, itemId) => {
     setShowSummary(false);
   };
 
+  const handleFinalReview = async () => {
+    try {
+      // Get projectId from localStorage
+      const projectId = localStorage.getItem("projectId");
+
+      if (!projectId) {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Project ID not found. Please create a project first.",
+        });
+        return;
+      }
+
+      // Show loading indicator
+      Swal.fire({
+        title: "Loading project details...",
+        allowOutsideClick: false,
+        timer: 5000,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
+      // Fetch project details
+      const projectDetails = await fetchProjectDetails(projectId);
+      setTimeout(() => {
+        navigate(`../projectsummary/${projectId}`);
+      }, 2000); // Simulate loading time
+
+      return;
+
+      // Close loading indicator
+      Swal.close();
+
+      if (projectDetails.statusCode === 200) {
+        // Update formData with the fetched details if needed
+        // setFormData(prev => ({ ...prev, ...projectDetails }));
+        // Proceed to show summary
+        // handleSubmit();
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to load project details. Please try again.",
+        });
+      }
+    } catch (error) {
+      console.error("Error in final review:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "An error occurred while fetching project details.",
+      });
+    }
+  };
+
   const handleNext = async () => {
     // Clear form errors first
     setFormErrors({});
-    
+
     // For step 2 (ProjectTeamStakeholder), we just return and let the component handle it
     if (currentStep === 2) {
-      
       console.log("Step 2: Letting ProjectTeamStakeholder handle it");
       return;
     }
-    
+
     // Validate form for current step
     const errors = validateForm(currentStep, formData);
     if (Object.keys(errors).length > 0) {
@@ -426,30 +431,30 @@ const handleRemoveItem = (field, itemId) => {
       setFormErrors(errors);
       return;
     }
-  
+
     // Handle special cases for different steps
     if (currentStep === 0 && !projectCreated) {
       console.log("Step 0: Waiting for project creation");
       return;
     }
-  
+
     if (currentStep === 3) {
       console.log("Step 3: Handling milestones");
       await handleMilestoneSubmit();
       return;
     }
-  
+
     if (currentStep === 4) {
       console.log("Step 4: Final submission");
-      handleSubmit();
+      await handleFinalReview();
       return;
     }
-    
+
     // Default case: simply move to next step
     console.log(`Moving from step ${currentStep} to ${currentStep + 1}`);
-    setCurrentStep(prev => prev + 1);
+    setCurrentStep((prev) => prev + 1);
   };
-  
+
   // Add this helper function for milestone handling
   const handleMilestoneSubmit = async () => {
     if (!formData.projectId) {
@@ -460,9 +465,9 @@ const handleRemoveItem = (field, itemId) => {
       });
       return;
     }
-  
+
     try {
-      const formattedMilestones = formData.milestones.map(milestone => ({
+      const formattedMilestones = formData.milestones.map((milestone) => ({
         milestoneId: 0,
         milestoneName: milestone.name,
         milestoneDescription: milestone.description,
@@ -470,12 +475,12 @@ const handleRemoveItem = (field, itemId) => {
         milestoneEndDate: milestone.endDate,
         milestoneStatus: milestone.status,
       }));
-  
+
       const response = await createProjectMilestone(formData.projectId, {
         projectId: formData.projectId,
         milestoneList: formattedMilestones,
       });
-  
+
       if (response.success) {
         await Swal.fire({
           icon: "success",
@@ -483,7 +488,7 @@ const handleRemoveItem = (field, itemId) => {
           timer: 1500,
           showConfirmButton: false,
         });
-        setCurrentStep(prev => prev + 1);
+        setCurrentStep((prev) => prev + 1);
       } else {
         Swal.fire({
           icon: "error",
@@ -500,81 +505,13 @@ const handleRemoveItem = (field, itemId) => {
       });
     }
   };
-  
+
   const handleBack = () => {
     setCurrentStep(currentStep - 1);
   };
 
-  // Create a custom multi-select component
-  // const MultiSelect = ({ field, label, required = false }) => {
-  //   const inputRef = useRef(null);
-  //   const isDropdownVisible = dropdownVisible[field] || false;
-  
-  //   useEffect(() => {
-  //     if (isDropdownVisible && inputRef.current) {
-  //       inputRef.current.focus();
-  //     }
-  //   }, [isDropdownVisible]);
-  
-  //   const handleItemClick = (item) => {
-  //     console.log(`Selected Item for ${field}:`, item);
-  //     handleSelectItem(field, item);
-  //     toggleDropdown(field);
-  //   };
-  
-  //   return (
-  //     <Form.Group>
-  //       <Form.Label>{label} {required && <span>*</span>}</Form.Label>
-  //       <div>
-  //         {formData[field]?.map((item) => (
-  //           <div key={item.id || item.empId}>
-  //             <span>{item.name}</span>
-  //           </div>
-  //         ))}
-  //         <Form.Control
-  //           ref={inputRef}
-  //           type="text"
-  //           placeholder="Search..."
-  //           onClick={() => toggleDropdown(field)}
-  //         />
-  //         {isDropdownVisible && (
-  //           <div>
-  //             {getFilteredItems(field).map((item) => (
-  //               <div key={item.id} onClick={() => handleItemClick(item)}>
-  //                 {item.name}
-  //               </div>
-  //             ))}
-  //           </div>
-  //         )}
-  //       </div>
-  //     </Form.Group>
-  //   );
-  // };
-  
-
   const [currentStep, setCurrentStep] = useState(0);
   const [formErrors, setFormErrors] = useState({});
-
-  // Permission and Finance Approval data
-  const permissionData = [
-    { id: 1, role: "MD", employee: "Kristin Watson", amount: "" },
-    { id: 2, role: "Directors", employee: "Floyd Miles", amount: "" },
-    { id: 3, role: "Head Finance", employee: "Jerome Bell", amount: "" },
-    { id: 4, role: "CEO", employee: "Albert Flores", amount: "" },
-    {
-      id: 5,
-      role: "General Manager (Technology)",
-      employee: "Bessie Cooper",
-      amount: "",
-    },
-    {
-      id: 6,
-      role: "General Manager (Operation)",
-      employee: "Robert Fox",
-      amount: "",
-    },
-    { id: 7, role: "Finance", employee: "Jane Cooper", amount: "" },
-  ];
 
   const steps = [
     "Project Basic Details",
@@ -623,26 +560,27 @@ const handleRemoveItem = (field, itemId) => {
         estimatedCost: "",
         approvedBudget: "",
       };
-  
+
       setFormData((prevFormData) => ({
         ...prevFormData,
         budgetBreakdown: [...prevFormData.budgetBreakdown, newColumn],
       }));
     } else if (currentStep === 3) {
       // For milestones
-      const nextId = formData.milestones.length > 0 
-        ? Math.max(...formData.milestones.map(m => m.id)) + 1
-        : 1;
-        
+      const nextId =
+        formData.milestones.length > 0
+          ? Math.max(...formData.milestones.map((m) => m.id)) + 1
+          : 1;
+
       const milestoneToAdd = newMilestone || {
         id: nextId,
         name: "",
         description: "",
         startDate: "",
         endDate: "",
-        status: "Planned"
+        status: "Planned",
       };
-      
+
       setFormData((prevFormData) => ({
         ...prevFormData,
         milestones: [...prevFormData.milestones, milestoneToAdd],
@@ -675,8 +613,9 @@ const handleRemoveItem = (field, itemId) => {
           {steps.map((step, index) => (
             <div key={index} className="step-item">
               <div
-                className={`step-circle ${index <= currentStep ? "active" : ""
-                  }`}
+                className={`step-circle ${
+                  index <= currentStep ? "active" : ""
+                }`}
               >
                 <svg
                   width="15"
@@ -706,8 +645,9 @@ const handleRemoveItem = (field, itemId) => {
                 </svg>
               </div>
               <div
-                className={`step-line ${index < currentStep ? "active" : ""} ${index === steps.length - 1 ? "hidden" : ""
-                  }`}
+                className={`step-line ${index < currentStep ? "active" : ""} ${
+                  index === steps.length - 1 ? "hidden" : ""
+                }`}
               ></div>
               <div
                 className={`step-label ${index <= currentStep ? "active" : ""}`}
@@ -724,9 +664,9 @@ const handleRemoveItem = (field, itemId) => {
   const renderProjectBasicDetails = () => {
     return (
       <ProjectBasicDetails
-        formData={formData} 
-        setFormData={setFormData} 
-        formErrors={formErrors} 
+        formData={formData}
+        setFormData={setFormData}
+        formErrors={formErrors}
         onProjectCreated={handleProjectCreated}
       />
     );
@@ -735,45 +675,40 @@ const handleRemoveItem = (field, itemId) => {
   const renderBudgetFinancialAllocation = () => {
     return (
       <BudgetFinancialAllocation
-        formData={formData} 
-        setFormData={setFormData} 
-        createProjectBudget={createProjectBudget} 
-        fetchroles = {fetchroles}
+        formData={formData}
+        setFormData={setFormData}
+        createProjectBudget={createProjectBudget}
+        fetchroles={fetchroles}
         fetchAllEmployees={fetchAllEmployees}
-        createTicket= {createTicket}
-        createNotify= {createNotify}
+        createTicket={createTicket}
+        createNotify={createNotify}
         loading={loading}
         onNext={() => setCurrentStep(currentStep + 1)}
       />
     );
   };
-  
 
-  // Update the renderProjectTeamStakeholder function
-  // In CreateProject.jsx, modify the renderProjectTeamStakeholder function:
-
-// In CreateProject.jsx
-const renderProjectTeamStakeholder = () => {
-  return (
-    <ProjectTeamStakeholder
-    formData={formData}
-    setFormData={setFormData}
-    searchFilters={searchFilters}
-    dropdownVisible={dropdownVisible}
-    handleSearchFilterChange={handleSearchFilterChange}
-    toggleDropdown={toggleDropdown}
-    handleSelectItem={handleSelectItem}
-    handleRemoveItem={handleRemoveItem}
-    fetchroles = {fetchroles}
-    createTicket= {createTicket}
-    createNotify= {createNotify}
-    onNext={() => {
-      console.log("ProjectTeamStakeholder called onNext");
-       setCurrentStep(currentStep + 1);
-    }}
-  />
-  );
-};
+  const renderProjectTeamStakeholder = () => {
+    return (
+      <ProjectTeamStakeholder
+        formData={formData}
+        setFormData={setFormData}
+        searchFilters={searchFilters}
+        dropdownVisible={dropdownVisible}
+        handleSearchFilterChange={handleSearchFilterChange}
+        toggleDropdown={toggleDropdown}
+        handleSelectItem={handleSelectItem}
+        handleRemoveItem={handleRemoveItem}
+        fetchroles={fetchroles}
+        createTicket={createTicket}
+        createNotify={createNotify}
+        onNext={() => {
+          console.log("ProjectTeamStakeholder called onNext");
+          setCurrentStep(currentStep + 1);
+        }}
+      />
+    );
+  };
 
   const renderTimelineMilestonePlanning = () => {
     return (
@@ -782,9 +717,9 @@ const renderProjectTeamStakeholder = () => {
         handleMilestoneChange={handleMilestoneChange}
         handleAddColumn={handleAddColumn}
         fetchAllEmployees={fetchAllEmployees}
-        employees = {employees}
-        createTicket= {createTicket}
-        createNotify= {createNotify}
+        employees={employees}
+        createTicket={createTicket}
+        createNotify={createNotify}
         onNextStep={() => setCurrentStep(currentStep + 1)}
         setFormData={setFormData}
       />
@@ -793,15 +728,13 @@ const renderProjectTeamStakeholder = () => {
 
   const renderRiskComplianceAssessment = () => {
     return (
-      <RiskComplianceAssessment 
-      formData={formData} 
-      setFormData={setFormData} 
-      handleAddColumn={handleAddColumn} 
-    />
+      <RiskComplianceAssessment
+        formData={formData}
+        setFormData={setFormData}
+        handleAddColumn={handleAddColumn}
+      />
     );
   };
-
-  // Create a separate ProjectSummary component
 
   const renderFormStep = () => {
     switch (currentStep) {
@@ -824,7 +757,6 @@ const renderProjectTeamStakeholder = () => {
     }
   };
 
-  // Update the main render function
   return (
     <Fragment>
       <main className="page-ceo-createproject d-flex">
@@ -833,20 +765,24 @@ const renderProjectTeamStakeholder = () => {
             {showSummary ? (
               <ProjectSummary
                 formData={formData}
-                fetchroles = {fetchroles}
-                createTicket= {createTicket}
-                createNotify= {createNotify}
+                fetchroles={fetchroles}
+                createTicket={createTicket}
+                createNotify={createNotify}
                 fetchAllEmployees={fetchAllEmployees}
-                onBackClick={(step) => {
-                  setCurrentStep(step);
-                  setShowSummary(false);
-                }}
+                // onBackClick={(step) => {
+                //   setCurrentStep(step);
+                //   setShowSummary(false);
+                // }}
               />
             ) : (
               <>
                 {renderProgressBar()}
-                
-                <div className={`form-container p-0  position-relative ${currentStep === 4 ? 'step-risk' : ''}`}>
+
+                <div
+                  className={`form-container p-0  position-relative ${
+                    currentStep === 4 ? "step-risk" : ""
+                  }`}
+                >
                   {renderFormStep()}
                   <div className="form-actions justify-content-between">
                     {currentStep > 0 && (
@@ -857,7 +793,11 @@ const renderProjectTeamStakeholder = () => {
                         &lt; Back
                       </Button>
                     )}
-                    <div className={`d-flex ${currentStep === 4 ? 'd-block step-risk' : 'd-none'}`}>
+                    <div
+                      className={`d-flex ${
+                        currentStep === 4 ? "d-block step-risk" : "d-none"
+                      }`}
+                    >
                       {currentStep === 1 || currentStep === 2 ? (
                         <Button className="btn-primary btn fs-14-600 bg-transparent text-primary border-0 border-radius-2">
                           <svg
@@ -880,8 +820,11 @@ const renderProjectTeamStakeholder = () => {
                         className="btn-primary btn-final-review btn fs-14-600 bg-primary border-0 border-radius-2"
                         onClick={handleNext}
                       >
-                        {currentStep === 0 && !projectCreated ? "Next >" :
-                          currentStep === 4 ? "Final Review >" : "Next >"}
+                        {currentStep === 0 && !projectCreated
+                          ? "Next >"
+                          : currentStep === 4
+                          ? "Final Review >"
+                          : "Next >"}
                       </Button>
                     </div>
                   </div>

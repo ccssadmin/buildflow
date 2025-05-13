@@ -666,19 +666,6 @@ export const getPurchaseOrderDetailsAction = createAsyncThunk(
   }
 );
 
-
-/** USED TO GET BOQ ITEMS BY ID */
-export const getBoqItemsAction = createAsyncThunk(
-  "getBoqItemsByID",
-  async (params) => {
-    const response = await getBoqItemsById(params);
-    return response.data;
-  }
-);
-
-
-
-
 export const createTicketDetailsAction = createAsyncThunk(
   'ticket/createDetails',
   async (formData, thunkAPI) => {
@@ -709,7 +696,7 @@ export const createTicketDetailsAction = createAsyncThunk(
       console.log('Using token:', token.substring(0, 10) + '...'); // Log first part of token for debugging
       
       const response = await axios.post(
-        'https://buildflowgraphql.crestclimbers.com/api/Ticket/add-comment-attachment',
+        `${BASE_URL}/api/Ticket/add-comment-attachment`,
         formData,
         {
           headers: {
@@ -748,5 +735,13 @@ export const createTicketDetailsAction = createAsyncThunk(
       
       return thunkAPI.rejectWithValue(error.response?.data || error.message);
     }
+  }
+);
+/** USED TO GET BOQ ITEMS BY ID */
+export const getBoqItemsAction = createAsyncThunk(
+  "getBoqItemsByID",
+  async (params) => {
+    const response = await getBoqItemsById(params);
+    return response.data;
   }
 );

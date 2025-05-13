@@ -3,21 +3,21 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-import { getVendorsAndSubcontractors } from "../../../store/actions/vendor/getvendoraction";
+import { getVendorsAndSubcontractors } from "../../store/actions/vendor/getvendoraction";
 import {
   getNewPoId,
   upsertPurchaseOrder,
   getBoqByCode,
-} from "../../../store/actions/Purchase/purcharseorderidaction";
+} from "../../store/actions/Purchase/purcharseorderidaction";
 import { Form } from "react-bootstrap";
-import MultipleSelect from "../../../components/DropDown/MultipleSelect";
-import { fetchRoles } from "../../../store/actions/hr/designationaction";
-import { getAllEmployeesByRolesAction } from "../../../store/actions/Ceo/RoleBasedEmpAction";
-import { fetchProjects } from "../../../store/actions/hr/projectaction";
+import MultipleSelect from "../../components/DropDown/MultipleSelect";
+import { fetchRoles } from "../../store/actions/hr/designationaction";
+import { getAllEmployeesByRolesAction } from "../../store/actions/Ceo/RoleBasedEmpAction";
+import { fetchProjects } from "../../store/actions/hr/projectaction";
 import { toast } from "react-toastify";
-import { useTicket } from "../../../hooks/Ceo/useTicket";
+import { useTicket } from "../../hooks/Ceo/useTicket";
 import { debounce } from "lodash";
-import { getPurchaseOrderDetails } from "../../../store/actions/vendorflow/po-vendroaction";
+import { getPurchaseOrderDetails } from "../../store/actions/vendorflow/po-vendroaction";
 import Select from "react-dropdown-select";
 
 export default function POViewPage({ params }) {

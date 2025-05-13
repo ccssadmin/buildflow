@@ -521,7 +521,6 @@ export const getAllTimeZoneDetailSelector = createSelector(
   })
 );
 
-
 /** TO GET TIME ZONE DETAIL */
 export const getTicketsbyboardParticipantsSelector = createSelector(
   [

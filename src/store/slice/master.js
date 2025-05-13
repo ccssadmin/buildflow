@@ -263,9 +263,7 @@ const initialState = {
     data: [],
     loading: false,
     error: null,
-    message: "",
-  },
-
+  }
 
 };
 
@@ -941,7 +939,6 @@ const masterSlice = createSlice({
         state.fetchError = action.error;
         state.purchaseOrderDetails.loading = false;
       });
-  
 
  /** USED TO GET BOQ ITEMS BY ID */
  builder.addCase(getBoqItemsAction.pending, (state, action) => {
@@ -956,13 +953,6 @@ builder.addCase(getBoqItemsAction.rejected, (state, action) => {
   state.fetchError = action.error;
   state.boqItems.loading = false;
 });
-
-
-
-
-
-
-
   
   },
 });

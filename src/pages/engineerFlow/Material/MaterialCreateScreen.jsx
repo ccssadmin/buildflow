@@ -15,6 +15,7 @@ import { toast } from "react-toastify";
 import { useTicket } from "../../../hooks/Ceo/useTicket";
 import { getAllEmployeesByRolesAction } from "../../../store/actions/Ceo/RoleBasedEmpAction";
 import { getticketbyidAction } from "../../../store/actions/Ceo/TicketCreateAction";
+import { useNotification } from "../../../hooks/Ceo/useNotification";
 
 const MaterialCreateScreen = () => {
   const navigate = useNavigate();
@@ -28,8 +29,13 @@ const MaterialCreateScreen = () => {
   const [selectedApprover, setSelectedApprover] = useState([]);
   const { boqId } = useSelector((state) => state.boq);
   const { createTicket } = useTicket();
+  const {createNotify} = useNotification();
   const [initialApproverArray, setInitialApproverArray] = useState([]);
-
+const [validationErrors, setValidationErrors] = useState({
+    title: false,
+    vendor: false,
+    approver: false
+  });
   const { vendors, loading, error } = useSelector((state) => state.vendor);
 
   const handleAddRow = () => {
@@ -101,16 +107,59 @@ const MaterialCreateScreen = () => {
 
     setRows(updatedRows);
   };
+  const handleVendorSelect = (e) => {
+    const value = e.target.value;
+    setSelectedVendorId(value);
+    if (value) {
+      setValidationErrors({...validationErrors, vendor: false});
+    }
+  }
 
+  // Function to handle title change and clear validation error
+  const handleTitleChange = (e) => {
+    const value = e.target.value;
+    setTitle(value);
+    if (value.trim()) {
+      setValidationErrors({...validationErrors, title: false});
+    }
+  }
+const validateForm = () => {
+    const errors = {
+      title: !title.trim(),
+      vendor: !selectedVendorId,
+      approver: !selectedApprover.length
+    };
+    
+    setValidationErrors(errors);
+    
+    // Return true if no errors
+    return !Object.values(errors).some(error => error);
+  };
+  const handleApproverSelect = (selectedOptions) => {
+    setSelectedApprover(selectedOptions);
+    if (selectedOptions && selectedOptions.length > 0) {
+      setValidationErrors({...validationErrors, approver: false});
+    }
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
-    let empId = JSON.parse(localStorage.getItem("userData"));
+    // Validate form
+    if (!validateForm()) {
+      // If validation fails, show appropriate toast messages
+      if (validationErrors.title) toast.warn("Please enter a title.");
+      if (validationErrors.vendor) toast.warn("Please select a vendor.");
+      if (validationErrors.approver) toast.warn("Please select at least one approver.");
+      return;
+    }
+    let empData = JSON.parse(localStorage.getItem("userData"));
+  
     if (!selectedVendorId) {
       toast.warn("Please select a vendor.");
       return;
     }
-    const data = {
-      empId: empId?.empId,
+  
+    const boqPayload = {
+      empId: empData?.empId,
       boqId: 0,
       boqName: title,
       boqCode: boqId.toString(),
@@ -122,45 +171,70 @@ const MaterialCreateScreen = () => {
         price: parseFloat(row.rate) || 0,
         quantity: parseFloat(row.quantity) || 0,
       })),
-      assignTo: approvedBy.map(Number), // assuming approvedBy is an array of selected user IDs
-      ticketType: "string", // adjust this if you have an actual type
+      assignTo: selectedApprover.map((emp) => emp.empId),
+      ticketType: "BOQ_APPROVAL",
       vendorId: parseInt(selectedVendorId),
     };
-    const getResponse = await dispatch(upsertBoq(data));
-    if (getResponse?.payload?.success) {
+  
+    // Step 1: Create BOQ
+    const boqResponse = await dispatch(upsertBoq(boqPayload));
+  
+    if (boqResponse?.payload?.success) {
       toast.success("BOQ created successfully.");
-
-      const AssignTo = selectedApprover.map((item) => item.empId);
+  
+      // Step 2: Create Ticket
       const ticketResponse = await createTicket({
-        boqId: getResponse?.payload?.data?.boqId,
+        boqId: boqResponse?.payload?.data?.boqId,
         ticketType: "BOQ_APPROVAL",
-        assignTo: AssignTo, // ✅ array of empIds
-        createdBy: empId?.empId, // replace with actual logged-in user ID
+        assignTo: selectedApprover.map((emp) => emp.empId),
+        createdBy: empData?.empId,
       });
+  
       if (ticketResponse?.data?.success) {
         toast.success("Ticket created successfully.");
-        const ticketId = await dispatch(
-          getticketbyidAction(ticketResponse?.data?.data?.ticketId)
-        ).unwrap();
+  
+        const ticketId = ticketResponse?.data?.data?.ticketId;
+        const projectName = ticketResponse?.data?.data?.projectName;
+  
+        // Step 3: Send Notification with ticketId
+        try {
+          await createNotify({
+          empId: selectedApprover.map((emp) => emp.empId),
+          notificationType: "Material Requirement(BOQ)",
+          sourceEntityId: ticketId,
+          message: `We would like to update you that we are currently awaiting BOQ on the material requirement submitted for ${projectName} Project. Kindly review and provide BOQ at the earliest to avoid any delays in the process.`,
+        });
+          toast.success("Notification sent.");
+        } catch (error) {
+          console.warn("Notification failed:", error);
+        }
+  
+        // Step 4: Navigate to Ticket Details
+        const ticketDetails = await dispatch(getticketbyidAction(ticketId)).unwrap();
+  
         setTimeout(() => {
-          navigate(
-            `../engineerticketdetails/${ticketResponse?.data?.data?.ticketId}`,
-            {
-              state: {
-                ticket: ticketId,
-                from: "kanban",
-                boqId: getResponse?.payload?.data?.boqId,
-              },
-            }
-          );
-        }, 1000);
+          navigate(`../engineerticketdetails/${ticketId}`, {
+            state: {
+              ticket: ticketDetails,
+              from: "kanban",
+              boqId: boqResponse?.payload?.data?.boqId,
+            },
+          });
+        }, 500);
+  
+        // Reset form
+        setRows([{ itemName: "", unit: "", rate: "", quantity: "", total: "" }]);
+        setTitle("");
+        setSelectedVendorId("");
+        setSelectedApprover([]);
+      } else {
+        toast.error("Ticket creation failed.");
       }
-      setRows([{ itemName: "", unit: "", rate: "", quantity: "", total: "" }]);
-      setTitle("");
-      setSelectedVendorId("");
-      setSelectedApprover([]);
+    } else {
+      toast.error("BOQ creation failed.");
     }
   };
+  
 
   useEffect(() => {
     dispatch(fetchRoles());
@@ -253,10 +327,10 @@ const MaterialCreateScreen = () => {
               </Form.Select>
             </Form.Group>
           </div>
-          <div className="col-md-6">
+          <div className={validationErrors.approver ? "col-md-6 is-invalid" : "col-md-6"}>
             <Form.Group className="mb-3">
               <Form.Label className="text-black fs-5">Approved By</Form.Label>
-              <MultipleSelect
+              <MultipleSelect required
                 selectedOptions={selectedApprover}
                 handleSelected={setSelectedApprover}
                 data={initialApproverArray}
@@ -264,6 +338,11 @@ const MaterialCreateScreen = () => {
                 placeholder={"Select Approver"}
                 isMulti={true}
               />
+              {validationErrors.approver && (
+                <div className="invalid-feedback" style={{ display: "block" }}>
+                  Please select at least one approver.
+                </div>
+              )}
             </Form.Group>
           </div>
         </div>

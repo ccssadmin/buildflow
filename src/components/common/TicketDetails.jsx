@@ -24,7 +24,7 @@ import { IoMdClose } from "react-icons/io";
 
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { AiOutlineUser } from "react-icons/ai";
 import { RiSaveFill } from "react-icons/ri";
 import { BsCalendar3 } from "react-icons/bs";
@@ -38,7 +38,9 @@ import { useDepartments } from "../../hooks/Ceo/useDepartments";
 import { createTicketDetailsAction } from "../../store/actions/masterAction";
 import { createTicketsDetailsSelector } from "../../store/selector/masterSelector";
 import { GrAttachment } from "react-icons/gr";
-import MultipleSelect from "../DropDown/MultipleSelect";
+import Select, { components } from "react-select";
+import { getTicketDetailsAction } from "../../store/actions/kanbanAction";
+import { toast } from "react-toastify";
 
 const EngineerTicketDetails = () => {
   const [activeTab, setActiveTab] = useState("all");
@@ -68,6 +70,9 @@ const EngineerTicketDetails = () => {
   const localUserId = localStorage.getItem("userRoleId");
   const userData = JSON.parse(localStorage.getItem("userData"));
   const token = userData?.token || localStorage.getItem("accessToken");
+  const [groupedDepartments, setGroupedDepartments] = useState([]);
+
+  const id = useParams(); // ✅ This gives you task.id from the URL
 
   const {
     departments,
@@ -101,29 +106,7 @@ const EngineerTicketDetails = () => {
     },
   ]);
 
-  //approvalData
-
-  const roleColorMap = {
-    approved: { color: "success", label: "Approved" },
-    pending: { color: "warning", label: "Pending" },
-    rejected: { color: "danger", label: "Rejected" },
-  };
-
-  const transformedData = Object.entries(ticket?.approvalsGrouped || {}).map(
-    ([role, approvals]) => {
-      const approval = approvals[0]; // Assuming single approval per role
-      const statusType = approval?.approval_type || "pending";
-
-      return {
-        role,
-        statuses: ["rejected", "pending", "approved"].map((type) => ({
-          type: roleColorMap[type].label,
-          color: roleColorMap[type].color,
-          active: type === statusType,
-        })),
-      };
-    }
-  );
+ 
 
   // Date state management
   const [orderDate, setOrderDate] = useState(
@@ -158,7 +141,7 @@ const EngineerTicketDetails = () => {
 
   // Show label selector
   const [showLabelSelector, setShowLabelSelector] = useState(false);
-
+  const [ticketData, setTicketData] = useState(null); // ✅ state to hold API response
   // Available users for assignment
   const [availableUsers, setAvailableUsers] = useState([
     {
@@ -208,7 +191,30 @@ const EngineerTicketDetails = () => {
       // Optionally redirect to login
     }
   }, []);
+  //get ticket by id
 
+  useEffect(() => {
+    if (id) {
+      fetchTicketDetails();
+    }
+  }, [dispatch, id]);
+
+
+const fetchTicketDetails = async () => {
+    try {
+      const data = await dispatch(getticketbyidAction(id?.ticketId)).unwrap();
+
+      console.log("Ticket Details:", data);
+
+      setTicketData(data); // ✅ store data in state
+    } catch (error) {
+      console.error("Error was coming :", error);
+    }
+  };
+
+  // ✅ Now you can access ticketData here
+
+  console.log("Data Res", ticketData?.name);
   // At the top of TicketDetails.jsx
   useEffect(() => {
     const loadDepartments = async () => {
@@ -217,6 +223,12 @@ const EngineerTicketDetails = () => {
         const result = await fetchDepartments();
         if (result.success) {
           setAvailableDepartments(result.data);
+          let dropdownData = result.data.map((dept) => ({
+            ...dept,
+            label: dept.deptName,
+            value: dept.deptName,
+          }));
+          setGroupedDepartments(dropdownData);
         } else {
           console.error("Failed to fetch departments");
         }
@@ -291,6 +303,19 @@ const EngineerTicketDetails = () => {
     showToastNotification(`Status set to ${status}`);
   };
 
+  const getApprovalStatus = (status) => {
+  const numericStatus = Number(status);
+  if (numericStatus === 1) {
+    return { text: "Approved", color: "success" };
+  } else if (numericStatus === 0) {
+    return { text: "Rejected", color: "danger" };
+  } else if (numericStatus === 2) {
+    return { text: "Pending", color: "warning" };
+  } else {
+    return { text: "Unknown", color: "secondary" };
+  }
+};
+
   const handleSave = async () => {
     // if (!approvalStatus) {
     //   showToastNotification("Please select Approve or Reject");
@@ -312,12 +337,13 @@ const EngineerTicketDetails = () => {
 
       // Prepare moveTo array
       const moveTo = [];
-      if (currentDepartment?.deptId) moveTo.push(currentDepartment.deptId);
-      if (currentEmployee?.id) moveTo.push(currentEmployee.id);
+      // if (currentDepartment?.deptId) moveTo.push(currentDepartment.deptId);
+      if (selectedEmployee?.empId) moveTo.push(selectedEmployee.empId);
 
+      console.log("currentEmployee", selectedEmployee);
       // Construct the payload
       const payload = {
-        ticketId: ticketDetails?.ticket_id,
+        ticketId: ticketData?.ticket_id,
         dueDate: dueDate ? dueDate.toISOString().split("T")[0] : null,
         isApproved: approvalStatus === "Approved",
         updatedBy: userData.empId,
@@ -334,7 +360,7 @@ const EngineerTicketDetails = () => {
 
       if (result.success) {
         showToastNotification("Ticket updated successfully");
-
+        fetchTicketDetails();
         // ✅ Refetch the updated ticket
         const updatedData = await dispatch(
           getticketbyidAction(payload.ticketId)
@@ -349,7 +375,7 @@ const EngineerTicketDetails = () => {
           setDueDate(new Date(updatedData.due_date));
         }
       } else {
-        showToastNotification(result.message || "Failed to update ticket");
+        toast.warn(result.message || "Failed to update ticket");
       }
     } catch (error) {
       console.error("Update error:", error);
@@ -358,16 +384,15 @@ const EngineerTicketDetails = () => {
       setIsLoading(false);
     }
   };
-
+const BASE_URL = process.env.REACT_APP_MASTER_API_BASE_URL;
   const handleSendComment = async () => {
     if (!commentText.trim()) {
       showToastNotification("Please enter a comment.");
       return;
     }
-
     const userData = JSON.parse(localStorage.getItem("userData"));
     const empId = userData?.empId;
-    const ticketId = ticketDetails?.ticket_id;
+    const ticketId = ticketData?.ticket_id;
     console.log("EmpID =>", empId);
     console.log();
     console.log("Employee ID For Ticket Comment:", empId);
@@ -399,7 +424,7 @@ const EngineerTicketDetails = () => {
     try {
       await dispatch(createTicketDetailsAction(formData)).unwrap();
       showToastNotification("Comment sent successfully!");
-
+      fetchTicketDetails()
       // Update local state with the new comment
       const newComment = {
         id: Date.now(),
@@ -426,25 +451,31 @@ const EngineerTicketDetails = () => {
     }
   };
 
-  //check Id based approvel to hide action
+  //check Boq Details for hide the details
 
-  let hasUserApproved = false;
+  let approvedStatusShowByID = false;
+let approvedStatusByStatus = false;
 
-  const grouped = ticket?.approvalsGrouped || {};
+const grouped = ticketData?.approvalsGrouped || {};
 
-  Object.values(grouped).forEach((approvals) => {
-    approvals.forEach((approval) => {
-      if (
-        (approval.approved_by_id === userData?.empId &&
-          approval.approval_type === "approved" ||
-          "rejected" ) 
-      ) {
-        hasUserApproved = true;
-      }
-    });
-  });
+function hasUserApprovedByID(approvals, empId) {
+  return approvals.some(approval => approval?.approved_by_id === empId);
+}
 
-  console.log("Has user approved?", hasUserApproved); // true or false
+function hasProcessedStatus(approvals) {
+  return approvals.some(approval => ["approved", "rejected"].includes(approval?.approval_type));
+}
+
+Object.values(grouped).forEach((approvals) => {
+  if (hasUserApprovedByID(approvals, userData?.empId)) {
+    approvedStatusShowByID = true;
+  }
+  if (hasProcessedStatus(approvals)) {
+    approvedStatusByStatus = true;
+  }
+});
+
+  console.log("Has user approved?", hasProcessedStatus); // true or false
 
   // Handle file attachment
   const handleFileAttachment = (e) => {
@@ -590,6 +621,31 @@ const EngineerTicketDetails = () => {
       .toUpperCase();
   };
 
+
+    const roleColorMap = {
+    approved: { color: "success", label: "Approved" },
+    pending: { color: "warning", label: "Pending" },
+    rejected: { color: "danger", label: "Rejected" },
+  };
+
+  const transformedData = Object.entries(
+    ticketData?.approvalsGrouped || {}
+  ).map(([role, approvals]) => {
+    const approval = approvals[0]; // Assuming single approval per role
+    const statusType = approval?.approval_type || "pending";
+
+    return {
+      role,
+      statuses: ["rejected", "pending", "approved"].map((type) => ({
+        type: roleColorMap[type].label,
+        color: roleColorMap[type].color,
+        active: type === statusType,
+      })),
+    };
+  });
+
+
+
   const get_boq_Ticket = (ticket) => {
     if (!ticket || !ticket.transaction_id) {
       console.error("Invalid ticket object:", ticket);
@@ -598,6 +654,169 @@ const EngineerTicketDetails = () => {
     // console.log("ticket"  , ticket)
     navigate(`../materialview/${ticket.transaction_id}`, { state: ticket });
   };
+
+  useEffect(() => {
+    if (currentEmployees.length > 0) {
+      const groupedOptions = availableDepartments
+        .map((dept) => {
+          const cleanDeptName = dept.deptName.trim();
+          const children = currentEmployees.filter(
+            (item) => item.deptName.trim() === cleanDeptName
+          );
+
+          return {
+            label: cleanDeptName,
+            options: children,
+          };
+        })
+        .filter((group) => group.options.length > 0);
+
+      setGroupedDepartments(groupedOptions);
+    }
+  }, [currentEmployees]);
+
+  const [expandedDeptId, setExpandedDeptId] = useState(null);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  console.log("expandedDeptId:", expandedDeptId);
+
+  const options = [];
+  const toggleDept = (deptId) => {
+    setExpandedDeptId(deptId.deptId);
+    handleDepartmentChange(deptId);
+  };
+  const customMenuList = (props) => {
+    return (
+      <components.MenuList {...props}>
+        {availableDepartments?.map((dept) => (
+          <div key={dept.deptId}>
+            {/* Department Heading */}
+            <div
+              onClick={() => {
+                toggleDept(dept);
+              }}
+              style={{
+                fontWeight: "bold",
+                padding: "8px",
+                backgroundColor: "#f0f0f0",
+                cursor: "pointer",
+                borderBottom: "1px solid #ccc",
+              }}
+            >
+              {dept.deptName}
+            </div>
+
+            {/* Expanded Employees */}
+            {showEmployeeSelector && expandedDeptId === dept.deptId && (
+              <div style={{ backgroundColor: "#fff" }}>
+                {currentEmployees.length > 0 ? (
+                  currentEmployees?.map((emp) => (
+                    <div
+                      key={emp.id}
+                      onClick={() => {
+                        setSelectedEmployee(emp);
+                      }}
+                      style={{
+                        padding: "3px",
+                        cursor: "pointer",
+                        backgroundColor:
+                          selectedEmployee?.id === emp.id ? "#FEFEFE" : "white",
+                        borderBottom: "1px solid #eee",
+                      }}
+                    >
+                      {emp.employeeName}
+                    </div>
+                  ))
+                ) : (
+                  <div
+                    style={{
+                      padding: "3px",
+                      cursor: "pointer",
+                      backgroundColor: "#FEFEFE",
+                      borderBottom: "1px solid #eee",
+                      textAlign: "center",
+                    }}
+                  >
+                    No Employees Found
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        ))}
+      </components.MenuList>
+    );
+  };
+
+  const renderTicketDetails = () => {
+    if (ticketData?.ticket_type === "BOQ_APPROVAL") {
+      return (
+        <>
+          <h3 className="fs-18-500">Boq Details</h3>
+          <button
+            className="btn border-primary px-4 border-2 mt-2"
+            onClick={() =>
+              navigate(`../materialview/${ticketData.transaction_id}`, {
+                state: ticketData,
+              })
+            }
+          >
+            <GrAttachment />
+          </button>
+        </>
+      );
+    } else if (ticketData?.ticket_type === "submit") {
+      return (
+        <>
+          <h3 className="fs-18-500">Project Summary Details</h3>
+          <button
+            className="btn border-primary px-4 border-2 mt-2"
+            onClick={() =>
+              navigate(`../projectsummary/${ticketData.transaction_id}`, {
+                state: ticketData,
+              })
+            }
+          >
+            <GrAttachment />
+          </button>
+        </>
+      );
+    } else if (ticketData?.ticket_type === "submit") {
+      return (
+        <>
+          <h3 className="fs-18-500">Project Summary Details</h3>
+          <button
+            className="btn border-primary px-4 border-2 mt-2"
+            onClick={() =>
+              navigate(`../projectsummary/${ticketData.transaction_id}`, {
+                state: ticketData,
+              })
+            }
+          >
+            <GrAttachment />
+          </button>
+        </>
+      );
+    } else if (ticketData?.ticket_type === "PO_APPROVAL") {
+      return (
+        <>
+          <h3 className="fs-18-500">Purchase Order Details</h3>
+          <button
+            className="btn border-primary px-4 border-2 mt-2"
+            onClick={() =>
+              navigate(`../poDetails/${ticketData.transaction_id}`, {
+                state: ticketData,
+              })
+            }
+          >
+            <GrAttachment />
+          </button>
+        </>
+      );
+    }
+  };
+
+  console.log("Ticket Data", ticketData);
+
   return (
     <Container fluid className="">
       {/* Toast notification */}
@@ -629,11 +848,11 @@ const EngineerTicketDetails = () => {
           </small>
           <small className="text-muted mx-2">›</small>
           <small style={{ color: "#FF6F00" }}>
-            {ticketDetails?.name || "Ticket Details"}
+            {ticketData?.name || "Ticket Details"}
           </small>
         </div>
         <div className="mt-3 ms-3">
-          <h4>{ticketDetails?.name || "Ticket Details"}</h4>
+          <h4>{ticketData?.name || "Ticket Details"}</h4>
           <div className="d-flex align-items-center mt-1">
             <small className="text-muted">Created by</small>
             <div className="ms-2 d-flex align-items-center">
@@ -641,11 +860,11 @@ const EngineerTicketDetails = () => {
                 className="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center"
                 style={{ width: "20px", height: "20px", fontSize: "12px" }}
               >
-                {getInitials(ticketDetails?.ticket_owner_name)}
+                {getInitials(ticketData?.ticket_owner_name)}
               </div>
               <small className="ms-1">
-                {ticketDetails?.ticket_owner_name || "Unknown"} on{" "}
-                {formatDate(ticketDetails?.create_date)}
+                {ticketData?.ticket_owner_name || "Unknown"} on{" "}
+                {formatDate(ticketData?.create_date)}
               </small>
             </div>
           </div>
@@ -668,7 +887,7 @@ const EngineerTicketDetails = () => {
                   flexShrink: 0,
                 }}
               >
-                {getInitials(ticketDetails?.ticket_owner_name)}
+                {getInitials(ticketData?.ticket_owner_name)}
               </div>
               <div className="flex-grow-1">
                 <Form className="position-relative">
@@ -805,15 +1024,7 @@ const EngineerTicketDetails = () => {
 
             {/* view material details (BOQ) */}
 
-            <div className="py-3">
-              <h3 className="fs-18-500">Boq Details</h3>
-              <button
-                className="btn border-primary px-4 border-2 mt-2"
-                onClick={() => get_boq_Ticket(ticket)}
-              >
-                <GrAttachment />
-              </button>
-            </div>
+            <div className="py-3">{renderTicketDetails(ticketData)}</div>
 
             {/* Tabs */}
             <div className="border-bottom-0 mb-2 overflow-auto">
@@ -907,89 +1118,84 @@ const EngineerTicketDetails = () => {
             {/* Comments Tab Content */}
             {(activeTab === "all" || activeTab === "comments") && (
               <div className="mt-4">
-                {ticketDetails?.commentsAndAttachments?.map(
-                  (comment, index) => (
-                    <div key={comment.id} className="d-flex mb-4">
-                      <div className="me-2">
-                        <div
-                          className={`rounded-circle bg-${comment.avatarColor} text-white d-flex align-items-center justify-content-center`}
-                          style={{
-                            width: "36px",
-                            height: "36px",
-                            fontSize: "16px",
-                            flexShrink: 0,
-                          }}
-                        >
-                          {comment.avatar}
-                        </div>
-                      </div>
-                      <div style={{ width: "100%" }}>
-                        <div className="d-flex align-items-center flex-wrap">
-                          <span className="fw-bold">{comment.user}</span>
-                          <span className="text-muted ms-2 small">
-                            {comment.role}
-                          </span>
-                          {comment.time && (
-                            <span className="text-muted ms-2 small">
-                              {comment.time}
-                            </span>
-                          )}
-                        </div>
-                        <div className="mt-1">
-                          {comment.status && (
-                            <Badge
-                              bg={comment.statusColor || "danger"}
-                              className="px-2 py-1 rounded-pill"
-                              style={{ fontSize: "0.7rem" }}
-                            >
-                              {comment.status}
-                            </Badge>
-                          )}
-                          <span className={comment.status ? "ms-2" : ""}>
-                            {comment.comment}
-                          </span>
-                        </div>
-
-                        {comment.filename && comment.file_path && (
-                          <div className="mt-2 p-2 bg-light rounded">
-                            <div className="d-flex align-items-center mb-1">
-                              <BsPaperclip className="me-1" size={12} />
-                              <small className="text-muted">
-                                Attached File:
-                              </small>
-                            </div>
-                            <div className="d-flex align-items-center p-1">
-                              <a
-                                href={comment.file_path}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                              >
-                                <small>{comment.filename}</small>
-                              </a>
-                            </div>
-                            <div key={index} className="me-2 mb-2 mt-3">
-                                <img
-                                  src={comment.file_path}
-                                  alt={comment.filename}
-                                  style={{
-                                    width: "100px",
-                                    height: "80px",
-                                    objectFit: "cover",
-                                  }}
-                                  className="rounded"
-                                />
-                              </div>
-
-                          </div>
-                        )}
-
-                        {index < comments.length - 1 && (
-                          <hr className="mt-3" style={{ opacity: 0.1 }} />
-                        )}
+                {ticketData?.commentsAndAttachments?.map((comment, index) => (
+                  <div key={comment.id} className="d-flex mb-4">
+                    <div className="me-2">
+                      <div
+                        className={`rounded-circle bg-${comment.avatarColor} text-white d-flex align-items-center justify-content-center`}
+                        style={{
+                          width: "36px",
+                          height: "36px",
+                          fontSize: "16px",
+                          flexShrink: 0,
+                        }}
+                      >
+                        {comment.avatar}
                       </div>
                     </div>
-                  )
-                )}
+                    <div style={{ width: "100%" }}>
+                      <div className="d-flex align-items-center flex-wrap">
+                        <span className="fw-bold">{comment.user}</span>
+                        <span className="text-muted ms-2 small">
+                          {comment.role}
+                        </span>
+                        {comment.time && (
+                          <span className="text-muted ms-2 small">
+                            {comment.time}
+                          </span>
+                        )}
+                      </div>
+                      <div className="mt-1">
+                        {comment.status && (
+                          <Badge
+                            bg={comment.statusColor || "danger"}
+                            className="px-2 py-1 rounded-pill"
+                            style={{ fontSize: "0.7rem" }}
+                          >
+                            {comment.status}
+                          </Badge>
+                        )}
+                        <span className={comment.status ? "ms-2" : ""}>
+                          {comment.comment}
+                        </span>
+                      </div>
+
+                      {comment.filename && comment.file_path && (
+                        <div className="mt-2 p-2 bg-light rounded">
+                          <div className="d-flex align-items-center mb-1">
+                            <BsPaperclip className="me-1" size={12} />
+                            <small className="text-muted">Attached File:</small>
+                          </div>
+                          <div className="d-flex align-items-center p-1">
+                            <a
+                              href={`${BASE_URL}/${comment.file_path}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <small>{comment.filename}</small>
+                            </a>
+                          </div>
+                          <div key={index} className="me-2 mb-2 mt-3">
+                            <img
+                              src={`${BASE_URL}/${comment.file_path}`}
+                              alt={comment.filename}
+                              style={{
+                                width: "100px",
+                                height: "80px",
+                                objectFit: "cover",
+                              }}
+                              className="rounded"
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {index < comments.length - 1 && (
+                        <hr className="mt-3" style={{ opacity: 0.1 }} />
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
 
@@ -1158,12 +1364,12 @@ const EngineerTicketDetails = () => {
                       <div className="d-flex align-items-center">
                         <span className="fw-bold">Ticket Created</span>
                         <span className="text-muted ms-2 small">
-                          {formatDate(ticketDetails?.create_date)}
+                          {formatDate(ticketData?.create_date)}
                         </span>
                       </div>
                       <p className="text-muted small mb-0">
                         Ticket created by{" "}
-                        {ticketDetails?.ticket_owner_name || "Unknown"}
+                        {ticketData?.ticket_owner_name || "Unknown"}
                       </p>
                     </div>
                   </div>
@@ -1182,16 +1388,16 @@ const EngineerTicketDetails = () => {
                       <div className="d-flex align-items-center">
                         <span className="fw-bold">Ticket Type</span>
                         <span className="text-muted ms-2 small">
-                          {ticketDetails?.ticket_type || "N/A"}
+                          {ticketData?.ticket_type || "N/A"}
                         </span>
                       </div>
                       <p className="text-muted small mb-0">
-                        Type: {ticketDetails?.ticket_type || "Not specified"}
+                        Type: {ticketData?.ticket_type || "Not specified"}
                       </p>
                     </div>
                   </div>
 
-                  {ticketDetails?.isapproved !== null && (
+                  {ticketData?.isapproved !== null && (
                     <div className="timeline-item d-flex mb-3">
                       <div
                         className="timeline-marker bg-success rounded-circle"
@@ -1202,20 +1408,7 @@ const EngineerTicketDetails = () => {
                           marginRight: "10px",
                         }}
                       ></div>
-                      <div>
-                        <div className="d-flex align-items-center">
-                          <span className="fw-bold">Approval Status</span>
-                          <span className="text-muted ms-2 small">
-                            {ticketDetails?.isapproved
-                              ? "Approved"
-                              : "Rejected"}
-                          </span>
-                        </div>
-                        <p className="text-muted small mb-0">
-                          Status:{" "}
-                          {ticketDetails?.isapproved ? "Approved" : "Rejected"}
-                        </p>
-                      </div>
+                      
                     </div>
                   )}
                 </div>
@@ -1251,10 +1444,10 @@ const EngineerTicketDetails = () => {
                   className="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center"
                   style={{ width: "24px", height: "24px", fontSize: "12px" }}
                 >
-                  {getInitials(ticketDetails?.ticket_owner_name)}
+                  {getInitials(ticketData?.ticket_owner_name)}
                 </div>
                 <span className="ms-2">
-                  {ticketDetails?.ticket_owner_name || "Unknown"}
+                  {ticketData?.ticket_owner_name || "Unknown"}
                 </span>
               </div>
             </div>
@@ -1327,7 +1520,7 @@ const EngineerTicketDetails = () => {
                   <span>
                     {orderDate
                       ? orderDate.toLocaleDateString()
-                      : formatDate(ticketDetails?.create_date) || "Not set"}
+                      : formatDate(ticketData?.create_date) || "Not set"}
                   </span>
                   <BsCalendar3 className="ms-1" />
                 </Button>
@@ -1358,7 +1551,7 @@ const EngineerTicketDetails = () => {
                   <span>
                     {dueDate
                       ? dueDate.toLocaleDateString()
-                      : formatDate(ticketDetails?.due_date) || "Not set"}
+                      : formatDate(ticketData?.due_date) || "Not set"}
                   </span>
                   <BsCalendar3 className="ms-1" />
                 </Button>
@@ -1403,139 +1596,26 @@ const EngineerTicketDetails = () => {
             </div>
 
             {/* Move To */}
-            <div className="department-employee-selector">
+            <div className="department-employee-selector border-bottom pb-3">
               {/* Move To Selector */}
-              <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3 flex-wrap">
+              <div className="mb-3 d-flex justify-content-between align-items-center  flex-wrap">
                 <span className="text-muted">Move To</span>
-
-                <div
-                  className="d-flex align-items-center position-relative flex-wrap"
-                  style={{ justifyContent: "end" }}
-                >
-                  <Button
-                    variant="link"
-                    className="d-flex align-items-center border-no-underline"
-                    style={{
-                      color: "#FF6F00",
-                      textDecoration: "none",
-                      backgroundColor: currentDepartment ? "#DDDF" : "white",
-                      padding: currentDepartment ? "5px 10px" : 0,
-                    }}
-                    onClick={() =>
-                      setShowDepartmentSelector(!showDepartmentSelector)
+                <div style={{ justifyContent: "end", width: "300px" }}>
+                  <Select
+                    options={options}
+                    placeholder="Select Deperatment"
+                    components={{ MenuList: customMenuList }}
+                    value={
+                      selectedEmployee
+                        ? {
+                            label: selectedEmployee.employeeName,
+                            value: selectedEmployee.id,
+                          }
+                        : null
                     }
-                    disabled={isLoading}
-                  >
-                    <span
-                      style={{ color: currentDepartment ? "#000" : "#FF6F00" }}
-                    >
-                      {currentDepartment
-                        ? currentDepartment.deptName
-                        : "Select Department"}
-                    </span>
-                    {currentDepartment ? (
-                      <button
-                        className="btn btn-0 border-0"
-                        onClick={() => {
-                          setCurrentDepartment("");
-                          setCurrentEmployee("");
-                        }}
-                      >
-                        <IoMdClose className="ms-1" />
-                      </button>
-                    ) : (
-                      <AiOutlineUser
-                        className="ms-1"
-                        style={{ fill: "#FF6F00" }}
-                      />
-                    )}
-                  </Button>
-
-                  {showDepartmentSelector && (
-                    <div
-                      className="position-absolute end-0 top-100 bg-white shadow border rounded mt-1"
-                      style={{ zIndex: 1000, minWidth: "160px" }}
-                    >
-                      <div className="p-2 border-bottom">
-                        <small className="fw-bold">Select Department</small>
-                      </div>
-                      {isLoading ? (
-                        <div className="p-2 text-muted small">Loading...</div>
-                      ) : availableDepartments.length > 0 ? (
-                        availableDepartments.map((dept) => (
-                          <div
-                            key={dept.deptId}
-                            className="p-2 hover-bg-light cursor-pointer"
-                            onClick={() => handleDepartmentChange(dept)}
-                            style={{ cursor: "pointer" }}
-                          >
-                            <div className="small">{dept.deptName}</div>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="p-2 text-muted small">
-                          No departments available
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Show employee selector when department is selected */}
-                  {currentDepartment && !currentEmployee && (
-                    <Button
-                      variant="link"
-                      className="p-0 d-flex align-items-center border-no-underline w-100"
-                      style={{
-                        color: "#FF6F00",
-                        textDecoration: "none",
-                        justifyContent: "end",
-                      }}
-                      onClick={() =>
-                        setShowEmployeeSelector(!showEmployeeSelector)
-                      }
-                      disabled={isLoading}
-                    >
-                      <span style={{ color: "#FF6F00" }}>
-                        {currentEmployee
-                          ? currentEmployee.employeeName
-                          : "Select Employee"}
-                      </span>
-                      <AiOutlineUser
-                        className="ms-1"
-                        style={{ fill: "#FF6F00" }}
-                      />
-                    </Button>
-                  )}
-
-                  {/* Show employee selector only when the employee selector is toggled */}
-                  {showEmployeeSelector && currentDepartment && (
-                    <div
-                      className="position-absolute end-0 top-100 bg-white shadow border rounded mt-1"
-                      style={{ zIndex: 1000, minWidth: "160px" }}
-                    >
-                      <div className="p-2 border-bottom">
-                        <small className="fw-bold">Select Employee</small>
-                      </div>
-                      {isLoading ? (
-                        <div className="p-2 text-muted small">Loading...</div>
-                      ) : currentEmployees.length > 0 ? (
-                        currentEmployees.map((emp) => (
-                          <div
-                            key={emp.id}
-                            className="p-2 hover-bg-light cursor-pointer"
-                            onClick={() => handleEmployeeChange(emp)}
-                            style={{ cursor: "pointer" }}
-                          >
-                            <div className="small">{emp.employeeName}</div>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="p-2 text-muted small">
-                          No employees available
-                        </div>
-                      )}
-                    </div>
-                  )}
+                    onChange={() => {}}
+                    isSearchable={false}
+                  />
                 </div>
               </div>
 
@@ -1544,9 +1624,7 @@ const EngineerTicketDetails = () => {
                 <div className="mt-3 p-2 border rounded bg-light">
                   <h6 className="mb-1">Move To:</h6>
                   <p className="mb-0">
-                    {currentEmployee
-                      ? currentEmployee.employeeName
-                      : currentDepartment
+                    {currentDepartment
                       ? currentDepartment.deptName
                       : "Select Move To"}
                   </p>
@@ -1554,14 +1632,15 @@ const EngineerTicketDetails = () => {
               ) : null}
             </div>
 
-            {/* Approved By */}
+
+
+
+              {/* Approved By */}
             <div
-              className={`mb-3 mt-3 d-flex justify-content-between align-items-center border-bottom pb-3 ${
-                userData?.empId === ticket.created_by
-                  ? "d-none"
-                  : "d-block"
-              }`}
-            >
+                className={`mb-3 mt-3 d-flex justify-content-between align-items-center border-bottom pb-3 pt-3 ${
+                 approvedStatusShowByID && approvedStatusByStatus ? "d-none" : "d-block"
+                }`}
+>
               <span className="text-muted">Action</span>
               <div className="d-flex align-items-center">
                 <button
@@ -1589,24 +1668,30 @@ const EngineerTicketDetails = () => {
               </div>
             </div>
 
+
+
+
             {/* Approval Status */}
-            {ticketDetails?.isapproved !== null && (
+          
+            {ticketData?.isapproved !== null && ticketData?.isapproved !== undefined && (
               <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
-                <span className="text-muted">Approval Status</span>
-                <Badge
-                  bg={ticketDetails?.isapproved ? "success" : "danger"}
-                  className="px-2 py-1"
-                >
-                  {ticketDetails?.isapproved ? "Approved" : "Pending"}
-                </Badge>
-              </div>
+              <span className="text-muted">Approval Status</span>
+              <Badge
+                bg={getApprovalStatus(ticketData?.isapproved).color}
+                className="px-2 py-1"
+              >
+            {getApprovalStatus(ticketData?.isapproved).text}
+              </Badge>
+            </div>
             )}
 
+            
+
             {/* Approved By */}
-            {ticketDetails?.approved_by && (
+            {ticketData?.approved_by && (
               <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
                 <span className="text-muted">Approved By</span>
-                <span>{ticketDetails?.approved_by}</span>
+                <span>{ticketData?.approved_by}</span>
               </div>
             )}
 

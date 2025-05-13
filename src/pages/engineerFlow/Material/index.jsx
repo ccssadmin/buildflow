@@ -120,7 +120,7 @@ if (error) return <p className="text-danger">Error: {error}</p>;
             {boqItems.map((material, index) => (
               <tr key={index}>
                 <td>{material.id}</td>
-                <td>{material.itemName}</td>
+                <td>{material.name}</td>
                 <td>{material.stock}</td>
                 <td>{material.required}</td>
                 <td>{getLevelBadge(material.level)}</td>
@@ -131,7 +131,7 @@ if (error) return <p className="text-danger">Error: {error}</p>;
                     style={{ color: material.action === "View" ? "#0456D0" : "#0456D0" }}
                     onClick={() => navigate(`/admin/engineermaterialviewscreen/${material.boqId}`)}
                   >
-                    {material.boqId}
+                    {material.action}
                   </a>
                 </td>
               </tr>
