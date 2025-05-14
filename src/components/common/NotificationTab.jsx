@@ -16,6 +16,7 @@ import useAuth from '../../hooks/useAuth';
 import { userInfoAction } from '../../store/actions';
 import { useDispatch } from 'react-redux';
 import { useNotification } from '../../hooks/Ceo/useNotification';
+import { useNavigate } from 'react-router-dom';
 const Notification = () => {
   // State for active tab
   const [activeTab, setActiveTab] = useState('unread');
@@ -59,6 +60,7 @@ const Notification = () => {
   };
   
   const yearList = generateYearList();
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
   const {getnotification} = useNotification();
 
@@ -102,6 +104,7 @@ const Notification = () => {
   
             return {
               id: n.notificationId,
+              ticketId: n.sourceEntityId, 
               department: "General",
               title: "Approval Request",
               subtitle: n.message || "No Message",
@@ -499,7 +502,8 @@ const Notification = () => {
     const deptClass = `dept-${notification.department.toLowerCase().replace(/\s+/g, '')}`;
     
     return (
-      <Card key={notification.id} className="mb-3 border rounded-4">
+      <Card key={notification.id} className="card mb-3 border rounded-4 cursorcamer"
+      onClick={() => navigate(`/ticket/${notification.ticketId}`)}>
         <div className="card-pending-approvel">
           <div className="card-pending-approvel-header d-flex justify-content-between align-items-start">
             <div className="card-pending-approvel-project-title">
