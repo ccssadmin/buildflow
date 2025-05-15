@@ -116,106 +116,101 @@ const EmployeeTable = () => {
 
       </table>
 
-      <div className="pagination-controls" style={{ marginTop: "1rem", textAlign: "center" }}>
-        <button
-          onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
-          disabled={currentPage === 1}
-          style={{
-            margin: "0 5px",
-            padding: "6px 12px",
-            backgroundColor: "#eee",
-            border: "none",
-            borderRadius: "4px",
-            cursor: currentPage === 1 ? "not-allowed" : "pointer",
-          }}
-        >
-          Previous
-        </button>
-
-        {/* First Page */}
-        <button
-          onClick={() => handlePageChange(1)}
-          style={{
-            margin: "0 5px",
-            padding: "6px 12px",
-            backgroundColor: currentPage === 1 ? "#0456D0" : "#eee",
-            color: currentPage === 1 ? "#fff" : "#000",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
-        >
-          1
-        </button>
-
-        {/* Ellipsis if currentPage > 4 */}
-        {currentPage > 4 && <span style={{ margin: "0 5px" }}>...</span>}
-
-        {/* Pages around current page */}
-        {Array.from({ length: totalPages }, (_, i) => i + 1)
-          .filter(
-            (page) =>
-              page !== 1 &&
-              page !== totalPages &&
-              Math.abs(page - currentPage) <= 1
-          )
-          .map((page) => (
-            <button
-              key={page}
-              onClick={() => handlePageChange(page)}
-              style={{
-                margin: "0 5px",
-                padding: "6px 12px",
-                backgroundColor: currentPage === page ? "#0456D0" : "#eee",
-                color: currentPage === page ? "#fff" : "#000",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer",
-              }}
-            >
-              {page}
-            </button>
-          ))}
-
-        {/* Ellipsis if not near the end */}
-        {currentPage < totalPages - 3 && <span style={{ margin: "0 5px" }}>...</span>}
-
-        {/* Last Page */}
-        {totalPages > 1 && (
+      {totalPages > 1 && (
+        <div className="pagination-controls" style={{ marginTop: "1rem", textAlign: "center" }}>
           <button
-            onClick={() => handlePageChange(totalPages)}
+            onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
+            disabled={currentPage === 1}
             style={{
               margin: "0 5px",
               padding: "6px 12px",
-              backgroundColor: currentPage === totalPages ? "#0456D0" : "#eee",
-              color: currentPage === totalPages ? "#fff" : "#000",
+              backgroundColor: "#eee",
+              border: "none",
+              borderRadius: "4px",
+              cursor: currentPage === 1 ? "not-allowed" : "pointer",
+            }}
+          >
+            Previous
+          </button>
+
+          {/* First page */}
+          <button
+            onClick={() => handlePageChange(1)}
+            style={{
+              margin: "0 5px",
+              padding: "6px 12px",
+              backgroundColor: currentPage === 1 ? "#0456D0" : "#eee",
+              color: currentPage === 1 ? "#fff" : "#000",
               border: "none",
               borderRadius: "4px",
               cursor: "pointer",
             }}
           >
-            {totalPages}
+            1
           </button>
-        )}
 
-        <button
-          onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
-          disabled={currentPage === totalPages}
-          style={{
-            margin: "0 5px",
-            padding: "6px 12px",
-            backgroundColor: "#eee",
-            border: "none",
-            borderRadius: "4px",
-            cursor: currentPage === totalPages ? "not-allowed" : "pointer",
-          }}
-        >
-          Next
-        </button>
-      </div>
+          {currentPage > 4 && <span style={{ margin: "0 5px" }}>...</span>}
 
+          {Array.from({ length: totalPages }, (_, i) => i + 1)
+            .filter(
+              (page) =>
+                page !== 1 &&
+                page !== totalPages &&
+                Math.abs(page - currentPage) <= 1
+            )
+            .map((page) => (
+              <button
+                key={page}
+                onClick={() => handlePageChange(page)}
+                style={{
+                  margin: "0 5px",
+                  padding: "6px 12px",
+                  backgroundColor: currentPage === page ? "#0456D0" : "#eee",
+                  color: currentPage === page ? "#fff" : "#000",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                }}
+              >
+                {page}
+              </button>
+            ))}
 
+          {currentPage < totalPages - 3 && <span style={{ margin: "0 5px" }}>...</span>}
 
+          {totalPages > 1 && (
+            <button
+              onClick={() => handlePageChange(totalPages)}
+              style={{
+                margin: "0 5px",
+                padding: "6px 12px",
+                backgroundColor: currentPage === totalPages ? "#0456D0" : "#eee",
+                color: currentPage === totalPages ? "#fff" : "#000",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+            >
+              {totalPages}
+            </button>
+          )}
+
+          <button
+            onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            style={{
+              margin: "0 5px",
+              padding: "6px 12px",
+              backgroundColor: "#eee",
+              border: "none",
+              borderRadius: "4px",
+              cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+            }}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 };

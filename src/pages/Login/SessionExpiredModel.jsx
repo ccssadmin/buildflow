@@ -1,7 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-const SessionExpiredModal = ({ isOpen, onClose }) => {
+const SessionExpiredModal = ({ isOpen, onClose, onContinue, onLogout }) => {
+
+  const [loading, setLoading] = useState(false);
   if (!isOpen) return null;
+
+  const handleContinue = async () => {
+    setLoading(true);
+    try {
+      await onContinue();
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="session-expired-modal-overlay">
@@ -10,10 +21,15 @@ const SessionExpiredModal = ({ isOpen, onClose }) => {
           <h3>Session Expired</h3>
         </div>
         <div className="session-expired-modal-body">
-          <p>Your session has expired. Please login again to continue.</p>
+          <p>Your session has expired. Click continue to stay signed in.</p>
         </div>
         <div className="session-expired-modal-footer">
-          <button className="btn-primary" onClick={onClose}>OK</button>
+          <button className="btn-primary" onClick={handleContinue} disabled={loading}>
+            {loading ? "Refreshing..." : "Continue"}
+          </button>
+          <button className="btn-secondary" onClick={onLogout} disabled={loading}>
+            Logout
+          </button>
         </div>
       </div>
 

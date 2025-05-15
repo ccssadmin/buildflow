@@ -95,6 +95,7 @@ export default function Login({ onLoginSuccess }) {
         // Store authentication token
         setAuthToken(response.payload.token);
         localStorage.setItem("accessToken", response.payload.token);
+        localStorage.setItem("refreshToken", response.payload.refreshToken);
         
         // Store token expiration time if available
         if (response.payload.expiresIn || response.payload.expires_in) {
@@ -128,6 +129,7 @@ export default function Login({ onLoginSuccess }) {
             ...userDetails,
             roleName: userDetails.roleName || (loginMode === "vendor" ? "Vendor" : "ManagingDirector"),
             roleId: userDetails.roleId || (loginMode === "vendor" ? "Vendor" : "1"),
+            roleCode: userDetails.roleCode || (loginMode === "vendor" ? "VENDOR" : "MD"),
             token: response.payload.token,
             isVendor: loginMode === "vendor", // Flag to identify vendor users
           };
@@ -139,6 +141,7 @@ export default function Login({ onLoginSuccess }) {
           localStorage.setItem("userData", JSON.stringify(userData));
           localStorage.setItem("userRole", userData.roleName);
           localStorage.setItem("userRoleId", userData.roleId);
+          localStorage.setItem("userRoleCode", userData.roleCode);
           
           // For vendor users, set a special identifier
           if (loginMode === "vendor") {
@@ -159,6 +162,7 @@ export default function Login({ onLoginSuccess }) {
                      (loginMode === "vendor" ? "Vendor" : "ManagingDirector"),
             roleId: userInfoResponse.payload.roleId || userInfoResponse.payload.role_id || 
                   (loginMode === "vendor" ? "Vendor" : "1"),
+            roleCode: userInfoResponse.payload.roleCode || (loginMode === "vendor" ? "VENDOR" : "MD"),
             isVendor: loginMode === "vendor",
           };
           
@@ -167,6 +171,7 @@ export default function Login({ onLoginSuccess }) {
           localStorage.setItem("userData", JSON.stringify(userData));
           localStorage.setItem("userRole", userData.roleName);
           localStorage.setItem("userRoleId", userData.roleId);
+           localStorage.setItem("userRoleCode", userData.roleCode);
           
           if (loginMode === "vendor") {
             localStorage.setItem("userType", "vendor");
@@ -187,12 +192,14 @@ export default function Login({ onLoginSuccess }) {
             email: formData.username, // Store email too
             roleName: loginMode === "vendor" ? "Vendor" : "ManagingDirector",
             roleId: loginMode === "vendor" ? "Vendor" : "1",
+            roleCode: loginMode === "vendor" ? "VENDOR" : "MD",
             isVendor: loginMode === "vendor",
           };
           
           localStorage.setItem("userData", JSON.stringify(defaultUserData));
           localStorage.setItem("userRole", defaultUserData.roleName);
           localStorage.setItem("userRoleId", defaultUserData.roleId);
+           localStorage.setItem("userRoleCode", defaultUserData.roleCode);
           
           if (loginMode === "vendor") {
             localStorage.setItem("userType", "vendor");
