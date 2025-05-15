@@ -119,7 +119,7 @@
   }
   
   .addemployee-breadcrumb {
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 500;
     display: flex;
     align-items: center;
@@ -151,7 +151,7 @@
   
   
   .addemployee-section-title {
-    font-size: 18px;
+    font-size: 26px;
     font-weight: 600;
     margin-bottom: 1rem;
   }
@@ -204,7 +204,7 @@
     flex: 1;
     font-size: 14px;
     width: 350px;
-    //height: 48px;
+    height: 48px;
     border-radius: 4px;
     border: 1px;
     padding-top: 10px;
@@ -231,7 +231,7 @@
     font-size: 14px;
     border: 1px solid #ccc;
     border-radius: 6px;
-    //margin-top: 4px;
+    margin-top: 4px;
     padding: 10px 12px; 
   }
   
@@ -267,7 +267,7 @@ button.addemployee-btn-delete {
 }
   
   .addemployee-form-group label {
-    font-size: 14px;
+    font-size: 20px;
     font-weight: 500;
     margin-bottom: 6px;
 
@@ -276,7 +276,7 @@ button.addemployee-btn-delete {
   .addemployee-form-group input,
   .addemployee-form-group select {
     padding: 10px 12px;
-    font-size: 14px;
+    font-size: 16px;
     border: 1px solid #ccc;
     border-radius: 6px;
   }
@@ -309,8 +309,9 @@ button.addemployee-btn-delete {
     padding: 10px 20px;
     background-color: #fff;
     color: #555;
+    width: 140px;
     border: 1px solid #ccc;
-    border-radius: 6px;
+    border-radius: 2px;
     cursor: pointer;
   }
   
@@ -319,7 +320,8 @@ button.addemployee-btn-delete {
     background-color:#FF6F00;
     color: #fff;
     border: none;
-    border-radius: 6px;
+    width: 140px;
+    border-radius: 2px;
     cursor: pointer;
   }
   

@@ -4,13 +4,12 @@ import { BsEmojiSmile, BsPlus } from "react-icons/bs";
 import { FiPaperclip, FiSend } from "react-icons/fi";
 import chatBg from "../../../../assets/images/chatbackgroundimage.jpg";
 
-
 // Dummy data for group messages
 const groupMessagesData = [
-  { id: 1, sender: "Albert Flores", text: "Hey team, let's discuss the project timeline.", time: "7:15 pm" },
-  { id: 2, sender: "Wade Warren", text: "I've completed the initial designs.", time: "7:16 pm" },
-  { id: 3, sender: "Jenny Wilson", text: "Great job! Can we review them tomorrow?", time: "7:17 pm" },
-  { id: 4, sender: "Floyd Miles", text: "Works for me. I'll prepare the documentation.", time: "7:18 pm" },
+  { id: 1, sender: "Albert Flores", text: "Hey team, let's discuss the project timeline.", time: "7:15 pm", date: "Today" },
+  { id: 2, sender: "Wade Warren", text: "I've completed the initial designs.", time: "7:16 pm", date: "Today" },
+  { id: 3, sender: "Jenny Wilson", text: "Great job! Can we review them tomorrow?", time: "7:17 pm", date: "Today" },
+  { id: 4, sender: "Floyd Miles", text: "Works for me. I'll prepare the documentation.", time: "7:18 pm", date: "Today" },
 ];
 
 const GroupChatScreen = ({ selectedGroup }) => {
@@ -22,11 +21,21 @@ const GroupChatScreen = ({ selectedGroup }) => {
     return now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
+  const getCurrentDate = () => {
+    return "Today";
+  };
+
   const sendMessage = () => {
     if (newMessage.trim()) {
       setMessages([
         ...messages,
-        { id: messages.length + 1, sender: "Me", text: newMessage, time: getCurrentTime() },
+        { 
+          id: messages.length + 1, 
+          sender: "Me", 
+          text: newMessage, 
+          time: getCurrentTime(),
+          date: getCurrentDate()
+        },
       ]);
       setNewMessage("");
     }
@@ -40,6 +49,16 @@ const GroupChatScreen = ({ selectedGroup }) => {
     );
   }
 
+  // Group messages by date
+  const groupedMessages = messages.reduce((groups, message) => {
+    const date = message.date;
+    if (!groups[date]) {
+      groups[date] = [];
+    }
+    groups[date].push(message);
+    return groups;
+  }, {});
+
   return (
     <div className="chat-window flex-grow-1 d-flex flex-column">
       {/* Group Chat Header */}
@@ -52,38 +71,71 @@ const GroupChatScreen = ({ selectedGroup }) => {
               ? ` + ${(selectedGroup.members || []).length - 3} more`
               : ""}
           </small>
-
         </div>
         <FaEllipsisV className="menu-icon" style={{ cursor: "pointer" }} />
       </div>
 
       {/* Messages Area */}
-      <div className="chat-messages flex-grow-1 p-3 overflow-auto"
-      style={{
-                 backgroundImage: `url(${chatBg})`,
-                backgroundSize: "cover",
-                backgroundRepeat: "no-repeat",
-                backgroundPosition: "center",
-              }}
+      <div 
+        className="chat-messages flex-grow-1 p-3 overflow-auto"
+        style={{
+          backgroundImage: `url(${chatBg})`,
+          backgroundSize: "cover",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "center",
+        }}
       >
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`mb-3 d-flex ${msg.sender === "Me" ? "justify-content-end" : "justify-content-start"}`}
-          >
-            <div
-              className={`chat-bubble p-2 d-inline-block rounded ${msg.sender === "Me" ? "sent" : "received"
-                }`}
-              style={{ maxWidth: "80%" }}
-            >
-              {msg.sender !== "Me" && <small className="text-muted">{msg.sender}</small>}
-              <div>{msg.text}</div>
-              <div className="message-time">
-                <small className={`${msg.sender === "Me" ? "text-white-50" : "text-muted"}`}>
-                  {msg.time}
-                </small>
+        {Object.entries(groupedMessages).map(([date, dateMessages]) => (
+          <div key={date}>
+            {/* Date divider */}
+            <div className="text-center position-relative my-4" style={{ overflow: "hidden" }}>
+              <div style={{ 
+                display: "inline-block",
+                position: "relative",
+                color: "#6c757d",
+                fontSize: "14px",
+                padding: "0 10px",
+                backgroundColor: "transparent",
+                zIndex: 1
+              }}>
+                {date}
               </div>
+              <div style={{ 
+                position: "absolute",
+                top: "50%",
+                left: 0,
+                right: 0,
+                borderBottom: "1px solid #e0e0e0",
+                zIndex: 0
+              }}></div>
             </div>
+            
+            {/* Messages for this date */}
+            {dateMessages.map((msg) => (
+              <div
+                key={msg.id}
+                className={`mb-3 d-flex ${msg.sender === "Me" ? "justify-content-end" : "justify-content-start"}`}
+              >
+                <div
+                  className={`chat-bubble p-2 d-inline-block rounded ${
+                    msg.sender === "Me" ? "sent" : "received"
+                  }`}
+                  style={{ 
+                    maxWidth: "80%", 
+                    backgroundColor: msg.sender === "Me" ? "#FF6F00" : "white",
+                    color: msg.sender === "Me" ? "white" : "black"
+                  }}
+                >
+                  {msg.sender !== "Me" && <small className="text-muted">{msg.sender}</small>}
+                  <div>{msg.text}</div>
+                  <div className="message-time">
+                    <small className={`${msg.sender === "Me" ? "text-white-50" : "text-muted"}`}>
+                      {msg.time}
+                    </small>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         ))}
       </div>
@@ -100,6 +152,7 @@ const GroupChatScreen = ({ selectedGroup }) => {
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+          style={{ backgroundColor: "#EFEFEF" }}
         />
         <FiSend
           className="icon send-icon"

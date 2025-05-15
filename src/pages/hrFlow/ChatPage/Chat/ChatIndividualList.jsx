@@ -19,7 +19,7 @@ const ChatIndividualList = ({ selectedChat, setSelectedChat }) => {
 
   return (
     <div className="bg-white p-3 border-end" style={{ width: "250px" }}>
-      <h5 className="text-dark mb-3">Chats</h5>
+      {/* <h5 className="text-dark mb-3">Chats</h5> */}
       {chatUsers.map((user) => (
        <div
   key={user.id}
