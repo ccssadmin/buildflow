@@ -356,7 +356,13 @@ const AddEmployee = () => {
           <div className="addemployee-form-group">
             <label>Name <span className="addemployee-required">*</span></label>
 
-            <input type="text" name="name" placeholder="Employee Name" value={employee.name} onChange={handleChange} />
+            <input type="text" name="name" placeholder="Employee Name" value={employee.name} onChange={(e) => {
+              const value = e.target.value;
+              // Allow only letters and spaces
+              if (/^[A-Za-z\s]*$/.test(value)) {
+                handleChange(e);
+              }
+            }} />
             {validationErrors.name && <p className="error-text">{validationErrors.name}</p>}
           </div>
 
