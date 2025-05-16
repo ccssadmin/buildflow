@@ -465,29 +465,26 @@ const BASE_URL = process.env.REACT_APP_MASTER_API_BASE_URL;
 
   //check Boq Details for hide the details
 
-  let approvedStatusShowByID = false;
-let approvedStatusByStatus = false;
+  let hasBoqDetails = false;
 
-const grouped = ticketData?.approvalsGrouped || {};
+  //check Id based approvel to hide action
 
-function hasUserApprovedByID(approvals, empId) {
-  return approvals.some(approval => approval?.approved_by_id === empId);
-}
+  let hasUserApprovedStatusShow = false;
 
-function hasProcessedStatus(approvals) {
-  return approvals.some(approval => ["approved", "rejected"].includes(approval?.approval_type));
-}
+  const grouped = ticketData?.approvalsGrouped || {};
 
-Object.values(grouped).forEach((approvals) => {
-  if (hasUserApprovedByID(approvals, userData?.empId)) {
-    approvedStatusShowByID = true;
+  Object.values(grouped).forEach((approvals) => {
+    approvals.forEach((approval) => {
+      const userApproved = approval?.approved_by_id === userData?.empId;
+      const statusProcessed = ["approved", "rejected"].includes(approval?.approval_type);
+  
+      if (userApproved && statusProcessed) {
+        hasUserApprovedStatusShow = true;
   }
-  if (hasProcessedStatus(approvals)) {
-    approvedStatusByStatus = true;
-  }
-});
+  });
+  });
 
-  console.log("Has user approved?", hasProcessedStatus); // true or false
+  console.log("Has user approved?", hasUserApprovedStatusShow); // true or false
 
   // Handle file attachment
   const handleFileAttachment = (e) => {
@@ -696,6 +693,10 @@ Object.values(grouped).forEach((approvals) => {
     setExpandedDeptId(deptId.deptId);
     handleDepartmentChange(deptId);
   };
+  const empId = userData?.empId;
+  const createdby = ticketData?.created_by;
+
+
   const customMenuList = (props) => {
     return (
       <components.MenuList {...props}>
@@ -1650,14 +1651,15 @@ Object.values(grouped).forEach((approvals) => {
             </div>
 
 
-
-
+                
+              
               {/* Approved By */}
             <div
-                className={`mb-3 mt-3 d-flex justify-content-between align-items-center border-bottom pb-3 pt-3 ${
-                 approvedStatusShowByID && approvedStatusByStatus ? "d-none" : "d-block"
-                }`}
+  className={`approve-reject mb-3 mt-3 d-flex justify-content-between align-items-center border-bottom pb-3 pt-3 
+    ${hasUserApprovedStatusShow ? "d-none" : "d-block"} 
+    ${empId === createdby ? "same" : "not-same"}`}
 >
+
               <span className="text-muted">Action</span>
               <div className="d-flex align-items-center">
                 <button

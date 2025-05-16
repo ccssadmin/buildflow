@@ -193,6 +193,7 @@ const KanbanBoard = () => {
       1: `/ceo/ticket/${ticketId}`, // CEO
       10: `/admin/engineerticketdetails/${ticketId}`, // Site Engineer
       4: `/aqs/aqsticketdetails/${ticketId}`,
+      3: `/aqs/aqsticketdetails/${ticketId}`,
       8: `/pm/pmticket/${ticketId}`,
       11: `/ticket/${ticketId}`, // Managing Director
       13: `/finance/ticket/${ticketId}`, // Head Finance

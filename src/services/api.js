@@ -1,7 +1,7 @@
 import axios from "axios";
 import Config from "../config";
 import loggerService from "./logger.service";
-import { issetAuthToken, getAuthToken } from "../utils/storage";
+import {issetAuthToken, getAuthToken, getRefreshToken, setAuthToken, setRefreshToken} from "../utils/storage";
 
 // Request methods
 const GET = "GET";
@@ -9,283 +9,239 @@ const POST = "POST";
 const PUT = "PUT";
 const DELETE = "DELETE";
 
-/**
- * Set headers & base url
- */
-export function getHttpHeader() {
-  // Set default headers
-  const headers = {
-    "Content-Type": "application/json",
-    "Access-Control-Allow-Origin": "*",
-    Timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+// Create axios instance
+const createAxiosInstance = () => {
+  const instance = axios.create({
+    baseURL: Config.apiBaseUrl,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+      Timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    },
+  });
+
+  let justLoggedIn = false;
+  let isRefreshing = false;
+  let failedQueue = [];
+
+  const processQueue = (error, token = null) => {
+    failedQueue.forEach(prom => {
+      if (error) prom.reject(error);
+      else prom.resolve(token);
+    });
+    failedQueue = [];
   };
 
-  // if (issetAuthToken()) {
-  //   headers['Authorization'] = `Bearer ${getAuthToken()}`;
-  //   console.log(issetAuthToken(), getAuthToken())
-  // }else{
-  //   console.log(issetAuthToken(), getAuthToken())
-  // }
-  return headers;
-}
+  // Request interceptor
+  instance.interceptors.request.use(
+    (config) => {
+      if (issetAuthToken()) {
+        config.headers["Authorization"] = `Bearer ${getAuthToken()}`;
+      } else {
+        delete config.headers["Authorization"];
+      }
+      return config;
+    },
+    (error) => Promise.reject(error)
+  );
 
-export const axiosBase = axios.create({
-  baseURL: Config.apiBaseUrl,
-  headers: getHttpHeader(),
-});
+  // Response interceptor with refresh logic
+  instance.interceptors.response.use(
+    (response) => {
+      justLoggedIn = false;
+      return response;
+    },
+    async (error) => {
+      const originalRequest = error.config;
 
-// Create an Axios request interceptor
-axiosBase.interceptors.request.use(
-  (config) => {
-    // Get the user's authentication status (you can use a state management library like Redux or React Context)
+      if ((error.response?.status === 401 || error.response?.status === 403) && !originalRequest._retry) {
+        const refreshToken = getRefreshToken();
 
-    // Update the headers based on the user's authentication status
-    if (issetAuthToken()) {
-      config.headers["Authorization"] = `Bearer ${getAuthToken()}`;
-    } else {
-      // Remove the Authorization header if the user is not authenticated
-      delete config.headers["Authorization"];
+        if (!refreshToken) {
+          document.dispatchEvent(new Event("session_expired"));
+          return Promise.reject(error);
+        }
+
+        if (isRefreshing) {
+          return new Promise((resolve, reject) => {
+            failedQueue.push({ resolve, reject });
+          })
+            .then((token) => {
+              originalRequest.headers["Authorization"] = `Bearer ${token}`;
+              return axios(originalRequest);
+            })
+            .catch(err => Promise.reject(err));
+        }
+
+        originalRequest._retry = true;
+        isRefreshing = true;
+
+        try {
+          const res = await axios.post(`${Config.apiBaseUrl}/api/Login/refresh-token`, {
+            refreshToken: refreshToken
+          });
+
+          const newToken = res.data?.Token;
+          const newRefreshToken = res.data?.RefreshToken;
+
+          if (newToken && newRefreshToken) {
+            await setAuthToken(newToken);
+            await setRefreshToken(newRefreshToken);
+            axios.defaults.headers.common["Authorization"] = `Bearer ${newToken}`;
+            processQueue(null, newToken);
+            return axios(originalRequest);
+          } else {
+            throw new Error("Invalid refresh response");
+          }
+        } catch (refreshError) {
+          processQueue(refreshError, null);
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("refreshToken");
+          document.dispatchEvent(new Event("session_expired"));
+          return Promise.reject(refreshError);
+        } finally {
+          isRefreshing = false;
+        }
+      }
+
+      return Promise.reject(error);
     }
+  );
 
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+  return {
+    instance,
+    setJustLoggedIn: (value) => { justLoggedIn = value; }
+  };
+};
 
-/**
- * Http request
- */
-export const request = async (
-  method,
-  path,
-  httpParams,
-  body,
-  disableLoader = false
-) => {
-  // Console request time
-  consoleRequestResponseTime("request", Config.apiBaseUrl + "" + path);
+const { instance: axiosBase, setJustLoggedIn } = createAxiosInstance();
 
-  // Check method
-  // eslint-disable-next-line default-case
-  switch (method) {
-    // Get
-    case GET:
-      return axiosBase
-        .get(path, { params: httpParams })
-        .then(function (response) {
-          // handle success
-          const processedData = processResponseData("success", path, response);
-          return processedData;
-        })
-        .catch(function (error) {
-          // handle error
-          processResponseData("failure", path, error);
-          throw error;
-        })
-        .finally(function () {});
-
-    // Post
-    case POST:
-      return axiosBase
-        .post(path, body, { params: httpParams })
-        .then(function (response) {
-          // handle success
-          const processedData = processResponseData("success", path, response);
-          return processedData;
-        })
-        .catch(function (error) {
-          // handle error
-          processResponseData("failure", path, error);
-          throw error;
-        })
-        .finally(function () {});
-
-    // Put
-    case PUT:
-      return axiosBase
-        .put(path, body, { params: httpParams })
-        .then(function (response) {
-          // handle success
-          const processedData = processResponseData("success", path, response);
-          return processedData;
-        })
-        .catch(function (error) {
-          // handle error
-          processResponseData("failure", path, error);
-          throw error;
-        })
-        .finally(function () {});
-    // DELETE
-    case DELETE:
-      return axiosBase
-        .delete(path, body, { params: httpParams })
-        .then(function (response) {
-          // handle success
-          const processedData = processResponseData("success", path, response);
-          return processedData;
-        })
-        .catch(function (error) {
-          // handle error
-          processResponseData("failure", path, error);
-          throw error;
-        })
-        .finally(function () {});
+/** Http Request */
+export const request = async (method, path, httpParams, body, disableLoader = false) => {
+  consoleRequestResponseTime("request", Config.apiBaseUrl + path);
+  try {
+    let response;
+    switch (method) {
+      case GET:
+        response = await axiosBase.get(path, { params: httpParams });
+        break;
+      case POST:
+        response = await axiosBase.post(path, body, { params: httpParams });
+        break;
+      case PUT:
+        response = await axiosBase.put(path, body, { params: httpParams });
+        break;
+      case DELETE:
+        response = await axiosBase.delete(path, { params: httpParams, data: body });
+        break;
+      default:
+        throw new Error(`Unsupported method: ${method}`);
+    }
+    return processResponseData("success", path, response);
+  } catch (error) {
+    processResponseData("failure", path, error);
+    throw error;
   }
 };
 
-/**
- * Process the response data
- */
+/** Process API Response */
 export const processResponseData = (type, path, data, failureMsg) => {
-  // If success and data is object
   if (type === "success") {
-    // data = convertNulltoEmpty(data);
     if (Config.trackHttpResponseInConsole) {
       loggerService.showLog("Response Success");
-      loggerService.showLog(["Request Url", Config.apiBaseUrl + "" + path]);
+      loggerService.showLog(["Request Url", Config.apiBaseUrl + path]);
       loggerService.showLog(["Body", data]);
     }
     return data;
   } else {
     if (Config.trackHttpResponseInConsole) {
       loggerService.showLog("Response Failure");
-      loggerService.showLog(["Url", Config.apiBaseUrl + "" + path]);
+      loggerService.showLog(["Url", Config.apiBaseUrl + path]);
       loggerService.showLog(["Body", data]);
     }
-
-    /**
-     * Show error msg if
-     * 1. Message available in service
-     * 2. Otherwise show custom error from each service request
-     * 3. Otherwise, show default message 'Service Failure'
-     */
-    // Need to Confirm params
     console.log(failureMsg);
   }
 };
 
-/**
- * Convert json null to empty write console
- */
+/** JSON Null to Empty Converter */
 export const convertNulltoEmpty = (data) => {
-  let stringifyData = JSON.stringify(data).replace(/null/i, '""');
-  stringifyData = stringifyData.replace(/null/g, '""');
-  const json = JSON.parse(stringifyData);
-  return json;
+  return JSON.parse(JSON.stringify(data).replace(/null/gi, '""'));
 };
 
-/**
- * Request / Response Time Tracker
- */
+/** API Timing Logs */
 const consoleRequestResponseTime = (type, url) => {
   if (Config.trackHttpTimeInConsole) {
-    if (type === "request") {
-      console.log("Request Url", url);
-      console.log("Time Started", new Date());
-    } else {
-      console.log("Response Url", url);
-      console.log("Time Ended", new Date());
-    }
+    console.log(`${type === "request" ? "Request" : "Response"} Url`, url);
+    console.log(`Time ${type === "request" ? "Started" : "Ended"}`, new Date());
   }
 };
 
-/**
- * File upload handler
- */
+/** File Upload */
 export const doFileUpload = async (url, params) => {
   try {
     const formData = new FormData();
-    if (params[0].body?.pageType === "ticket") {
-      formData.append("files", params[0].file);
-      formData.append("ticket_id", params[0].body?.ticketId);
-    } else if (params[0].body?.pageType === "tool") {
-      formData.append("files", params[0].file);
-      formData.append("TicketId", params[0].body?.ticketId);
-      formData.append("ToolId", params[0].body?.toolId);
-      formData.append("tool_ticket_id", params[0].body?.tool_ticket_id);
-    } else if (params[0].body?.pageType === "comment") {
-      params[0].file.forEach((val) => {
-        formData.append(`attachedFiles`, val);
-      });
-      formData.append("ticket_id", params[0].body?.ticket_id);
-      formData.append("tool_id", params[0].body?.tool_id);
-      formData.append("tool_ticket_id", params[0].body?.tool_ticket_id);
-      formData.append("comment_id", params[0].body?.comment_id);
-      formData.append("content", params[0].body?.content);
-      formData.append("mentions", params[0].body?.mentions);
-      // formData.append('deleted_attachments', params[0].body?.deleted_attachments );
-      const deletedAttachmentIds = params[0].body?.deleted_attachments.join(
-        ","
-      );
-      formData.append("deleted_attachments", deletedAttachmentIds);
+    const body = params[0]?.body;
+    const file = params[0]?.file;
+
+    if (body?.pageType === "ticket") {
+      formData.append("files", file);
+      formData.append("ticket_id", body.ticketId);
+    } else if (body?.pageType === "tool") {
+      formData.append("files", file);
+      formData.append("TicketId", body.ticketId);
+      formData.append("ToolId", body.toolId);
+      formData.append("tool_ticket_id", body.tool_ticket_id);
+    } else if (body?.pageType === "comment") {
+      file.forEach(val => formData.append("attachedFiles", val));
+      formData.append("ticket_id", body.ticket_id);
+      formData.append("tool_id", body.tool_id);
+      formData.append("tool_ticket_id", body.tool_ticket_id);
+      formData.append("comment_id", body.comment_id);
+      formData.append("content", body.content);
+      formData.append("mentions", body.mentions);
+      formData.append("deleted_attachments", body.deleted_attachments.join(","));
     }
 
-    // if (params[0]) {
-    //   formData.append('data', JSON.stringify(params[0]));
-    // }
-    const createXHR = () => new XMLHttpRequest();
     const response = await axios.post(url, formData, {
       baseURL: Config.apiBaseUrl,
       headers: {
         Accept: "multipart/form-data",
         "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${getAuthToken()}`, // Include your auth token if needed
-      },
-      httpAgent: createXHR,
+        Authorization: `Bearer ${getAuthToken()}`
+      }
     });
 
-    const validResponse = response.data;
-    const processedData = processResponseData("success", url, validResponse);
-    return processedData;
+    return processResponseData("success", url, response.data);
   } catch (error) {
     console.error("Error during file upload:", error);
-    // processResponseData('failure', url, error.response.data, failureMsg);
     throw error;
   }
 };
 
-/**
- * File Download
- */
-export const doFileDownload = async (
-  path,
-  httpParams,
-  body,
-  disableLoader = false
-) => {
-  // Console request time
-  consoleRequestResponseTime("request", Config.apiBaseUrl + "" + path);
-
+/** File Download */
+export const doFileDownload = async (path, httpParams, body, disableLoader = false) => {
+  consoleRequestResponseTime("request", Config.apiBaseUrl + path);
   try {
-    return axiosBase
-      .post(path, body, { params: httpParams, responseType: "blob" })
-      .then((res) => {
-        if (res?.data) {
-          const blobData = new Blob([res?.data]);
-          const blobUrl = URL.createObjectURL(blobData);
-          var a = document.createElement("a");
-          a.href = blobUrl;
-          a.download = body.file_name;
-          a.click(); //Downloaded file
+    const response = await axiosBase.post(path, body, {
+      params: httpParams,
+      responseType: "blob"
+    });
 
-          // Revoke the Blob URL to free up memory
-          URL.revokeObjectURL(blobUrl);
-        }
-      })
-      .catch(function (error) {
-        // handle error
-        processResponseData("failure", path, error);
-        throw error;
-      })
-      .finally(function () {});
+    if (response?.data) {
+      const blobUrl = URL.createObjectURL(new Blob([response.data]));
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = body.file_name;
+      a.click();
+      URL.revokeObjectURL(blobUrl);
+    }
   } catch (error) {
-    console.error("Error during file upload:", error);
-    // processResponseData('failure', url, error.response.data, failureMsg);
+    processResponseData("failure", path, error);
     throw error;
   }
 };
+
+export { setJustLoggedIn };
 
 export default {
   GET: (path, ...props) => request(GET, path, ...props),
@@ -293,6 +249,5 @@ export default {
   PUT: (path, ...props) => request(PUT, path, props.params, ...props),
   DELETE: (path, ...props) => request(DELETE, path, props.params, ...props),
   FILEUPLOAD: (path, ...props) => doFileUpload(path, props),
-  FILEDOWNLOAD: (path, ...props) =>
-    doFileDownload(path, props.params, ...props),
+  FILEDOWNLOAD: (path, ...props) => doFileDownload(path, props.params, ...props),
 };

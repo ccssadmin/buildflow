@@ -15,6 +15,7 @@ import profile from "../../../assets/images/Profile-pic.png";
 import { useDispatch } from "react-redux";
 import { userInfoAction } from "../../../store/actions";
 import { useNotification } from '../../../hooks/Ceo/useNotification';
+import { useNavigate } from 'react-router-dom';
 
 const AqsNotificationTab  = () => {
    // State for active tab
@@ -116,6 +117,7 @@ const [selectedDate, setSelectedDate] = useState(new Date()); // Today's date
   //  ]);
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   
     const [notifications, setNotifications] = useState([]);
     
@@ -161,6 +163,7 @@ const [selectedDate, setSelectedDate] = useState(new Date()); // Today's date
        
                  return {
                    id: n.notificationId,
+                   ticketId: n.sourceEntityId, 
                    department: "General",
                    title: "Approval Request",
                    subtitle: n.message || "No Message",
@@ -499,7 +502,8 @@ const [selectedDate, setSelectedDate] = useState(new Date()); // Today's date
      const deptClass = `dept-${notification.department.toLowerCase().replace(/\s+/g, '')}`;
      
      return (
-       <Card key={notification.id} className="mb-3 border rounded-4">
+       <Card key={notification.id} className="card mb-3 border rounded-4 cursor"
+      onClick={() => {navigate(`/aqs/aqsticketdetails/${notification.ticketId}`)}}>
          <div className="card-pending-approvel">
            <div className="card-pending-approvel-header d-flex justify-content-between align-items-start">
              <div className="card-pending-approvel-project-title">

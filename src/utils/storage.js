@@ -48,6 +48,22 @@ export function getAuthToken(){
   }
 }
 
+/** Set refresh token */
+export const setRefreshToken = async (data) => {
+  if (data) {
+    localStorage.setItem("refreshToken", data);
+  } else {
+    localStorage.removeItem("refreshToken");
+  }
+  return true;
+};
+
+/** Get refresh token */
+export function getRefreshToken() {
+  return localStorage.getItem("refreshToken") || "";
+}
+
+
 /** Set auth type */
 export const setAuthType  = async(data) =>{
   if(data){
@@ -111,6 +127,7 @@ export function getActiveWorkSpace(){
 /** Flush the session after logout */
 export const flushAuthToken = async() => {
   localStorage.removeItem('accessToken');
+  localStorage.removeItem("refreshToken");
   localStorage.removeItem('expiresOn');
   localStorage.removeItem('authType');
   localStorage.removeItem('workspaceId');

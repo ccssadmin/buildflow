@@ -14,7 +14,7 @@ const MaterialViewScreen = () => {
   const location = useLocation();
   const { ticket } = location.state || {};
   const [boqDetails, setboqDetails] = useState("");
-  
+
   const boqData = [
     {
       id: "01",
@@ -93,10 +93,10 @@ const MaterialViewScreen = () => {
   const handleConvertToPO = () => {
     // Navigate to PO create page with boqDetails and ticket data
     if (boqDetails) {
-      navigate("/purchasemanager/poCreate", { 
-        state: { 
+      navigate("/purchasemanager/poCreate", {
+        state: {
           boqData: boqDetails,
-          ticket: ticket 
+          ticket: ticket
         }
       });
     } else {
@@ -241,21 +241,22 @@ const MaterialViewScreen = () => {
         </Table>
       </div>
       {/* Total & Action Buttons Section */}
-      <div
-        className="d-flex justify-content-between align-items-center text-white p-3"
+      <div className="d-flex justify-content-between align-items-center text-white p-3"
         style={{ backgroundColor: "#ff6600" }}
       >
-        <div>Total</div>
-        <div>
-          {boqDetails?.boqItems?.reduce((acc, item) => acc + (item.total || 0), 0).toLocaleString() || 
-           boqData.reduce((acc, item) => acc + item.total, 0).toLocaleString()}
+        <div className="text-white">Total</div>
+        <div className="text-white">
+          {(boqDetails?.boqItems?.length > 0
+            ? boqDetails.boqItems.reduce((acc, item) => acc + (item.total || 0), 0)
+            : boqData.reduce((acc, item) => acc + (item.total || 0), 0)
+          ).toLocaleString()}
         </div>
       </div>
 
       <div className="d-flex justify-content-end align-items-center mt-3 gap-2">
         <button
-          className="btn text-black d-flex align-items-center"
-          style={{ background: "transparent", border: "none" }}
+          className="btn text-white d-flex align-items-center"
+          style={{ backgroundColor: "#ff6600" }}
           onClick={handleConvertToPO}
         >
           <FontAwesomeIcon
@@ -266,8 +267,8 @@ const MaterialViewScreen = () => {
           Convert To PO
         </button>
         <button
-          className="btn text-black d-flex align-items-center"
-          style={{ background: "transparent", border: "none" }}
+          className="btn text-white d-flex align-items-center"
+          style={{ backgroundColor: "#ff6600" }}
         >
           <FontAwesomeIcon
             icon={faClipboardCheck}

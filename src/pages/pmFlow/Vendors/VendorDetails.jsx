@@ -92,7 +92,7 @@ const AqsVendorDetails = () => {
           <h5 className="mb-0">SS Enterprises</h5>
         </div>
         <Button variant="warning" className="view-price-btn" style={{ backgroundColor: "#FF6F00" }}
-        onClick={ () => navigate('/aqs/aqsvendorpricedetails')}
+        onClick={ () => navigate('/pm/vendorpricedetails')}
         >View Price Details</Button>
       </div>
 

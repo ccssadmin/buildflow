@@ -14,7 +14,7 @@ const GroupChatList = ({ selectedGroup, setSelectedGroup }) => {
 
   return (
     <div className="bg-white p-3 border-end" style={{ width: "250px" }}>
-      <h5 className="text-dark">Groups</h5>
+      {/* <h5 className="text-dark">Groups</h5> */}
       {groupChatData.map((group) => (
         <div
           key={group.id}

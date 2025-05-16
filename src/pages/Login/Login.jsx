@@ -17,6 +17,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { IoPerson } from "react-icons/io5";
 import { PiBuildingOffice } from "react-icons/pi";
 import '../../styles/components/css/login.css';
+import { setJustLoggedIn } from "../../services/api";
 
 export default function Login({ onLoginSuccess }) {
   const [{ data }, { getAuth, setAuth, getUserInfo }] = useAuth();
@@ -62,38 +63,52 @@ export default function Login({ onLoginSuccess }) {
   };
 
   const handleLogin = async (e) => {
-    e.preventDefault();
+   e.preventDefault();
+  
+  if (!formData.username || !formData.password) {
+    setErrorMsg((prev) => ({
+      ...prev,
+      username: !formData.username,
+      password: !formData.password,
+    }));
+    return;
+  }
+  
+  setInProgress(true);
+  try {
+    const payload = {
+      username: formData.username,
+      password: formData.password,
+      Email: formData.username,
+    };
     
-    // Check that either username or email is provided along with password
-    if (!formData.username || !formData.password) {
-      setErrorMsg((prev) => ({
-        ...prev,
-        username: !formData.username,
-        password: !formData.password,
-      }));
-      return;
+    if (loginMode === "vendor") {
+      payload.type = "vendor";
     }
     
-    setInProgress(true);
-    try {
-      // Create payload based on login mode
-      const payload = {
-        username: formData.username,
-        password: formData.password,
-        Email: formData.username, // This is the key change - providing the Email field expected by the API
-      };
-      
-      // Add type for vendor login
-      if (loginMode === "vendor") {
-        payload.type = "vendor";
-      }
-      
-      const response = await getAuth(payload);
-  
-      if (response?.payload?.token) {
+    // Set flag before making login request
+    setJustLoggedIn(true);
+    
+    const response = await getAuth(payload);
+    
+    if (response?.payload?.token) {
         // Store authentication token
         setAuthToken(response.payload.token);
         localStorage.setItem("accessToken", response.payload.token);
+        localStorage.setItem("refreshToken", response.payload.refreshToken);
+        
+        // Store token expiration time if available
+        if (response.payload.expiresIn || response.payload.expires_in) {
+          const expiresIn = response.payload.expiresIn || response.payload.expires_in;
+          const expirationTime = Date.now() + (expiresIn * 1000);
+          localStorage.setItem("tokenExpiration", expirationTime.toString());
+          
+          // If we have setExpiresOn function, use it too
+          if (setExpiresOn) {
+            setExpiresOn(expirationTime.toString());
+          }
+        }
+        
         setAuth(response.payload.token);
   
         // Fetch user details
@@ -114,6 +129,7 @@ export default function Login({ onLoginSuccess }) {
             ...userDetails,
             roleName: userDetails.roleName || (loginMode === "vendor" ? "Vendor" : "ManagingDirector"),
             roleId: userDetails.roleId || (loginMode === "vendor" ? "Vendor" : "1"),
+            roleCode: userDetails.roleCode || (loginMode === "vendor" ? "VENDOR" : "MD"),
             token: response.payload.token,
             isVendor: loginMode === "vendor", // Flag to identify vendor users
           };
@@ -125,6 +141,7 @@ export default function Login({ onLoginSuccess }) {
           localStorage.setItem("userData", JSON.stringify(userData));
           localStorage.setItem("userRole", userData.roleName);
           localStorage.setItem("userRoleId", userData.roleId);
+          localStorage.setItem("userRoleCode", userData.roleCode);
           
           // For vendor users, set a special identifier
           if (loginMode === "vendor") {
@@ -145,6 +162,7 @@ export default function Login({ onLoginSuccess }) {
                      (loginMode === "vendor" ? "Vendor" : "ManagingDirector"),
             roleId: userInfoResponse.payload.roleId || userInfoResponse.payload.role_id || 
                   (loginMode === "vendor" ? "Vendor" : "1"),
+            roleCode: userInfoResponse.payload.roleCode || (loginMode === "vendor" ? "VENDOR" : "MD"),
             isVendor: loginMode === "vendor",
           };
           
@@ -153,6 +171,7 @@ export default function Login({ onLoginSuccess }) {
           localStorage.setItem("userData", JSON.stringify(userData));
           localStorage.setItem("userRole", userData.roleName);
           localStorage.setItem("userRoleId", userData.roleId);
+           localStorage.setItem("userRoleCode", userData.roleCode);
           
           if (loginMode === "vendor") {
             localStorage.setItem("userType", "vendor");
@@ -173,12 +192,14 @@ export default function Login({ onLoginSuccess }) {
             email: formData.username, // Store email too
             roleName: loginMode === "vendor" ? "Vendor" : "ManagingDirector",
             roleId: loginMode === "vendor" ? "Vendor" : "1",
+            roleCode: loginMode === "vendor" ? "VENDOR" : "MD",
             isVendor: loginMode === "vendor",
           };
           
           localStorage.setItem("userData", JSON.stringify(defaultUserData));
           localStorage.setItem("userRole", defaultUserData.roleName);
           localStorage.setItem("userRoleId", defaultUserData.roleId);
+           localStorage.setItem("userRoleCode", defaultUserData.roleCode);
           
           if (loginMode === "vendor") {
             localStorage.setItem("userType", "vendor");
@@ -199,90 +220,18 @@ export default function Login({ onLoginSuccess }) {
       } else {
         throw new Error(response?.message || t("login.error.invalid"));
       }
-    } catch (error) {
-      console.error("Login Error:", error);
-      dispatch(showToast({ message: error.message, variant: "danger" }));
-    } finally {
-      setInProgress(false);
-    }
+   } catch (error) {
+    console.error("Login Error:", error);
+    dispatch(showToast({ message: error.message, variant: "danger" }));
+  } finally {
+    setInProgress(false);
+  }
   };
   
   // Check if already authenticated on component mount
   useEffect(() => {
-    const checkExistingAuth = async () => {
-      const authToken = getAuthToken() || localStorage.getItem("accessToken");
-      
-      if (authToken) {
-        setAuth(authToken);
-        try {
-          const userInfo = await getUserInfo();
-          
-          // Check if this is a vendor login
-          const isVendor = localStorage.getItem("userType") === "vendor";
-          
-          if (userInfo?.payload?.details) {
-            const userDetails = userInfo.payload.details;
-            
-            // Create user data object with role information
-            const userData = {
-              ...userDetails,
-              roleName: userDetails.roleName || userDetails.role_name || 
-                       (isVendor ? "Vendor" : "ManagingDirector"),
-              roleId: userDetails.roleId || userDetails.role_id || 
-                     (isVendor ? "Vendor" : "1"),
-              isVendor
-            };
-            
-            // Store user data and role information in localStorage
-            localStorage.setItem("userData", JSON.stringify(userData));
-            localStorage.setItem("userRole", userData.roleName);
-            localStorage.setItem("userRoleId", userData.roleId);
-            
-            // Call onLoginSuccess with user data
-            if (onLoginSuccess) {
-              onLoginSuccess(userData);
-            }
-          } else if (userInfo?.payload) {
-            // If details are not in the expected structure, try to use the payload directly
-            const userData = {
-              ...userInfo.payload,
-              roleName: userInfo.payload.roleName || userInfo.payload.role_name || 
-                       (isVendor ? "Vendor" : "ManagingDirector"),
-              roleId: userInfo.payload.roleId || userInfo.payload.role_id || 
-                     (isVendor ? "Vendor" : "1"),
-              isVendor
-            };
-            
-            localStorage.setItem("userData", JSON.stringify(userData));
-            localStorage.setItem("userRole", userData.roleName);
-            localStorage.setItem("userRoleId", userData.roleId);
-            
-            if (onLoginSuccess) {
-              onLoginSuccess(userData);
-            }
-          } else {
-            // Token exists but no user data - clear and force re-login
-            localStorage.removeItem("accessToken");
-            localStorage.removeItem("userRole");
-            localStorage.removeItem("userRoleId");
-            localStorage.removeItem("userData");
-            localStorage.removeItem("userType");
-            setAuthToken("");
-          }
-        } catch (error) {
-          console.error("Error fetching user info:", error);
-          // Clear invalid token
-          localStorage.removeItem("accessToken");
-          localStorage.removeItem("userRole");
-          localStorage.removeItem("userRoleId");
-          localStorage.removeItem("userData");
-          localStorage.removeItem("userType");
-          setAuthToken("");
-        }
-      }
-    };
-    
-    checkExistingAuth();
+    // We're intentionally not doing anything here now
+    // Token validation is handled at the App level
   }, []);
 
   // Handle Enter key press
