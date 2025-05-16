@@ -13,7 +13,7 @@ export const API = {
   CREATE_PROJECT_TEAM :"/api/Project/upsertProjectTeam",
   CREATE_FINACIAL_APPROVAL :"/api/Project/upsertPermissionFinanceApproval",
   CREATE_PROJECT_MILESTONE : "/api/Project/upsertProjectMilestones",
-  GET_PROJECT_DETAILS_BY_ID: "/api/Project/getProjectDetails",
+  GET_PROJECT_DETAILS_BY_ID: "https://buildflowgraphql.crestclimbers.com/api/Project/getProjectDetails",
   GET_ALL_PROJECT_FILTER : "/api/Project/get-projects-by-status",
   GET_TICKET_BY_ID : "/api/Ticket/get-ticket-by-id",
   GET_TICKET_LABELS : "/api/Login/labels-with-tickets",

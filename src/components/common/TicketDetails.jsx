@@ -141,7 +141,13 @@ const EngineerTicketDetails = () => {
 
   // Show label selector
   const [showLabelSelector, setShowLabelSelector] = useState(false);
+
+
   const [ticketData, setTicketData] = useState(null); // ✅ state to hold API response
+
+
+  console.log("new ticket details" , ticketData)
+
   // Available users for assignment
   const [availableUsers, setAvailableUsers] = useState([
     {
@@ -205,6 +211,8 @@ const fetchTicketDetails = async () => {
       const data = await dispatch(getticketbyidAction(id?.ticketId)).unwrap();
 
       console.log("Ticket Details:", data);
+      console.log("Ticket Owner Name:", data?.ticket_owner_name);
+      console.log("Ticket Owner role Name:", data?.role_name);
 
       setTicketData(data); // ✅ store data in state
     } catch (error) {
@@ -384,7 +392,11 @@ const fetchTicketDetails = async () => {
       setIsLoading(false);
     }
   };
+
+
 const BASE_URL = process.env.REACT_APP_MASTER_API_BASE_URL;
+
+
   const handleSendComment = async () => {
     if (!commentText.trim()) {
       showToastNotification("Please enter a comment.");
@@ -719,7 +731,7 @@ Object.values(grouped).forEach((approvals) => {
                         padding: "3px",
                         cursor: "pointer",
                         backgroundColor:
-                          selectedEmployee?.id === emp.id ? "#FEFEFE" : "white",
+                        selectedEmployee?.id === emp.id ? "#FEFEFE" : "white",
                         borderBottom: "1px solid #eee",
                       }}
                     >
@@ -1023,7 +1035,6 @@ Object.values(grouped).forEach((approvals) => {
             </div>
 
             {/* view material details (BOQ) */}
-
             <div className="py-3">{renderTicketDetails(ticketData)}</div>
 
             {/* Tabs */}
@@ -1122,22 +1133,23 @@ Object.values(grouped).forEach((approvals) => {
                   <div key={comment.id} className="d-flex mb-4">
                     <div className="me-2">
                       <div
-                        className={`rounded-circle bg-${comment.avatarColor} text-white d-flex align-items-center justify-content-center`}
-                        style={{
-                          width: "36px",
-                          height: "36px",
-                          fontSize: "16px",
-                          flexShrink: 0,
-                        }}
-                      >
-                        {comment.avatar}
-                      </div>
+                className="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center me-2"
+                style={{
+                  width: "36px",
+                  height: "36px",
+                  fontSize: "16px",
+                  flexShrink: 0,
+                }}
+              >
+                {getInitials(ticketData?.ticket_owner_name)}
+              </div>
                     </div>
                     <div style={{ width: "100%" }}>
+                      
                       <div className="d-flex align-items-center flex-wrap">
-                        <span className="fw-bold">{comment.user}</span>
+                        <span className="fw-bold">{ticketData?.ticket_owner_name}</span>
                         <span className="text-muted ms-2 small">
-                          {comment.role}
+                          {ticketData?.role_name}
                         </span>
                         {comment.time && (
                           <span className="text-muted ms-2 small">
@@ -1145,6 +1157,7 @@ Object.values(grouped).forEach((approvals) => {
                           </span>
                         )}
                       </div>
+                      
                       <div className="mt-1">
                         {comment.status && (
                           <Badge
@@ -1159,6 +1172,10 @@ Object.values(grouped).forEach((approvals) => {
                           {comment.comment}
                         </span>
                       </div>
+
+
+
+
 
                       {comment.filename && comment.file_path && (
                         <div className="mt-2 p-2 bg-light rounded">

@@ -67,10 +67,14 @@ import {
   updateBoard,
   editBoard,
   getPurchaseOrderDetails,
-  getBoqItemsById
+  getBoqItemsById,
+  addReportAttachments
 } from "../../services";
 import axios from "axios";
 import { getAuthToken } from "../../utils/storage";
+
+
+const BASE_URL = process.env.REACT_APP_MASTER_API_BASE_URL;
 
 const generateLabelCode = (name) => {
   if (!name) return '';
@@ -666,6 +670,7 @@ export const getPurchaseOrderDetailsAction = createAsyncThunk(
   }
 );
 
+
 export const createTicketDetailsAction = createAsyncThunk(
   'ticket/createDetails',
   async (formData, thunkAPI) => {
@@ -732,11 +737,12 @@ export const createTicketDetailsAction = createAsyncThunk(
         // Something happened in setting up the request
         console.error('Request setup error:', error.message);
       }
-      
       return thunkAPI.rejectWithValue(error.response?.data || error.message);
     }
   }
 );
+
+
 /** USED TO GET BOQ ITEMS BY ID */
 export const getBoqItemsAction = createAsyncThunk(
   "getBoqItemsByID",
@@ -745,3 +751,33 @@ export const getBoqItemsAction = createAsyncThunk(
     return response.data;
   }
 );
+
+/** CRETAE REPORT ATTACHMENT */
+export const createReportAttachmentAction = createAsyncThunk(
+  "report/createAttachment",
+  async ({ reportId, files }, { rejectWithValue }) => {
+    try {
+      // ✅ Get token from localStorage (or wherever you store it)
+      const token = localStorage.getItem("accessToken");
+
+      const response = await axios.post(
+        `https://buildflowgraphql.crestclimbers.com/api/Report/upload-attachments?reportId=${reportId}`,
+        files,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+
+
+
+

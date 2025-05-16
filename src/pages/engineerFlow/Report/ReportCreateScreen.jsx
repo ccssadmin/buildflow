@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { createReportAttachmentAction } from '../../../store/actions/masterAction';
+import { useDispatch } from 'react-redux';
 
 
 
 function ReportCreateScreen  ()  {
   const navigate = useNavigate(); // Initialize useNavigate
-
+  const dispatch = useDispatch();
   // State for Daily Progress Summary
   const [dailyProgressRows, setDailyProgressRows] = useState([{ id: 1 }]);
 
@@ -18,9 +20,14 @@ function ReportCreateScreen  ()  {
   // State for Issue & Risk Report
   const [issueRiskRows, setIssueRiskRows] = useState([{ id: 1 }]);
 
+
+  const [imageFiles, setImageFiles] = useState([]);       
+  const [generalFiles, setGeneralFiles] = useState([]);   
+
+
   // State for form data
   const [formData, setFormData] = useState({
-    reportId: 'DPR2025-00152',
+    reportId: 1,
     reportType: '',
     project: '',
     dateTime: '15–03–2025 • 06:04 pm',
@@ -57,22 +64,55 @@ function ReportCreateScreen  ()  {
   };
 
   // Function to handle form submission
-  const handleSubmit = () => {
-    // Update formData with the current state
-    const updatedFormData = {
-      ...formData,
-      dailyProgress: dailyProgressRows,
-      materialUsage: materialUsageRows,
-      safetyCompliance: safetyComplianceRows,
-      issueRisk: issueRiskRows,
-    };
-
-    // Save the form data (you can also send it to an API here)
-    console.log('Form Data Saved:', updatedFormData);
-
-    // Navigate to the ReportViewScreen with the saved data
-    navigate('/report-view', { state: updatedFormData });
+const handleSubmit = () => {
+  const updatedFormData = {
+    ...formData,
+    dailyProgress: dailyProgressRows,
+    materialUsage: materialUsageRows,
+    safetyCompliance: safetyComplianceRows,
+    issueRisk: issueRiskRows,
   };
+
+  // Prepare FormData
+  const finalFormData = new FormData();
+  imageFiles.forEach((item) => finalFormData.append("files", item.file));
+  generalFiles.forEach((file) => finalFormData.append("files", file));
+
+  // Use formData.reportId directly
+  dispatch(createReportAttachmentAction({
+    reportId: formData.reportId,
+    files: finalFormData,
+  }))
+    .unwrap()
+    .then(() => {
+      console.log("Upload success");
+      navigate('/report-view', { state: updatedFormData });
+    })
+    .catch((err) => {
+      console.error("Upload failed:", err);
+      alert("Failed to submit the report. Please try again.");
+    });
+};
+
+
+
+
+const handlePhotoUpload = (e, rowId) => {
+  const file = e.target.files[0];
+  if (file) {
+    setImageFiles((prev) => [...prev, { reportId: rowId, file }]);
+  }
+};
+
+const handleGeneralFileChange = (e) => {
+  const files = Array.from(e.target.files);
+  setGeneralFiles((prev) => [...prev, ...files]);
+};
+
+
+
+
+
 
   return (
     <div className="report-container">
@@ -149,9 +189,17 @@ function ReportCreateScreen  ()  {
                 <td>{row.id}</td>
                 <td></td>
                 <td></td>
-                <td>
-                  <a className="">Upload Photo</a>
-                </td>
+               <td>
+  <label className="upload-photo-btn" style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}>
+    Upload Photo
+    <input
+      type="file"
+      accept="image/*"
+      style={{ display: "none" }}
+      onChange={(e) => handlePhotoUpload(e, row.id)}
+    />
+  </label>
+</td>
               </tr>
             ))}
           </tbody>
@@ -259,10 +307,20 @@ function ReportCreateScreen  ()  {
       </div>
 
       {/* Attached File Section */}
-      <div className="attached-file">
-        <h3>Attached File</h3>
-        <a className="upload-file">Upload File</a>
-      </div>
+     <div className="attached-file">
+  <h3>Attached File</h3>
+
+  <label className="upload-photo-btn" style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}>
+    Upload File
+    <input
+      type="file"
+      multiple
+      style={{ display: "none" }}
+      onChange={handleGeneralFileChange}
+    />
+  </label>
+</div>
+
 
 
       {/* Cancel and Submit Buttons */}
