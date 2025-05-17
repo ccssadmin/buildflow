@@ -47,7 +47,7 @@ const Dashboard = () => {
       {/* Overview Cards */}
       <div className="row mb-4">
         <div className="col-md-3">
-          <div className="card text-center">
+          <div className="card ">
             <div className="card-body">
               <p className="">Total Active Projects</p>
               <p className="card-text fw-bold display-6">{dashboardData.totalActiveProjects}</p>
@@ -55,7 +55,7 @@ const Dashboard = () => {
           </div>
         </div>
         <div className="col-md-3">
-          <div className="card text-center">
+          <div className="card ">
             <div className="card-body">
               <p className="card-title">POs Raised This Month</p>
               <p className="card-text fw-bold display-6">{dashboardData.posRaisedThisMonth}</p>
@@ -63,7 +63,7 @@ const Dashboard = () => {
           </div>
         </div>
         <div className="col-md-3">
-          <div className="card text-center">
+          <div className="card ">
             <div className="card-body">
               <p className="card-title">Pending POs</p>
               <p className="card-text fw-bold display-6">{dashboardData.pendingPos}</p>
@@ -71,7 +71,7 @@ const Dashboard = () => {
           </div>
         </div>
         <div className="col-md-3">
-          <div className="card text-center">
+          <div className="card ">
             <div className="card-body">
               <p className="card-title">Pending Approvals</p>
               <p className="card-text fw-bold display-6">{dashboardData.pendingApprovals}</p>
@@ -101,13 +101,15 @@ const Dashboard = () => {
                     </h4>
                   </div>
                   <div>
-                    <span className={`project-status badge ${project.status === "ONGOING" ? "bg-success" : "bg-secondary"}`}>{project.status}</span>
+                    <span className={`project-status badge ${project.status === "ONGOING" ? "bg-orange" : "bg-secondary"}`}>{project.status}</span>
                   </div>
                 </div>
-
                 <div className="small-progress">
-                  <p className="text-muted">{project.pendingPOs} POs Pending</p>
+                  <p className="text-muted d-inline-block border px-2 py-1 " style={{ borderWidth: '1px', borderColor: '#ccc', backgroundColor: '#E3E3E3' }}>
+                    {project.pendingPOs} POs Pending
+                  </p>
                 </div>
+
               </div>
             ))}
           </div>
@@ -117,7 +119,7 @@ const Dashboard = () => {
         <div className="col-md-6">
           <div className="border rounded p-3">
             <h4 className="mb-3">PO List</h4>
-            <table className="table table-bordered">
+            <table className="tbl tbl-bordered">
               <thead className="thead-light">
                 <tr>
                   <th>PO ID</th>
@@ -133,8 +135,9 @@ const Dashboard = () => {
                     <td>{po.supplier}</td>
                     <td>{po.project}</td>
                     <td>
-                      <span className={`badge ${po.status === "Pending" ? "bg-danger" : "bg-success"}`}>{po.status}</span>
+                      <span className={`badge text-${po.status === "Pending" ? "orange" : "success"}`}>{po.status}</span>
                     </td>
+
                   </tr>
                 ))}
               </tbody>

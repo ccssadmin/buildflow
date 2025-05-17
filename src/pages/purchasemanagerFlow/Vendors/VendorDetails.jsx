@@ -75,7 +75,7 @@ const AqsVendorDetails = () => {
         <span 
         className="text-muted"
         style={ { cursor : 'pointer'}}
-        onClick={ ( ) => navigate('/aqs/aqsvendor')}
+        onClick={ ( ) => navigate('/purchasemanager/vendors')}
         >Vendors</span>
         <span className="mx-2">›</span>
         <span 
