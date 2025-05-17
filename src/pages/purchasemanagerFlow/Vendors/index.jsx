@@ -27,7 +27,7 @@ const AqsVendor = () => {
       <div className="d-flex justify-content-between align-items-center mb-3">
         {/* Dropdown */}
         <select
-          className="form-select select-custom"
+          className="form-select select-custom fw-bold"
           style={{ backgroundColor: '#E8E8E8' }}
           value={selectedSite}
           onChange={(e) => setSelectedSite(e.target.value)}
@@ -36,6 +36,7 @@ const AqsVendor = () => {
             <option key={index} value={site}>{site}</option>
           ))}
         </select>
+
         <button className="sort-button me-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -75,14 +76,18 @@ const AqsVendor = () => {
                       alt="In Transit"
                       className="me-1 bright-image"
                     />
-                    <span className="blur-text">{vendor.status}</span>
+                    <span className="blur-text " style={{color:'#F1C300'}}>{vendor.status}</span>
                   </span>
                 )}
-
-
                 {vendor.button && (
-                  <button className="btn btn-custom-dark btn-sm ms-auto">{vendor.button}</button>
+                  <button
+                    className="btn btn-sm ms-auto"
+                    style={{ backgroundColor: '#656565', color: '#fff' }}
+                  >
+                    {vendor.button}
+                  </button>
                 )}
+
               </div>
             </div>
           </div>

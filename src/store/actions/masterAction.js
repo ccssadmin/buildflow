@@ -761,7 +761,7 @@ export const createReportAttachmentAction = createAsyncThunk(
       const token = localStorage.getItem("accessToken");
 
       const response = await axios.post(
-        `https://buildflowgraphql.crestclimbers.com/api/Report/upload-attachments?reportId=${reportId}`,
+        `${BASE_URL}/api/Report/upload-attachments?reportId=${reportId}`,
         files,
         {
           headers: {
@@ -776,8 +776,3 @@ export const createReportAttachmentAction = createAsyncThunk(
     }
   }
 );
-
-
-
-
-

@@ -47,6 +47,7 @@ editBoardAction,
 createTicketDetailsAction,
 getPurchaseOrderDetailsAction,
 getBoqItemsAction,
+createReportAttachmentAction,
 createReportAttachmentAction
 } from "../actions/masterAction";
 import { getLoginBoardDetailsdAction } from "../actions/kanbanAction";
@@ -264,9 +265,9 @@ const initialState = {
     data: [],
     loading: false,
     error: null,
-  },
-
-  ReportAttachments: {
+    message:"",
+},
+ReportAttachments: {
     data: [],
     loading: false,
     error: null,
@@ -978,7 +979,19 @@ builder.addCase(getBoqItemsAction.rejected, (state, action) => {
       state.ReportAttachments.loading = false;
     });
 
-
+/** CREATE REPORT ATTACHMENTS */
+    builder.addCase(createReportAttachmentAction.pending, (state, action) => {
+      state.ReportAttachments.loading = true;
+    });
+    builder.addCase(createReportAttachmentAction.fulfilled, (state, action) => {
+      const data = action.payload;
+      state.ReportAttachments.data = data;
+      state.ReportAttachments.loading = false;
+    });
+    builder.addCase(createReportAttachmentAction.rejected, (state, action) => {
+      state.fetchError = action.error;
+      state.ReportAttachments.loading = false;
+    });
 
   },
 });

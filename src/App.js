@@ -139,9 +139,7 @@ const CeoProject = lazy(() => import("./pages/ceoFlow/Project/index"));
 const CeoProjectDetails = lazy(() =>
   import("./pages/ceoFlow/Project/ProjectDeatils")
 );
-const CeoCreateProject = lazy(() =>
-  import("./pages/ceoFlow/Project/ProjectForm")
-);
+const CeoCreateProject = lazy(() => import('./pages/ceoFlow/Project/CreateProject'));
 const CeoProjectSummary = lazy(() =>
   import("./components/common/ProjectSummary")
 );

@@ -1,6 +1,8 @@
 import React, { Fragment, useState } from "react";
 import { x_mark, icon_gantt } from '../../../assets/images';
 import { Button, Form, Table } from "react-bootstrap";
+import GanttChart from "./Gantt";
+
 
 export const roleCheck = { role: "admin" };
 
@@ -26,8 +28,7 @@ const TaskTable = () => {
     ];
 
     const [data, setData] = useState(initialData);
-    // Remove this line
-    // const [hoveredRow, setHoveredRow] = useState(null);
+    const [showGantt, setShowGantt] = useState(false);
 
     const addTaskRow = () => {
         const newTask = {
@@ -44,9 +45,6 @@ const TaskTable = () => {
         };
         setData([...data, newTask]);
     };
-
-
-
 
     const addEmptyRow = (id) => {
         setData((prevData) =>
@@ -95,6 +93,12 @@ const TaskTable = () => {
             )
         );
     };
+
+    // If Gantt view is active, show the Gantt chart
+    if (showGantt) {
+        return <GanttChart tasks={data} onClose={() => setShowGantt(false)} />;
+    }
+
     return (
         <Fragment>
             <main className="page-add-task full-width d-flex">
@@ -106,7 +110,13 @@ const TaskTable = () => {
                         <div className="col-sm-6 col-md-6 col-lg-6 col-xl-6 pe-0">
                             <div className="text-end btn-remove-add-group d-flex justify-content-end">
                                 <button className="btn fs-16-500 text-dark-gray-color me-5"><img src={x_mark} alt="" />  Remove</button>
-                                <button className="btn btn-primary text-light border-0 border-radius-2 fs-14-600 me-0" style={{ backgroundColor: '#FF6F00' }} >Add Task</button>
+                                <button 
+                                    className="btn btn-primary text-light border-0 border-radius-2 fs-14-600 me-0" 
+                                    style={{ backgroundColor: '#FF6F00' }}
+                                    onClick={addTaskRow}
+                                >
+                                    Add Task
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -116,15 +126,20 @@ const TaskTable = () => {
                         </div>
                         <div className="col-sm-6 col-md-6 col-lg-6 col-xl-6 pe-0">
                             <div className="text-end btn-remove-add-group d-flex justify-content-end">
-                                <button className="btn fs-16-500 btn-secondary border-radius-2 text-dark-gray border-0 me-0 bg-platinum-gray"><img src={icon_gantt} className="me-2" alt="" />  Gantt</button>
+                                <button 
+                                    className="btn fs-16-500 btn-secondary border-radius-2 text-dark-gray border-0 me-0 bg-platinum-gray"
+                                    onClick={() => setShowGantt(true)}
+                                >
+                                    <img src={icon_gantt} className="me-2" alt="" />  Gantt
+                                </button>
                             </div>
                         </div>
                     </div>
                     <div className="row pt-0">
                         <div className="tbl-container pe-0">
-                            <Table striped bordered hover className="table-responsive text-center">
+                            <Table striped bordered hover className="table-responsive">
                                 <thead>
-                                    <tr className="">
+                                    <tr>
                                         <th className="bg-platinum-gray-dark fs-16-500 text-center">Work ID</th>
                                         <th className="bg-platinum-gray-dark fs-16-500 text-center">Active Name</th>
                                         <th className="bg-platinum-gray-dark fs-16-500 text-center">Start Date</th>
@@ -138,9 +153,9 @@ const TaskTable = () => {
                                 <tbody>
                                     {data.map((item) => (
                                         <React.Fragment key={item.id}>
-                                            <tr className="">
+                                            <tr>
                                                 <td className="text-light bg-burnt-orange text-center">{item.id}</td>
-                                                <td className="text-light bg-burnt-orange ">
+                                                <td className="text-light bg-burnt-orange text-center">
                                                     {item.name}{" "}
                                                     <Button variant="outline-dark" size="sm" onClick={() => addEmptyRow(item.id)}>+</Button>
                                                 </td>
@@ -151,56 +166,96 @@ const TaskTable = () => {
                                                 <td className="text-light bg-burnt-orange text-center">{item.delayedDays}</td>
                                                 <td className="text-light bg-burnt-orange text-center">
                                                     <Form.Select
-                                                        className="border-0 text-white shadow-none bg-transparent p-0"
+                                                        className="border-0 text-white shadow-none bg-transparent p-0 text-center"
                                                         value={item.status}
                                                         onChange={(e) => handleMainStatusChange(item.id, e.target.value)}
+                                                        style={{ textAlign: 'center', textAlignLast: 'center' }}
                                                     >
                                                         <option value="To Do">To Do</option>
                                                         <option value="Active">Active</option>
                                                         <option value="Completed">Completed</option>
                                                     </Form.Select>
-
                                                 </td>
                                             </tr>
                                             {item.subRows.map((subItem, index) => (
                                                 <tr key={index} className="bg-light">
-                                                    <td>
+                                                    <td className="text-center">
                                                         {subItem.isNew ? (
-                                                            <Form.Control type="text" value={subItem.id} onChange={(e) => handleInputChange(item.id, index, "id", e.target.value)} />
+                                                            <Form.Control 
+                                                                type="text" 
+                                                                value={subItem.id} 
+                                                                onChange={(e) => handleInputChange(item.id, index, "id", e.target.value)}
+                                                                className="text-center" 
+                                                            />
                                                         ) : subItem.id}
                                                     </td>
-                                                    <td>
+                                                    <td className="text-center">
                                                         {subItem.isNew ? (
-                                                            <Form.Control type="text" value={subItem.name} onChange={(e) => handleInputChange(item.id, index, "name", e.target.value)} />
+                                                            <Form.Control 
+                                                                type="text" 
+                                                                value={subItem.name} 
+                                                                onChange={(e) => handleInputChange(item.id, index, "name", e.target.value)}
+                                                                className="text-center" 
+                                                            />
                                                         ) : subItem.name}
                                                     </td>
-                                                    <td>
+                                                    <td className="text-center">
                                                         {subItem.isNew ? (
-                                                            <Form.Control type="date" value={subItem.startDate} onChange={(e) => handleInputChange(item.id, index, "startDate", e.target.value)} />
+                                                            <Form.Control 
+                                                                type="date" 
+                                                                value={subItem.startDate} 
+                                                                onChange={(e) => handleInputChange(item.id, index, "startDate", e.target.value)}
+                                                                className="text-center" 
+                                                            />
                                                         ) : subItem.startDate}
                                                     </td>
-                                                    <td>
+                                                    <td className="text-center">
                                                         {subItem.isNew ? (
-                                                            <Form.Control type="date" value={subItem.endDate} onChange={(e) => handleInputChange(item.id, index, "endDate", e.target.value)} />
+                                                            <Form.Control 
+                                                                type="date" 
+                                                                value={subItem.endDate} 
+                                                                onChange={(e) => handleInputChange(item.id, index, "endDate", e.target.value)}
+                                                                className="text-center" 
+                                                            />
                                                         ) : subItem.endDate}
                                                     </td>
-                                                    <td>
+                                                    <td className="text-center">
                                                         {subItem.isNew ? (
-                                                            <Form.Control type="date" value={subItem.finishedDate} onChange={(e) => handleInputChange(item.id, index, "finishedDate", e.target.value)} />
+                                                            <Form.Control 
+                                                                type="date" 
+                                                                value={subItem.finishedDate} 
+                                                                onChange={(e) => handleInputChange(item.id, index, "finishedDate", e.target.value)}
+                                                                className="text-center" 
+                                                            />
                                                         ) : subItem.finishedDate}
                                                     </td>
-                                                    <td>
+                                                    <td className="text-center">
                                                         {subItem.isNew ? (
-                                                            <Form.Control type="text" value={subItem.duration} onChange={(e) => handleInputChange(item.id, index, "duration", e.target.value)} />
+                                                            <Form.Control 
+                                                                type="text" 
+                                                                value={subItem.duration} 
+                                                                onChange={(e) => handleInputChange(item.id, index, "duration", e.target.value)}
+                                                                className="text-center" 
+                                                            />
                                                         ) : subItem.duration}
                                                     </td>
-                                                    <td>
+                                                    <td className="text-center">
                                                         {subItem.isNew ? (
-                                                            <Form.Control type="text" value={subItem.delayedDays} onChange={(e) => handleInputChange(item.id, index, "delayedDays", e.target.value)} />
+                                                            <Form.Control 
+                                                                type="text" 
+                                                                value={subItem.delayedDays} 
+                                                                onChange={(e) => handleInputChange(item.id, index, "delayedDays", e.target.value)}
+                                                                className="text-center" 
+                                                            />
                                                         ) : subItem.delayedDays}
                                                     </td>
-                                                    <td>
-                                                        <Form.Select className="border-0 shadow-none bg-transparent p-0 bg-light" value={subItem.status} onChange={(e) => handleStatusChange(item.id, index, e.target.value)} >
+                                                    <td className="text-center">
+                                                        <Form.Select 
+                                                            className="border-0 shadow-none bg-transparent p-0 bg-light text-center" 
+                                                            value={subItem.status} 
+                                                            onChange={(e) => handleStatusChange(item.id, index, e.target.value)}
+                                                            style={{ textAlign: 'center', textAlignLast: 'center' }}
+                                                        >
                                                             <option value="Completed">Completed</option>
                                                             <option value="To Do">To Do</option>
                                                             <option value="Progress">Progress</option>
