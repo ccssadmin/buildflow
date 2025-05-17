@@ -575,3 +575,18 @@ export const getBoqItemsSelector = createSelector(
     error,
   })
 );
+
+
+/** CREATE REPORT ATTACHMENTS */
+export const createReportAttachmentSelector = createSelector(
+  [
+    state => state.master.ReportAttachments.data,
+    state => state.master.ReportAttachments.loading,
+    state => state.master.ReportAttachments.error,
+  ],
+  (data, loading, error) => ({
+    data,
+    loading,
+    error,
+  })
+);

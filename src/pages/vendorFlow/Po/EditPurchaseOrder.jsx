@@ -4,9 +4,9 @@ import { useParams } from "react-router-dom";
 import { getPurchaseOrderDetails } from "../../../store/actions/vendorflow/po-vendroaction";
 import { upsertPurchaseOrder } from "../../../store/actions/Purchase/purcharseorderidaction";
 import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";
+import { saveAs } from "file-saver";
 
 const VendorEditPurchaseOrder = () => {
   const dispatch = useDispatch();
@@ -18,10 +18,9 @@ const VendorEditPurchaseOrder = () => {
 
   const [localPurchaseOrder, setLocalPurchaseOrder] = useState(null);
 
-
   const handleDownloadExcel = () => {
     if (!localPurchaseOrder?.purchaseOrderItems?.length) return;
-  
+
     const data = localPurchaseOrder.purchaseOrderItems.map((item, index) => ({
       "S. No": String(index + 1).padStart(2, "0"),
       "Item Name": item.itemName,
@@ -30,19 +29,16 @@ const VendorEditPurchaseOrder = () => {
       "Quantity": item.quantity,
       "Total ₹": item.total,
     }));
-  
+
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "PurchaseOrderItems");
-  
+
     const fileName = `PurchaseOrder_${localPurchaseOrder.poId}.xlsx`;
     const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
     const fileData = new Blob([excelBuffer], { type: "application/octet-stream" });
     saveAs(fileData, fileName);
   };
-  
-
-
 
   useEffect(() => {
     if (purchaseOrderId) {
@@ -99,7 +95,7 @@ const VendorEditPurchaseOrder = () => {
           />
         </div>
         <div className="col-md-6 mb-3">
-          <label className="form-label fw-bold">Status</label>
+          <label className="form-label fw-bold">Delivery Status</label>
           <select
             className="form-select"
             value={localPurchaseOrder.deliveryStatus || "Pending"}
@@ -107,10 +103,10 @@ const VendorEditPurchaseOrder = () => {
               const updatedStatus = e.target.value;
               setLocalPurchaseOrder((prev) => ({
                 ...prev,
-                status: updatedStatus,
-                dispatchDate:
+                deliveryStatus: updatedStatus,
+                deliveryStatusDate:
                   updatedStatus === "Completed" || updatedStatus === "Dispatched"
-                    ? new Date().toISOString().split("T")[0]
+                    ? new Date().toISOString()
                     : "",
               }));
             }}
@@ -126,16 +122,16 @@ const VendorEditPurchaseOrder = () => {
           <input
             type="date"
             className="form-control"
-            value={localPurchaseOrder.deliveryStatusDate || ""}
+            value={
+              localPurchaseOrder.deliveryStatusDate
+                ? localPurchaseOrder.deliveryStatusDate.split("T")[0]
+                : ""
+            }
             onChange={(e) =>
               setLocalPurchaseOrder((prev) => ({
                 ...prev,
-                dispatchDate: e.target.value,
+                deliveryStatusDate: new Date(e.target.value).toISOString(),
               }))
-            }
-            disabled={
-              localPurchaseOrder.status !== "Completed" &&
-              localPurchaseOrder.status !== "Dispatched"
             }
           />
         </div>
@@ -183,20 +179,19 @@ const VendorEditPurchaseOrder = () => {
         </tbody>
       </table>
 
-    
       <div className="mt-3 d-flex gap-2">
-  <button className="btn btn-success" onClick={handleUpdate}>
-    Submit
-  </button>
-  <button
-    className="btn text-white d-flex align-items-center"
-    style={{ backgroundColor: "#ff6600" }}
-    onClick={handleDownloadExcel}
-  >
-    <FontAwesomeIcon icon={faDownload} className="me-2" />
-    Download .xlsx
-  </button>
-</div>
+        <button className="btn btn-success" onClick={handleUpdate}>
+          Submit
+        </button>
+        <button
+          className="btn text-white d-flex align-items-center"
+          style={{ backgroundColor: "#ff6600" }}
+          onClick={handleDownloadExcel}
+        >
+          <FontAwesomeIcon icon={faDownload} className="me-2" />
+          Download .xlsx
+        </button>
+      </div>
     </div>
   );
 };

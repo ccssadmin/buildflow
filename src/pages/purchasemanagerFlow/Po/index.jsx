@@ -27,7 +27,13 @@ export default function PurchaseOrdersPage() {
           <div className="d-flex gap-2">
             <select
               className="form-select"
-              style={{ minWidth: "120px", backgroundColor: "#f8f9fa", border: "1px solid #ced4da" }}
+              style={{
+                width: "150px",
+                height: "40px",
+                backgroundColor: "#f8f9fa",
+                border: "1px solid #ced4da",
+                borderRadius : "none",
+              }}
             >
               <option>All</option>
               <option>In Transit</option>
@@ -36,12 +42,20 @@ export default function PurchaseOrdersPage() {
             </select>
             <button
               className="btn"
-              style={{ backgroundColor: "#ff6600", color: "white", fontWeight: "500" }}
+              style={{
+                width: "150px",
+                height: "40px",
+                backgroundColor: "#ff6600",
+                color: "white",
+                fontWeight: "500",
+                borderRadius: "none"
+              }}
               onClick={() => navigate("/purchasemanager/poCreate")}
             >
               + Create PO
             </button>
           </div>
+
         </div>
       </div>
 
@@ -59,38 +73,38 @@ export default function PurchaseOrdersPage() {
             </tr>
           </thead>
           <tbody>
-  {allPurchaseOrders?.length > 0 ? (
-    allPurchaseOrders.map((po, index) => (
-      <tr key={index}>
-        <td className="text-center">{po.poId || "-"}</td>
-        <td className="text-center">{po.projectName || "-"}</td>
-        <td className="text-center">{po.vendor || "-"}</td>
-        <td className="text-center">{po.deliveryStatusDate || "-"}</td>
-        <td className="text-center">
-        <span className="text-success">
-    {po.deliveryStatus ? po.deliveryStatus : "Pending"}
-  </span>
-        </td>
-        <td className="text-center">{po.vendorMobileNumber || "-"}</td>
-        <td className="text-center">
-          <button
-            className="btn btn-link"
-            style={{ color: "#0d6efd", textDecoration: "none" }}
-            onClick={() => navigate(`/purchasemanager/poDetails/${po.purchaseOrderId}`)}
-          >
-            View
-          </button>
-        </td>
-      </tr>
-    ))
-  ) : (
-    <tr>
-      <td colSpan="7" className="text-center text-muted">
-        No Purchase Orders found.
-      </td>
-    </tr>
-  )}
-</tbody>
+            {allPurchaseOrders?.length > 0 ? (
+              allPurchaseOrders.map((po, index) => (
+                <tr key={index}>
+                  <td className="text-center">{po.poId || "-"}</td>
+                  <td className="text-center">{po.projectName || "-"}</td>
+                  <td className="text-center">{po.vendor || "-"}</td>
+                  <td className="text-center">{po.deliveryStatusDate || "-"}</td>
+                  <td className="text-center">
+                    <span className="text-success">
+                      {po.deliveryStatus ? po.deliveryStatus : "Pending"}
+                    </span>
+                  </td>
+                  <td className="text-center">{po.vendorMobileNumber || "-"}</td>
+                  <td className="text-center">
+                    <button
+                      className="btn btn-link"
+                      style={{ color: "#0d6efd", textDecoration: "none" }}
+                      onClick={() => navigate(`/purchasemanager/poDetails/${po.purchaseOrderId}`)}
+                    >
+                      View
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="7" className="text-center text-muted">
+                  No Purchase Orders found.
+                </td>
+              </tr>
+            )}
+          </tbody>
 
         </table>
       </div>
