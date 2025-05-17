@@ -82,7 +82,7 @@ if (error) return <p className="text-danger">Error: {error}</p>;
           </select>
         </div>
         <Button className="create-button"
-          onClick={() => navigate('/admin/materialview',{state:{boqId:123}})}
+          onClick={() => navigate('/admin/engineermaterialcreate',{state:{boqId:123}})}
         >Create</Button>
       </div>
 

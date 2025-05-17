@@ -1,4 +1,29 @@
 /* Work Delays Component Styles */
+.pending-approvel-conatiner {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  background-color: #fff;
+}
+
+.pending-scroll-container {
+  max-height: 400px; /* or whatever height you prefer */
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.pending-scroll-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.pending-scroll-container::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.pending-scroll-container::-webkit-scrollbar-track {
+  background-color: transparent;
+}
 
   
   .pending-approvel-conatiner.task-conatiner {
@@ -7,7 +32,16 @@
     padding: 24px;
     width: 100%;
   }
-  
+  .btn-link-clean {
+  background: transparent !important;
+  border: none !important;
+  color: #0456D0 !important;   /* bright royal‑blue */
+  text-decoration: underline;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
   .task-conatiner .task-content {
     overflow-y: scroll;
     max-height: 306px;

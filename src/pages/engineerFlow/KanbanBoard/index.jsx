@@ -172,7 +172,7 @@ const KanbanBoard = () => {
       7: `/pm/pmticket/${ticketId}`, // Assistant Project Manager
       8: `/pm/pmticket/${ticketId}`, // Project Manager
       9: `/admin/engineerticketdetails/${ticketId}`, // Designer
-      10: `/admin/engineerticketdetails/${ticketId}`, // Engineer
+      10: `/admin/ticket/${ticketId}`, // Engineer
       11: `/ticket/${ticketId}`, // Managing Director
       12: `/finance/financeticketdetails/${ticketId}`, // Head Finance
       13: `/ceo/ticket/${ticketId}`, // GM Technology
