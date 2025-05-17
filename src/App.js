@@ -397,23 +397,23 @@ const App = () => {
 
     return children;
   };
-  useEffect(() => {
-    // Add event listener for session expiration
-    const handleSessionExpiredEvent = () => {
-      handleSessionExpired();
-    };
+  // useEffect(() => {
+  //   // Add event listener for session expiration
+  //   const handleSessionExpiredEvent = () => {
+  //     handleSessionExpired();
+  //   };
 
-    // Listen for the custom session expired event
-    document.addEventListener("session_expired", handleSessionExpiredEvent);
+  //   // Listen for the custom session expired event
+  //   document.addEventListener("session_expired", handleSessionExpiredEvent);
 
-    // Clean up listener on unmount
-    return () => {
-      document.removeEventListener(
-        "session_expired",
-        handleSessionExpiredEvent
-      );
-    };
-  }, []);
+  //   // Clean up listener on unmount
+  //   return () => {
+  //     document.removeEventListener(
+  //       "session_expired",
+  //       handleSessionExpiredEvent
+  //     );
+  //   };
+  // }, []);
 
   const handleSessionContinue = async () => {
     try {

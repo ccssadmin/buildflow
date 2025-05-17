@@ -40,15 +40,9 @@ export const GeneralSettings = () => {
   }, []);
 
   const userLogout = () => {
-    setShowInfo(false);
-    setShowNotify(false);
-    setAuthToken("");
-    setExpiresOn("");
-    setAuthType("");
-    localStorage.removeItem("roleId");
-    localStorage.removeItem("roleName");
-    navigate("/");
-  };
+  localStorage.clear();
+  window.location.href = "/login"; 
+};
 
   return (
     <>
