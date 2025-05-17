@@ -10,6 +10,7 @@ import { resetReportState } from '../../../store/slice/report/reportslice';
 
 function ReportCreateScreen() {
   const { loading } = useSelector((state) => state.report);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
    const { projects = [] } = useSelector((state) => state.project);
 
@@ -48,7 +49,7 @@ useEffect(() => {
   }, [dispatch]);
   
 
-  const dispatch = useDispatch();
+
   // State for Daily Progress Summary
   const [dailyProgressRows, setDailyProgressRows] = useState([{ 
     id: 1, 
@@ -82,11 +83,6 @@ useEffect(() => {
     impact: ''
   }]);
 
-
-  const [imageFiles, setImageFiles] = useState([]);       
-  const [generalFiles, setGeneralFiles] = useState([]);   
-
-
   // State for form data
   const [reportData, setReportData] = useState({
     reportId: '',
@@ -95,6 +91,9 @@ useEffect(() => {
     dateTime: '',
     reportedBy: '',
   });
+
+
+  
   const handleDateChange = (date) => {
     setReportData({
       ...reportData,
@@ -261,15 +260,8 @@ const handleAttachedFileUpload = (e) => {
       }))
       
     };
-    const handleInputChange = (e) => {
-      const { name, value } = e.target;
-      setReportData(prev => ({
-        ...prev,
-        [name]: value
-      }));
-    };
+   
     
-  
     const reportIdNumeric = parseInt(reportData.reportId.replace(/\D/g, '')) || 0;
   
     const updatedReportData = {
@@ -286,12 +278,16 @@ const handleAttachedFileUpload = (e) => {
     };
   
     try {
-      const resultAction = await dispatch(upsertReport(updatedReportData));
+      const resultAction = dispatch(upsertReport(updatedReportData));
   
       if (upsertReport.fulfilled.match(resultAction)) {
         const savedReportId = resultAction.payload?.reportId || reportIdNumeric;
   
-   if (attachedFile) {
+  
+  
+  
+  
+        if (attachedFile) {
   console.log("Dispatching with attachedFile:", attachedFile);
 
   await dispatch(uploadReportAttachments({
@@ -308,6 +304,7 @@ const handleAttachedFileUpload = (e) => {
               toast.warn('Report saved, but file upload failed');
             });
         }
+
   
         toast.success('Report created successfully!');
         navigate('/report-view', { state: resultAction.payload });
@@ -616,21 +613,33 @@ const handleAttachedFileUpload = (e) => {
 
 
       {/* Attached File Section */}
-     <div className="attached-file">
-  <h3>Attached File</h3>
+      <div className="attached-file">
+        <h3>Attached File</h3>
+<input
+  type="file"
+  className="form-control"
+  onChange={handleAttachedFileUpload}
+/>
+        {attachedFile && (
+          <div className="mt-2">
+               <span>Selected file: {attachedFile.name}</span>
+          </div>
+        )}
 
-  <label className="upload-photo-btn" style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}>
-    Upload File
-    <input
-      type="file"
-      multiple
-      style={{ display: "none" }}
-      onChange={handleGeneralFileChange}
-    />
-  </label>
-</div>
+          {/* ✅ Show upload result */}
+  {uploadMessage && (
+    <div className="mt-2 text-success">
+      ✅ {uploadMessage}
+    </div>
+  )}
 
+  {error && typeof error === 'string' && (
+    <div className="mt-2 text-danger">
+      ⚠️ {error}
+    </div>
+  )}
 
+      </div>
 
       {/* Cancel and Submit Buttons */}
       <div className="form-buttons mt-4">
