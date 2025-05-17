@@ -19,23 +19,6 @@ const Material = () => {
 
   const navigate = useNavigate();
 
-
-  const materials = [
-    { id: "01", name: "Cement", stock: "200 Bags", required: "500 Bags", level: "High", status: "Pending", action: "View" },
-    { id: "02", name: "Steel Rods (10mm)", stock: "150 Units", required: "200 Units", level: "Medium", status: "Approval", action: "View" },
-    { id: "03", name: "Sand (Ton)", stock: "5 Tons", required: "8 Tons", level: "Low", status: "Low Stock", action: "Create" },
-    { id: "04", name: "Cement", stock: "200 Bags", required: "500 Bags", level: "Urgent", status: "Rejected", action: "View" },
-    { id: "05", name: "Cement", stock: "200 Bags", required: "500 Bags", level: "Urgent", status: "Pending", action: "Create" },
-    { id: "06", name: "Cement", stock: "200 Bags", required: "500 Bags", level: "Urgent", status: "Pending", action: "Create" },
-    { id: "07", name: "Cement", stock: "200 Bags", required: "500 Bags", level: "Urgent", status: "Pending", action: "Create" },
-    { id: "08", name: "Cement", stock: "200 Bags", required: "500 Bags", level: "Urgent", status: "Pending", action: "Create" },
-    { id: "09", name: "Cement", stock: "200 Bags", required: "500 Bags", level: "Urgent", status: "Pending", action: "Create" },
-    { id: "10", name: "Cement", stock: "200 Bags", required: "500 Bags", level: "Urgent", status: "Pending", action: "Create" },
-    { id: "11", name: "Cement", stock: "200 Bags", required: "500 Bags", level: "Urgent", status: "Pending", action: "Create" },
-    { id: "12", name: "Cement", stock: "200 Bags", required: "500 Bags", level: "Urgent", status: "Pending", action: "Create" },
-    { id: "13", name: "Cement", stock: "200 Bags", required: "500 Bags", level: "Urgent", status: "Pending", action: "Create" },
-  ];
-
   const getLevelBadge = (level) => {
     const levelColors = {
       High: "#D00416",
@@ -99,7 +82,7 @@ if (error) return <p className="text-danger">Error: {error}</p>;
           </select>
         </div>
         <Button className="create-button"
-          onClick={() => navigate('/admin/engineermaterialcreate',{state:{boqId:123}})}
+          onClick={() => navigate('/admin/materialview',{state:{boqId:123}})}
         >Create</Button>
       </div>
 
@@ -129,7 +112,7 @@ if (error) return <p className="text-danger">Error: {error}</p>;
                   <a
                     href=""
                     style={{ color: material.action === "View" ? "#0456D0" : "#0456D0" }}
-                    onClick={() => navigate(`/admin/engineermaterialviewscreen/${material.boqId}`)}
+                    onClick={() => navigate(`/admin/materialview/${material.boqId}`)}
                   >
                     View
                   </a>

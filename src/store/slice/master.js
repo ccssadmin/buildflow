@@ -46,7 +46,8 @@ getBoardAction,
 editBoardAction,
 createTicketDetailsAction,
 getPurchaseOrderDetailsAction,
-getBoqItemsAction
+getBoqItemsAction,
+createReportAttachmentAction
 } from "../actions/masterAction";
 import { getLoginBoardDetailsdAction } from "../actions/kanbanAction";
 
@@ -264,6 +265,12 @@ const initialState = {
     error: null,
     message:"",
 },
+ReportAttachments: {
+    data: [],
+    loading: false,
+    error: null,
+  }
+
 };
 
 const masterSlice = createSlice({
@@ -951,7 +958,19 @@ const masterSlice = createSlice({
         state.fetchError = action.error;
         state.boqItems.loading = false;
       });
-
+/** CREATE REPORT ATTACHMENTS */
+    builder.addCase(createReportAttachmentAction.pending, (state, action) => {
+      state.ReportAttachments.loading = true;
+    });
+    builder.addCase(createReportAttachmentAction.fulfilled, (state, action) => {
+      const data = action.payload;
+      state.ReportAttachments.data = data;
+      state.ReportAttachments.loading = false;
+    });
+    builder.addCase(createReportAttachmentAction.rejected, (state, action) => {
+      state.fetchError = action.error;
+      state.ReportAttachments.loading = false;
+    });
   
   },
 });

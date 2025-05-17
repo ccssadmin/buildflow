@@ -1,7 +1,9 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { profile, constructions_img } from '../../../assets/images';
 import Notification from "../../../components/common/NotificationTab";
+import { useProject } from "../../../hooks/Ceo/useCeoProject";
+import { useDispatch } from "react-redux";
 export const roleCheck = { role: "admin" };
 
 
@@ -234,6 +236,30 @@ const EngineerDashboard = ({ progress = 50, maxValue = 100 }) => {
 
   const navigate = useNavigate();
 
+  const { fetchProjectDetails} = useProject();
+
+  const [projectDetails, setProjectDetails] = useState(null);
+  const dispatch = useDispatch();
+
+
+  const defaultProjectId = localStorage.getItem("projectId");
+  console.log("Project ID from localStorage:", defaultProjectId);
+
+const projectID = 1;
+
+useEffect(() => {
+  fetchProjectDetails(projectID).then((data) => {
+      setProjectDetails(data);         
+      dispatch({ type: "SET_PROJECT_DETAILS", payload: data }); 
+    })
+    .catch((error) => {
+      console.error("Error fetching project details:", error);
+    });
+}, [projectID, dispatch]);
+
+
+const userData = JSON.parse(localStorage.getItem('userData'));
+
   return (
     <Fragment>
       <main className="page-engineer-dashboard d-flex">
@@ -242,28 +268,28 @@ const EngineerDashboard = ({ progress = 50, maxValue = 100 }) => {
             <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-4">
               <div className="card-project">
                 <div className="d-flex justify-content-between">
-                  <h2 className="site-name">Chennai Site</h2>
+                  <h2 className="site-name">{projectDetails?.value?.project?.project_name}</h2>
                   <div className="div-constructions">
                     <img src={constructions_img} alt="JV Constructions"></img>
-                    <h6 className="constructions-name text-dark">JV Constructions</h6>
+       <h6 className="constructions-name text-dark">{projectDetails?.value?.subcontractor_details?.[0]?.subcontractor_name}</h6>
                   </div>
                 </div>
                 <div className="d-flex justify-content-between my-3">
                   <div className="d-flex justify-content-between align-items-center">
                     <img src={profile} alt="" className="proprietor-img" />
-                    <h4 className="fs-16-500 proprietor-name">Ronald Richards</h4>
-                    <h6 className="site-category fs-14-400">Proprietor</h6>
+                    <h4 className="fs-16-500 proprietor-name">{userData?.firstName}</h4>
+                    <h6 className="site-category fs-14-400">{userData?.roleName}</h6>
                   </div>
                   <div className=""><span className="project-status">ONGOING</span></div>
                 </div>
                 <div className="d-flex justify-content-between project-date">
                   <h4 className="fs-16-500 title-5 text-start">
                     <span className="d-block mb-1">Start Date</span>
-                    22-07-2023
+                    {projectDetails?.value?.project?.project_start_date}
                   </h4>
                   <h4 className="fs-16-500 title-5 text-end ">
                     <span className="d-block mb-1">End Date</span>
-                    22-07-2025
+                    {projectDetails?.value?.project?.project_end_date}
                   </h4>
                 </div>
                 <div className="progress-container mt-3 mb-2">
@@ -277,12 +303,12 @@ const EngineerDashboard = ({ progress = 50, maxValue = 100 }) => {
                       className="progress-indicator large"
                       style={{ left: `${percentage}%` }}
                     >
-                      {percentage}%
+                      {projectDetails?.value?.project?.project_status}%
                     </div>
                   </div>
                 </div>
                 <div className="d-flex justify-content-between mt-4">
-                  <Link className="requests-count fs-16-500 h40px6">12 Requests Pending</Link>
+                  <Link className="requests-count fs-16-500 h40px6">{projectDetails?.value?.total_request_count} Requests Pending</Link>
                   <Link
                     className="view-project fs-16-500 text-decoration-none text-bright-shade-blue"
                     to="/admin/engineerproject"
