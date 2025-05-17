@@ -7,18 +7,21 @@ import { fetchProjects } from '../../../store/actions/hr/projectaction';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { resetReportState } from '../../../store/slice/report/reportslice';
+import { createReportAttachmentAction } from '../../../store/actions/masterAction';
 
 function ReportCreateScreen() {
   const { loading } = useSelector((state) => state.report);
   const dispatch = useDispatch();
   const navigate = useNavigate();
    const { projects = [] } = useSelector((state) => state.project);
-
+const [imageFiles, setImageFiles] = useState([]);       
+  const [generalFiles, setGeneralFiles] = useState([]);
   const [attachedFile, setAttachedFile] = useState(null);
   const [formErrors, setFormErrors] = useState({});
 const { newReportCode } = useSelector((state) => state.report);
 const { uploadMessage, error } = useSelector((state) => state.report);
-
+const [formData, setFormData] = useState({
+  });
 
 useEffect(() => {
   if (uploadMessage) {
@@ -190,14 +193,7 @@ useEffect(() => {
   };
   
 
-  const handlePhotoUpload = (e, rowId) => {
-    const file = e.target.files[0];
-    if (file) {
-      setDailyProgressRows(prevRows => 
-        prevRows.map(row => row.id === rowId ? { ...row, photo: file } : row)
-      );
-    }
-  };
+
   
 const handleAttachedFileUpload = (e) => {
   const file = e.target.files[0];
@@ -226,105 +222,50 @@ const handleAttachedFileUpload = (e) => {
   };
 
   // Function to handle form submission
-  const handleSubmit = async () => {
-    if (!validateForm()) {
-      toast.error('Please fill in all required fields');
-      return;
-    }
-  
-    const reportDataobj = {
-      dailyprogresssummary: dailyProgressRows.map(row => ({
-        serialno: row.id,
-        workactivity: row.workActivity || "",
-        status: row.status || "",
-        action: row.action || "" // You need to collect this input!
-      })),
-      materialusagereport: materialUsageRows.map(row => ({
-        serialno: row.id,
-        material: row.material || "",
-        stock: row.stock || "",
-        level: row.level || ""
-      })),
-      safetycompliancereport: safetyComplianceRows.map(row => ({
-        serialno: row.id,
-        item: row.item || "",
-        report: row.report || ""
-      })),
-      issueriskreport: issueRiskRows.map(row => ({
-        serialno: row.id,
-        issue: row.issue || "",
-        impact: row.impact || ""
-      }))
-      
-    };
-    const handleInputChange = (e) => {
-      const { name, value } = e.target;
-      setReportData(prev => ({
-        ...prev,
-        [name]: value
-      }));
-    };
-    
-  
-    const reportIdNumeric = parseInt(reportData.reportId.replace(/\D/g, '')) || 0;
-  
-    const updatedReportData = {
-      reportId: 0,
-      reportCode: reportData.reportId || ('RPT-' + new Date().getTime()),
-      reportType: reportData.reportType,
-      projectId: reportData.project,
-      reportDate: reportData.reportDate, // Should still be date in YYYY-MM-DD
-      reportedBy: reportData.reportedBy,
-      report: `Report for ${reportData.project} - ${reportData.reportType}`,
-      reportData: reportDataobj, // Ensure this uses PascalCase keys
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-  
-    try {
-      const resultAction = await dispatch(upsertReport(updatedReportData));
-  
-      if (upsertReport.fulfilled.match(resultAction)) {
-        const savedReportId = resultAction.payload?.reportId || reportIdNumeric;
-  
-   if (attachedFile) {
-  console.log("Dispatching with attachedFile:", attachedFile);
-
-  await dispatch(uploadReportAttachments({
-    reportId: savedReportId,
-    files: [attachedFile], // ✅ MUST be array of File(s)
-    stringItem: 'your string data'
-  }))
-
-            .unwrap()
-            .then((res) => {
-              toast.success(res.message || 'Attachment uploaded successfully');
-            })
-            .catch((err) => {
-              toast.warn('Report saved, but file upload failed');
-            });
-        }
-  
-        toast.success('Report created successfully!');
-        navigate('/report-view', { state: resultAction.payload });
-      } else {
-        let errorMessage = 'Report creation failed. Please try again.';
-        if (resultAction.payload?.errors) {
-          const errorDetails = [];
-          Object.entries(resultAction.payload.errors).forEach(([key, messages]) => {
-            messages.forEach(msg => errorDetails.push(`${key}: ${msg}`));
-          });
-          if (errorDetails.length > 0) {
-            errorMessage = `Report creation failed: ${errorDetails.join(', ')}`;
-          }
-        }
-        toast.error(errorMessage);
-      }
-    } catch (err) {
-      console.error('Unexpected error:', err);
-      toast.error('An unexpected error occurred. Please try again.');
-    }
+const handleSubmit = () => {
+  const updatedFormData = {
+    ...formData,
+    dailyProgress: dailyProgressRows,
+    materialUsage: materialUsageRows,
+    safetyCompliance: safetyComplianceRows,
+    issueRisk: issueRiskRows,
   };
+
+  // Prepare FormData
+  const finalFormData = new FormData();
+  imageFiles.forEach((item) => finalFormData.append("files", item.file));
+  generalFiles.forEach((file) => finalFormData.append("files", file));
+
+  // Use formData.reportId directly
+  dispatch(createReportAttachmentAction({
+    reportId: formData.reportId,
+    files: finalFormData,
+  }))
+    .unwrap()
+    .then(() => {
+      console.log("Upload success");
+      navigate('/report-view', { state: updatedFormData });
+    })
+    .catch((err) => {
+      console.error("Upload failed:", err);
+      alert("Failed to submit the report. Please try again.");
+    });
+};
+
+
+
+
+const handlePhotoUpload = (e, rowId) => {
+  const file = e.target.files[0];
+  if (file) {
+    setImageFiles((prev) => [...prev, { reportId: rowId, file }]);
+  }
+};
+
+const handleGeneralFileChange = (e) => {
+  const files = Array.from(e.target.files);
+  setGeneralFiles((prev) => [...prev, ...files]);
+};
   
 
   return (
@@ -422,45 +363,25 @@ const handleAttachedFileUpload = (e) => {
       </tr>
     </thead>
     <tbody>
-      {dailyProgressRows.map((row) => (
-        <tr key={row.id}>
-          <td>{row.id}</td>
-          <td>
-            <input 
-              type="text" 
-              className="form-control" 
-              value={row.workActivity}
-              onChange={(e) => handleRowChange('dailyProgress', row.id, 'workActivity', e.target.value)}
-            />
-          </td>
-          <td>
-            <input 
-              type="text" 
-              className="form-control" 
-              value={row.status}
-              onChange={(e) => handleRowChange('dailyProgress', row.id, 'status', e.target.value)}
-            />
-          </td>
-          <td>
-            <input 
-              type="text" 
-              className="form-control" 
-              value={row.action || ""}
-              onChange={(e) => handleRowChange('dailyProgress', row.id, 'action', e.target.value)}
-            />
-          </td>
-          <td>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => handlePhotoUpload(e, row.id)}
-              className="form-control"
-            />
-            {row.photo && <span className="file-name">{row.photo.name}</span>}
-          </td>
-        </tr>
-      ))}
-    </tbody>
+            {dailyProgressRows.map((row) => (
+              <tr key={row.id}>
+                <td>{row.id}</td>
+                <td></td>
+                <td></td>
+               <td>
+  <label className="upload-photo-btn" style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}>
+    Upload Photo
+    <input
+      type="file"
+      accept="image/*"
+      style={{ display: "none" }}
+      onChange={(e) => handlePhotoUpload(e, row.id)}
+    />
+  </label>
+</td>
+              </tr>
+            ))}
+          </tbody>
   </table>
 </div>
 
@@ -611,34 +532,20 @@ const handleAttachedFileUpload = (e) => {
 </div>
 
 
-      {/* Attached File Section */}
-      <div className="attached-file">
-        <h3>Attached File</h3>
-<input
-  type="file"
-  className="form-control"
-  onChange={handleAttachedFileUpload}
-/>
-        {attachedFile && (
-          <div className="mt-2">
-               <span>Selected file: {attachedFile.name}</span>
-          </div>
-        )}
+{/* Attached File Section */}
+     <div className="attached-file">
+  <h3>Attached File</h3>
 
-          {/* ✅ Show upload result */}
-  {uploadMessage && (
-    <div className="mt-2 text-success">
-      ✅ {uploadMessage}
-    </div>
-  )}
-
-  {error && typeof error === 'string' && (
-    <div className="mt-2 text-danger">
-      ⚠️ {error}
-    </div>
-  )}
-
-      </div>
+  <label className="upload-photo-btn" style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}>
+    Upload File
+    <input
+      type="file"
+      multiple
+      style={{ display: "none" }}
+      onChange={handleGeneralFileChange}
+    />
+  </label>
+</div>
 
       {/* Cancel and Submit Buttons */}
       <div className="form-buttons mt-4">
