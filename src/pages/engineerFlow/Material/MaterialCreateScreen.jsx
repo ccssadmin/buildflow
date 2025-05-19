@@ -29,9 +29,9 @@ const MaterialCreateScreen = () => {
   const [selectedApprover, setSelectedApprover] = useState([]);
   const { boqId } = useSelector((state) => state.boq);
   const { createTicket } = useTicket();
-  const {createNotify} = useNotification();
+  const { createNotify } = useNotification();
   const [initialApproverArray, setInitialApproverArray] = useState([]);
-const [validationErrors, setValidationErrors] = useState({
+  const [validationErrors, setValidationErrors] = useState({
     title: false,
     vendor: false,
     approver: false
@@ -111,7 +111,7 @@ const [validationErrors, setValidationErrors] = useState({
     const value = e.target.value;
     setSelectedVendorId(value);
     if (value) {
-      setValidationErrors({...validationErrors, vendor: false});
+      setValidationErrors({ ...validationErrors, vendor: false });
     }
   }
 
@@ -120,25 +120,25 @@ const [validationErrors, setValidationErrors] = useState({
     const value = e.target.value;
     setTitle(value);
     if (value.trim()) {
-      setValidationErrors({...validationErrors, title: false});
+      setValidationErrors({ ...validationErrors, title: false });
     }
   }
-const validateForm = () => {
+  const validateForm = () => {
     const errors = {
       title: !title.trim(),
       vendor: !selectedVendorId,
       approver: !selectedApprover.length
     };
-    
+
     setValidationErrors(errors);
-    
+
     // Return true if no errors
     return !Object.values(errors).some(error => error);
   };
   const handleApproverSelect = (selectedOptions) => {
     setSelectedApprover(selectedOptions);
     if (selectedOptions && selectedOptions.length > 0) {
-      setValidationErrors({...validationErrors, approver: false});
+      setValidationErrors({ ...validationErrors, approver: false });
     }
   };
   const handleSubmit = async (e) => {
@@ -152,12 +152,12 @@ const validateForm = () => {
       return;
     }
     let empData = JSON.parse(localStorage.getItem("userData"));
-  
+
     if (!selectedVendorId) {
       toast.warn("Please select a vendor.");
       return;
     }
-  
+
     const boqPayload = {
       empId: empData?.empId,
       boqId: 0,
@@ -175,13 +175,13 @@ const validateForm = () => {
       ticketType: "BOQ_APPROVAL",
       vendorId: parseInt(selectedVendorId),
     };
-  
+
     // Step 1: Create BOQ
     const boqResponse = await dispatch(upsertBoq(boqPayload));
-  
+
     if (boqResponse?.payload?.success) {
       toast.success("BOQ created successfully.");
-  
+
       // Step 2: Create Ticket
       const ticketResponse = await createTicket({
         boqId: boqResponse?.payload?.data?.boqId,
@@ -189,31 +189,31 @@ const validateForm = () => {
         assignTo: selectedApprover.map((emp) => emp.empId),
         createdBy: empData?.empId,
       });
-  
+
       if (ticketResponse?.data?.success) {
         toast.success("Ticket created successfully.");
-  
+
         const ticketId = ticketResponse?.data?.data?.ticketId;
         const projectName = ticketResponse?.data?.data?.projectName;
-  
+
         // Step 3: Send Notification with ticketId
         try {
           await createNotify({
-          empId: selectedApprover.map((emp) => emp.empId),
-          notificationType: "Material Requirement(BOQ)",
-          sourceEntityId: ticketId,
-          message: `We would like to update you that we are currently awaiting BOQ on the material requirement submitted for ${projectName} Project. Kindly review and provide BOQ at the earliest to avoid any delays in the process.`,
-        });
+            empId: selectedApprover.map((emp) => emp.empId),
+            notificationType: "Material Requirement(BOQ)",
+            sourceEntityId: ticketId,
+            message: `We would like to update you that we are currently awaiting BOQ on the material requirement submitted for ${projectName} Project. Kindly review and provide BOQ at the earliest to avoid any delays in the process.`,
+          });
           toast.success("Notification sent.");
         } catch (error) {
           console.warn("Notification failed:", error);
         }
-  
+
         // Step 4: Navigate to Ticket Details
         const ticketDetails = await dispatch(getticketbyidAction(ticketId)).unwrap();
-  
+
         setTimeout(() => {
-          navigate(`../engineerticketdetails/${ticketId}`, {
+          navigate(`../ticket/${ticketId}`, {
             state: {
               ticket: ticketDetails,
               from: "kanban",
@@ -221,7 +221,7 @@ const validateForm = () => {
             },
           });
         }, 500);
-  
+
         // Reset form
         setRows([{ itemName: "", unit: "", rate: "", quantity: "", total: "" }]);
         setTitle("");
@@ -234,7 +234,7 @@ const validateForm = () => {
       toast.error("BOQ creation failed.");
     }
   };
-  
+
 
   useEffect(() => {
     dispatch(fetchRoles());
@@ -417,14 +417,28 @@ const validateForm = () => {
           >
             + Add Row
           </Button>
-          <Button type="submit" className="submit-btn">
+          <Button
+            type="submit"
+            className="submit-btn"
+            style={{
+              backgroundColor: "#FF6F00",
+              borderColor: "#FF6F00",
+              color: "white",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+            }}
+          >
             <FontAwesomeIcon
               icon={faPaperPlane}
-              className="icon"
-              style={{ color: "white" }}
+              style={{
+                color: "white",         // icon color
+                filter: "brightness(100%)", // ensure no override
+              }}
             />
-            Submit
+            <span style={{ color: "white" }}>Submit</span>
           </Button>
+
         </div>
       </Form>
     </div>

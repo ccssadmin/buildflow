@@ -236,7 +236,7 @@ const EngineerDashboard = ({ progress = 50, maxValue = 100 }) => {
 
   const navigate = useNavigate();
 
-  const { fetchProjectDetails} = useProject();
+  const { fetchProjectDetails } = useProject();
 
   const [projectDetails, setProjectDetails] = useState(null);
   const dispatch = useDispatch();
@@ -245,20 +245,20 @@ const EngineerDashboard = ({ progress = 50, maxValue = 100 }) => {
   const defaultProjectId = localStorage.getItem("projectId");
   console.log("Project ID from localStorage:", defaultProjectId);
 
-const projectID = 1;
+  const projectID = 1;
 
-useEffect(() => {
-  fetchProjectDetails(projectID).then((data) => {
-      setProjectDetails(data);         
-      dispatch({ type: "SET_PROJECT_DETAILS", payload: data }); 
+  useEffect(() => {
+    fetchProjectDetails(projectID).then((data) => {
+      setProjectDetails(data);
+      dispatch({ type: "SET_PROJECT_DETAILS", payload: data });
     })
-    .catch((error) => {
-      console.error("Error fetching project details:", error);
-    });
-}, [projectID, dispatch]);
+      .catch((error) => {
+        console.error("Error fetching project details:", error);
+      });
+  }, [projectID, dispatch]);
 
 
-const userData = JSON.parse(localStorage.getItem('userData'));
+  const userData = JSON.parse(localStorage.getItem('userData'));
 
   return (
     <Fragment>
@@ -271,7 +271,7 @@ const userData = JSON.parse(localStorage.getItem('userData'));
                   <h2 className="site-name">{projectDetails?.value?.project?.project_name}</h2>
                   <div className="div-constructions">
                     <img src={constructions_img} alt="JV Constructions"></img>
-       <h6 className="constructions-name text-dark">{projectDetails?.value?.subcontractor_details?.[0]?.subcontractor_name}</h6>
+                    <h6 className="constructions-name text-dark">{projectDetails?.value?.subcontractor_details?.[0]?.subcontractor_name}</h6>
                   </div>
                 </div>
                 <div className="d-flex justify-content-between my-3">
@@ -347,7 +347,7 @@ const userData = JSON.parse(localStorage.getItem('userData'));
                         </td>
                         <td className="text-center">
                           <button
-                            className="fs-16-500 text-bright-royal-blue text-decoration-underline bg-light border-0 lh-lg"
+                            className="btn-link-clean"
                             onClick={() => navigate('/admin/engineermaterialcreate')}
                           >
                             Create
@@ -420,12 +420,24 @@ const userData = JSON.parse(localStorage.getItem('userData'));
               <h4 className="fs-22-700 mt-2 mb-4">Pending Approvals</h4>
               <div className="pending-approvel-conatiner">
                 <div className="justify-content-between d-flex mb-4">
-                  <h4 className="fs-20-500 mb-0 justify-content-start align-items-center d-flex">Pending Approvals <span className="pending-approvel-count">12</span></h4>
-                  <Link to="/approvals" className="text-decoration-none fs-16-500 view-all-approvals text-bright-royal-blue">View all</Link>
+                  <h4 className="fs-20-500 mb-0 justify-content-start align-items-center d-flex">
+                    Pending Approvals <span className="pending-approvel-count">12</span>
+                  </h4>
+                  <Link
+                    to="/approvals"
+                    className="text-decoration-none fs-16-500 view-all-approvals text-bright-royal-blue"
+                  >
+                    View all
+                  </Link>
                 </div>
-                <div className="pending-max-height-large scrollbar-none">
+
+                {/* Scrollable container */}
+                <div className="pending-scroll-container">
                   {pendingApprovals.map((approval) => (
-                    <Link key={approval.id} className="card-pending-approvel text-decoration-none text-dark">
+                    <Link
+                      key={approval.id}
+                      className="card-pending-approvel text-decoration-none text-dark"
+                    >
                       <div className="card-pending-approvel-header d-flex justify-content-between align-items-start">
                         <div className="card-pending-approvel-project-title">
                           <h4 className="fs-18-500">{approval.site}</h4>
@@ -445,6 +457,7 @@ const userData = JSON.parse(localStorage.getItem('userData'));
                 </div>
               </div>
             </div>
+
           </div>
         </div>
         <div className="right-container">
