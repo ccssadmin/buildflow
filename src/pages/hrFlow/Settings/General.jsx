@@ -43,16 +43,10 @@ export const GeneralSettings = () => {
   }, []);
 
   /** CLEAR TOKEN & LOGOUT USER */
-  const userLogout = () => {
-    setShowInfo(false);
-    setShowNotify(false);
-    setAuthToken("");
-    setExpiresOn("");
-    setAuthType("");
-    localStorage.removeItem("roleId");
-    localStorage.removeItem("roleName");
-    navigate("/");
-  };
+ const userLogout = () => {
+  localStorage.clear();
+  window.location.href = "/login"; 
+};
 
   // Format phone number to remove +91 if it already exists in the API response
   const formatPhoneNumber = (phone) => {
