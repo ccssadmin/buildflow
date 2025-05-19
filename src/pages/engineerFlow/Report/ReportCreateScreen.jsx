@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { getNewReportCode, uploadReportAttachments, upsertReport } from '../../../store/actions/report/reportcreateaction';
+import { createReportAttachmentAction, getNewReportCode, uploadReportAttachments, upsertReport } from '../../../store/actions/report/reportcreateaction';
 import { toast } from 'react-toastify'; // Import toast for notifications
 import { fetchProjects } from '../../../store/actions/hr/projectaction';
 import DatePicker from "react-datepicker";
@@ -293,6 +293,26 @@ try {
 
   if (upsertReport.fulfilled.match(resultAction)) {
     toast.success('Report created successfully!');
+    const reportId = resultAction.payload.reportId;
+
+    if (attachedFile) {
+  const formData = new FormData();
+  formData.append("files", attachedFile); // ✅ Note: key must match what your backend expects
+  dispatch(createReportAttachmentAction({ reportId, files: formData }));
+}
+
+for (const row of dailyProgressRows) {
+  if (row.photo) {
+    const rowFormData = new FormData();
+    rowFormData.append("files", row.photo); // again, key must match
+    // optionally add metadata as fields if backend supports
+    rowFormData.append("section", "dailyprogresssummary");
+    rowFormData.append("rowId", row.id);
+
+    dispatch(createReportAttachmentAction({ reportId, files: rowFormData }));
+  }
+}
+
     navigate('/admin/engineerreport', { state: resultAction.payload });
   } else {
     let errorMessage = 'Report creation failed. Please try again.';

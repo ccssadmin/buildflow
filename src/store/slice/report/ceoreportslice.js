@@ -1,7 +1,7 @@
 // src/redux/slices/ceoReportSlice.js
 
 import { createSlice } from '@reduxjs/toolkit';
-import { getCEOReportsByType, getCEOReportTypes } from '../../actions/report/ceoreportaction';
+import { getAllCEOReports, getCEOReportsByType, getCEOReportTypes } from '../../actions/report/ceoreportaction';
 
 const ceoReportSlice = createSlice({
   name: "ceoReport",
@@ -19,6 +19,19 @@ const ceoReportSlice = createSlice({
 
   extraReducers: (builder) => {
     builder
+     // Get all reports
+      .addCase(getAllCEOReports.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getAllCEOReports.fulfilled, (state, action) => {
+        state.loading = false;
+        state.reports = action.payload?.data || [];
+      })
+      .addCase(getAllCEOReports.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
       // Reports by type
       .addCase(getCEOReportsByType.pending, (state) => {
         state.loading = true;
