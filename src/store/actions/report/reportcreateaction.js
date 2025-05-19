@@ -1,6 +1,7 @@
 // src/redux/actions/getReports.js
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../../../services/api';
+import axios from 'axios';
 const BASE_URL = process.env.REACT_APP_MASTER_API_BASE_URL;
 
 export const upsertReport = createAsyncThunk(
@@ -8,7 +9,7 @@ export const upsertReport = createAsyncThunk(
   async (reportData, { rejectWithValue }) => {
     try {
       const response = await api.POST(
-        `https://buildflowgraphql.crestclimbers.com/api/Report/upsert-report`,
+        `${BASE_URL}/api/Report/upsert-report`,
         reportData
       );
       return response.data;
@@ -25,7 +26,7 @@ export const upsertReport = createAsyncThunk(
     "report/getReports",
     async (_, { rejectWithValue }) => {
       try {
-      const response = await api.GET(`https://buildflowgraphql.crestclimbers.com/api/Report/getreport`);
+      const response = await api.GET(`${BASE_URL}/api/Report/getreport`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Something went wrong');
@@ -39,7 +40,7 @@ export const getReportById = createAsyncThunk(
   'report/getById',
   async (reportId, { rejectWithValue }) => {
     try {
-      const response = await api.GET(`https://buildflowgraphql.crestclimbers.com/api/Report/getreportbyid?reportid=${reportId}`);
+      const response = await api.GET(`${BASE_URL}/api/Report/getreportbyid?reportid=${reportId}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch report');
@@ -52,7 +53,7 @@ export const getReportAttachmentsById = createAsyncThunk(
   'report/getReportAttachmentsById',
   async (reportId, { rejectWithValue }) => {
     try {
-      const response = await api.GET(`https://buildflowgraphql.crestclimbers.com/api/Report/getreportattachmentbyid?reportid=${reportId}`);
+      const response = await api.GET(`${BASE_URL}/api/Report/getreportattachmentbyid?reportid=${reportId}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -101,7 +102,7 @@ export const uploadReportAttachments = createAsyncThunk(
       }
 
       const response = await api.POST(
-        `https://buildflowgraphql.crestclimbers.com/api/Report/upload-attachments?reportId=${reportId}`,
+        `${BASE_URL}/api/Report/upload-attachments?reportId=${reportId}`,
         formData,
         {
           headers: {
@@ -132,10 +133,37 @@ export const getNewReportCode = createAsyncThunk(
   'report/getNewReportCode',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.GET('https://buildflowgraphql.crestclimbers.com/api/Report/Get-NewReportCode');
+      const response = await api.GET(`${BASE_URL}/api/Report/Get-NewReportCode`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || 'Failed to fetch new report code');
+    }
+  }
+);
+
+
+/** CRETAE REPORT ATTACHMENT */
+export const createReportAttachmentAction = createAsyncThunk(
+  "report/createAttachment",
+  async ({ reportId, files }, { rejectWithValue }) => {
+    try {
+      // ✅ Get token from localStorage (or wherever you store it)
+      const token = localStorage.getItem("accessToken");
+
+      const response = await axios
+      .post(
+        `${BASE_URL}/api/Report/upload-attachments?reportId=${reportId}`,
+        files,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
     }
   }
 );
