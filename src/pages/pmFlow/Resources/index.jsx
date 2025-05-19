@@ -97,7 +97,7 @@ const CeoResources = () => {
     </div>
   );
 
-  const tabs = ["Manpower", "Materials", "Machinery", "Transport"];
+  const tabs = ["Manpower", "Machinery", "Transport"];
 
   return (
     <main
@@ -129,7 +129,7 @@ const CeoResources = () => {
         <div className="">
           {activeTab === "Manpower" && !showCivilWorkers && manpowerTable}
           {showCivilWorkers && <CivilWorkers />}
-          {activeTab === "Materials" && <Materials />}
+          {/* {activeTab === "Materials" && <Materials />} */}
           {activeTab === "Machinery" && <MachineryTab />}
           {activeTab === "Transport" && <TransportTable />}
         </div>
