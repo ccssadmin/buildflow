@@ -132,7 +132,7 @@ export const getNewReportCode = createAsyncThunk(
   'report/getNewReportCode',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.GET('https://buildflowtesting.crestclimbers.com/api/Report/Get-NewReportCode');
+      const response = await api.GET('https://buildflowgraphql.crestclimbers.com/api/Report/Get-NewReportCode');
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || 'Failed to fetch new report code');
