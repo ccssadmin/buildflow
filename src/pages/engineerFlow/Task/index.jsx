@@ -41,7 +41,7 @@ const TaskTable = () => {
             delayedDays: "",
             status: "To Do",
             subRows: [],
-            isNew: true // Add this to enable input fields
+            isNew: true 
         };
         setData([...data, newTask]);
     };
@@ -155,9 +155,19 @@ const TaskTable = () => {
                                         <React.Fragment key={item.id}>
                                             <tr>
                                                 <td className="text-light bg-burnt-orange text-center">{item.id}</td>
-                                                <td className="text-light bg-burnt-orange text-center">
-                                                    {item.name}{" "}
-                                                    <Button variant="outline-dark" size="sm" onClick={() => addEmptyRow(item.id)}>+</Button>
+                                                <td className="text-light bg-burnt-orange">
+                                                    <div className="d-flex justify-content-between align-items-center text-white">
+                                                        <span className="text-white">{item.name}</span>
+                                                        <Button
+                                                            variant="outline-dark"
+                                                            className="text-white"
+                                                            style={{ borderColor: 'white' }}
+                                                            size="sm"
+                                                            onClick={() => addEmptyRow(item.id)}
+                                                        >
+                                                            +
+                                                        </Button>
+                                                    </div>
                                                 </td>
                                                 <td className="text-light bg-burnt-orange text-center">{item.startDate}</td>
                                                 <td className="text-light bg-burnt-orange text-center">{item.endDate}</td>
@@ -165,16 +175,7 @@ const TaskTable = () => {
                                                 <td className="text-light bg-burnt-orange text-center">{item.duration}</td>
                                                 <td className="text-light bg-burnt-orange text-center">{item.delayedDays}</td>
                                                 <td className="text-light bg-burnt-orange text-center">
-                                                    <Form.Select
-                                                        className="border-0 text-white shadow-none bg-transparent p-0 text-center"
-                                                        value={item.status}
-                                                        onChange={(e) => handleMainStatusChange(item.id, e.target.value)}
-                                                        style={{ textAlign: 'center', textAlignLast: 'center' }}
-                                                    >
-                                                        <option value="To Do">To Do</option>
-                                                        <option value="Active">Active</option>
-                                                        <option value="Completed">Completed</option>
-                                                    </Form.Select>
+                                                    {item.status}
                                                 </td>
                                             </tr>
                                             {item.subRows.map((subItem, index) => (
