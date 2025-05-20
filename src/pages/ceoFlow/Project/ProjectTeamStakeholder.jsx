@@ -10,6 +10,7 @@ import {
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { profile } from "../../../assets/images";
+import { getAllEmployeesByRolesAction } from "../../../store/actions/Ceo/RoleBasedEmpAction";
 
 const ProjectTeamStakeholder = ({
   formData,
@@ -54,7 +55,9 @@ const ProjectTeamStakeholder = ({
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
+  useEffect(() => {
+    dispatch(getAllEmployeesByRolesAction());
+  }, [dispatch]);
   const handleCheckboxChange = (userId) => {
     setSelectedUsers((prev) =>
       prev.includes(userId)

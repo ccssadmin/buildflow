@@ -28,3 +28,17 @@ export const getCEOReportTypes = createAsyncThunk(
     }
   }
 );
+
+// New action to get all reports
+export const getAllCEOReports = createAsyncThunk(
+  "ceoReport/getAllCEOReports",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.GET("/api/Report/getreport");
+      return response.data;
+    } catch (error) {
+      console.error("Get All CEO Reports API Error:", error);
+      return rejectWithValue(error.response?.data?.message || "Something went wrong");
+    }
+  }
+);

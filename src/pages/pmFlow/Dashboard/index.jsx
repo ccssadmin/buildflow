@@ -50,37 +50,37 @@ const quickAlerts = [
 const pendingApprovals = [
   {
     id: 1,
-    site: "MAA Site",
+    site: "Block A 2nd Floor BOQ",
     department: "Finance",
     user: "Marvin McKinney",
-    title: "Approval for Fund Rise",
+    //title: "Approval for Fund Rise",
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
   },
   {
     id: 2,
-    site: "MAA Site",
+    site: "Block A 2nd Floor BOQ",
     department: "Finance",
     user: "Marvin McKinney",
-    title: "Approval for Fund Rise",
+    //title: "Approval for Fund Rise",
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
   },
   {
     id: 3,
-    site: "MAA Site",
+    site: "Block A 2nd Floor BOQ",
     department: "Finance",
     user: "Marvin McKinney",
-    title: "Approval for Fund Rise",
+    //title: "Approval for Fund Rise",
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
   },
   {
     id: 4,
-    site: "MAA Site",
+    site: "Block A 2nd Floor BOQ",
     department: "Finance",
     user: "Marvin McKinney",
-    title: "Approval for Fund Rise",
+    //title: "Approval for Fund Rise",
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
   },
@@ -147,7 +147,7 @@ const PmDashboard = () => {
                     to="/pm/task"
                     className="text-decoration-none fs-6 view-all-approvals"
                   >
-                    View all
+                    View Detail &gt;&gt;
                   </Link>
                 </div>
                 <div className="d-flex">
@@ -314,7 +314,7 @@ const PmDashboard = () => {
                     </span>
                   </h4>
                   <Link
-                    to="/approvals"
+                    to="/pm/approvals"
                     className="text-decoration-none fs-6 view-all-approvals"
                   >
                     View all
@@ -336,7 +336,7 @@ const PmDashboard = () => {
                         </div>
                       </div>
                       <div className="card-pending-approvel-content">
-                        <h6 className="title-4 my-2">{approval.title}</h6>
+                        {/* <h6 className="title-4 my-2">{approval.title}</h6> */}<br></br>
                         <p>{approval.description}</p>
                       </div>
                     </div>

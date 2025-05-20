@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { getNewReportCode, getReportAttachmentsById, getReportById, getReports, uploadReportAttachments, upsertReport } from '../../actions/report/reportcreateaction';
+import { createReportAttachmentAction, getNewReportCode, getReportAttachmentsById, getReportById, getReports, uploadReportAttachments, upsertReport } from '../../actions/report/reportcreateaction';
 
 const reportSlice = createSlice({
     name: 'report',
@@ -10,7 +10,8 @@ const reportSlice = createSlice({
       reportDetails: null,
       attachments: [],
       uploadMessage: '',
-        newReportCode: '', 
+      newReportCode: '', 
+      ReportAttachments: '',
     },
     reducers: {
       resetReportState: (state) => {
@@ -109,14 +110,22 @@ const reportSlice = createSlice({
   state.loading = false;
   state.error = action.payload;
 })
-  
-  
-  
-  ;
       
       
-      
-      
+.addCase(createReportAttachmentAction.pending, (state) => {
+    state.loading = true;
+    state.error = null;
+  })
+.addCase(createReportAttachmentAction.fulfilled, (state, action) => {
+    state.loading = false;
+    state.success = true;
+    state.ReportAttachments = action.payload.message;
+  })
+.addCase(createReportAttachmentAction.rejected, (state, action) => {
+    state.loading = false;
+    state.error = action.payload || 'File upload failed';
+  })
+      ;
 
 
 
