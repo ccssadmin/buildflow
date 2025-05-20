@@ -4,6 +4,7 @@ import { profile, constructions_img } from '../../../assets/images';
 import Notification from "../../../components/common/NotificationTab";
 import { useProject } from "../../../hooks/Ceo/useCeoProject";
 import { useDispatch } from "react-redux";
+import ProjectProgressBar from "./ProjectProgressBar";
 export const roleCheck = { role: "admin" };
 
 
@@ -292,21 +293,7 @@ const EngineerDashboard = ({ progress = 50, maxValue = 100 }) => {
                     {projectDetails?.value?.project?.project_end_date}
                   </h4>
                 </div>
-                <div className="progress-container mt-3 mb-2">
-                  <div className="custom-progress-bar">
-                    <div
-                      className="progress-fill"
-                      style={{ width: `${percentage}%` }}
-                    />
-
-                    <div
-                      className="progress-indicator large"
-                      style={{ left: `${percentage}%` }}
-                    >
-                      {projectDetails?.value?.project?.project_status}%
-                    </div>
-                  </div>
-                </div>
+                <ProjectProgressBar progress={projectDetails?.value?.project?.completion || 0} />
                 <div className="d-flex justify-content-between mt-4">
                   <Link className="requests-count fs-16-500 h40px6">{projectDetails?.value?.total_request_count} Requests Pending</Link>
                   <Link

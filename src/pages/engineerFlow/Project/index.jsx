@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 // import { filter } from "../../assets/images";
 import ProjectMilestoneTable from "./ProjectMilestoneTable";
 import ProjectEmployeesList from "../../../components/common/ProjectEmployeesList";
-import ProjectProgressBar from "../../mdflow/Project/ProjectProgressBar";
+import ProjectProgressBar from "./ProjectProgressBar";
 import { useProject } from "../../../hooks/Ceo/useCeoProject";
 
 
