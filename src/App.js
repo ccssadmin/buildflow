@@ -920,6 +920,10 @@ const App = () => {
           <Route path="approvals" element={<CommonKanban />} />
           <Route path="ticket/:ticketId" element={<CommonTicketDetails />} />
           <Route path="chats" element={<VendorChat />} />
+          <Route
+            path="poDetails/:purchaseOrderId"
+            element={<CommonPODetails />}
+          />
           <Route path="settings" element={<VendorSettings />} />
         </Route>
         {/* Catch all redirect */}
