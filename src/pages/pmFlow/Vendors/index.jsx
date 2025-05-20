@@ -15,7 +15,7 @@ const vendors = [
   { name: "RK Enterprises", category: "Materials, Labor, and Rental Assets", color: "bg-rV-alt" }
 ];
 
-const AqsVendor = () => {
+const PmVendor = () => {
   const [selectedSite, setSelectedSite] = useState("MRM Site");
 
   const sites = ["MRM Site", "Vendor Site", "Customer Site", "Admin Site"];
@@ -92,4 +92,4 @@ const AqsVendor = () => {
   );
 };
 
-export default AqsVendor;
+export default PmVendor;
