@@ -6,6 +6,8 @@ import { useParams } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { profile } from "../../../assets/images";
+import { useDispatch } from "react-redux";
+import { getProjectDetailsAction } from "../../../store/actions/Ceo/ceoprojectAction";
 
 
 const TimelineMilestonePlanning = ({
@@ -23,6 +25,9 @@ const TimelineMilestonePlanning = ({
   const { createProjectMilestone, loading, currentProject } = useProject();
   const [localProjectId, setLocalProjectId] = useState(null);
 
+
+  const dispatch = useDispatch();
+
   const handleCheckboxChange = (userId) => {
     setSelectedUsers((prevSelected) =>
       prevSelected.includes(userId)
@@ -31,8 +36,279 @@ const TimelineMilestonePlanning = ({
     );
   };
 
+  useEffect(() => {
+  if (projectId) {
+    getProjectsData(projectId);
+  }
+}, [projectId]);
 
-  const handleTicketSubmission = async () => {
+  
+const getProjectsData = async (projectId) => {
+  
+  try {
+    const result = await dispatch(getProjectDetailsAction(projectId));
+    const milestoneDetails = result?.payload?.value?.milestone_details;
+    if (Array.isArray(milestoneDetails)) {
+      const milestones = milestoneDetails.map((item) => ({
+        id: item.milestone_id || 0,
+        name: item.milestone_name,
+        description: item.milestone_description,
+        startDate: item.milestone_start_date,
+        endDate: item.milestone_end_date,
+        status: item.milestone_status,
+      }));
+      console.log("Processed milestones =>", milestones);
+
+      setFormData((prev) => ({
+        ...prev,
+        milestones,
+      }));
+    } else {
+      console.warn("No valid milestone details found.");
+    }
+  } catch (error) {
+    console.error("Failed to fetch project details:", error);
+  }
+};
+
+  
+
+  // useEffect(() => {
+  //   const getProjectId = () => {
+  //     if (formData && formData.projectId) {
+  //       console.log("🔍 Found projectId in formData:", formData.projectId);
+  //       setLocalProjectId(formData.projectId);
+  //       return formData.projectId;
+  //     }
+
+  //     const storedId = localStorage.getItem("projectId");
+  //     if (storedId) {
+  //       console.log("🔍 Found projectId in localStorage:", storedId);
+  //       setLocalProjectId(parseInt(storedId));
+
+  //       if (!formData.projectId) {
+  //         setFormData((prev) => ({
+  //           ...prev,
+  //           projectId: parseInt(storedId),
+  //         }));
+  //       }
+
+  //       return parseInt(storedId);
+  //     }
+
+  //     console.error("❌ No project ID found anywhere!");
+  //     return null;
+  //   };
+
+
+    
+
+
+
+  //   if (!projectId) {
+  //     Swal.fire({
+  //       icon: "warning",
+  //       title: "Project ID Missing",
+  //       text: "Could not find project ID. Please go back and create the project first.",
+  //     });
+  //   }
+  // }, []);
+ 
+
+  useEffect(() => {
+    const storedProjectId = localStorage.getItem("projectId");
+    const resolvedProjectId =
+      projectId ||
+      storedProjectId ||
+      currentProject?.projectId ||
+      currentProject?.data?.projectid;
+
+    if (resolvedProjectId) {
+      setFormData((prev) => ({
+        ...prev,
+        projectId: resolvedProjectId,
+      }));
+    } else {
+      console.error("No project ID found in timeline component!");
+    }
+  }, [projectId, currentProject]);
+
+ 
+  const handleAddMilestone = () => {
+    const newId =
+      formData.milestones.length > 0
+        ? Math.max(...formData.milestones?.map((m) => m.id)) + 1
+        : 1;
+
+    setFormData((prev) => ({
+      ...prev,
+      milestones: [
+        ...prev.milestones,
+        {
+          id: 0,
+          name: "",
+          description: "",
+          startDate: "",
+          endDate: "",
+          status: "Planned",
+        },
+      ],
+    }));
+  };
+
+  const inputStyle = {
+    border: "1px solid #007bff",
+    borderRadius: "6px",
+    padding: "6px 12px",
+    backgroundColor: "#fff",
+    color: "#007bff",
+    fontWeight: "500",
+    textAlign: "center",
+    width: "100%",
+    cursor: "pointer",
+  };
+
+
+  // Modified function to handle date changes with DatePicker
+  const handleDateChange = (id, field, date) => {
+    if (!date) {
+      handleMilestoneChange(id, field, "");
+      return;
+    }
+
+    // Create a new date object with the local timezone
+    const localDate = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate()
+    );
+    // Format as YYYY-MM-DD without timezone conversion
+    const year = localDate.getFullYear();
+    const month = String(localDate.getMonth() + 1).padStart(2, "0");
+    const day = String(localDate.getDate()).padStart(2, "0");
+    const dateString = `${year}-${month}-${day}`;
+    handleMilestoneChange(id, field, dateString);
+  };
+
+  const parseDate = (dateStr) => {
+    if (!dateStr) return null;
+    // Parse the date string directly without timezone conversion
+    const parts = dateStr.split("-");
+    if (parts.length !== 3) return null;
+    const year = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1; // months are 0-based
+    const day = parseInt(parts[2], 10);
+    return new Date(year, month, day);
+  };
+  const handleSubmit = async () => {
+    if (!formData.projectId) {
+      Swal.fire({
+        icon: "error",
+        title: "No Project Selected",
+        text: "Please create or select a project first.",
+      });
+      return;
+    }
+    // Filter out completely empty milestones (all fields empty)
+    const milestonesToSubmit = formData.milestones.filter(
+      milestone => 
+        milestone.id == 0 ||
+        milestone.name.trim() !== "" || 
+        milestone.description.trim() !== "" || 
+        milestone.startDate || 
+        milestone.endDate
+    );
+
+    // Validate that at least one milestone has a name (if any milestones exist)
+    if (milestonesToSubmit.length > 0) {
+      const invalidMilestones = milestonesToSubmit.filter(
+        milestone => !milestone.name.trim()
+      );
+
+      if (invalidMilestones.length > 0) {
+        Swal.fire({
+          icon: "warning",
+          title: "Missing Milestone Names",
+          text: "All milestones must have a name if any fields are filled.",
+        });
+        return;
+      }
+    }
+
+
+    
+const projectId = localStorage.getItem("projectId");
+
+
+
+    // Validate date ranges for milestones that have both dates
+    const invalidDateRanges = milestonesToSubmit.filter(
+      (m) =>
+        m.startDate && m.endDate && new Date(m.endDate) < new Date(m.startDate)
+    );
+
+    if (invalidDateRanges.length > 0) {
+      Swal.fire({
+        icon: "warning",
+        title: "Invalid Date Ranges",
+        text: `${invalidDateRanges.length} milestone(s) have end dates that are earlier than their start dates. Please correct these issues.`,
+      });
+      return;
+    }
+
+    // Prepare the milestone list
+    const milestoneList = milestonesToSubmit.map((milestone) => ({
+  milestoneId: milestone.id === undefined || milestone.id === null ? 0 : milestone.id,
+
+  milestoneName: milestone.name.trim(),
+  milestoneDescription: milestone.description.trim(),
+  milestoneStartDate: milestone.startDate || null,
+  milestoneEndDate: milestone.endDate || null,
+  Status: milestone.status || "Planned",
+}));
+
+
+    const payload = {
+      projectId: parseInt(formData.projectId, 10),
+      milestoneList: milestoneList,
+    };
+
+    console.log("Payload being sent to API:", payload);
+
+    try {
+      const response = await createProjectMilestone(payload);
+
+      if (response?.success) {
+        Swal.fire({
+          icon: "success",
+          title: "Success!",
+          text:
+           response?.message,
+          timer: 1500,
+          showConfirmButton: false,
+        });
+
+        setTimeout(() => {
+          if (onNextStep) {
+            onNextStep();
+          }
+        }, 1600);
+      } else {
+        throw new Error(response?.message || "Failed to save project");
+      }
+    } catch (error) {
+      console.error("Error saving project:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.message || "Something went wrong. Please try again.",
+      });
+    }
+  };
+
+
+
+    const handleTicketSubmission = async () => {
     const projectId = formData.projectId || localProjectId || parseInt(localStorage.getItem("projectId"));
     const createdBy = parseInt(localStorage.getItem("userRoleId"));
 
@@ -84,238 +360,6 @@ const TimelineMilestonePlanning = ({
       console.error("❌ Failed to create ticket or notification:", err);
     }
   };
-  
-
-  useEffect(() => {
-    const getProjectId = () => {
-      if (formData && formData.projectId) {
-        console.log("🔍 Found projectId in formData:", formData.projectId);
-        setLocalProjectId(formData.projectId);
-        return formData.projectId;
-      }
-
-      const storedId = localStorage.getItem("projectId");
-      if (storedId) {
-        console.log("🔍 Found projectId in localStorage:", storedId);
-        setLocalProjectId(parseInt(storedId));
-
-        if (!formData.projectId) {
-          setFormData((prev) => ({
-            ...prev,
-            projectId: parseInt(storedId),
-          }));
-        }
-
-        return parseInt(storedId);
-      }
-
-      console.error("❌ No project ID found anywhere!");
-      return null;
-    };
-
-    const projectId = getProjectId();
-
-    if (!projectId) {
-      Swal.fire({
-        icon: "warning",
-        title: "Project ID Missing",
-        text: "Could not find project ID. Please go back and create the project first.",
-      });
-    }
-  }, []);
-
-  useEffect(() => {
-    const storedProjectId = localStorage.getItem("projectId");
-    const resolvedProjectId =
-      projectId ||
-      storedProjectId ||
-      currentProject?.projectId ||
-      currentProject?.data?.projectid;
-
-    if (resolvedProjectId) {
-      setFormData((prev) => ({
-        ...prev,
-        projectId: resolvedProjectId,
-      }));
-    } else {
-      console.error("No project ID found in timeline component!");
-    }
-  }, [projectId, currentProject]);
-
-  const handleAddMilestone = () => {
-    const newId =
-      formData.milestones.length > 0
-        ? Math.max(...formData.milestones.map((m) => m.id)) + 1
-        : 1;
-
-    setFormData((prev) => ({
-      ...prev,
-      milestones: [
-        ...prev.milestones,
-        {
-          id: newId,
-          name: "",
-          description: "",
-          startDate: "",
-          endDate: "",
-          status: "Planned",
-        },
-      ],
-    }));
-  };
-
-  const inputStyle = {
-    border: "1px solid #007bff",
-    borderRadius: "6px",
-    padding: "6px 12px",
-    backgroundColor: "#fff",
-    color: "#007bff",
-    fontWeight: "500",
-    textAlign: "center",
-    width: "100%",
-    cursor: "pointer",
-  };
-
-
-
-  // Modified function to handle date changes with DatePicker
-  const handleDateChange = (id, field, date) => {
-    if (!date) {
-      handleMilestoneChange(id, field, "");
-      return;
-    }
-
-    // Create a new date object with the local timezone
-    const localDate = new Date(
-      date.getFullYear(),
-      date.getMonth(),
-      date.getDate()
-    );
-    
-    // Format as YYYY-MM-DD without timezone conversion
-    const year = localDate.getFullYear();
-    const month = String(localDate.getMonth() + 1).padStart(2, "0");
-    const day = String(localDate.getDate()).padStart(2, "0");
-    
-    const dateString = `${year}-${month}-${day}`;
-    
-    handleMilestoneChange(id, field, dateString);
-  };
-
-  const parseDate = (dateStr) => {
-    if (!dateStr) return null;
-    
-    // Parse the date string directly without timezone conversion
-    const parts = dateStr.split("-");
-    if (parts.length !== 3) return null;
-    
-    const year = parseInt(parts[0], 10);
-    const month = parseInt(parts[1], 10) - 1; // months are 0-based
-    const day = parseInt(parts[2], 10);
-    
-    return new Date(year, month, day);
-  };
-
-  const handleSubmit = async () => {
-    if (!formData.projectId) {
-      Swal.fire({
-        icon: "error",
-        title: "No Project Selected",
-        text: "Please create or select a project first.",
-      });
-      return;
-    }
-
-    // Filter out completely empty milestones (all fields empty)
-    const milestonesToSubmit = formData.milestones.filter(
-      milestone => 
-        milestone.name.trim() !== "" || 
-        milestone.description.trim() !== "" || 
-        milestone.startDate || 
-        milestone.endDate
-    );
-
-    // Validate that at least one milestone has a name (if any milestones exist)
-    if (milestonesToSubmit.length > 0) {
-      const invalidMilestones = milestonesToSubmit.filter(
-        milestone => !milestone.name.trim()
-      );
-
-      if (invalidMilestones.length > 0) {
-        Swal.fire({
-          icon: "warning",
-          title: "Missing Milestone Names",
-          text: "All milestones must have a name if any fields are filled.",
-        });
-        return;
-      }
-    }
-
-    // Validate date ranges for milestones that have both dates
-    const invalidDateRanges = milestonesToSubmit.filter(
-      (m) =>
-        m.startDate && m.endDate && new Date(m.endDate) < new Date(m.startDate)
-    );
-
-    if (invalidDateRanges.length > 0) {
-      Swal.fire({
-        icon: "warning",
-        title: "Invalid Date Ranges",
-        text: `${invalidDateRanges.length} milestone(s) have end dates that are earlier than their start dates. Please correct these issues.`,
-      });
-      return;
-    }
-
-    // Prepare the milestone list
-    const milestoneList = milestonesToSubmit.map((milestone) => ({
-      milestoneId: 0,
-      milestoneName: milestone.name.trim(),
-      milestoneDescription: milestone.description.trim(),
-      milestoneStartDate: milestone.startDate || null,
-      milestoneEndDate: milestone.endDate || null,
-      Status: milestone.status || "Planned",
-    }));
-
-    const payload = {
-      projectId: parseInt(formData.projectId, 10),
-      milestoneList: milestoneList,
-    };
-
-    console.log("Payload being sent to API:", payload);
-
-    try {
-      const response = await createProjectMilestone(payload);
-
-      if (response?.success) {
-        Swal.fire({
-          icon: "success",
-          title: "Success!",
-          text:
-            milestoneList.length > 0
-              ? "Project milestones have been saved successfully."
-              : "Project has been saved successfully with no milestones.",
-          timer: 1500,
-          showConfirmButton: false,
-        });
-
-        setTimeout(() => {
-          if (onNextStep) {
-            onNextStep();
-          }
-        }, 1600);
-      } else {
-        throw new Error(response?.message || "Failed to save project");
-      }
-    } catch (error) {
-      console.error("Error saving project:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: error.message || "Something went wrong. Please try again.",
-      });
-    }
-  };
-
   return (
     <div className="timeline-milestone-page">
       <div className="container-fluid">
@@ -342,19 +386,19 @@ const TimelineMilestonePlanning = ({
               </tr>
             </thead>
             <tbody>
-              {formData.milestones.map((milestone) => (
-                <tr key={milestone.id}>
+              {formData.milestones?.map((item,index) => (
+                <tr key={item.id}>
                   <td className="text-center text-dark-gray fs-16-500">
-                    {milestone.id}
+                    {index+1}
                   </td>
                   <td className="text-center text-dark-gray fs-16-500">
                     <Form.Control
                       type="text"
                       className="border-1 shadow-none bg-transparent"
-                      value={milestone.name}
+                      value={item.name}
                       onChange={(e) =>
                         handleMilestoneChange(
-                          milestone.id,
+                          item.id,
                           "name",
                           e.target.value
                         )
@@ -366,10 +410,10 @@ const TimelineMilestonePlanning = ({
                     <Form.Control
                       type="text"
                       className="border-1 shadow-none bg-transparent"
-                      value={milestone.description}
+                      value={item.description}
                       onChange={(e) =>
                         handleMilestoneChange(
-                          milestone.id,
+                          item.id,
                           "description",
                           e.target.value
                         )
@@ -380,8 +424,8 @@ const TimelineMilestonePlanning = ({
                   <td className="text-center text-dark-gray fs-16-500">
                     <div style={{ position: "relative" }}>
                       <DatePicker
-                        selected={parseDate(milestone.startDate)}
-                        onChange={(date) => handleDateChange(milestone.id, "startDate", date)}
+                        selected={parseDate(item.startDate)}
+                        onChange={(date) => handleDateChange(item.id, "startDate", date)}
                         className="form-control pe-3 border-1 shadow-none bg-transparent"
                         dateFormat="d MMMM yyyy"
                         placeholderText="Select date"
@@ -420,12 +464,12 @@ const TimelineMilestonePlanning = ({
                   <td className="text-center text-dark-gray fs-16-500">
                     <div style={{ position: "relative" }}>
                       <DatePicker
-                        selected={parseDate(milestone.endDate)}
-                        onChange={(date) => handleDateChange(milestone.id, "endDate", date)}
+                        selected={parseDate(item.endDate)}
+                        onChange={(date) => handleDateChange(item.id, "endDate", date)}
                         className="form-control pe-3 border-1 shadow-none bg-transparent"
                         dateFormat="d MMMM yyyy"
                         placeholderText="Select date"
-                        minDate={parseDate(milestone.startDate)}
+                        minDate={parseDate(item.startDate)}
                         style={{
                           border: "1px solid #007bff",
                           borderRadius: "6px",
@@ -460,10 +504,10 @@ const TimelineMilestonePlanning = ({
                     <Form.Select
                       style={inputStyle}
                       className="form-control border-1 shadow-none bg-transparent text-dark"
-                      value={milestone.status}
+                      value={item.status}
                       onChange={(e) =>
                         handleMilestoneChange(
-                          milestone.id,
+                          item.id,
                           "status",
                           e.target.value
                         )

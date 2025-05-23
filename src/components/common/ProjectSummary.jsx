@@ -50,6 +50,26 @@ const ProjectSummary = ({ formData, onBackClick }) => {
     2: "Private",
   };
 
+  // Helper function to check if data is empty
+  const isEmpty = (value) => {
+    if (value === null || value === undefined || value === '') return true;
+    if (Array.isArray(value)) return value.length === 0;
+    if (typeof value === 'object') return Object.keys(value).length === 0;
+    return false;
+  };
+
+  // Helper function to display empty state
+  const displayValue = (value, fallback = "Empty") => {
+    return isEmpty(value) ? fallback : value;
+  };
+
+  // Empty state component
+  const EmptyState = ({ message = "No data available" }) => (
+    <div className="text-center py-4 text-muted">
+      <p>{message}</p>
+    </div>
+  );
+
   useEffect(() => {
     if (projectId) {
       getProjectDetails();
@@ -81,16 +101,16 @@ const ProjectSummary = ({ formData, onBackClick }) => {
   };
 
   const getProjectTypeName = () => {
-    if (!projectData?.project?.project_type_id) return "Not provided";
+    if (!projectData?.project?.project_type_id) return "Empty";
     return (
-      PROJECT_TYPES[projectData?.project?.project_type_id] || "Not provided"
+      PROJECT_TYPES[projectData?.project?.project_type_id] || "Empty"
     );
   };
 
   const getProjectSectorName = () => {
-    if (!localFormData.project.project_sector_id) return "Not provided";
+    if (!localFormData.project.project_sector_id) return "Empty";
     return (
-      PROJECT_SECTORS[localFormData.project.project_sector_id] || "Not provided"
+      PROJECT_SECTORS[localFormData.project.project_sector_id] || "Empty"
     );
   };
 
@@ -106,10 +126,6 @@ const ProjectSummary = ({ formData, onBackClick }) => {
       </div>
     );
   }
-
-  // if (!localFormData.project.project_id) {
-  //   return <Navigate to="/projects" />;
-  // }
 
   return (
     <div className="project-summary p-5">
@@ -146,7 +162,7 @@ const ProjectSummary = ({ formData, onBackClick }) => {
           <Button
             variant="link"
             className="edit-btn"
-            onClick={() => navigate(`../createproject/${projectId}`)}
+            onClick={() => navigate(`../createproject/${projectId}`,{state: { step: 0 }})}
           >
             Edit
           </Button>
@@ -158,7 +174,7 @@ const ProjectSummary = ({ formData, onBackClick }) => {
               <Form.Control
                 disabled
                 type="text"
-                value={projectData?.project?.project_name || "Not provided"}
+                value={displayValue(projectData?.project?.project_name)}
               />
             </div>
           </Col>
@@ -168,7 +184,7 @@ const ProjectSummary = ({ formData, onBackClick }) => {
               <Form.Control
                 disabled
                 type="text"
-                value={projectData?.project?.project_location || "Not provided"}
+                value={displayValue(projectData?.project?.project_location)}
               />
             </div>
           </Col>
@@ -186,9 +202,7 @@ const ProjectSummary = ({ formData, onBackClick }) => {
               <Form.Control
                 disabled
                 type="text"
-                value={
-                  projectData?.project?.project_sector_name || "Not provided"
-                }
+                value={displayValue(projectData?.project?.project_sector_name)}
               />
             </div>
           </Col>
@@ -199,9 +213,7 @@ const ProjectSummary = ({ formData, onBackClick }) => {
                 <Form.Control
                   disabled
                   type="text"
-                  value={
-                    projectData?.project?.project_start_date || "Not provided"
-                  }
+                  value={displayValue(projectData?.project?.project_start_date)}
                 />
                 <Calendar className="date-icon" />
               </div>
@@ -214,9 +226,7 @@ const ProjectSummary = ({ formData, onBackClick }) => {
                 <Form.Control
                   disabled
                   type="text"
-                  value={
-                    projectData?.project?.project_end_date || "Not provided"
-                  }
+                  value={displayValue(projectData?.project?.project_end_date)}
                 />
                 <Calendar className="date-icon" />
               </div>
@@ -231,9 +241,7 @@ const ProjectSummary = ({ formData, onBackClick }) => {
                 disabled
                 as="textarea"
                 rows={3}
-                value={
-                  projectData?.project?.project_description || "Not provided"
-                }
+                value={displayValue(projectData?.project?.project_description)}
               />
             </div>
           </Col>
@@ -245,9 +253,9 @@ const ProjectSummary = ({ formData, onBackClick }) => {
         <div className="summary-header">
           <h3>02. Budget & Financial Allocation</h3>
           <Button
-            variant="link"
+             variant="link"
             className="edit-btn"
-            onClick={() => onBackClick(1)}
+            onClick={() => navigate(`../createproject/${projectId}`,{state: { step: 1 }})}
           >
             Edit
           </Button>
@@ -261,112 +269,127 @@ const ProjectSummary = ({ formData, onBackClick }) => {
               <Form.Control
                 disabled
                 type="text"
-                value={`₹ ${projectData?.project?.project_total_budget?.toLocaleString() ||
-                  "Not provided"
-                  }`}
+                value={
+                  projectData?.project?.project_total_budget 
+                    ? `₹ ${projectData.project.project_total_budget.toLocaleString()}`
+                    : "Empty"
+                }
               />
             </div>
           </Col>
         </Row>
         <div className="budget-breakdown-summary">
           <h3 className="text-dark-gray fs-22-700 mb-0">Budget Breakdown</h3>
-          <Table bordered responsive className="mt-4 w-100">
-            <thead>
-              <tr>
-                <th className="text-center text-dark fs-18-500">S.No</th>
-                <th className="text-center text-dark fs-18-500">
-                  Expense Category
-                </th>
-                <th className="text-center text-dark fs-18-500">
-                  Estimated Cost (₹)
-                </th>
-                <th className="text-center text-dark fs-18-500">
-                  Approved Budget (₹)
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {projectData?.budget_details?.map((item, index) => (
-                <tr key={index}>
-                  <td className="text-center text-dark-gray fs-16-500">
-                    {String(index + 1).padStart(2, "0")}
-                  </td>
-                  <td className="text-center text-dark-gray fs-16-500">
-                    {item.project_expense_category}
-                  </td>
-                  <td className="text-center text-dark-gray fs-16-500">
-                    {item.estimated_cost?.toLocaleString() || "-"}
-                  </td>
-                  <td className="text-center text-dark-gray fs-16-500">
-                    {item.approved_budget?.toLocaleString() || "-"}
-                  </td>
+          {isEmpty(projectData?.budget_details) ? (
+            <EmptyState message="No budget breakdown data available" />
+          ) : (
+            <Table bordered responsive className="mt-4 w-100">
+              <thead>
+                <tr>
+                  <th className="text-center text-dark fs-18-500">S.No</th>
+                  <th className="text-center text-dark fs-18-500">
+                    Expense Category
+                  </th>
+                  <th className="text-center text-dark fs-18-500">
+                    Estimated Cost (₹)
+                  </th>
+                  <th className="text-center text-dark fs-18-500">
+                    Approved Budget (₹)
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </Table>
+              </thead>
+              <tbody>
+                {projectData?.budget_details?.map((item, index) => (
+                  <tr key={index}>
+                    <td className="text-center text-dark-gray fs-16-500">
+                      {String(index + 1).padStart(2, "0")}
+                    </td>
+                    <td className="text-center text-dark-gray fs-16-500">
+                      {displayValue(item.project_expense_category)}
+                    </td>
+                    <td className="text-center text-dark-gray fs-16-500">
+                      {item.estimated_cost ? item.estimated_cost.toLocaleString() : "Empty"}
+                    </td>
+                    <td className="text-center text-dark-gray fs-16-500">
+                      {item.approved_budget ? item.approved_budget.toLocaleString() : "Empty"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          )}
         </div>
       </div>
 
       {/* 03. Project Team & Stakeholder Assignment */}
-
       <div className="summary-section">
         <div className="summary-header">
           <h3>03. Project Team & Stakeholder Assignment</h3>
           <Button
-            variant="link"
+             variant="link"
             className="edit-btn"
-            onClick={() => onBackClick(2)}
+            onClick={() => navigate(`../createproject/${projectId}`,{state: { step: 2 }})}
           >
             Edit
           </Button>
         </div>
-        <Row className="mb-3">
-          {projectData?.team_details?.map((member, index) => (
-            <Col md={6} lg={4} key={member.emp_id}>
-              <div className="summary-field">
-                <label>{member.role}</label>
-                <div className="summary-multi-selectn">
-                  <div className="summary-tag width-100">
-                    <Form.Control
-                      disabled
-                      type="text"
-                      value={member.emp_name || "Not assigned"}
-                    />
+        
+        {isEmpty(projectData?.team_details) ? (
+          <EmptyState message="No team members assigned" />
+        ) : (
+          <Row className="mb-3">
+            {projectData?.team_details?.map((member, index) => (
+              <Col md={6} lg={4} key={member.emp_id || index}>
+                <div className="summary-field">
+                  <label>{displayValue(member.role)}</label>
+                  <div className="summary-multi-selectn">
+                    <div className="summary-tag width-100">
+                      <Form.Control
+                        disabled
+                        type="text"
+                        value={displayValue(member.emp_name, "Not assigned")}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Col>
-          ))}
-        </Row>
+              </Col>
+            ))}
+          </Row>
+        )}
+
         <div className="permission-approval-summary">
           <h4>Permission and Finance Approval</h4>
-          <Table bordered responsive className="mt-4 w-100">
-            <thead>
-              <tr>
-                <th className="text-center text-dark fs-18-500">S.No</th>
-                <th className="text-center text-dark fs-18-500">Employee</th>
-                <th className="text-center text-dark fs-18-500">Amount %</th>
-              </tr>
-            </thead>
-            <tbody>
-              {projectData?.finance_approval_data?.map((item, index) => (
-                <tr key={item.permission_finance_approval_id}>
-                  <td className="text-center text-dark-gray fs-16-500">
-                    {String(index + 1).padStart(2, "0")}
-                  </td>
-                  <td className="text-center text-dark-gray fs-16-500">
-                    <div className="employee-cell">
-                      <div className="employee-avatar"></div>
-                      <span>{item.emp_name}</span>
-                    </div>
-                  </td>
-                  <td className="text-center text-dark-gray fs-16-500">
-                    {item.amount || "-"}
-                  </td>
+          {isEmpty(projectData?.finance_approval_data) ? (
+            <EmptyState message="No finance approval data available" />
+          ) : (
+            <Table bordered responsive className="mt-4 w-100">
+              <thead>
+                <tr>
+                  <th className="text-center text-dark fs-18-500">S.No</th>
+                  <th className="text-center text-dark fs-18-500">Employee</th>
+                  <th className="text-center text-dark fs-18-500">Amount %</th>
                 </tr>
-              ))}
-            </tbody>
-          </Table>
+              </thead>
+              <tbody>
+                {projectData?.finance_approval_data?.map((item, index) => (
+                  <tr key={item.permission_finance_approval_id || index}>
+                    <td className="text-center text-dark-gray fs-16-500">
+                      {String(index + 1).padStart(2, "0")}
+                    </td>
+                    <td className="text-center text-dark-gray fs-16-500">
+                      <div className="employee-cell">
+                        <div className="employee-avatar"></div>
+                        <span>{displayValue(item.emp_name)}</span>
+                      </div>
+                    </td>
+                    <td className="text-center text-dark-gray fs-16-500">
+                      {displayValue(item.amount)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          )}
         </div>
       </div>
 
@@ -375,17 +398,15 @@ const ProjectSummary = ({ formData, onBackClick }) => {
         <div className="summary-header">
           <h3>04. Timeline & Milestone Planning</h3>
           <Button
-            variant="link"
+             variant="link"
             className="edit-btn"
-            onClick={() => onBackClick(3)}
+            onClick={() => navigate(`../createproject/${projectId}`,{state: { step: 3 }})}
           >
             Edit
           </Button>
         </div>
-        {!projectData?.milestone_details ? (
-          <div className="text-center py-4">
-            <p>No Timeline & Milestone data available</p>
-          </div>
+        {isEmpty(projectData?.milestone_details) ? (
+          <EmptyState message="No Timeline & Milestone data available" />
         ) : (
           <Table bordered responsive className="mt-4 w-100">
             <thead>
@@ -398,25 +419,25 @@ const ProjectSummary = ({ formData, onBackClick }) => {
               </tr>
             </thead>
             <tbody>
-              {projectData?.milestone_details?.map((milestone) => (
-                <tr key={milestone.milestone_id}>
+              {projectData?.milestone_details?.map((milestone, index) => (
+                <tr key={milestone.milestone_id || index}>
                   <td className="text-center text-dark-gray fs-16-500">
-                    {milestone.milestone_name}
+                    {displayValue(milestone.milestone_name)}
                   </td>
                   <td className="text-center text-dark-gray fs-16-500">
-                    {milestone.milestone_description}
+                    {displayValue(milestone.milestone_description)}
                   </td>
                   <td className="text-center text-dark-gray fs-16-500">
-                    {milestone.milestone_start_date || "Not set"}
+                    {displayValue(milestone.milestone_start_date, "Not set")}
                   </td>
                   <td className="text-center text-dark-gray fs-16-500">
-                    {milestone.milestone_end_date || "Not set"}
+                    {displayValue(milestone.milestone_end_date, "Not set")}
                   </td>
                   <td className="text-center text-dark-gray fs-16-500">
                     <div
-                      className={`status-badge ${milestone.milestone_status?.toLowerCase()}`}
+                      className={`status-badge ${milestone.milestone_status?.toLowerCase() || ''}`}
                     >
-                      {milestone.milestone_status}
+                      {displayValue(milestone.milestone_status)}
                     </div>
                   </td>
                 </tr>
@@ -431,14 +452,16 @@ const ProjectSummary = ({ formData, onBackClick }) => {
         <div className="summary-header">
           <h3>05. Risk & Compliance Assessment</h3>
           <Button
-            variant="link"
+             variant="link"
             className="edit-btn"
-            onClick={() => onBackClick(4)}
+           onClick={() => navigate(`../createproject/${projectId}`,{state: { step: 4 }})}
           >
             Edit
           </Button>
         </div>
-        {projectData?.risk_management_data ? (
+        {isEmpty(projectData?.risk_management_data) ? (
+          <EmptyState message="No risk management data available" />
+        ) : (
           <Table bordered responsive className="mt-4 w-100">
             <thead>
               <tr>
@@ -455,11 +478,11 @@ const ProjectSummary = ({ formData, onBackClick }) => {
                     {String(index + 1).padStart(2, "0")}
                   </td>
                   <td className="text-center text-dark-gray fs-16-500">
-                    {risk.category_name}
+                    {displayValue(risk.category_name)}
                   </td>
                   <td className="text-center text-dark-gray fs-16-500">
                     <div
-                      className={`status-badge ${risk.risk_status?.toLowerCase()}`}
+                      className={`status-badge ${risk.risk_status?.toLowerCase() || ''}`}
                     >
                       {risk.risk_status === "Completed" && (
                         <span className="status-icon">✓</span>
@@ -467,7 +490,7 @@ const ProjectSummary = ({ formData, onBackClick }) => {
                       {risk.risk_status === "Pending" && (
                         <span className="status-icon">!</span>
                       )}
-                      {risk.risk_status}
+                      {displayValue(risk.risk_status)}
                     </div>
                   </td>
                   <td className="text-center text-dark-gray fs-16-500">
@@ -477,7 +500,6 @@ const ProjectSummary = ({ formData, onBackClick }) => {
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        {" "}
                         {risk?.image_url.slice(-15)}
                       </a>
                     ) : (
@@ -490,10 +512,6 @@ const ProjectSummary = ({ formData, onBackClick }) => {
               ))}
             </tbody>
           </Table>
-        ) : (
-          <div className="text-center py-4">
-            <p>No risk management data available</p>
-          </div>
         )}
       </div>
 

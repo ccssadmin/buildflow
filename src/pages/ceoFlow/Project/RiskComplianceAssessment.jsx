@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Button, Dropdown, Form, Spinner } from "react-bootstrap";
-import { GoAlertFill } from "react-icons/go";
-import { FaUpload, FaCheckCircle } from "react-icons/fa";
+
 import Swal from "sweetalert2";
 import { uploadRiskData } from "../../../store/slice/Ceo/riskSlice";
 import { useNavigate } from "react-router-dom";
+import { getProjectDetailsAction } from "../../../store/actions/Ceo/ceoprojectAction";
 
-const RiskComplianceAssessment = ({ formData, handleAddColumn, setFormData }) => {
+const RiskComplianceAssessment = ({ formData, setFormData }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { loading } = useSelector((state) => state.risk);
@@ -19,17 +19,71 @@ const RiskComplianceAssessment = ({ formData, handleAddColumn, setFormData }) =>
   const [localProjectId, setLocalProjectId] = useState(null);
   const [uploadedRisks, setUploadedRisks] = useState({});
 
+  const projectId = localStorage.getItem("projectId");
+
+  useEffect(() => {
+    if (projectId) {
+      getProjectsData(projectId);
+    }
+  }, [projectId]);
+
+  const getProjectsData = async (projectId) => {
+    try {
+      const result = await dispatch(getProjectDetailsAction(projectId));
+      const riskDetails = result?.payload?.value?.risk_management_data;
+      console.log("Risk Details===>", riskDetails);
+
+      if (Array.isArray(riskDetails)) {
+        const risks = riskDetails.map((item) => ({
+          riskId: item.risk_id,
+          category: item.category_name,
+          status: item.risk_status,
+          file: { name: item.image_url }, // simulate file with name
+          id: item.risk_id,
+          dbId: item.risk_id,
+        }));
+        console.log("Processed risks =>", risks);
+
+        setFormData((prev) => ({
+          ...prev,
+          risks, // FIX: changed from "risk" to "risks"
+        }));
+      } else {
+        console.warn("No valid risk details found.");
+      }
+    } catch (error) {
+      console.error("Failed to fetch project details:", error);
+    }
+  };
+
+  const handleAddRow = () => {
+    const newRisk = {
+      id:
+        formData.risks.length > 0
+          ? formData.risks[formData.risks.length - 1].id + 1
+          : 1,
+      category: "",
+      status: "",
+      file: null,
+    };
+
+    setFormData((prev) => ({
+      ...prev,
+      risks: [...prev.risks, newRisk],
+    }));
+  };
+
   useEffect(() => {
     if (!isAuthenticated || !token) {
-      localStorage.setItem('redirectAfterLogin', window.location.pathname);
+      localStorage.setItem("redirectAfterLogin", window.location.pathname);
       Swal.fire({
         icon: "warning",
         title: "Authentication Required",
         text: "You need to be logged in to access this feature.",
-        confirmButtonText: "Go to Login"
+        confirmButtonText: "Go to Login",
       }).then((result) => {
         if (result.isConfirmed) {
-          navigate('/login');
+          navigate("/login");
         }
       });
     }
@@ -82,21 +136,19 @@ const RiskComplianceAssessment = ({ formData, handleAddColumn, setFormData }) =>
       return risk;
     });
     setFormData((prev) => ({ ...prev, risks: updatedRisks }));
-
-
   };
 
   const handleUpload = async (risk) => {
     if (!isAuthenticated || !token) {
-      localStorage.setItem('redirectAfterLogin', window.location.pathname);
+      localStorage.setItem("redirectAfterLogin", window.location.pathname);
       Swal.fire({
         icon: "error",
         title: "Authentication Required",
         text: "Please log in first.",
-        confirmButtonText: "Go to Login"
+        confirmButtonText: "Go to Login",
       }).then((result) => {
         if (result.isConfirmed) {
-          navigate('/login');
+          navigate("/login");
         }
       });
       return;
@@ -124,46 +176,36 @@ const RiskComplianceAssessment = ({ formData, handleAddColumn, setFormData }) =>
 
     try {
       Swal.fire({
-        title: 'Uploading...',
+        title: "Uploading...",
         text: `Uploading ${risk.category} file`,
         allowOutsideClick: false,
-        didOpen: () => Swal.showLoading()
+        didOpen: () => Swal.showLoading(),
       });
 
-      // Add more explicit validation and logging here
-      console.log("Before Upload - Risk Data:", {
-        id: risk.id,
-        category: risk.category,
-        status: risk.status,
-        file: risk.file ? { name: risk.file.name, size: risk.file.size, type: risk.file.type } : null,
-        projectId: localProjectId
-      });
-
-      // Validate file
       if (!risk.file || !(risk.file instanceof File) || risk.file.size === 0) {
         Swal.close();
-        Swal.fire({ icon: "warning", title: "Invalid file. Please select a valid file." });
+        Swal.fire({
+          icon: "warning",
+          title: "Invalid file. Please select a valid file.",
+        });
         return;
       }
 
-      // Create payload with explicit typing
       const riskData = {
         riskId: risk.dbId || 0,
         category: String(risk.category).trim(),
         status: String(risk.status).trim(),
         projectId: parseInt(localProjectId),
         file: risk.file,
-        id: risk.id
+        id: risk.id,
       };
-
-      console.log("Final payload being sent to dispatch:", riskData);
 
       const resultAction = await dispatch(uploadRiskData(riskData));
       Swal.close();
-
-      // Rest of the function...
     } catch (error) {
-      // Error handling...
+      console.error("Upload failed:", error);
+      Swal.close();
+      Swal.fire({ icon: "error", title: "Upload Failed" });
     }
   };
 
@@ -177,13 +219,14 @@ const RiskComplianceAssessment = ({ formData, handleAddColumn, setFormData }) =>
             <th className="text-center text-dark fs-18-500">Category</th>
             <th className="text-center text-dark fs-18-500">Status</th>
             <th className="text-center text-dark fs-18-500">File</th>
-            {/* <th>Upload</th> */}
           </tr>
         </thead>
         <tbody>
-          {formData.risks.map((risk) => (
+          {(formData.risks || []).map((risk, index) => (
             <tr key={risk.id}>
-              <td className="text-center text-dark-gray fs-16-400 ">{String(risk.id).padStart(2, "0")}</td>
+              <td className="text-center text-dark-gray fs-16-400 ">
+                {index + 1}
+              </td>
               <td className="text-center text-dark-gray fs-16-500">
                 <Form.Control
                   type="text"
@@ -221,35 +264,18 @@ const RiskComplianceAssessment = ({ formData, handleAddColumn, setFormData }) =>
                     document.getElementById(`file-input-${risk.id}`).click();
                   }}
                 >
-                  {risk.file ? risk.file.name : "Upload"}
+                  {risk.file?.name || risk.file || "Upload"}
                 </Button>
               </td>
-              {/* <td>
-                {uploadedRisks[risk.id] ? (
-                  <Button variant="success" disabled className="btn-sm">
-                    <FaCheckCircle /> Done
-                  </Button>
-                ) : (
-                  <Button
-                    variant="primary"
-                    className="btn-sm"
-                    disabled={loading === risk.id || !risk.file}
-                    onClick={() => handleUpload(risk)}
-                  >
-                    {loading === risk.id ? (
-                      <><Spinner size="sm" animation="border" /> Uploading...</>
-                    ) : (
-                      <><FaUpload /> Upload</>
-                    )}
-                  </Button>
-                )}
-              </td> */}
             </tr>
           ))}
         </tbody>
       </table>
       <div className="text-end mt-3">
-        <Button className="text-primary bg-transparent border-0 fs-16-500 me-0 ms-auto" onClick={handleAddColumn}>
+        <Button
+          className="text-primary bg-transparent border-0 fs-16-500 me-0 ms-auto"
+          onClick={handleAddRow}
+        >
           + Add Row
         </Button>
       </div>
