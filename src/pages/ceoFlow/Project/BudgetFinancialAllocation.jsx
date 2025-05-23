@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Form, Button, Modal } from "react-bootstrap";
 import Swal from "sweetalert2";
 import { profile } from "../../../assets/images";
+import { useDispatch, useSelector } from "react-redux";
+import { getProjectDetailsAction } from "../../../store/actions/Ceo/ceoprojectAction";
 
 const BudgetFinancialAllocation = ({
   formData,
@@ -19,6 +21,72 @@ const BudgetFinancialAllocation = ({
   const [employees, setEmployees] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState([]);
+  const { currentProject } = useSelector(state => state.project);
+   const dispatch= useDispatch();
+
+
+// const getProjectsData = async (projectId) => {
+//   const result = await dispatch(getProjectDetailsAction(projectId));
+//   if (result?.payload?.value?.project) {
+//     const step1 = result.payload.value.project;
+//     const budget_details = result.payload.value.budget_details;
+
+//     const budgetBreakdown = budget_details.map((item) => ({
+//       id: item.project_budget_id,
+//       category: item.project_expense_category,
+//       estimatedCost: item.estimated_cost,
+//       approvedBudget: item.approved_budget,
+//     }));
+
+//     setFormData((prevState) => ({
+//       ...prevState,
+//       projectId: step1.project_id,
+//       projectName: step1.project_name,
+//       projectLocation: step1.project_location,
+//       projectType: step1.project_type_name,
+//       projectTypeId: step1.project_type_id,
+//       projectSectorId: step1.project_sector_id,
+//       projectStartDate: step1.project_start_date,
+//       projectEndDate: step1.project_end_date,
+//       projectStatus: step1.project_status,
+//       totalBudget: step1.project_total_budget,
+//       budgetBreakdown,
+//     }));
+
+//     console.log("✅ Project + Budget fetched:", step1.project_name);
+//   }
+// };
+
+
+const getProjectsData = async (projectId) => {
+  try {
+    const result = await dispatch(getProjectDetailsAction(projectId));
+    const budgetDetails = result?.payload?.value?.budget_details;
+
+    if (Array.isArray(budgetDetails)) {
+      const budgetBreakdown = budgetDetails.map((item) => ({
+        id: item.project_budget_id,
+        category: item.project_expense_category,
+        estimatedCost: item.estimated_cost,
+        approvedBudget: item.approved_budget,
+      }));
+
+      setFormData((prevState) => ({
+        ...prevState,
+        budgetBreakdown,
+      }));
+    } else {
+      console.warn("No valid budget details found.");
+    }
+  } catch (error) {
+    console.error("Failed to fetch budget details:", error);
+  }
+};
+useEffect(() => {
+  calculateTotalBudget();
+}, [formData.budgetBreakdown]);
+
+
   useEffect(() => {
     // On component mount - get project ID from all possible sources
     const getProjectId = () => {
@@ -50,7 +118,15 @@ const BudgetFinancialAllocation = ({
       return null;
     };
 
-    const projectId = getProjectId();
+
+
+
+
+
+const projectId = localStorage.getItem("projectId");
+getProjectsData(projectId);
+
+
 
     // Alert if no project ID found
     if (!projectId) {
@@ -96,31 +172,30 @@ const BudgetFinancialAllocation = ({
     getFilteredRoles();
   }, []);
 
-  useEffect(() => {
-    const getEmployees = async () => {
-      try {
-        const { success, data } = await fetchAllEmployees();
-        const roleName = getRoleNameById(formData.sendTo);
-        if (
-          success &&
-          data?.employeesByRole &&
-          data.employeesByRole[roleName]
-        ) {
-          const filteredEmployees = data.employeesByRole[roleName];
-          console.log("employee", filteredEmployees);
-          setEmployees(filteredEmployees);
-        } else {
-          setEmployees([]);
-        }
-      } catch (error) {
-        console.error("Error fetching employees:", error);
+ useEffect(() => {
+  const getEmployees = async () => {
+    try {
+      const { success, data } = await fetchAllEmployees();
+      const roleName = getRoleNameById(formData.sendTo);
+      if (
+        success &&
+        data?.employeesByRole &&
+        data.employeesByRole[roleName]
+      ) {
+        setEmployees(data.employeesByRole[roleName]);
+      } else {
+        setEmployees([]);
       }
-    };
-
-    if (formData.sendTo) {
-      getEmployees();
+    } catch (error) {
+      console.error("Error fetching employees:", error);
     }
-  }, [formData.sendTo]);
+  };
+
+  if (formData.sendTo) {
+    getEmployees();
+  }
+}, [formData.sendTo]);
+
   
   const handleTicketSubmission = async () => {
     const projectId = formData.projectId || localProjectId || parseInt(localStorage.getItem("projectId"));
@@ -201,23 +276,17 @@ const BudgetFinancialAllocation = ({
   };
 
   const handleBudgetBreakdownChange = (id, field, value) => {
-    if (field === "estimatedCost" || field === "approvedBudget") {
-      const numericValue = value.replace(/[^0-9.]/g, "");
-      const parts = numericValue.split(".");
-      if (parts.length > 2) return;
-      if (parts[1]?.length > 2) return;
-      value = numericValue;
-    }
+  const updatedBreakdown = formData.budgetBreakdown.map((item, idx) =>
+    item.id === id || (!item.id && idx === id)
+      ? { ...item, [field]: value }
+      : item
+  );
+  setFormData((prev) => ({
+    ...prev,
+    budgetBreakdown: updatedBreakdown,
+  }));
+};
 
-    const updatedBreakdown = formData.budgetBreakdown.map((item) =>
-      item.id === id ? { ...item, [field]: value } : item
-    );
-
-    setFormData((prev) => ({
-      ...prev,
-      budgetBreakdown: updatedBreakdown,
-    }));
-  };
 
   const handleAddRow = () => {
     setFormData((prev) => ({
@@ -225,7 +294,7 @@ const BudgetFinancialAllocation = ({
       budgetBreakdown: [
         ...prev.budgetBreakdown,
         {
-          id: Date.now(),
+          id: "",
           category: "",
           estimatedCost: "",
           approvedBudget: "",
@@ -259,7 +328,8 @@ const BudgetFinancialAllocation = ({
               parseFloat(item.approvedBudget) > 0)
         )
         .map((item) => ({
-          projectBudgetId: 0,
+          projectBudgetId:
+      typeof item.id === "number" && item.id > 0 ? item.id : 0,
           projectExpenseCategory: item.category.trim(),
           estimatedCost: parseFloat(item.estimatedCost) || 0,
           approvedBudget: parseFloat(item.approvedBudget) || 0,
@@ -279,7 +349,7 @@ const BudgetFinancialAllocation = ({
         Swal.fire({
           icon: "success",
           title: "Success",
-          text: "Budget created successfully!",
+          text: response?.message ||"Budget created successfully!",
           timer: 2000,
           showConfirmButton: false,
         });
@@ -314,15 +384,13 @@ const BudgetFinancialAllocation = ({
             <Form.Label className="fs-26-700 text-dark">
               Total Project Budget <span className="required">*</span>
             </Form.Label>
-            <Form.Control
-              type="text"
-              name="totalBudget"
-              value={formData.budgetBreakdown.reduce(
-                (sum, item) => sum + (parseFloat(item.approvedBudget) || 0),
-                0
-              )}
-              readOnly
-            />
+           <Form.Control
+  type="text"
+  name="totalBudget"
+  value={formData.totalBudget || 0} // ✅ direct from API
+  readOnly
+/>
+
           </Form.Group>
         </div>
 
@@ -360,7 +428,7 @@ const BudgetFinancialAllocation = ({
           </thead>
           <tbody>
             {formData.budgetBreakdown.map((item, index) => (
-              <tr key={item.id}>
+              <tr key={`${item.id || index}`}>
                 <td>{index + 1}</td>
                 <td>
                   <Form.Control
@@ -435,43 +503,7 @@ const BudgetFinancialAllocation = ({
       </div>
 
       <div className="d-flex justify-content-end mt-4">
-        {/* <Button
-          className="btn btn-secondary me-3"
-          onClick={async () => {
-            const selectedRole = filteredRoles.find(
-              (role) => role.roleId === parseInt(formData.sendTo)
-            );
-            if (!selectedRole) {
-              Swal.fire({
-                icon: "warning",
-                title: "Select Team First",
-                text: "Please select a team from the dropdown before choosing an employee.",
-              });
-              return;
-            }
-
-            const roleName = getRoleNameById(formData.sendTo);
-            const { success, data } = await fetchAllEmployees();
-
-            if (
-              !success ||
-              !data?.employeesByRole ||
-              !data.employeesByRole[roleName]
-            ) {
-              Swal.fire({
-                icon: "info",
-                title: "No Employees",
-                text: `No employees found in team "${selectedRole.roleName}".`,
-              });
-              return;
-            }
-
-            setEmployees(data.employeesByRole[roleName]);
-            setShowModal(true); // open the modal
-          }}
-        >
-          Send To
-        </Button> */}
+       
         <Button className="btn-primary btn fs-14-600 bg-transparent text-primary border-0 border-radius-2"
           onClick={async () => {
             const selectedRole = filteredRoles.find(
