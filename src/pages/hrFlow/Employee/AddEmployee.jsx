@@ -230,13 +230,13 @@ const AddEmployee = () => {
       errors.designation = "Designation is required";
     }
 
-    if (!employee.dob) {
-      errors.dob = "Date of Birth is required";
-    }
+    // if (!employee.dob) {
+    //   errors.dob = "Date of Birth is required";
+    // }
 
-    if (!employee.gender) {
-      errors.gender = "Gender is required";
-    }
+    // if (!employee.gender) {
+    //   errors.gender = "Gender is required";
+    // }
 
     // 'project' is optional, no validation needed
 
@@ -368,8 +368,8 @@ const AddEmployee = () => {
 
           <div className="addemployee-form-group">
             <label>Date of Birth <span className="addemployee-required"></span></label>
-            <input type="date" name="dob" placeholder="Select DOB" value={employee.dob} onChange={handleChange} />
-            {validationErrors.dob && <p className="error-text">{validationErrors.dob}</p>}
+            <input type="date" name="dob" placeholder="Select DOB" value={employee.dob} onChange={handleChange} max={new Date().toISOString().split("T")[0]} />
+            {/* {validationErrors.dob && <p className="error-text">{validationErrors.dob}</p>} */}
           </div>
 
           <div className="addemployee-form-group">
@@ -380,7 +380,7 @@ const AddEmployee = () => {
               <option value="Female">Female</option>
               <option value="Other">Other</option>
             </select>
-            {validationErrors.gender && <p className="error-text">{validationErrors.gender}</p>}
+            {/* {validationErrors.gender && <p className="error-text">{validationErrors.gender}</p>} */}
           </div>
         </div>
 
