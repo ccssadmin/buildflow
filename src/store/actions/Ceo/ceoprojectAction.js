@@ -19,6 +19,33 @@ export const getProjectTypeSectorAction = createAsyncThunk(
   }
 );
 
+
+//delete project 
+
+export const deleteProjectAction = createAsyncThunk(
+  'project/delete',
+  async (projectId) => {
+    const token = localStorage.getItem('accessToken');
+
+    const response = await fetch(`https://buildflowgraphql.crestclimbers.com/api/Project/Delete-project/${projectId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to delete project');
+    }
+
+    const data = await response.json(); // Assuming server returns a JSON response
+    return data;
+  }
+);
+
+
+
 // Create Project
 export const createCeoProjectAction = createAsyncThunk(
   "project/create",
@@ -28,7 +55,6 @@ export const createCeoProjectAction = createAsyncThunk(
   }
 );
 
-//Create Project Budget
 
 // ceoprojectAction.js
 export const createProjectBudgetAction = createAsyncThunk(
