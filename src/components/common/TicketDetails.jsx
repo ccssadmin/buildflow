@@ -137,13 +137,7 @@ const EngineerTicketDetails = () => {
 
   // Show label selector
   const [showLabelSelector, setShowLabelSelector] = useState(false);
-
-
   const [ticketData, setTicketData] = useState(null); // ✅ state to hold API response
-
-
-  console.log("new ticket details" , ticketData)
-
   // Available users for assignment
   const [availableUsers, setAvailableUsers] = useState([
     {
@@ -206,8 +200,6 @@ const EngineerTicketDetails = () => {
       const data = await dispatch(getticketbyidAction(id?.ticketId)).unwrap();
 
       console.log("Ticket Details:", data);
-      console.log("Ticket Owner Name:", data?.ticket_owner_name);
-      console.log("Ticket Owner role Name:", data?.role_name);
 
       setTicketData(data); // ✅ store data in state
     } catch (error) {
@@ -394,38 +386,56 @@ const EngineerTicketDetails = () => {
       setIsLoading(false);
     }
   };
+
+
   const BASE_URL = process.env.REACT_APP_MASTER_API_BASE_URL;
+
+
   const handleSendComment = async () => {
     if (!commentText.trim()) {
       showToastNotification("Please enter a comment.");
       return;
     }
+
+    // Tickets Comment and Attachment
     const userData = JSON.parse(localStorage.getItem("userData"));
     const empId = userData?.empId;
+    const vendorId = userData?.vendorId;
     const ticketId = ticketData?.ticket_id;
+     const roleName = userData?.roleName?.toLowerCase();
     console.log("EmpID =>", empId);
     console.log();
     console.log("Employee ID For Ticket Comment:", empId);
 
-    if (!empId) {
-      showToastNotification("Employee ID is missing.");
-      return;
-    }
+  if (roleName === "vendor" && !vendorId) {
+  showToastNotification("Vendor ID is missing.");
+  return;
+}
+if (roleName !== "vendor" && !empId) {
+  showToastNotification("Employee ID is missing.");
+  return;
+}
+if (!ticketId) {
+  showToastNotification("Ticket ID is missing.");
+  return;
+}
 
-    if (!ticketId) {
-      showToastNotification("Ticket ID is missing.");
-      return;
-    }
+const formData = new FormData();
+formData.append("TicketId", ticketId);
+formData.append("Comment", commentText.trim());
 
-    const formData = new FormData();
-    formData.append("TicketId", ticketId);
-    formData.append("Comment", commentText.trim());
-    formData.append("CreatedBy", empId);
+const createdBy = roleName === "vendor" ? vendorId : empId;
+formData.append("CreatedBy", createdBy);
+formData.append("CreatedByType", roleName === "vendor" ? "Vendor" : "Employee");
+
+
+console.log("Employee roleName", roleName);
+
 
     // Append each file as fileUpload
     [...uploadedFiles, ...uploadedImages].forEach((fileObj) => {
       if (fileObj?.file instanceof File) {
-        formData.append("File", fileObj.file); // ✅ correct name
+        formData.append("File", fileObj.file);
 
         console.log(fileObj.file instanceof File, fileObj.file);
       }
@@ -729,7 +739,7 @@ const EngineerTicketDetails = () => {
                         padding: "3px",
                         cursor: "pointer",
                         backgroundColor:
-                        selectedEmployee?.id === emp.id ? "#FEFEFE" : "white",
+                          selectedEmployee?.id === emp.id ? "#FEFEFE" : "white",
                         borderBottom: "1px solid #eee",
                       }}
                     >
@@ -874,13 +884,37 @@ const EngineerTicketDetails = () => {
       {/* Main Content */}
       <Row className="g-0">
         <div className="d-flex align-items-center ms-3 mt-4">
-          <small
-            className="text-muted me-2"
-            onClick={() => navigate("/approvals")}
-            style={{ cursor: "pointer" }}
-          >
-            Approvals
-          </small>
+        <small
+  className="text-muted me-2"
+  onClick={() => {
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    const roleCode = userData?.roleCode;
+
+    let path = "/approvals"; // default path
+
+    if (roleCode === "CEO") {
+      path = "/ceo/approvals";
+    } else if (roleCode === "ENGINEER" || roleCode === "SITEENGINEER" || roleCode === "LEADENGINEER") {
+      path = "/admin/engineerapprovals";
+    } else if (roleCode === "HR") {
+      path = "/hr/approvals";
+    } else if (roleCode === "AQS" || roleCode === "QS") {
+      path = "/aqs/aqsapprovals";
+    } else if (roleCode === "FINANCE" || roleCode === "HEADFINANCE") {
+      path = "/finance/approvals";
+    } else if (roleCode === "PURCHASEMANAGER") {
+      path = "/purchasemanager/approvals";
+    } else if (roleCode === "PM" || roleCode === "PROJECTMANAGER") {
+      path = "/pm/approvals";
+    }
+
+    navigate(path);
+  }}
+  style={{ cursor: "pointer" }}
+>
+  Approvals
+</small>
+
           <small className="text-muted mx-2">›</small>
           <small style={{ color: "#FF6F00" }}>
             {ticketData?.name || "Ticket Details"}
@@ -1058,6 +1092,7 @@ const EngineerTicketDetails = () => {
             </div>
 
             {/* view material details (BOQ) */}
+
             <div className="py-3">{renderTicketDetails(ticketData)}</div>
 
             {/* Tabs */}
@@ -1156,23 +1191,22 @@ const EngineerTicketDetails = () => {
                   <div key={comment.id} className="d-flex mb-4">
                     <div className="me-2">
                       <div
-                className="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center me-2"
-                style={{
-                  width: "36px",
-                  height: "36px",
-                  fontSize: "16px",
-                  flexShrink: 0,
-                }}
-              >
-                {getInitials(ticketData?.ticket_owner_name)}
-              </div>
+                        className={`rounded-circle bg-${comment.avatarColor} text-white d-flex align-items-center justify-content-center`}
+                        style={{
+                          width: "36px",
+                          height: "36px",
+                          fontSize: "16px",
+                          flexShrink: 0,
+                        }}
+                      >
+                        {comment.avatar}
+                      </div>
                     </div>
                     <div style={{ width: "100%" }}>
-                      
                       <div className="d-flex align-items-center flex-wrap">
-                        <span className="fw-bold">{ticketData?.ticket_owner_name}</span>
+                        <span className="fw-bold">{comment.user}</span>
                         <span className="text-muted ms-2 small">
-                          {ticketData?.role_name}
+                          {comment.role}
                         </span>
                         {comment.time && (
                           <span className="text-muted ms-2 small">
@@ -1180,7 +1214,6 @@ const EngineerTicketDetails = () => {
                           </span>
                         )}
                       </div>
-                      
                       <div className="mt-1">
                         {comment.status && (
                           <Badge
@@ -1195,10 +1228,6 @@ const EngineerTicketDetails = () => {
                           {comment.comment}
                         </span>
                       </div>
-
-
-
-
 
                       {comment.filename && comment.file_path && (
                         <div className="mt-2 p-2 bg-light rounded">

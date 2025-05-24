@@ -4,7 +4,6 @@ import customerAPI from "./customerAPI";
 import updatesAPI from "./updatesAPI";
 import { API } from "../constant/service";
 import { objectToQueryString } from "../utils/common";
-import axios from "axios";
 
 /**
  *
@@ -559,6 +558,3 @@ export const getAgencyIssueType = (params) =>
   api.GET(API.GET_AGENCY_ISSUETYPE, params);
 export const submitContactUsForm = (params) =>
   api.POST(API.SUBMIT_CONTACT_US_FORM, params);
-
-
-

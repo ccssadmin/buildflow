@@ -521,6 +521,7 @@ export const getAllTimeZoneDetailSelector = createSelector(
   })
 );
 
+
 /** TO GET TIME ZONE DETAIL */
 export const getTicketsbyboardParticipantsSelector = createSelector(
   [
@@ -561,14 +562,27 @@ export const loginBoardDetailsSelector = createSelector(
     error,
   })
 );
-
-
 /** TO GET BOQ ITEMS BY ID */
 export const getBoqItemsSelector = createSelector(
   [
     state => state.master.boqItems.data,
     state => state.master.boqItems.loading,
     state => state.master.boqItems.error,
+  ],
+  (data, loading, error) => ({
+    data,
+    loading,
+    error,
+  })
+);
+
+
+/** CREATE REPORT ATTACHMENTS */
+export const createReportAttachmentSelector = createSelector(
+  [
+    state => state.master.ReportAttachments.data,
+    state => state.master.ReportAttachments.loading,
+    state => state.master.ReportAttachments.error,
   ],
   (data, loading, error) => ({
     data,

@@ -97,7 +97,7 @@ function formatIndianValue(value) {
                     <span>Start Date</span>{projectDetails?.value?.project?.project_start_date}
                   </h4>
                   <h4 className="text-end">
-                    <span>Start Date</span>{projectDetails?.value?.project?.project_end_date}
+                    <span>End Date</span>{projectDetails?.value?.project?.project_end_date}
                   </h4>
                 </div>
                 <ProjectProgressBar progress={projectDetails?.value?.project?.project_status} />

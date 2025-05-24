@@ -1,210 +1,173 @@
-import { ChevronRight } from "lucide-react";
-import React from "react";
-import { Link, useLocation } from "react-router-dom";
-import pdfImage from "../../../assets/images/pdf.png"; //
-import excelImage from "../../../assets/images/xlsx.jpg"; // Excel preview
+import { useParams } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { getReportAttachmentsById, getReportById } from '../../../store/actions/report/reportcreateaction';
+const BASE_URL = process.env.REACT_APP_MASTER_API_BASE_URL;
+const ReportViewScreen = () => {
+  const { reportId } = useParams(); // get the reportId from the URL
+  const dispatch = useDispatch();
+  
+  const { reportDetails, attachments, loading, error } = useSelector((state) => state.report);
 
-const CeoReportView = () => {
-  const defaultFiles = [
-    {
-      name: "Requirement Material.xlsx",
-      type: "excel",
-      status: "valid", // Green tick
-    },
-    {
-      name: "Bill.pdf",
-      type: "pdf",
-      status: "invalid", // Red tick
-    },
-  ];
-  const location = useLocation(); // Get current page route
+  useEffect(() => {
+    if (reportId) {
+      dispatch(getReportById(reportId));
+      dispatch(getReportAttachmentsById(reportId));
+    }
+  }, [reportId, dispatch]);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div className="text-danger">{error}</div>;
+
+  if (!reportDetails) return null;
+
+  // Destructure data from API response
+
+  const {
+    reportcode,
+    reporttype,
+    reportdate,
+    reportedby,
+    reportdata = {},
+  } = reportDetails;
+  
+  const {
+    dailyprogresssummary = [],
+    materialusagereport = [],
+    safetycompliancereport = [],
+    issueriskreport = [],
+  } = reportdata;
+
   return (
-    <div className="page-ceo-finance document-container  p-0">
-      <div class="border-0 breadcrumb-container pe-4 ps-4 pt-3 pb-2 d-flex align-items-center">
-        <Link to="/ceo/reports" class="breadcrumb-item text-decoration-none fs-16-500 text-dark-gray">Report</Link>
-        <svg
-          class="mx-2"
-          width="16"
-          height="16"
-          viewBox="0 0 16 16"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path d="M6 4.5L9.5 8L6 11.5" stroke="#606060"></path>
-        </svg>
-        <span class="breadcrumb-item fs-16-50 0 text-primary">
-        Open
-        </span>
-      </div>
-
-      <div className="document-card">
-        {/* Report Header */}
-        <div className="document-header">
-          <div className="document-field">
-            <p className="document-label">Report ID</p>
-            <p className="document-value"> Daily Report - DPR2025-00152</p>
-          </div>
-          <div className="document-field">
-            <p className="document-label">
-              Report Type <span className="text-red-500">*</span>
-            </p>
-            <select className="document-dropdown">
-              <option>Daily Report</option>
-              <option>Weekly Report</option>
-              <option>Monthly Report</option>
-            </select>
-          </div>
-
-          <div className="document-field">
-            <p className="document-label">
-              Project <span className="text-red-500">*</span>
-            </p>
-            <select className="document-dropdown">
-              <option>BOQ TITLE</option>
-              <option>Project A</option>
-              <option>Project B</option>
-            </select>
-          </div>
-
-          <div className="document-field">
-            <p className="document-label">Date & Time</p>
-            <p className="document-value">15-03-2025 • 06:04 pm</p>
-          </div>
-          <div className="document-reporter">
-            <p className="document-label">Reported By</p>
-            <p className="document-value document-user">
-              <img
-                src="https://via.placeholder.com/30"
-                className="document-avatar"
-              />
-              Marvin McKinney
-            </p>
-          </div>
+    <div className="report-container">
+      {/* render reportcode, reporttype, reportedby etc. */}
+      <div className="header-section">
+        <div className="input-group">
+          <label>Report ID</label>
+          <input type="text" value={reportcode} readOnly />
         </div>
-
-        {/* Sections */}
-        {[
-          {
-            title: "Daily Progress Summary",
-            headers: ["S.No", "Work Activities", "Status", "Action"],
-            rows: [
-              [
-                "01",
-                "Steel Reinforcement",
-                "80% Completed",
-                <Link to="/documentview" className="document-link">
-                  View
-                </Link>,
-              ],
-              ["02", "Concrete Pouring", "Delayed (Weather Issue)", ""],
-            ],
-          },
-          {
-            title: "Material Usage Report",
-            headers: ["S.No", "Materials", "Stock", "Level"],
-            rows: [
-              [
-                "01",
-                "Cement",
-                "200 Bags",
-                <select className="stock-dropdown">
-                  <option value="low" className="low-stock">
-                    Low Stock
-                  </option>
-                  <option value="sufficient" className="sufficient">
-                    Sufficient
-                  </option>
-                  <option value="high" className="high-stock">
-                    High Stock
-                  </option>
-                </select>,
-              ],
-              [
-                "02",
-                "Steel Rods",
-                "2 Tons",
-                <select className="stock-dropdown">
-                  <option value="sufficient" className="sufficient">
-                    Sufficient
-                  </option>
-                  <option value="low" className="low-stock">
-                    Low Stock
-                  </option>
-                  <option value="high" className="high-stock">
-                    High Stock
-                  </option>
-                </select>,
-              ],
-            ],
-          },
-          {
-            title: "Safety & Compliance Report",
-            headers: ["S.No", "Safety & Compliance", "Report"],
-            rows: [
-              ["01", "PPE Compliance", "Helmet – 90% | Gloves – 80%"],
-              ["02", "Safety Incident", "Slip & Fall – First Aid"],
-              ["03", "Inspection", "Passed Scaffolding Safety"],
-            ],
-          },
-          {
-            title: "Issue & Risk Report",
-            headers: ["S.No", "Issue & Risk", "Impact"],
-            rows: [
-              [
-                "01",
-                "Material Delay",
-                <span className="high-impact">High</span>,
-              ],
-            ],
-          },
-        ].map((section, index) => (
-          <div key={index} className="document-section">
-            <h2 className="document-title">{section.title}</h2>
-            <table className="document-table">
-              <thead>
-                <tr>
-                  {section.headers.map((header, i) => (
-                    <th key={i} className="document-th">
-                      {header}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {section.rows.map((row, i) => (
-                  <tr key={i} className="document-tr">
-                    {row.map((cell, j) => (
-                      <td key={j} className="document-td">
-                        {cell}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ))}
+        <div className="input-group">
+          <label>Report Type</label>
+          <input type="text" value={reporttype} readOnly />
+        </div>
+        <div className="input-group">
+          <label>Date</label>
+          <input type="text" value={new Date(reportdate).toLocaleDateString()} readOnly />
+        </div>
+        <div className="input-group">
+          <label>Reported By</label>
+          <input type="text" value={reportedby} readOnly />
+        </div>
       </div>
 
-      <div className="file-attachment">
-        <h3 className="file-title">Attached File</h3>
-        <div className="file-list">
-          {defaultFiles.map((file, index) => (
-            <div key={index} className="file-item">
-              <a href="https://example.com/path-to-file.pdf" download>
-                <img
-                  src={file.type === "excel" ? excelImage : pdfImage}
-                  alt="File Preview"
-                  className="file-preview"
-                />{" "}
-              </a>
-            </div>
+      <h3>Daily Progress Summary</h3>
+      <table className="styled-table">
+        <thead>
+          <tr>
+            <th>S.No</th>
+            <th>Work Activities</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {dailyprogresssummary.map((item) => (
+            <tr key={item.serialno}>
+              <td>{item.serialno}</td>
+              <td>{item.workactivity}</td>
+              <td>{item.status}</td>
+              <td>{item.action}</td>
+            </tr>
           ))}
-        </div>
-        <button className="file-button">Valid</button>
+        </tbody>
+      </table>
+
+      <h3>Material Usage Report</h3>
+      <table className="styled-table">
+        <thead>
+          <tr>
+            <th>S.No</th>
+            <th>Materials</th>
+            <th>Stock</th>
+            <th>Level</th>
+          </tr>
+        </thead>
+        <tbody>
+          {materialusagereport.map((item) => (
+            <tr key={item.serialno}>
+              <td>{item.serialno}</td>
+              <td>{item.material}</td>
+              <td>{item.stock}</td>
+              <td>{item.level}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <h3>Safety & Compliance Report</h3>
+      <table className="styled-table">
+        <thead>
+          <tr>
+            <th>S.No</th>
+            <th>Item</th>
+            <th>Report</th>
+          </tr>
+        </thead>
+        <tbody>
+          {safetycompliancereport.map((item) => (
+            <tr key={item.serialno}>
+              <td>{item.serialno}</td>
+              <td>{item.item}</td>
+              <td>{item.report}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <h3>Issue & Risk Report</h3>
+      <table className="styled-table">
+        <thead>
+          <tr>
+            <th>S.No</th>
+            <th>Issue</th>
+            <th>Impact</th>
+          </tr>
+        </thead>
+        <tbody>
+          {issueriskreport.map((item) => (
+            <tr key={item.serialno}>
+              <td>{item.serialno}</td>
+              <td>{item.issue}</td>
+              <td>{item.impact}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <h3>Attached File</h3>
+      <div className="attached-files">
+        {loading && <p>Loading attachments...</p>}
+        {error && <p style={{ color: 'red' }}>{error}</p>}
+        {!loading && attachments?.length > 0 ? (
+  <ul>
+    {attachments.map((file) => (
+      <li key={file.attachmentId}>
+        <a
+          href={`${BASE_URL}/${file.filePath.replace(/\\/g, '/')}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {file.fileName}
+        </a>
+      </li>
+    ))}
+  </ul>
+) : (
+  !loading && <p>No attachments found.</p>
+)}
+
       </div>
     </div>
   );
 };
 
-export default CeoReportView;
+export default ReportViewScreen;

@@ -67,14 +67,10 @@ import {
   updateBoard,
   editBoard,
   getPurchaseOrderDetails,
-  getBoqItemsById,
-  addReportAttachments
+  getBoqItemsById
 } from "../../services";
 import axios from "axios";
 import { getAuthToken } from "../../utils/storage";
-
-
-const BASE_URL = process.env.REACT_APP_MASTER_API_BASE_URL;
 
 const generateLabelCode = (name) => {
   if (!name) return '';
@@ -669,8 +665,7 @@ export const getPurchaseOrderDetailsAction = createAsyncThunk(
     return response.data;
   }
 );
-
-
+const BASE_URL = process.env.REACT_APP_MASTER_API_BASE_URL;
 export const createTicketDetailsAction = createAsyncThunk(
   'ticket/createDetails',
   async (formData, thunkAPI) => {
@@ -737,12 +732,11 @@ export const createTicketDetailsAction = createAsyncThunk(
         // Something happened in setting up the request
         console.error('Request setup error:', error.message);
       }
+      
       return thunkAPI.rejectWithValue(error.response?.data || error.message);
     }
   }
 );
-
-
 /** USED TO GET BOQ ITEMS BY ID */
 export const getBoqItemsAction = createAsyncThunk(
   "getBoqItemsByID",

@@ -9,7 +9,7 @@ export default function FinanceBudget() {
   const tableStyle = {
     width: '100%',
     borderCollapse: 'collapse',
-    textAlign: 'left'
+    textAlign: 'center'
   };
 
   const thTdStyle = {
@@ -24,8 +24,8 @@ export default function FinanceBudget() {
     cashInflow: '180 Cr',
     allocated: '₹200 Cr',
     spent: '₹180 Cr',
-    variance: '₹-20 Cr',
-    status: 'Overrun',
+    variance: '-₹20 Cr',
+    status: '🟡Overrun',
     action: 'View'
   });
 

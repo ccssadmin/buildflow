@@ -360,6 +360,7 @@ h5.sidenav-content__headings-lists--title {
     width: 220px;
     min-width: 220px;
     justify-content: flex-start;
+    padding-bottom: 100px;
 }
 
 .layout-large-sidenav-container.layout-container {

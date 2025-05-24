@@ -7,21 +7,119 @@ import { fetchProjects } from '../../../store/actions/hr/projectaction';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { resetReportState } from '../../../store/slice/report/reportslice';
-import { createReportAttachmentAction } from '../../../store/actions/masterAction';
+import { getCEOReportTypes } from '../../../store/actions/report/ceoreportaction';
+import { useProject } from '../../../hooks/Ceo/useCeoProject';
+import { selectProjectDetails } from '../../../store/selector/ceo/ceoProjectSelector';
 
 function ReportCreateScreen() {
   const { loading } = useSelector((state) => state.report);
   const dispatch = useDispatch();
   const navigate = useNavigate();
    const { projects = [] } = useSelector((state) => state.project);
-const [imageFiles, setImageFiles] = useState([]);       
-  const [generalFiles, setGeneralFiles] = useState([]);
+
   const [attachedFile, setAttachedFile] = useState(null);
   const [formErrors, setFormErrors] = useState({});
 const { newReportCode } = useSelector((state) => state.report);
 const { uploadMessage, error } = useSelector((state) => state.report);
-const [formData, setFormData] = useState({
-  });
+const { reportTypes, reportTypesLoading, reportTypesError } = useSelector((state) => state.ceoReport);
+  const { fetchProjectDetails } = useProject();
+ 
+  const [projectName, setProjectName] = useState('');
+
+   // Local state to hold project details
+  //  const [projectDetails, setProjectDetails] = useState(null);
+
+useEffect(() => {
+  const storedData = localStorage.getItem("userData");
+  if (storedData) {
+    try {
+      const parsedData = JSON.parse(storedData);
+      const firstName = parsedData.firstName || "";
+      const project = parsedData.projects?.[0];
+      setReportData((prev) => ({
+        ...prev,
+        reportedBy: firstName,
+        reportDate: new Date().toISOString().slice(0, 10),
+        project: project?.projectId || "", // ✅ Ensure projectId is set here
+      }));
+      setProjectName(project?.projectName || ""); // Set project name for display
+    } catch (e) {
+      console.error("Error parsing userData:", e);
+    }
+  }
+}, []);
+
+
+
+
+
+
+useEffect(() => {
+  if (uploadMessage) {
+    const timer = setTimeout(() => {
+      dispatch(resetReportState());
+    }, 5000);
+    return () => clearTimeout(timer);
+  }
+}, [uploadMessage]);
+
+
+  const getProjectIdFromLocalStorage = () => {
+    const storedData = localStorage.getItem("userData"); // Assuming key is 'userDetails'
+  
+    if (storedData) {
+      try {
+        const parsedData = JSON.parse(storedData);
+  
+        // Ensure projects array exists
+        if (parsedData.projects && Array.isArray(parsedData.projects)) {
+          return parsedData.projects[0]?.projectId || null; // Get projectId of the first project
+        } else {
+          console.error("No projects found in local storage");
+          return null;
+        }
+      } catch (error) {
+        console.error("Error parsing local storage data:", error);
+        return null;
+      }
+    } else {
+      console.error("No data found in local storage for key 'userDetails'");
+      return null;
+    }
+  };
+
+
+
+
+ 
+   // Retrieve projectId dynamically from local storage
+   const projectId = getProjectIdFromLocalStorage();
+ 
+   useEffect(() => {
+     if (!projectId) {
+       console.error("Project ID not found in local storage");
+       return;
+     }
+ 
+     const getDetails = async () => {
+       try {
+         const details = await fetchProjectDetails(projectId);
+         selectProjectDetails(details);
+         console.log("Fetched Project Details:", details);
+       } catch (error) {
+         console.error("Error fetching project details:", error);
+       }
+     };
+ 
+     getDetails();
+   }, [projectId]);
+ 
+ 
+
+useEffect(() => {
+  dispatch(getCEOReportTypes());
+}, [dispatch]);
+
 
 useEffect(() => {
   if (uploadMessage) {
@@ -89,14 +187,11 @@ useEffect(() => {
   // State for form data
   const [reportData, setReportData] = useState({
     reportId: '',
-    reportType: '',
+reportTypeId: '',
     project: '',
     dateTime: '',
     reportedBy: '',
   });
-
-
-  
   const handleDateChange = (date) => {
     setReportData({
       ...reportData,
@@ -196,7 +291,14 @@ useEffect(() => {
   };
   
 
-
+  const handlePhotoUpload = (e, rowId) => {
+    const file = e.target.files[0];
+    if (file) {
+      setDailyProgressRows(prevRows => 
+        prevRows.map(row => row.id === rowId ? { ...row, photo: file } : row)
+      );
+    }
+  };
   
 const handleAttachedFileUpload = (e) => {
   const file = e.target.files[0];
@@ -212,9 +314,10 @@ const handleAttachedFileUpload = (e) => {
   const validateForm = () => {
     const errors = {};
     
-    if (!reportData.reportType) {
-      errors.reportType = 'Report Type is required';
-    }
+ if (!reportData.reportTypeId) {
+  errors.reportTypeId = 'Report Type is required';
+}
+
     
     if (!reportData.project) {
       errors.project = 'Project is required';
@@ -225,51 +328,91 @@ const handleAttachedFileUpload = (e) => {
   };
 
   // Function to handle form submission
-const handleSubmit = () => {
-  const updatedFormData = {
-    ...formData,
-    dailyProgress: dailyProgressRows,
-    materialUsage: materialUsageRows,
-    safetyCompliance: safetyComplianceRows,
-    issueRisk: issueRiskRows,
-  };
-
-  // Prepare FormData
-  const finalFormData = new FormData();
-  imageFiles.forEach((item) => finalFormData.append("files", item.file));
-  generalFiles.forEach((file) => finalFormData.append("files", file));
-
-  // Use formData.reportId directly
-  dispatch(createReportAttachmentAction({
-    reportId: formData.reportId,
-    files: finalFormData,
-  }))
-    .unwrap()
-    .then(() => {
-      console.log("Upload success");
-      navigate('/report-view', { state: updatedFormData });
-    })
-    .catch((err) => {
-      console.error("Upload failed:", err);
-      alert("Failed to submit the report. Please try again.");
-    });
-};
-
-
-
-
-const handlePhotoUpload = (e, rowId) => {
-  const file = e.target.files[0];
-  if (file) {
-    setImageFiles((prev) => [...prev, { reportId: rowId, file }]);
-  }
-};
-
-const handleGeneralFileChange = (e) => {
-  const files = Array.from(e.target.files);
-  setGeneralFiles((prev) => [...prev, ...files]);
-};
+  const handleSubmit = async () => {
+    if (!validateForm()) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
   
+    const reportDataobj = {
+      dailyprogresssummary: dailyProgressRows.map(row => ({
+        serialno: row.id,
+        workactivity: row.workActivity || "",
+        status: row.status || "",
+        action: row.action || "" // You need to collect this input!
+      })),
+      materialusagereport: materialUsageRows.map(row => ({
+        serialno: row.id,
+        material: row.material || "",
+        stock: row.stock || "",
+        level: row.level || ""
+      })),
+      safetycompliancereport: safetyComplianceRows.map(row => ({
+        serialno: row.id,
+        item: row.item || "",
+        report: row.report || ""
+      })),
+      issueriskreport: issueRiskRows.map(row => ({
+        serialno: row.id,
+        issue: row.issue || "",
+        impact: row.impact || ""
+      }))
+      
+    };
+    const handleInputChange = (e) => {
+      const { name, value } = e.target;
+      setReportData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    };
+    
+  
+    const reportIdNumeric = parseInt(reportData.reportId.replace(/\D/g, '')) || 0;
+  
+   const updatedReportData = {
+  reportId: 0,
+  reportCode: reportData.reportId || ('RPT-' + new Date().getTime()),
+  reportType: parseInt(reportData.reportTypeId),
+  projectId: String(reportData.project),  // ✅ as string
+  reportDate: reportData.reportDate,
+  reportedBy: reportData.reportedBy,
+  report: `Report for ${projectName} - ${getReportTypeNameById(reportData.reportTypeId)}`,  // ✅ user-friendly
+  reportData: JSON.stringify(reportDataobj),
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+};
+
+try {
+  const resultAction = await dispatch(upsertReport(updatedReportData));
+
+  if (upsertReport.fulfilled.match(resultAction)) {
+    toast.success('Report created successfully!');
+    navigate('/report-view', { state: resultAction.payload });
+  } else {
+    let errorMessage = 'Report creation failed. Please try again.';
+    if (resultAction.payload?.errors) {
+      const errorDetails = [];
+      Object.entries(resultAction.payload.errors).forEach(([key, messages]) => {
+        messages.forEach(msg => errorDetails.push(`${key}: ${msg}`));
+      });
+      if (errorDetails.length > 0) {
+        errorMessage = `Report creation failed: ${errorDetails.join(', ')}`;
+      }
+    }
+    toast.error(errorMessage);
+  }
+} catch (err) {
+  console.error('Unexpected error:', err);
+  toast.error('An unexpected error occurred. Please try again.');
+}
+
+  };
+  const getReportTypeNameById = (id) => {
+  const found = reportTypes.find(type => type.reportTypeId.toString() === id.toString());
+  return found ? found.reportType : "Unknown";
+};
+
 
   return (
     <div className="report-container">
@@ -288,37 +431,40 @@ const handleGeneralFileChange = (e) => {
       
     
 
-        <div className="col-md-4">
-          <label>Report Type</label><span className='text-danger'>*</span>
-          <select
-            className="form-control"
-            name="reportType"
-            value={reportData.reportType}
-            onChange={handleInputChange}
-          
-          >
-            <option value="">Select</option>
-            <option value="Type 1">Daily</option>
-            <option value="Type 2"> Weekly</option>
-            <option value="Type 3">Monthly</option>
-          </select>
-          {formErrors.reportType && <div className="text-danger">{formErrors.reportType}</div>}
-        </div>
+     <div className="col-md-4">
+  <label>Report Type</label><span className='text-danger'>*</span>
+  <select
+    className="form-control"
+    name="reportTypeId"
+    value={reportData.reportTypeId}
+    onChange={handleInputChange}
+  >
+    <option value="">Select</option>
+    {reportTypes.map((type) => (
+     <option key={type.reportTypeId} value={type.reportTypeId}>
+  {type.reportType}
+</option>
+
+    ))}
+  </select>
+{formErrors.reportTypeId && <div className="text-danger">{formErrors.reportTypeId}</div>}
+</div>
+
         <div className="col-md-4">
           <label>Project</label><span className='text-danger'>*</span>
-          <select
+       <input
+  type="text"
   className="form-control"
+  name="projectName"
+  value={projectName}
+  readOnly
+/>
+<input
+  type="hidden"
   name="project"
   value={reportData.project}
-  onChange={handleInputChange}
->
-  <option value="">Select</option>
-  {projects.map((proj) => (
-    <option key={proj.project_id} value={proj.project_id}>
-      {proj.project_name}
-    </option>
-  ))}
-</select>
+/>
+
 
           {formErrors.project && <div className="text-danger">{formErrors.project}</div>}
         </div>
@@ -366,25 +512,45 @@ const handleGeneralFileChange = (e) => {
       </tr>
     </thead>
     <tbody>
-            {dailyProgressRows.map((row) => (
-              <tr key={row.id}>
-                <td>{row.id}</td>
-                <td></td>
-                <td></td>
-               <td>
-  <label className="upload-photo-btn" style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}>
-    Upload Photo
-    <input
-      type="file"
-      accept="image/*"
-      style={{ display: "none" }}
-      onChange={(e) => handlePhotoUpload(e, row.id)}
-    />
-  </label>
-</td>
-              </tr>
-            ))}
-          </tbody>
+      {dailyProgressRows.map((row) => (
+        <tr key={row.id}>
+          <td>{row.id}</td>
+          <td>
+            <input 
+              type="text" 
+              className="form-control" 
+              value={row.workActivity}
+              onChange={(e) => handleRowChange('dailyProgress', row.id, 'workActivity', e.target.value)}
+            />
+          </td>
+          <td>
+            <input 
+              type="text" 
+              className="form-control" 
+              value={row.status}
+              onChange={(e) => handleRowChange('dailyProgress', row.id, 'status', e.target.value)}
+            />
+          </td>
+          <td>
+            <input 
+              type="text" 
+              className="form-control" 
+              value={row.action || ""}
+              onChange={(e) => handleRowChange('dailyProgress', row.id, 'action', e.target.value)}
+            />
+          </td>
+          <td>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => handlePhotoUpload(e, row.id)}
+              className="form-control"
+            />
+            {row.photo && <span className="file-name">{row.photo.name}</span>}
+          </td>
+        </tr>
+      ))}
+    </tbody>
   </table>
 </div>
 
@@ -535,20 +701,34 @@ const handleGeneralFileChange = (e) => {
 </div>
 
 
-{/* Attached File Section */}
-     <div className="attached-file">
-  <h3>Attached File</h3>
+      {/* Attached File Section */}
+      <div className="attached-file">
+        <h3>Attached File</h3>
+<input
+  type="file"
+  className="form-control"
+  onChange={handleAttachedFileUpload}
+/>
+        {attachedFile && (
+          <div className="mt-2">
+               <span>Selected file: {attachedFile.name}</span>
+          </div>
+        )}
 
-  <label className="upload-photo-btn" style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}>
-    Upload File
-    <input
-      type="file"
-      multiple
-      style={{ display: "none" }}
-      onChange={handleGeneralFileChange}
-    />
-  </label>
-</div>
+          {/* ✅ Show upload result */}
+  {uploadMessage && (
+    <div className="mt-2 text-success">
+      ✅ {uploadMessage}
+    </div>
+  )}
+
+  {error && typeof error === 'string' && (
+    <div className="mt-2 text-danger">
+      ⚠️ {error}
+    </div>
+  )}
+
+      </div>
 
       {/* Cancel and Submit Buttons */}
       <div className="form-buttons mt-4">

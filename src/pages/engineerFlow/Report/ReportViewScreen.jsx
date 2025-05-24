@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getReportAttachmentsById, getReportById } from '../../../store/actions/report/reportcreateaction';
-
+const BASE_URL = process.env.REACT_APP_MASTER_API_BASE_URL;
 const ReportViewScreen = () => {
   const { reportId } = useParams(); // get the reportId from the URL
   const dispatch = useDispatch();
@@ -152,7 +152,7 @@ const ReportViewScreen = () => {
     {attachments.map((file) => (
       <li key={file.attachmentId}>
         <a
-          href={`https://buildflowgraphql.crestclimbers.com/${file.filePath.replace(/\\/g, '/')}`}
+          href={`${BASE_URL}/${file.filePath.replace(/\\/g, '/')}`}
           target="_blank"
           rel="noopener noreferrer"
         >

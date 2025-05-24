@@ -82,7 +82,7 @@ if (error) return <p className="text-danger">Error: {error}</p>;
           </select>
         </div>
         <Button className="create-button"
-          onClick={() => navigate('/admin/materialview',{state:{boqId:123}})}
+          onClick={() => navigate('/admin/engineermaterialcreate',{state:{boqId:123}})}
         >Create</Button>
       </div>
 
@@ -102,19 +102,19 @@ if (error) return <p className="text-danger">Error: {error}</p>;
           <tbody>
             {boqItems.map((material, index) => (
               <tr key={index}>
-                <td>{material.id}</td>
-                <td>{material.name}</td>
-                <td>{material.stock}</td>
-                <td>{material.required}</td>
-                <td>{getLevelBadge(material.level)}</td>
-                <td>{getStatusBadge(material.status)}</td>
+                <td>{material.boqId}</td>
+                <td>{material.itemName}</td>
+                <td>100</td>
+                <td>500</td>
+                <td>High</td>
+                <td>Approved</td>
                 <td>
                   <a
                     href=""
                     style={{ color: material.action === "View" ? "#0456D0" : "#0456D0" }}
                     onClick={() => navigate(`/admin/materialview/${material.boqId}`)}
                   >
-                    {material.action}
+                    View
                   </a>
                 </td>
               </tr>

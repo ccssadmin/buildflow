@@ -140,9 +140,19 @@ const TaskTable = () => {
                                         <React.Fragment key={item.id}>
                                             <tr className="">
                                                 <td className="text-light bg-burnt-orange text-center">{item.id}</td>
-                                                <td className="text-light bg-burnt-orange ">
-                                                    {item.name}{" "}
-                                                    <Button variant="outline-dark" size="sm" onClick={() => addEmptyRow(item.id)}>+</Button>
+                                                <td className="text-light bg-burnt-orange">
+                                                    <div className="d-flex justify-content-between align-items-center text-white">
+                                                        <span className="text-white">{item.name}</span>
+                                                        <Button
+                                                            variant="outline-dark"
+                                                            className="text-white"
+                                                            style={{ borderColor: 'white' }}
+                                                            size="sm"
+                                                            onClick={() => addEmptyRow(item.id)}
+                                                        >
+                                                            +
+                                                        </Button>
+                                                    </div>
                                                 </td>
                                                 <td className="text-light bg-burnt-orange text-center">{item.startDate}</td>
                                                 <td className="text-light bg-burnt-orange text-center">{item.endDate}</td>

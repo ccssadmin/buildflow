@@ -29,7 +29,7 @@ const EngineersideNav = ({ onChange }) => {
   const isProjectsActive = location.pathname.startsWith("/admin/engineerproject");
   const isApprovalsActive = 
     location.pathname.startsWith("/admin/engineerapprovals") ||
-    location.pathname.startsWith("/admin/engineerticketdetails");
+    location.pathname.startsWith("/admin/ticket");
   const isChatsActive = location.pathname.startsWith("/admin/engineerchats");
   const isMaterialActive = 
     location.pathname.startsWith("/admin/engineermaterial") ||
@@ -99,7 +99,7 @@ const EngineersideNav = ({ onChange }) => {
                 className={`link-tag ${isApprovalsActive ? "active" : ""}`}
                 isActive={(match, location) => 
                   location.pathname.startsWith('/admin/engineerapprovals') ||
-                  location.pathname.startsWith('/admin/engineerticketdetails')
+                  location.pathname.startsWith('/admin/ticket')
                 }
               >
                 <img src={menu.IconApprovals} alt={"Approvals"} />
