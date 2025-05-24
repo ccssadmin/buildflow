@@ -1,18 +1,19 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { createReportAttachmentAction, getNewReportCode, getReportAttachmentsById, getReportById, getReports, uploadReportAttachments, upsertReport } from '../../actions/report/reportcreateaction';
+import { getNewReportCode, getReportAttachmentsById, getReportById, getReports, uploadReportAttachments, upsertReport } from '../../actions/report/reportcreateaction';
 
 const reportSlice = createSlice({
     name: 'report',
-    initialState: {
-      loading: false,
-      success: false,
-      error: null,
-      reportDetails: null,
-      attachments: [],
-      uploadMessage: '',
-      newReportCode: '', 
-      ReportAttachments: '',
-    },
+initialState: {
+  loading: false,
+  success: false,
+  error: null,
+  data: [], // ✅ Add this
+  reportDetails: null,
+  attachments: [],
+  uploadMessage: '',
+  newReportCode: '', 
+}
+    ,
     reducers: {
       resetReportState: (state) => {
         state.loading = false;
@@ -110,22 +111,14 @@ const reportSlice = createSlice({
   state.loading = false;
   state.error = action.payload;
 })
+  
+  
+  
+  ;
       
       
-.addCase(createReportAttachmentAction.pending, (state) => {
-    state.loading = true;
-    state.error = null;
-  })
-.addCase(createReportAttachmentAction.fulfilled, (state, action) => {
-    state.loading = false;
-    state.success = true;
-    state.ReportAttachments = action.payload.message;
-  })
-.addCase(createReportAttachmentAction.rejected, (state, action) => {
-    state.loading = false;
-    state.error = action.payload || 'File upload failed';
-  })
-      ;
+      
+      
 
 
 
