@@ -3,16 +3,17 @@ import { createReportAttachmentAction, getNewReportCode, getReportAttachmentsByI
 
 const reportSlice = createSlice({
     name: 'report',
-    initialState: {
-      loading: false,
-      success: false,
-      error: null,
-      reportDetails: null,
-      attachments: [],
-      uploadMessage: '',
-      newReportCode: '', 
-      ReportAttachments: '',
-    },
+initialState: {
+  loading: false,
+  success: false,
+  error: null,
+  data: [], // ✅ Add this
+  reportDetails: null,
+  attachments: [],
+  uploadMessage: '',
+  newReportCode: '', 
+}
+    ,
     reducers: {
       resetReportState: (state) => {
         state.loading = false;

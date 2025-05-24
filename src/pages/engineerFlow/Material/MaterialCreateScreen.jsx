@@ -273,6 +273,7 @@ const MaterialCreateScreen = () => {
             <Form.Group className="mb-3">
               <Form.Label className="text-black fs-5">BOQ ID</Form.Label>
               <Form.Control
+                style={{ backgroundColor: "white" }}
                 type="text"
                 placeholder="BOQ ID"
                 value={boqId}
@@ -314,6 +315,7 @@ const MaterialCreateScreen = () => {
             <Form.Group className="mb-3">
               <Form.Label className="text-black fs-5">Vendor</Form.Label>
               <Form.Select
+                style={{ backgroundColor: "white" }}
                 value={selectedVendorId}
                 onChange={(e) => setSelectedVendorId(e.target.value)}
               >
@@ -347,67 +349,62 @@ const MaterialCreateScreen = () => {
           </div>
         </div>
 
-        <Table bordered className="boq-table">
-          <thead className=" bg-orange text-white">
-            <tr>
-              <th className="text-center">S. No</th>
-              <th className="text-center">Item Name</th>
-              <th className="text-center">Unit</th>
-              <th className="text-center">Rate</th>
-              <th className="text-center">Quantity</th>
-              <th className="text-center">Total</th>
-            </tr>
-          </thead>
-          <tbody className="tbl">
-            {rows.map((row, index) => (
-              <tr key={index}>
-                <td className="text-center">{index + 1}</td>
-
-                <td className="border-0 bg-transparent">
-                  <input
-                    type="text"
-                    name="itemName"
-                    value={row.itemName}
-                    onChange={(e) => handleInputChange(index, e)}
-                    className="form-control"
-                  />
-                </td>
-
-                <td className="border-0 bg-transparent">
-                  <input
-                    type="text"
-                    name="unit"
-                    value={row.unit}
-                    onChange={(e) => handleInputChange(index, e)}
-                    className="form-control"
-                  />
-                </td>
-
-                <td className="border-0 bg-transparent">
-                  <input
-                    type="number"
-                    name="rate"
-                    value={row.rate}
-                    onChange={(e) => handleInputChange(index, e)}
-                    className="form-control"
-                  />
-                </td>
-
-                <td className="border-0 bg-transparent">
-                  <input
-                    type="number"
-                    name="quantity"
-                    value={row.quantity}
-                    onChange={(e) => handleInputChange(index, e)}
-                    className="form-control"
-                  />
-                </td>
-
-                <td className="text-center">{row.total}</td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
+      <table className="boq-table">
+      <thead className="bg-orange">
+        <tr>
+          <th className="text-center text-white">S. No</th>
+          <th className="text-center text-white">Item Name</th>
+          <th className="text-center text-white">Unit</th>
+          <th className="text-center text-white">Rate</th>
+          <th className="text-center text-white">Quantity</th>
+          <th className="text-center text-white">Total</th>
+        </tr>
+      </thead>
+      <tbody className="tbl">
+        {rows.map((row, index) => (
+          <tr key={index}>
+            <td className="text-center">{index + 1}</td>
+            <td className="cell-no-border">
+              <input
+                type="text"
+                name="itemName"
+                value={row.itemName}
+                onChange={(e) => handleInputChange(index, e)}
+                className="input-no-border"
+              />
+            </td>
+            <td className="cell-no-border">
+              <input
+                type="text"
+                name="unit"
+                value={row.unit}
+                onChange={(e) => handleInputChange(index, e)}
+                className="input-no-border"
+              />
+            </td>
+            <td className="cell-no-border">
+              <input
+                type="number"
+                name="rate"
+                value={row.rate}
+                onChange={(e) => handleInputChange(index, e)}
+                className="input-no-border"
+              />
+            </td>
+            <td className="cell-no-border">
+              <input
+                type="number"
+                name="quantity"
+                value={row.quantity}
+                onChange={(e) => handleInputChange(index, e)}
+                className="input-no-border"
+              />
+            </td>
+            <td className="text-center">{row.total}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
 
         <div className="d-flex flex-column align-items-end mt-3">
           <Button
@@ -431,12 +428,10 @@ const MaterialCreateScreen = () => {
           >
             <FontAwesomeIcon
               icon={faPaperPlane}
-              style={{
-                color: "white",         // icon color
-                filter: "brightness(100%)", // ensure no override
-              }}
+              className="icon"
+              style={{ color: "white" }}
             />
-            <span style={{ color: "white" }}>Submit</span>
+            Submit
           </Button>
 
         </div>

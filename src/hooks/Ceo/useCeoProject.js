@@ -106,11 +106,12 @@ const createProjectMilestone = async (projectId, milestoneDto) => {
     const result = await dispatch(
       createProjectMilestoneAction({ projectId, milestoneDto })
     ).unwrap();
+
     
     return {
       success: true,
       data: result,
-      message: 'Milestones created successfully'
+      message: result?.data?.message || 'Milestones created successfully'
     };
   } catch (error) {
     return {
