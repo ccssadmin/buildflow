@@ -22,9 +22,10 @@ const ReportViewScreen = () => {
 
   const {
     reportCode,
-    reportType,
+    reportTypeName,
     reportDate,
     reportedBy,
+    projectName,
     reportData = {},
   } = reportDetails;
 
@@ -46,7 +47,7 @@ const ReportViewScreen = () => {
         </div>
         <div className="input-group">
           <label>Report Type</label>
-          <input type="text" value={reportType} readOnly />
+          <input type="text" value={reportTypeName} readOnly />
         </div>
         <div className="input-group">
           <label>Date</label>
@@ -55,6 +56,11 @@ const ReportViewScreen = () => {
         <div className="input-group">
           <label>Reported By</label>
           <input type="text" value={reportedBy} readOnly />
+        </div>
+
+           <div className="input-group">
+          <label>Project </label>
+          <input type="text" value={projectName} readOnly />
         </div>
       </div>
 

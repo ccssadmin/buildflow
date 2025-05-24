@@ -23,40 +23,41 @@ const ReportViewScreen = () => {
 
   // Destructure data from API response
 
-  const {
-    reportcode,
-    reporttype,
-    reportdate,
-    reportedby,
-    reportdata = {},
+ const {
+    reportCode,
+    reportTypeName,
+    reportDate,
+    reportedBy,
+    reportData = {},
   } = reportDetails;
   
   const {
-    dailyprogresssummary = [],
-    materialusagereport = [],
-    safetycompliancereport = [],
-    issueriskreport = [],
-  } = reportdata;
+    dailyProgressSummary = [],
+    materialUsageReport = [],
+    safetyComplianceReport = [],
+    issueRiskReport = [],
+  } = reportData;
 
   return (
     <div className="report-container">
       {/* render reportcode, reporttype, reportedby etc. */}
+      {/* render reportcode, reporttype, reportedby etc. */}
       <div className="header-section">
         <div className="input-group">
           <label>Report ID</label>
-          <input type="text" value={reportcode} readOnly />
+          <input type="text" value={reportCode} readOnly />
         </div>
         <div className="input-group">
           <label>Report Type</label>
-          <input type="text" value={reporttype} readOnly />
+          <input type="text" value={reportTypeName} readOnly />
         </div>
         <div className="input-group">
           <label>Date</label>
-          <input type="text" value={new Date(reportdate).toLocaleDateString()} readOnly />
+          <input type="text" value={new Date(reportDate).toLocaleDateString()} readOnly />
         </div>
         <div className="input-group">
           <label>Reported By</label>
-          <input type="text" value={reportedby} readOnly />
+          <input type="text" value={reportedBy} readOnly />
         </div>
       </div>
 
@@ -71,10 +72,10 @@ const ReportViewScreen = () => {
           </tr>
         </thead>
         <tbody>
-          {dailyprogresssummary.map((item) => (
-            <tr key={item.serialno}>
-              <td>{item.serialno}</td>
-              <td>{item.workactivity}</td>
+          {dailyProgressSummary.map((item) => (
+            <tr key={item.serialNo}>
+              <td>{item.serialNo}</td>
+              <td>{item.workActivity}</td>
               <td>{item.status}</td>
               <td>{item.action}</td>
             </tr>
@@ -93,9 +94,9 @@ const ReportViewScreen = () => {
           </tr>
         </thead>
         <tbody>
-          {materialusagereport.map((item) => (
-            <tr key={item.serialno}>
-              <td>{item.serialno}</td>
+          {materialUsageReport.map((item) => (
+            <tr key={item.serialNo}>
+              <td>{item.serialNo}</td>
               <td>{item.material}</td>
               <td>{item.stock}</td>
               <td>{item.level}</td>
@@ -114,9 +115,9 @@ const ReportViewScreen = () => {
           </tr>
         </thead>
         <tbody>
-          {safetycompliancereport.map((item) => (
-            <tr key={item.serialno}>
-              <td>{item.serialno}</td>
+          {safetyComplianceReport.map((item) => (
+            <tr key={item.serialNo}>
+              <td>{item.serialNo}</td>
               <td>{item.item}</td>
               <td>{item.report}</td>
             </tr>
@@ -134,9 +135,9 @@ const ReportViewScreen = () => {
           </tr>
         </thead>
         <tbody>
-          {issueriskreport.map((item) => (
-            <tr key={item.serialno}>
-              <td>{item.serialno}</td>
+          {issueRiskReport.map((item) => (
+            <tr key={item.serialNo}>
+              <td>{item.serialNo}</td>
               <td>{item.issue}</td>
               <td>{item.impact}</td>
             </tr>
