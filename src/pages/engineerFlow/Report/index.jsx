@@ -8,7 +8,8 @@ function Report() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { data: reportData, loading, error } = useSelector((state) => state.report);
+const { data: reportData, loading, error } = useSelector((state) => state.report);
+
 
   useEffect(() => {
     dispatch(getReports());
@@ -55,21 +56,22 @@ function Report() {
               </tr>
             </thead>
             <tbody>
-              {reportData.map((report, index) => (
-                <tr key={report.reportid || index}>
-                  <td>{(index + 1).toString().padStart(2, '0')}</td>
-                  <td>{report.reportcode}</td>
-                  <td>{`Project ID - ${report.projectid}`}</td>
-                  <td>{report.reportdate ? new Date(report.reportdate).toLocaleDateString() : 'N/A'}</td>
-                  <td className="reported-by">
-                    <img src="https://via.placeholder.com/24" alt="Avatar" />
-                    {report.reportedby}
-                  </td>
-                  <td onClick={() => navigate(`/admin/engineerreportview/${report.reportid}`)}>
-                    <a href="#" className="view-link">View</a>
-                  </td>
-                </tr>
-              ))}
+             {reportData.map((report, index) => (
+  <tr key={report.reportId || index}>
+    <td>{(index + 1).toString().padStart(2, '0')}</td>
+    <td>{report.reportCode}</td>
+    <td>{report.projectName}</td>
+    <td>{report.reportDate ? new Date(report.reportDate).toLocaleDateString() : 'N/A'}</td>
+    <td className="reported-by">
+      <img src="https://via.placeholder.com/24" alt="Avatar" />
+      {report.reportedBy}
+    </td>
+    <td onClick={() => navigate(`/admin/engineerreportview/${report.reportId}`)}>
+      <a href="#" className="view-link">View</a>
+    </td>
+  </tr>
+))}
+
             </tbody>
           </table>
         </div>

@@ -2,11 +2,11 @@ import { useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getReportAttachmentsById, getReportById } from '../../../store/actions/report/reportcreateaction';
-const BASE_URL = process.env.REACT_APP_MASTER_API_BASE_URL;
+
 const ReportViewScreen = () => {
-  const { reportId } = useParams(); // get the reportId from the URL
+  const { reportId } = useParams();
   const dispatch = useDispatch();
-  
+
   const { reportDetails, attachments, loading, error } = useSelector((state) => state.report);
 
   useEffect(() => {
@@ -18,45 +18,43 @@ const ReportViewScreen = () => {
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div className="text-danger">{error}</div>;
-
   if (!reportDetails) return null;
 
-  // Destructure data from API response
+  const {
+    reportCode,
+    reportType,
+    reportDate,
+    reportedBy,
+    reportData = {},
+  } = reportDetails;
+
+  const parsedReportData = typeof reportData === 'string' ? JSON.parse(reportData) : reportData;
 
   const {
-    reportcode,
-    reporttype,
-    reportdate,
-    reportedby,
-    reportdata = {},
-  } = reportDetails;
-  
-  const {
-    dailyprogresssummary = [],
-    materialusagereport = [],
-    safetycompliancereport = [],
-    issueriskreport = [],
-  } = reportdata;
+    dailyProgressSummary = [],
+    materialUsageReport = [],
+    safetyComplianceReport = [],
+    issueRiskReport = [],
+  } = parsedReportData;
 
   return (
     <div className="report-container">
-      {/* render reportcode, reporttype, reportedby etc. */}
       <div className="header-section">
         <div className="input-group">
           <label>Report ID</label>
-          <input type="text" value={reportcode} readOnly />
+          <input type="text" value={reportCode} readOnly />
         </div>
         <div className="input-group">
           <label>Report Type</label>
-          <input type="text" value={reporttype} readOnly />
+          <input type="text" value={reportType} readOnly />
         </div>
         <div className="input-group">
           <label>Date</label>
-          <input type="text" value={new Date(reportdate).toLocaleDateString()} readOnly />
+          <input type="text" value={new Date(reportDate).toLocaleDateString()} readOnly />
         </div>
         <div className="input-group">
           <label>Reported By</label>
-          <input type="text" value={reportedby} readOnly />
+          <input type="text" value={reportedBy} readOnly />
         </div>
       </div>
 
@@ -71,12 +69,12 @@ const ReportViewScreen = () => {
           </tr>
         </thead>
         <tbody>
-          {dailyprogresssummary.map((item) => (
-            <tr key={item.serialno}>
-              <td>{item.serialno}</td>
-              <td>{item.workactivity}</td>
-              <td>{item.status}</td>
-              <td>{item.action}</td>
+          {dailyProgressSummary.map((item) => (
+            <tr key={item.serialNo}>
+              <td>{item.serialNo}</td>
+              <td>{item.workActivity || 'N/A'}</td>
+              <td>{item.status || 'N/A'}</td>
+              <td>{item.action || 'N/A'}</td>
             </tr>
           ))}
         </tbody>
@@ -93,12 +91,12 @@ const ReportViewScreen = () => {
           </tr>
         </thead>
         <tbody>
-          {materialusagereport.map((item) => (
-            <tr key={item.serialno}>
-              <td>{item.serialno}</td>
-              <td>{item.material}</td>
-              <td>{item.stock}</td>
-              <td>{item.level}</td>
+          {materialUsageReport.map((item) => (
+            <tr key={item.serialNo}>
+              <td>{item.serialNo}</td>
+              <td>{item.material || 'N/A'}</td>
+              <td>{item.stock || 'N/A'}</td>
+              <td>{item.level || 'N/A'}</td>
             </tr>
           ))}
         </tbody>
@@ -114,11 +112,11 @@ const ReportViewScreen = () => {
           </tr>
         </thead>
         <tbody>
-          {safetycompliancereport.map((item) => (
-            <tr key={item.serialno}>
-              <td>{item.serialno}</td>
-              <td>{item.item}</td>
-              <td>{item.report}</td>
+          {safetyComplianceReport.map((item) => (
+            <tr key={item.serialNo}>
+              <td>{item.serialNo}</td>
+              <td>{item.item || 'N/A'}</td>
+              <td>{item.report || 'N/A'}</td>
             </tr>
           ))}
         </tbody>
@@ -134,37 +132,37 @@ const ReportViewScreen = () => {
           </tr>
         </thead>
         <tbody>
-          {issueriskreport.map((item) => (
-            <tr key={item.serialno}>
-              <td>{item.serialno}</td>
-              <td>{item.issue}</td>
-              <td>{item.impact}</td>
+          {issueRiskReport.map((item) => (
+            <tr key={item.serialNo}>
+              <td>{item.serialNo}</td>
+              <td>{item.issue || 'N/A'}</td>
+              <td>{item.impact || 'N/A'}</td>
             </tr>
           ))}
         </tbody>
       </table>
+
       <h3>Attached File</h3>
       <div className="attached-files">
         {loading && <p>Loading attachments...</p>}
         {error && <p style={{ color: 'red' }}>{error}</p>}
         {!loading && attachments?.length > 0 ? (
-  <ul>
-    {attachments.map((file) => (
-      <li key={file.attachmentId}>
-        <a
-          href={`${BASE_URL}/${file.filePath.replace(/\\/g, '/')}`}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {file.fileName}
-        </a>
-      </li>
-    ))}
-  </ul>
-) : (
-  !loading && <p>No attachments found.</p>
-)}
-
+          <ul>
+            {attachments.map((file) => (
+              <li key={file.attachmentId}>
+                <a
+                  href={`https://buildflowgraphql.crestclimbers.com/${file.filePath.replace(/\\/g, '/')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {file.fileName}
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          !loading && <p>No attachments found.</p>
+        )}
       </div>
     </div>
   );
