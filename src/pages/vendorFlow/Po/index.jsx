@@ -20,14 +20,17 @@ export default function VendorPurchaseOrder() {
   }, [dispatch]);
 
   const formatDate = (dateStr) =>
-    new Date(dateStr).toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
+    dateStr
+      ? new Date(dateStr).toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        })
+      : "-";
 
   const getStatusColorClass = (status) => {
-    switch (status.toLowerCase()) {
+    const s = status?.toLowerCase();
+    switch (s) {
       case "pending":
         return "text-warning";
       case "completed":
@@ -37,6 +40,10 @@ export default function VendorPurchaseOrder() {
       default:
         return "text-secondary";
     }
+  };
+
+  const getStatusText = (status) => {
+    return status === null ? "Pending" : status;
   };
 
   return (
@@ -64,35 +71,38 @@ export default function VendorPurchaseOrder() {
               </tr>
             </thead>
             <tbody>
-              {purchaseOrders.map((po) => (
-                <tr key={po.purchaseOrderId}>
-                  <td>{po.poId}</td>
-                  <td>{po.projectName}</td>
-                  <td>{po.vendorMobile}</td>
-                  <td>{formatDate(po.createdAt)}</td>
-                  <td>{formatDate(po.deliveryStatusDate)}</td>
-                  <td className={`text-capitalize fw-semibold ${getStatusColorClass(po.status)}`}>
-                    {po.deliveryStatus}
-                  </td>
-                  <td>
-                    {po.deliveryStatus?.toLowerCase() === "completed" ? (
-                      <Link
-                        to={`/vendor/editpo/${po.purchaseOrderId}`}
-                        className="text-primary text-decoration-none"
-                      >
-                        View
-                      </Link>
-                    ) : (
-                      <Link
-                        to={`/vendor/editpo/${po.purchaseOrderId}`}
-                        className="text-primary text-decoration-none"
-                      >
-                        Update Status
-                      </Link>
-                    )}
-                  </td>
-                </tr>
-              ))}
+              {purchaseOrders.map((po) => {
+                const deliveryStatus = po.deliveryStatus || "pending"; // handle null
+                return (
+                  <tr key={po.purchaseOrderId}>
+                    <td>{po.poId}</td>
+                    <td>{po.projectName}</td>
+                    <td>{po.vendorMobile}</td>
+                    <td>{formatDate(po.createdAt)}</td>
+                    <td>{formatDate(po.deliveryStatusDate)}</td>
+                    <td className={`text-capitalize  ${getStatusColorClass(deliveryStatus)}`}>
+                      {getStatusText(po.deliveryStatus)}
+                    </td>
+                    <td>
+                      {deliveryStatus.toLowerCase() === "completed" ? (
+                        <Link
+                          to={`/vendor/editpo/${po.purchaseOrderId}`}
+                          className="text-primary text-decoration-none"
+                        >
+                          View
+                        </Link>
+                      ) : (
+                        <Link
+                          to={`/vendor/editpo/${po.purchaseOrderId}`}
+                          className="text-primary text-decoration-none"
+                        >
+                          Update Status
+                        </Link>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
