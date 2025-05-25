@@ -464,7 +464,7 @@ const Header = ({ onLogout }) => {
                 </div>
                 <div className="user-info__popup-menu" id="show_more_boards">
                   <NavLink
-                    to="/settings"
+                    // to="/settings"
                     className="user-info__popup-menu-settings"
                     onClick={handleReset}
                   >
