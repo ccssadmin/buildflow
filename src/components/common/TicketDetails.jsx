@@ -703,6 +703,26 @@ const EngineerTicketDetails = () => {
   const createdby = ticketData?.created_by;
   const approved_status = ticketData?.isapproved;
   const ticket_type = ticketData?.ticket_type;
+  const vendorId = ticketData?.vendorId;
+  const vendorName = ticketData?.vendorName;
+
+// Only the matching vendor as an option
+const filteredVendors = vendors.filter((vendor) => vendor.id === vendorId);
+
+// Convert to Select option format
+const vendorOptions = filteredVendors.map((vendor) => ({
+  label: vendor.vendorName,
+  value: vendor.id,
+}));
+
+// Get selected value if chosen
+const selectedOption = selectedVendor
+  ? {
+      label: selectedVendor.vendorName,
+      value: selectedVendor.id,
+    }
+  : null;
+
   const customMenuList = (props) => {
     return (
       <components.MenuList {...props}>
@@ -885,8 +905,8 @@ const EngineerTicketDetails = () => {
         <div className="d-flex align-items-center ms-3 mt-4">
           <small
             className="text-muted me-2"
-            onClick={() => navigate("/approvals")}
-            style={{ cursor: "pointer" }}
+            // onClick={() => navigate("/approvals")}
+            // style={{ cursor: "pointer" }}
           >
             Approvals
           </small>
@@ -1688,31 +1708,20 @@ const EngineerTicketDetails = () => {
                   <span className="text-muted">Move To Vendor</span>
                   <div style={{ justifyContent: "end", width: "300px" }}>
                     <Select
-                      options={vendors.map((vendor) => ({
-                        label: vendor.vendorName,
-                        value: vendor.id,
-                      }))}
-                      placeholder="Select Vendor"
-                      value={
-                        selectedVendor
-                          ? {
-                              label: selectedVendor.vendorName,
-                              value: selectedVendor.id,
-                            }
-                          : null
-                      }
-                      onChange={(option) => {
-                        const vendor = vendors.find(
-                          (v) => v.id === option.value
-                        );
-                        setSelectedVendor(vendor);
-                        // Clear employee selection when vendor is selected
-                        if (option) {
-                          setSelectedEmployee(null);
-                        }
-                      }}
-                      isSearchable={true}
-                    />
+  options={vendorOptions}
+  placeholder="Select Vendor"
+  value={selectedOption} // Shows the selected item
+  onChange={(option) => {
+    const vendor = vendors.find((v) => v.id === option.value);
+    setSelectedVendor(vendor);
+    if (option) {
+      setSelectedEmployee(null);
+    }
+  }}
+  isSearchable={false}
+/>
+
+
                   </div>
                 </div>
 
