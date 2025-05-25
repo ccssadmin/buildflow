@@ -79,76 +79,6 @@ const CeoCreateProject = () => {
     designer: [],
     vendors: [],
     subcontractors: [],
-
-    // Step 4: Timeline & Milestone Planning
-    milestones: [
-      {
-        id: 1,
-        name: "Foundation Work",
-        description: "Complete excavation and concrete laying",
-        startDate: "",
-        endDate: "",
-        status: "Planned",
-      },
-      // {
-      //   id: 2,
-      //   name: "Structural Framing",
-      //   description: "Assemble steel and structural framing",
-      //   startDate: "",
-      //   endDate: "",
-      //   status: "Planned",
-      // },
-      // {
-      //   id: 3,
-      //   name: "Roofing Installation",
-      //   description: "Complete installation of roofing system",
-      //   startDate: "",
-      //   endDate: "",
-      //   status: "Planned",
-      // },
-      // {
-      //   id: 4,
-      //   name: "Exterior Walls",
-      //   description: "Brickwork, plastering, and painting",
-      //   startDate: "",
-      //   endDate: "",
-      //   status: "Planned",
-      // },
-      // {
-      //   id: 5,
-      //   name: "Plumbing & Electrical Work",
-      //   description: "Install pipes, wiring, and fixtures",
-      //   startDate: "",
-      //   endDate: "",
-      //   status: "Planned",
-      // },
-      // {
-      //   id: 6,
-      //   name: "Interior Design & Finishing",
-      //   description: "Install doors, windows & interiors",
-      //   startDate: "",
-      //   endDate: "",
-      //   status: "Planned",
-      // },
-      // {
-      //   id: 7,
-      //   name: "Final Inspection & Handover",
-      //   description: "Quality check and handover to client",
-      //   startDate: "",
-      //   endDate: "",
-      //   status: "Planned",
-      // },
-    ],
-
-    // Step 5: Risk & Compliance Assessment
-    risks: [
-      {
-        id: 1,
-        category: "Complete excavation and concrete laying",
-        status: "Completed",
-        file: null,
-      },
-    ],
   });
 
   useEffect(() => {
@@ -168,6 +98,7 @@ const CeoCreateProject = () => {
         projectName: step1?.project_name,
         location: step1?.project_location,
         projectType: step1?.project_type_name,
+        projectSectorName: step1?.project_sector_name,
         description:step1?.project_description,
         projectStartDate:step1?.project_start_date,
         expectedCompletionDate:step1?.project_end_date,

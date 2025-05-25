@@ -8,7 +8,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { profile } from "../../../assets/images";
 import { useDispatch } from "react-redux";
 import { getProjectDetailsAction } from "../../../store/actions/Ceo/ceoprojectAction";
-
+import { CiCalendar } from "react-icons/ci";
 
 const TimelineMilestonePlanning = ({
   formData,
@@ -21,12 +21,80 @@ const TimelineMilestonePlanning = ({
 }) => {
   const [showModal, setShowModal] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState([]);
+  const [hasInitialized, setHasInitialized] = useState(false);
+  const [nextTempId, setNextTempId] = useState(1);
   const { projectId } = useParams();
   const { createProjectMilestone, loading, currentProject } = useProject();
   const [localProjectId, setLocalProjectId] = useState(null);
 
-
   const dispatch = useDispatch();
+
+  // Default construction milestones with unique temporary IDs and order
+  const getDefaultMilestones = () => [
+    {
+      id: `temp_${Date.now()}_1`,
+      name: "Foundation Work",
+      description: "Complete excavation and concrete laying",
+      startDate: "",
+      endDate: "",
+      status: "Planned",
+      order: 1
+    },
+    {
+      id: `temp_${Date.now()}_2`,
+      name: "Structural Framing",
+      description: "Assemble steel and structural framing",
+      startDate: "",
+      endDate: "",
+      status: "Planned",
+      order: 2
+    },
+    {
+      id: `temp_${Date.now()}_3`,
+      name: "Roofing Installation",
+      description: "Complete installation of roofing system",
+      startDate: "",
+      endDate: "",
+      status: "Planned",
+      order: 3
+    },
+    {
+      id: `temp_${Date.now()}_4`,
+      name: "Exterior Walls",
+      description: "Brickwork, plastering, and painting",
+      startDate: "",
+      endDate: "",
+      status: "Planned",
+      order: 4
+    },
+    {
+      id: `temp_${Date.now()}_5`,
+      name: "Plumbing & Electrical Work",
+      description: "Install pipes, wiring, and fixtures",
+      startDate: "",
+      endDate: "",
+      status: "Planned",
+      order: 5
+    },
+    {
+      id: `temp_${Date.now()}_6`,
+      name: "Interior Design & Finishing",
+      description: "Install doors, windows & interiors",
+      startDate: "",
+      endDate: "",
+      status: "Planned",
+      order: 6
+    },
+    {
+      id: `temp_${Date.now()}_7`,
+      name: "Final Inspection & Handover",
+      description: "Quality check and handover to client",
+      startDate: "",
+      endDate: "",
+      status: "Planned",
+      order: 7
+    }
+  ];
 
   const handleCheckboxChange = (userId) => {
     setSelectedUsers((prevSelected) =>
@@ -37,83 +105,55 @@ const TimelineMilestonePlanning = ({
   };
 
   useEffect(() => {
-  if (projectId) {
-    getProjectsData(projectId);
-  }
-}, [projectId]);
+    if (projectId) {
+      getProjectsData(projectId);
+    }
+  }, [projectId]);
 
-  
-const getProjectsData = async (projectId) => {
-  
-  try {
-    const result = await dispatch(getProjectDetailsAction(projectId));
-    const milestoneDetails = result?.payload?.value?.milestone_details;
-    if (Array.isArray(milestoneDetails)) {
-      const milestones = milestoneDetails.map((item) => ({
-        id: item.milestone_id || 0,
-        name: item.milestone_name,
-        description: item.milestone_description,
-        startDate: item.milestone_start_date,
-        endDate: item.milestone_end_date,
-        status: item.milestone_status,
-      }));
-      console.log("Processed milestones =>", milestones);
+  const getProjectsData = async (projectId) => {
+    try {
+      const result = await dispatch(getProjectDetailsAction(projectId));
+      const milestoneDetails = result?.payload?.value?.milestone_details;
+      if (Array.isArray(milestoneDetails) && milestoneDetails.length > 0) {
+        const milestones = milestoneDetails.map((item, index) => ({
+          id: item.milestone_id || `existing_${Date.now()}_${index}`,
+          name: item.milestone_name,
+          description: item.milestone_description,
+          startDate: item.milestone_start_date,
+          endDate: item.milestone_end_date,
+          status: item.milestone_status,
+          order: index + 1
+        }));
+        console.log("Processed milestones =>", milestones);
 
+        setFormData((prev) => ({
+          ...prev,
+          milestones,
+        }));
+        setHasInitialized(true);
+        // Set nextTempId to continue from existing milestones
+        setNextTempId(milestones.length + 1);
+      } else {
+        console.warn("No valid milestone details found, initializing with default milestones.");
+        const defaultMilestones = getDefaultMilestones();
+        setFormData((prev) => ({
+          ...prev,
+          milestones: defaultMilestones,
+        }));
+        setNextTempId(8); // Start from 8 since we have 7 default milestones
+        setHasInitialized(true);
+      }
+    } catch (error) {
+      console.error("Failed to fetch project details:", error);
+      const defaultMilestones = getDefaultMilestones();
       setFormData((prev) => ({
         ...prev,
-        milestones,
+        milestones: defaultMilestones,
       }));
-    } else {
-      console.warn("No valid milestone details found.");
+      setNextTempId(8);
+      setHasInitialized(true);
     }
-  } catch (error) {
-    console.error("Failed to fetch project details:", error);
-  }
-};
-
-  
-
-  // useEffect(() => {
-  //   const getProjectId = () => {
-  //     if (formData && formData.projectId) {
-  //       console.log("🔍 Found projectId in formData:", formData.projectId);
-  //       setLocalProjectId(formData.projectId);
-  //       return formData.projectId;
-  //     }
-
-  //     const storedId = localStorage.getItem("projectId");
-  //     if (storedId) {
-  //       console.log("🔍 Found projectId in localStorage:", storedId);
-  //       setLocalProjectId(parseInt(storedId));
-
-  //       if (!formData.projectId) {
-  //         setFormData((prev) => ({
-  //           ...prev,
-  //           projectId: parseInt(storedId),
-  //         }));
-  //       }
-
-  //       return parseInt(storedId);
-  //     }
-
-  //     console.error("❌ No project ID found anywhere!");
-  //     return null;
-  //   };
-
-
-    
-
-
-
-  //   if (!projectId) {
-  //     Swal.fire({
-  //       icon: "warning",
-  //       title: "Project ID Missing",
-  //       text: "Could not find project ID. Please go back and create the project first.",
-  //     });
-  //   }
-  // }, []);
- 
+  };
 
   useEffect(() => {
     const storedProjectId = localStorage.getItem("projectId");
@@ -133,27 +173,44 @@ const getProjectsData = async (projectId) => {
     }
   }, [projectId, currentProject]);
 
- 
+  useEffect(() => {
+    if (!hasInitialized && (!formData.milestones || formData.milestones.length === 0)) {
+      const defaultMilestones = getDefaultMilestones();
+      setFormData((prev) => ({
+        ...prev,
+        milestones: defaultMilestones,
+      }));
+      setNextTempId(8);
+      setHasInitialized(true);
+    }
+  }, [formData.milestones, hasInitialized, setFormData]);
+
+  // Modified function to add a new milestone row at the end
   const handleAddMilestone = () => {
-    const newId =
-      formData.milestones.length > 0
-        ? Math.max(...formData.milestones?.map((m) => m.id)) + 1
-        : 1;
+    const currentMilestones = formData.milestones || [];
+    const maxOrder = currentMilestones.length > 0 
+      ? Math.max(...currentMilestones.map(m => m.order || 0)) 
+      : 0;
+
+    const newMilestone = {
+      id: `temp_${Date.now()}_${nextTempId}`,
+      name: "",
+      description: "",
+      startDate: "",
+      endDate: "",
+      status: "Planned",
+      order: maxOrder + 1
+    };
+
+    // Ensure we're adding to the end by creating a new array with spread operator
+    const updatedMilestones = [...currentMilestones, newMilestone];
 
     setFormData((prev) => ({
       ...prev,
-      milestones: [
-        ...prev.milestones,
-        {
-          id: 0,
-          name: "",
-          description: "",
-          startDate: "",
-          endDate: "",
-          status: "Planned",
-        },
-      ],
+      milestones: updatedMilestones
     }));
+
+    setNextTempId(prev => prev + 1);
   };
 
   const inputStyle = {
@@ -168,38 +225,45 @@ const getProjectsData = async (projectId) => {
     cursor: "pointer",
   };
 
+  const handleInternalMilestoneChange = (id, field, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      milestones: prev.milestones.map((milestone) =>
+        milestone.id === id
+          ? { ...milestone, [field]: value }
+          : milestone
+      ),
+    }));
+  };
 
-  // Modified function to handle date changes with DatePicker
   const handleDateChange = (id, field, date) => {
     if (!date) {
-      handleMilestoneChange(id, field, "");
+      handleInternalMilestoneChange(id, field, "");
       return;
     }
 
-    // Create a new date object with the local timezone
     const localDate = new Date(
       date.getFullYear(),
       date.getMonth(),
       date.getDate()
     );
-    // Format as YYYY-MM-DD without timezone conversion
     const year = localDate.getFullYear();
     const month = String(localDate.getMonth() + 1).padStart(2, "0");
     const day = String(localDate.getDate()).padStart(2, "0");
     const dateString = `${year}-${month}-${day}`;
-    handleMilestoneChange(id, field, dateString);
+    handleInternalMilestoneChange(id, field, dateString);
   };
 
   const parseDate = (dateStr) => {
-    if (!dateStr) return null;
-    // Parse the date string directly without timezone conversion
+    if (!dateStr || dateStr.trim() === "") return null;
     const parts = dateStr.split("-");
     if (parts.length !== 3) return null;
     const year = parseInt(parts[0], 10);
-    const month = parseInt(parts[1], 10) - 1; // months are 0-based
+    const month = parseInt(parts[1], 10) - 1;
     const day = parseInt(parts[2], 10);
     return new Date(year, month, day);
   };
+
   const handleSubmit = async () => {
     if (!formData.projectId) {
       Swal.fire({
@@ -209,17 +273,16 @@ const getProjectsData = async (projectId) => {
       });
       return;
     }
-    // Filter out completely empty milestones (all fields empty)
+
     const milestonesToSubmit = formData.milestones.filter(
       milestone => 
-        milestone.id == 0 ||
+        (typeof milestone.id === 'number' && milestone.id > 0) ||
         milestone.name.trim() !== "" || 
         milestone.description.trim() !== "" || 
         milestone.startDate || 
         milestone.endDate
     );
 
-    // Validate that at least one milestone has a name (if any milestones exist)
     if (milestonesToSubmit.length > 0) {
       const invalidMilestones = milestonesToSubmit.filter(
         milestone => !milestone.name.trim()
@@ -235,13 +298,8 @@ const getProjectsData = async (projectId) => {
       }
     }
 
+    const projectId = localStorage.getItem("projectId");
 
-    
-const projectId = localStorage.getItem("projectId");
-
-
-
-    // Validate date ranges for milestones that have both dates
     const invalidDateRanges = milestonesToSubmit.filter(
       (m) =>
         m.startDate && m.endDate && new Date(m.endDate) < new Date(m.startDate)
@@ -256,17 +314,14 @@ const projectId = localStorage.getItem("projectId");
       return;
     }
 
-    // Prepare the milestone list
     const milestoneList = milestonesToSubmit.map((milestone) => ({
-  milestoneId: milestone.id === undefined || milestone.id === null ? 0 : milestone.id,
-
-  milestoneName: milestone.name.trim(),
-  milestoneDescription: milestone.description.trim(),
-  milestoneStartDate: milestone.startDate || null,
-  milestoneEndDate: milestone.endDate || null,
-  Status: milestone.status || "Planned",
-}));
-
+      milestoneId: (typeof milestone.id === 'number' && milestone.id > 0) ? milestone.id : 0,
+      milestoneName: milestone.name.trim(),
+      milestoneDescription: milestone.description.trim(),
+      milestoneStartDate: milestone.startDate || null,
+      milestoneEndDate: milestone.endDate || null,
+      Status: milestone.status || "Planned",
+    }));
 
     const payload = {
       projectId: parseInt(formData.projectId, 10),
@@ -282,8 +337,7 @@ const projectId = localStorage.getItem("projectId");
         Swal.fire({
           icon: "success",
           title: "Success!",
-          text:
-           response?.message,
+          text: response?.message,
           timer: 1500,
           showConfirmButton: false,
         });
@@ -306,9 +360,7 @@ const projectId = localStorage.getItem("projectId");
     }
   };
 
-
-
-    const handleTicketSubmission = async () => {
+  const handleTicketSubmission = async () => {
     const projectId = formData.projectId || localProjectId || parseInt(localStorage.getItem("projectId"));
     const createdBy = parseInt(localStorage.getItem("userRoleId"));
 
@@ -360,6 +412,12 @@ const projectId = localStorage.getItem("projectId");
       console.error("❌ Failed to create ticket or notification:", err);
     }
   };
+
+  // Sort milestones by order to ensure proper rendering
+  const sortedMilestones = formData.milestones 
+    ? [...formData.milestones].sort((a, b) => (a.order || 0) - (b.order || 0))
+    : [];
+
   return (
     <div className="timeline-milestone-page">
       <div className="container-fluid">
@@ -371,181 +429,132 @@ const projectId = localStorage.getItem("projectId");
           </div>
         </div>
 
-        <div className="form-section">
-          <table className="tbl mt-4 table table-bordered w-100">
-            <thead>
-              <tr>
-                <th className="text-center text-dark fs-18-500">S.No</th>
-                <th className="text-center text-dark fs-18-500">
-                  Milestone Name
-                </th>
-                <th className="text-center text-dark fs-18-500">Description</th>
-                <th className="text-center text-dark fs-18-500">Start Date</th>
-                <th className="text-center text-dark fs-18-500">End Date</th>
-                <th className="text-center text-dark fs-18-500">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {formData.milestones?.map((item,index) => (
-                <tr key={item.id}>
-                  <td className="text-center text-dark-gray fs-16-500">
-                    {index+1}
-                  </td>
-                  <td className="text-center text-dark-gray fs-16-500">
-                    <Form.Control
-                      type="text"
-                      className="border-1 shadow-none bg-transparent"
-                      value={item.name}
-                      onChange={(e) =>
-                        handleMilestoneChange(
-                          item.id,
-                          "name",
-                          e.target.value
-                        )
-                      }
-                      placeholder="Enter milestone name"
-                    />
-                  </td>
-                  <td className="text-center text-dark-gray fs-16-500">
-                    <Form.Control
-                      type="text"
-                      className="border-1 shadow-none bg-transparent"
-                      value={item.description}
-                      onChange={(e) =>
-                        handleMilestoneChange(
-                          item.id,
-                          "description",
-                          e.target.value
-                        )
-                      }
-                      placeholder="Enter description"
-                    />
-                  </td>
-                  <td className="text-center text-dark-gray fs-16-500">
-                    <div style={{ position: "relative" }}>
-                      <DatePicker
-                        selected={parseDate(item.startDate)}
-                        onChange={(date) => handleDateChange(item.id, "startDate", date)}
-                        className="form-control pe-3 border-1 shadow-none bg-transparent"
-                        dateFormat="d MMMM yyyy"
-                        placeholderText="Select date"
-                        style={{
-                          border: "1px solid #007bff",
-                          borderRadius: "6px",
-                          padding: "6px 12px",
-                          backgroundColor: "#fff",
-                          color: "#007bff",
-                          fontWeight: "500",
-                          textAlign: "center",
-                          width: "100%",
-                          cursor: "pointer",
-                        }}
-                      />
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        style={{
-                          position: "absolute",
-                          top: "50%",
-                          right: "25px",
-                          transform: "translateY(-50%)",
-                          pointerEvents: "none",
-                        }}
-                      >
-                        <path d="M7 10h5v5H7z" />
-                        <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z" />
-                      </svg>
-                    </div>
 
-
-                  </td>
-                  <td className="text-center text-dark-gray fs-16-500">
-                    <div style={{ position: "relative" }}>
-                      <DatePicker
-                        selected={parseDate(item.endDate)}
-                        onChange={(date) => handleDateChange(item.id, "endDate", date)}
-                        className="form-control pe-3 border-1 shadow-none bg-transparent"
-                        dateFormat="d MMMM yyyy"
-                        placeholderText="Select date"
-                        minDate={parseDate(item.startDate)}
-                        style={{
-                          border: "1px solid #007bff",
-                          borderRadius: "6px",
-                          padding: "6px 12px",
-                          backgroundColor: "#fff",
-                          color: "#007bff",
-                          fontWeight: "500",
-                          textAlign: "center",
-                          width: "100%",
-                          cursor: "pointer",
-                        }}
-                      />
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        style={{
-                          position: "absolute",
-                          top: "50%",
-                          right: "25px",
-                          transform: "translateY(-50%)",
-                          pointerEvents: "none",
-                        }}
-                      >
-                        <path d="M7 10h5v5H7z" />
-                        <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z" />
-                      </svg>
-                    </div>
-                  </td>
-                  <td className="text-center text-dark-gray fs-16-500">
-                    <Form.Select
-                      style={inputStyle}
-                      className="form-control border-1 shadow-none bg-transparent text-dark"
-                      value={item.status}
-                      onChange={(e) =>
-                        handleMilestoneChange(
-                          item.id,
-                          "status",
-                          e.target.value
-                        )
-                      }
-                    >
-                      <option value="Planned">Planned</option>
-                      <option value="In Progress">In Progress</option>
-                      <option value="Completed">Completed</option>
-                      <option value="Delayed">Delayed</option>
-                    </Form.Select>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          <div className="text-end mt-3">
-            <Button
-              onClick={handleAddMilestone}
-              className="text-primary bg-transparent border-0 fs-16-500 me-0 ms-auto"
-            >
-              + Add Row
-            </Button>
+        {sortedMilestones.length > 0 && (
+          <div className="form-section">
+            <div className="table-responsive">
+              <table className="tbl mt-4 table table-bordered w-100">
+                <thead>
+                  <tr>
+                    <th className="text-center text-dark fs-18-500">S.No</th>
+                    <th className="text-center text-dark fs-18-500">
+                      Milestone Name
+                    </th>
+                    <th className="text-center text-dark fs-18-500">Description</th>
+                    <th className="text-center text-dark fs-18-500">Start Date</th>
+                    <th className="text-center text-dark fs-18-500">End Date</th>
+                    <th className="text-center text-dark fs-18-500">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedMilestones.map((item, index) => (
+                    <tr key={item.id}>
+                      <td className="text-center text-dark-gray fs-16-500">
+                        {index + 1}
+                      </td>
+                      <td className="text-center text-dark-gray fs-16-500">
+                        <Form.Control
+                          type="text"
+                          className="border-1 shadow-none bg-transparent"
+                          value={item.name}
+                          onChange={(e) =>
+                            handleInternalMilestoneChange(
+                              item.id,
+                              "name",
+                              e.target.value
+                            )
+                          }
+                          placeholder="Enter milestone name"
+                        />
+                      </td>
+                      <td className="text-center text-dark-gray fs-16-500">
+                        <Form.Control
+                          type="text"
+                          className="border-1 shadow-none bg-transparent"
+                          value={item.description}
+                          onChange={(e) =>
+                            handleInternalMilestoneChange(
+                              item.id,
+                              "description",
+                              e.target.value
+                            )
+                          }
+                          placeholder="Enter description"
+                        />
+                      </td>
+                      <td className="text-center text-dark-gray fs-16-500">
+                        <div style={{ position: "relative" }}>
+                          <DatePicker
+                            selected={parseDate(item.startDate)}
+                            onChange={(date) => handleDateChange(item.id, "startDate", date)}
+                            className="form-control pe-3 border-1 shadow-none bg-transparent"
+                            dateFormat="d MMMM yyyy"
+                            placeholderText="Select start date"
+                            isClearable
+                            showYearDropdown
+                            showMonthDropdown
+                            dropdownMode="select"
+                          />
+                          <CiCalendar />
+                        </div>
+                      </td>
+                      <td className="text-center text-dark-gray fs-16-500">
+                        <div style={{ position: "relative" }}>
+                          <DatePicker
+                            selected={parseDate(item.endDate)}
+                            onChange={(date) => handleDateChange(item.id, "endDate", date)}
+                            className="form-control pe-3 border-1 shadow-none bg-transparent"
+                            dateFormat="d MMMM yyyy"
+                            placeholderText="Select end date"
+                            minDate={parseDate(item.startDate)}
+                            isClearable
+                            showYearDropdown
+                            showMonthDropdown
+                            dropdownMode="select"
+                          />
+                         <CiCalendar />
+                        </div>
+                      </td>
+                      <td className="text-center text-dark-gray fs-16-500">
+                        <Form.Select
+                          style={inputStyle}
+                          className="form-control border-1 shadow-none bg-transparent text-dark"
+                          value={item.status}
+                          onChange={(e) =>
+                            handleInternalMilestoneChange(
+                              item.id,
+                              "status",
+                              e.target.value
+                            )
+                          }
+                        >
+                          <option value="Planned">Planned</option>
+                          <option value="In Progress">In Progress</option>
+                          <option value="Completed">Completed</option>
+                          <option value="Delayed">Delayed</option>
+                        </Form.Select>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
-
+        )}
+        <div className="text-end mt-3">
+        <Button
+          className="text-primary bg-transparent border-0 fs-16-500 me-0 ms-auto"
+          onClick={handleAddMilestone}
+        >
+          + Add Row
+        </Button>
+      </div>
         <div className="d-flex justify-content-end mt-4">
-          {/* <Button
-            variant="primary"
-            onClick={() => setShowModal(true)}
-            disabled={formData.projectManager.length === 0}
-          >
-            Send To
-          </Button> */}
           <Button
             onClick={() => setShowModal(true)}
             disabled={formData.projectManager.length === 0}
-            className="btn-primary btn fs-14-600 bg-transparent text-primary border-0 border-radius-2">
+            className="btn-primary btn fs-14-600 bg-transparent text-primary border-0 border-radius-2"
+          >
             <svg
               className="me-2"
               width="20"
@@ -562,7 +571,7 @@ const projectId = localStorage.getItem("projectId");
             Send To
           </Button>
           <Button
-            className="btn-primary btn fs-14-600 bg-primary border-0 border-radius-2"
+            className="btn-primary btn fs-14-600 bg-primary border-0 border-radius-2 ms-2"
             onClick={handleSubmit}
             disabled={loading}
           >
@@ -571,6 +580,9 @@ const projectId = localStorage.getItem("projectId");
         </div>
 
         <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+          <Modal.Header closeButton>
+            <Modal.Title>Select Project Managers</Modal.Title>
+          </Modal.Header>
           <Modal.Body>
             {formData?.projectManager?.map((pm) => (
               <div key={pm.id} className="d-flex align-items-center mb-3">

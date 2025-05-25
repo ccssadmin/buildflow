@@ -2,6 +2,7 @@
     --primary-color : #FF6F00; 
     --gray-color : #C7C7C7;
     --light-gray : #E8E8E8;
+    --light-gray-1 : #BBBBBB;
     --silver-gray : #C1C1C1;
     --neutral-gray : #8E8E8E;
     --dark-gray-color : #606060;
@@ -28,6 +29,9 @@ body .text-primary {
 }
 .text-gray {
     color: var(--gray-color) !important;
+}
+.text-light-gray-1 {
+    color: var(--light-gray-1) !important;
 }
 .text-dark {
     color: var(--text-dark) !important;
@@ -107,6 +111,10 @@ body .bg-primary {
 .border-radius-10 {
     border-radius: 10px !important;
 }
+.border-1-silver-gray {
+    border: 1px solid var(--silver-gray);
+}
+
 .btn.btn-primary {
     width: 140px;
     display: flex;
@@ -122,7 +130,9 @@ body .bg-primary {
     justify-content: center;
 }
 
-
+.cursor-not-allowed{
+    cursor: not-allowed;
+}
 
 .title-1 {
     font-size: 26px;
@@ -216,6 +226,9 @@ body .bg-primary {
 .h44px {
     height: 44px !important;
 }
+.h48px {
+    height: 48px !important;
+}
 .h50px {
     height: 50px;
 }
@@ -226,6 +239,9 @@ body .bg-primary {
 .h24-w24 {
     height: 24px;
     width: 24px;
+}
+.w48 {
+    width: 48px;
 }
 .scrollbar-none::-webkit-scrollbar {
     width: 0px;
@@ -415,6 +431,15 @@ h5.sidenav-content__headings-lists--title {
 }
 .moveto-dropdown.emp-moveto.ispprovedtrue {
     display: block;
+}
+
+
+.ticket-comment {
+    border-bottom: 1px solid var(--gray-color);
+    padding-bottom: 12px;
+}
+.ticket-comment-main .ticket-comment:last-child {
+    border-bottom: none;
 }
 @media (max-width: 1440px) {
     

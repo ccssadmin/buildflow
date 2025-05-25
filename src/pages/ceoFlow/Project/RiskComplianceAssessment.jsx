@@ -21,6 +21,50 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
 
   const projectId = localStorage.getItem("projectId");
 
+  // Initial risk data
+  const initialRisks = [
+    {
+      id: 1,
+      category: "Complete excavation and concrete laying",
+      status: "Pending",
+      file: null,
+    },
+    {
+      id: 2,
+      category: "Environmental Clearance",
+      status: "Pending",
+      file: null,
+    },
+    {
+      id: 3,
+      category: "Labor Safety Measures",
+      status: "Pending",
+      file: null,
+    },
+    {
+      id: 4,
+      category: "PPE Compliance Checklists",
+      status: "Pending",
+      file: null,
+    },
+    {
+      id: 5,
+      category: "Legal Dispute Files",
+      status: "Pending",
+      file: null,
+    },
+  ];
+
+  // Initialize formData.risks with initial data if not already present
+  useEffect(() => {
+    if (!formData.risks || formData.risks.length === 0) {
+      setFormData((prev) => ({
+        ...prev,
+        risks: initialRisks,
+      }));
+    }
+  }, []);
+
   useEffect(() => {
     if (projectId) {
       getProjectsData(projectId);
@@ -33,7 +77,7 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
       const riskDetails = result?.payload?.value?.risk_management_data;
       console.log("Risk Details===>", riskDetails);
 
-      if (Array.isArray(riskDetails)) {
+      if (Array.isArray(riskDetails) && riskDetails.length > 0) {
         const risks = riskDetails.map((item) => ({
           riskId: item.risk_id,
           category: item.category_name,
@@ -46,13 +90,23 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
 
         setFormData((prev) => ({
           ...prev,
-          risks, // FIX: changed from "risk" to "risks"
+          risks, // Use backend data if available
         }));
       } else {
-        console.warn("No valid risk details found.");
+        // If no backend data, keep initial risks
+        console.warn("No valid risk details found, using initial data.");
+        setFormData((prev) => ({
+          ...prev,
+          risks: prev.risks || initialRisks,
+        }));
       }
     } catch (error) {
       console.error("Failed to fetch project details:", error);
+      // On error, ensure we have initial data
+      setFormData((prev) => ({
+        ...prev,
+        risks: prev.risks || initialRisks,
+      }));
     }
   };
 
@@ -60,7 +114,7 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
     const newRisk = {
       id:
         formData.risks.length > 0
-          ? formData.risks[formData.risks.length - 1].id + 1
+          ? Math.max(...formData.risks.map(r => r.id)) + 1
           : 1,
       category: "",
       status: "",
