@@ -101,9 +101,9 @@ const Report = () => {
                 <table className="tbl report-table">
                   <thead>
                     <tr>
-                      <th>Report ID</th>
+               
                       <th>Report Code</th>
-                      <th>Project ID</th>
+                      <th>Project Name</th>
                       <th>Report Type</th>
                       <th>Report Date</th>
                       <th>Reported By</th>
@@ -114,31 +114,34 @@ const Report = () => {
                     {reports && reports.length > 0 ? (
                       reports.map((report) => (
                         <tr key={report.reportid}>
-                          <td>{report.reportid}</td>
-                          <td>{report.reportcode}</td>
-                          <td>{report.projectid}</td>
-                          <td>{getReportTypeName(report.reporttype)}</td>
-                          <td>{new Date(report.reportdate).toLocaleDateString()}</td>
-                          <td>{report.reportedby || "N/A"}</td>
-                          <td>
-                            <button
-                              className="view-link"
-                              onClick={() => navigate(`/ceo/reportview/${report.reportid}`)}
-                            >
-                              View
-                            </button>
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan="7" className="no-data">
-                          No reports available for this category.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+      <td>{report.reportCode}</td>
+            <td>{report.projectName}</td>
+            <td>{report.reportTypeName}</td>
+         
+               <td>{report.reportDate}</td>
+                  <td>{report.reportedBy}</td>
+
+          <td onClick={() => navigate(`/ceo/reportview/${report.reportId}`)}>
+    <a
+      href="#"
+      className="view-link"
+      onClick={e => e.preventDefault()}
+    >
+      View
+    </a>
+  </td>
+
+          </tr>
+        ))
+      ) : (
+        <tr>
+          <td colSpan="5" className="no-data">
+            No reports available for this category.
+          </td>
+        </tr>
+      )}
+    </tbody>
+  </table>
               )}
             </div>
           </div>
