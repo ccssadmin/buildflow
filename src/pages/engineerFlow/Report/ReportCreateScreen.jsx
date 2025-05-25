@@ -471,7 +471,7 @@ const getProjectIdFromLocalStorage = () => {
               dateFormat="dd-MM-yyyy hh:mm a"
               showTimeSelect
               timeFormat="hh:mm a"
-              className="h48px border-radius-4 mb-4 w-100 cursor-not-allowed py-1 px-3 fs-16-500 bg-light text-dark border-1-silver-gray"
+              className="h48px border-radius-4 mb-4 w-100 py-1 px-3 fs-16-500 bg-light text-dark border-1-silver-gray"
               placeholderText="Select date and time"
             />
         </div>

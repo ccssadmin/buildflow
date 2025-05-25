@@ -45,6 +45,29 @@ const Report = () => {
     const reportType = reportTypes.find((type) => type.reportTypeId === typeId);
     return reportType ? reportType.reportType : typeId;
   };
+  const getInitials = (name) => {
+    if (!name) return "";
+    const words = name.trim().split(" ");
+    const first = words[0]?.[0]?.toUpperCase() || "";
+    const second = words[1]?.[0]?.toUpperCase() || "";
+    return first + second;
+  };
+
+  const getRandomColor = () => {
+    const colors = [
+      "#FF5733",
+      "#33B5E5",
+      "#8E44AD",
+      "#16A085",
+      "#E67E22",
+      "#2ECC71",
+      "#3498DB",
+      "#F39C12",
+      "#1ABC9C",
+      "#E74C3C",
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
+  };
 
   return (
     <Fragment>
@@ -116,7 +139,23 @@ const Report = () => {
                           <td>{report.projectName}</td>
                           <td>{report.reportTypeName}</td>
 
-                          <td>{report.reportedBy}</td>
+                          <td className="text-center">
+                            <div className="d-flex justify-content-center align-items-center gap-2">
+                              <div
+                                className="rounded-circle text-white d-flex align-items-center justify-content-center"
+                                style={{
+                                  width: "20px",
+                                  height: "20px",
+                                  fontSize: "8px",
+                                  backgroundColor: getRandomColor(),
+                                  flexShrink: 0,
+                                }}
+                              >
+                                {getInitials(report.reportedBy)}
+                              </div>
+                              <span>{report.reportedBy}</span>
+                            </div>
+                          </td>
 
                           <td
                             onClick={() =>
