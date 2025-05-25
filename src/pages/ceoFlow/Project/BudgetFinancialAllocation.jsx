@@ -22,95 +22,85 @@ const BudgetFinancialAllocation = ({
   const [showModal, setShowModal] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const { currentProject } = useSelector(state => state.project);
-   const dispatch= useDispatch();
+  const dispatch = useDispatch();
 
+  // Initial budget categories
+  const initialBudgetCategories = [
+    { id: "", category: "Employee Salary", estimatedCost: "", approvedBudget: "" },
+    { id: "", category: "Labor Cost", estimatedCost: "", approvedBudget: "" },
+    { id: "", category: "Material Cost", estimatedCost: "", approvedBudget: "" },
+    { id: "", category: "Equipment Cost", estimatedCost: "", approvedBudget: "" },
+    { id: "", category: "Subcontractors", estimatedCost: "", approvedBudget: "" },
+    { id: "", category: "Contingency", estimatedCost: "", approvedBudget: "" }
+  ];
 
-// const getProjectsData = async (projectId) => {
-//   const result = await dispatch(getProjectDetailsAction(projectId));
-//   if (result?.payload?.value?.project) {
-//     const step1 = result.payload.value.project;
-//     const budget_details = result.payload.value.budget_details;
+  const getProjectsData = async (projectId) => {
+    try {
+      const result = await dispatch(getProjectDetailsAction(projectId));
+      const budgetDetails = result?.payload?.value?.budget_details;
 
-//     const budgetBreakdown = budget_details.map((item) => ({
-//       id: item.project_budget_id,
-//       category: item.project_expense_category,
-//       estimatedCost: item.estimated_cost,
-//       approvedBudget: item.approved_budget,
-//     }));
+      if (Array.isArray(budgetDetails) && budgetDetails.length > 0) {
+        const budgetBreakdown = budgetDetails.map((item) => ({
+          id: item.project_budget_id,
+          category: item.project_expense_category,
+          estimatedCost: item.estimated_cost,
+          approvedBudget: item.approved_budget,
+        }));
 
-//     setFormData((prevState) => ({
-//       ...prevState,
-//       projectId: step1.project_id,
-//       projectName: step1.project_name,
-//       projectLocation: step1.project_location,
-//       projectType: step1.project_type_name,
-//       projectTypeId: step1.project_type_id,
-//       projectSectorId: step1.project_sector_id,
-//       projectStartDate: step1.project_start_date,
-//       projectEndDate: step1.project_end_date,
-//       projectStatus: step1.project_status,
-//       totalBudget: step1.project_total_budget,
-//       budgetBreakdown,
-//     }));
-
-//     console.log("✅ Project + Budget fetched:", step1.project_name);
-//   }
-// };
-
-
-const getProjectsData = async (projectId) => {
-  try {
-    const result = await dispatch(getProjectDetailsAction(projectId));
-    const budgetDetails = result?.payload?.value?.budget_details;
-
-    if (Array.isArray(budgetDetails)) {
-      const budgetBreakdown = budgetDetails.map((item) => ({
-        id: item.project_budget_id,
-        category: item.project_expense_category,
-        estimatedCost: item.estimated_cost,
-        approvedBudget: item.approved_budget,
-      }));
-
+        setFormData((prevState) => ({
+          ...prevState,
+          budgetBreakdown,
+        }));
+      } else {
+        // Initialize with default categories if no budget details found
+        setFormData((prevState) => ({
+          ...prevState,
+          budgetBreakdown: initialBudgetCategories,
+        }));
+        console.log("✅ Initialized with default budget categories");
+      }
+    } catch (error) {
+      console.error("Failed to fetch budget details:", error);
+      // Initialize with default categories on error
       setFormData((prevState) => ({
         ...prevState,
-        budgetBreakdown,
+        budgetBreakdown: initialBudgetCategories,
       }));
-    } else {
-      console.warn("No valid budget details found.");
     }
-  } catch (error) {
-    console.error("Failed to fetch budget details:", error);
-  }
-};
-useEffect(() => {
-  calculateTotalBudget();
-}, [formData.budgetBreakdown]);
-
+  };
 
   useEffect(() => {
-    // On component mount - get project ID from all possible sources
+    calculateTotalBudget();
+  }, [formData.budgetBreakdown]);
+
+  useEffect(() => {
+    // Initialize budget breakdown if empty
+    if (!formData.budgetBreakdown || formData.budgetBreakdown.length === 0) {
+      setFormData((prevState) => ({
+        ...prevState,
+        budgetBreakdown: initialBudgetCategories,
+      }));
+    }
+
+    // Get project ID and fetch data
     const getProjectId = () => {
-      // First check formData
       if (formData && formData.projectId) {
         console.log("🔍 Found projectId in formData:", formData.projectId);
         setLocalProjectId(formData.projectId);
         return formData.projectId;
       }
 
-      // Then check localStorage as backup
       const storedId = localStorage.getItem("projectId");
       if (storedId) {
         console.log("🔍 Found projectId in localStorage:", storedId);
         setLocalProjectId(parseInt(storedId));
 
-        // Update formData if needed
         if (!formData.projectId) {
           setFormData((prev) => ({
             ...prev,
             projectId: parseInt(storedId),
           }));
         }
-
         return parseInt(storedId);
       }
 
@@ -118,17 +108,11 @@ useEffect(() => {
       return null;
     };
 
+    const projectId = localStorage.getItem("projectId");
+    if (projectId) {
+      getProjectsData(projectId);
+    }
 
-
-
-
-
-const projectId = localStorage.getItem("projectId");
-getProjectsData(projectId);
-
-
-
-    // Alert if no project ID found
     if (!projectId) {
       Swal.fire({
         icon: "warning",
@@ -157,7 +141,7 @@ getProjectsData(projectId);
     const getFilteredRoles = async () => {
       try {
         const { success, data } = await fetchroles();
-        console.log("Roles fetched in BudgetFinancialAllocation:", data); // Add this log
+        console.log("Roles fetched in BudgetFinancialAllocation:", data);
         if (success && data) {
           const filtered = data.filter(
             (r) => r.roleName === "QS" || r.roleName === "Assistant QS" || r.roleName === "Head Finance"
@@ -172,35 +156,34 @@ getProjectsData(projectId);
     getFilteredRoles();
   }, []);
 
- useEffect(() => {
-  const getEmployees = async () => {
-    try {
-      const { success, data } = await fetchAllEmployees();
-      const roleName = getRoleNameById(formData.sendTo);
-      if (
-        success &&
-        data?.employeesByRole &&
-        data.employeesByRole[roleName]
-      ) {
-        setEmployees(data.employeesByRole[roleName]);
-      } else {
-        setEmployees([]);
+  useEffect(() => {
+    const getEmployees = async () => {
+      try {
+        const { success, data } = await fetchAllEmployees();
+        const roleName = getRoleNameById(formData.sendTo);
+        if (
+          success &&
+          data?.employeesByRole &&
+          data.employeesByRole[roleName]
+        ) {
+          setEmployees(data.employeesByRole[roleName]);
+        } else {
+          setEmployees([]);
+        }
+      } catch (error) {
+        console.error("Error fetching employees:", error);
       }
-    } catch (error) {
-      console.error("Error fetching employees:", error);
+    };
+
+    if (formData.sendTo) {
+      getEmployees();
     }
-  };
+  }, [formData.sendTo]);
 
-  if (formData.sendTo) {
-    getEmployees();
-  }
-}, [formData.sendTo]);
-
-  
   const handleTicketSubmission = async () => {
     const projectId = formData.projectId || localProjectId || parseInt(localStorage.getItem("projectId"));
-    const createdBy = parseInt(localStorage.getItem("userRoleId")); // This is CEO's user id (creator)
-  
+    const createdBy = parseInt(localStorage.getItem("userRoleId"));
+
     if (selectedUsers.length === 0) {
       Swal.fire({
         icon: "warning",
@@ -209,32 +192,32 @@ getProjectsData(projectId);
       });
       return;
     }
-  
+
     const ticketPayload = {
       projectId,
       ticketType: "budget",
       assignTo: selectedUsers,
       createdBy: createdBy,
     };
-  
+
     try {
-      const ticketResponse = await createTicket(ticketPayload); 
-      const ticketId = ticketResponse?.data?.data?.ticketId; 
-  
+      const ticketResponse = await createTicket(ticketPayload);
+      const ticketId = ticketResponse?.data?.data?.ticketId;
+
       if (!ticketId) {
         throw new Error("Ticket ID not returned from createTicket");
       }
-  
+
       const notificationPayload = {
         empId: selectedUsers,
         notificationType: "BOQ_Request",
         sourceEntityId: ticketId,
-        message: "We would like you to update BOQ’s for Project cost estimation on multiple Expense categories given.Kindly review and provide your confirmation at the earliest to avoid any delays in the process.",
+        message: "We would like you to update BOQ's for Project cost estimation on multiple Expense categories given.Kindly review and provide your confirmation at the earliest to avoid any delays in the process.",
       };
-  
+
       await createNotify(notificationPayload);
       console.log("🔔 Notification created");
-  
+
       Swal.fire({
         icon: "success",
         title: "Tickets and Notifications Created",
@@ -242,7 +225,7 @@ getProjectsData(projectId);
         timer: 1500,
         showConfirmButton: false,
       });
-  
+
       setShowModal(false);
     } catch (err) {
       console.error("❌ Failed to create ticket or notification:", err);
@@ -253,13 +236,12 @@ getProjectsData(projectId);
       });
     }
   };
-  
-  
+
   const calculateTotalBudget = () => {
-    const totalApprovedBudget = formData.budgetBreakdown.reduce((acc, item) => {
+    const totalApprovedBudget = formData.budgetBreakdown?.reduce((acc, item) => {
       const approved = parseFloat(item.approvedBudget) || 0;
       return acc + approved;
-    }, 0);
+    }, 0) || 0;
 
     setFormData((prev) => ({
       ...prev,
@@ -275,18 +257,15 @@ getProjectsData(projectId);
     }));
   };
 
-  const handleBudgetBreakdownChange = (id, field, value) => {
-  const updatedBreakdown = formData.budgetBreakdown.map((item, idx) =>
-    item.id === id || (!item.id && idx === id)
-      ? { ...item, [field]: value }
-      : item
-  );
-  setFormData((prev) => ({
-    ...prev,
-    budgetBreakdown: updatedBreakdown,
-  }));
-};
-
+  const handleBudgetBreakdownChange = (index, field, value) => {
+    const updatedBreakdown = formData.budgetBreakdown.map((item, idx) =>
+      idx === index ? { ...item, [field]: value } : item
+    );
+    setFormData((prev) => ({
+      ...prev,
+      budgetBreakdown: updatedBreakdown,
+    }));
+  };
 
   const handleAddRow = () => {
     setFormData((prev) => ({
@@ -320,16 +299,11 @@ getProjectsData(projectId);
         return;
       }
 
+      // Create budget breakdown including categories without values
       const cleanBudgetBreakdown = formData.budgetBreakdown
-        .filter(
-          (item) =>
-            item.category.trim() !== "" &&
-            (parseFloat(item.estimatedCost) > 0 ||
-              parseFloat(item.approvedBudget) > 0)
-        )
+        .filter((item) => item.category.trim() !== "") // Only filter out completely empty categories
         .map((item) => ({
-          projectBudgetId:
-      typeof item.id === "number" && item.id > 0 ? item.id : 0,
+          projectBudgetId: typeof item.id === "number" && item.id > 0 ? item.id : 0,
           projectExpenseCategory: item.category.trim(),
           estimatedCost: parseFloat(item.estimatedCost) || 0,
           approvedBudget: parseFloat(item.approvedBudget) || 0,
@@ -349,7 +323,7 @@ getProjectsData(projectId);
         Swal.fire({
           icon: "success",
           title: "Success",
-          text: response?.message ||"Budget created successfully!",
+          text: response?.message || "Budget created successfully!",
           timer: 2000,
           showConfirmButton: false,
         });
@@ -384,19 +358,18 @@ getProjectsData(projectId);
             <Form.Label className="fs-26-700 text-dark">
               Total Project Budget <span className="required">*</span>
             </Form.Label>
-           <Form.Control
-  type="text"
-  name="totalBudget"
-  value={formData.totalBudget || 0} // ✅ direct from API
-  readOnly
-/>
-
+            <Form.Control
+              type="text"
+              name="totalBudget"
+              value={formData.totalBudget || 0}
+              readOnly
+            />
           </Form.Group>
         </div>
 
         <div className="col-md-6">
           <Form.Group>
-            <Form.Label  className="fs-26-700 text-dark">
+            <Form.Label className="fs-26-700 text-dark">
               Send To <span className="required">*</span>
             </Form.Label>
             <Form.Select
@@ -427,8 +400,8 @@ getProjectsData(projectId);
             </tr>
           </thead>
           <tbody>
-            {formData.budgetBreakdown.map((item, index) => (
-              <tr key={`${item.id || index}`}>
+            {formData.budgetBreakdown?.map((item, index) => (
+              <tr key={index}>
                 <td>{index + 1}</td>
                 <td>
                   <Form.Control
@@ -441,7 +414,7 @@ getProjectsData(projectId);
                     value={item.category}
                     onChange={(e) =>
                       handleBudgetBreakdownChange(
-                        item.id,
+                        index,
                         "category",
                         e.target.value
                       )
@@ -460,12 +433,12 @@ getProjectsData(projectId);
                     value={item.estimatedCost}
                     onChange={(e) =>
                       handleBudgetBreakdownChange(
-                        item.id,
+                        index,
                         "estimatedCost",
                         e.target.value
                       )
                     }
-                    placeholder="0.00"
+                    placeholder=""
                   />
                 </td>
                 <td>
@@ -479,12 +452,12 @@ getProjectsData(projectId);
                     value={item.approvedBudget}
                     onChange={(e) =>
                       handleBudgetBreakdownChange(
-                        item.id,
+                        index,
                         "approvedBudget",
                         e.target.value
                       )
                     }
-                    placeholder="0.00"
+                    placeholder=""
                   />
                 </td>
               </tr>
@@ -503,8 +476,8 @@ getProjectsData(projectId);
       </div>
 
       <div className="d-flex justify-content-end mt-4">
-       
-        <Button className="btn-primary btn fs-14-600 bg-transparent text-primary border-0 border-radius-2"
+        <Button 
+          className="btn-primary btn fs-14-600 bg-transparent text-primary border-0 border-radius-2"
           onClick={async () => {
             const selectedRole = filteredRoles.find(
               (role) => role.roleId === parseInt(formData.sendTo)
@@ -535,7 +508,7 @@ getProjectsData(projectId);
             }
 
             setEmployees(data.employeesByRole[roleName]);
-            setShowModal(true); // open the modal
+            setShowModal(true);
           }}
         >
           <svg
@@ -561,6 +534,7 @@ getProjectsData(projectId);
           {loading ? "Saving..." : "Next >"}
         </Button>
       </div>
+
       <Modal
         show={showModal}
         className="model-approvel-send"

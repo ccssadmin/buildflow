@@ -546,6 +546,12 @@
     padding-bottom: 0px;
     text-align: center;
 }
+
+.page-ceo-createproject .vendors-multiselect span.allocate-status, .page-ceo-createproject .subcontractors-multiselect span.allocate-status {
+    display: none;
+}
+
+
 /* Responsive Styles */
 @media (max-width: 768px) {
     .page-ceo-createproject .progress-steps {
