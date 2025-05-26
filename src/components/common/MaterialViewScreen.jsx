@@ -9,6 +9,8 @@ import { faDownload } from "@fortawesome/free-solid-svg-icons";
 import { getBoqDetails } from "../../services";
 import { toast } from "react-toastify";
 import * as XLSX from "xlsx";  // Import the xlsx library
+import MultipleSelect from "../DropDown/MultipleSelect";
+
 
 const MaterialViewScreen = () => {
   const navigate = useNavigate();
@@ -16,6 +18,8 @@ const MaterialViewScreen = () => {
   const location = useLocation();
   const [boqDetails, setboqDetails] = useState("");
   const { ticket } = location.state || {};
+  const [boqApprovers, setBoqApprovers] = useState([]);
+
   const boqData = [
     {
       id: "01",
@@ -125,21 +129,30 @@ const MaterialViewScreen = () => {
   console.log("boqDetails", boqDetails);
   console.log("location", location);
 
-  const getBOQDetails = async (boqId) => {
-    console.log("boqId", typeof boqId, boqId);
-    const response = await getBoqDetails(Number(boqId));
-    if (response?.status === 204 || response?.status === 500) {
-      toast.warning("No Data Found");
-      return;
-    }
-    if (response?.data) {
-      console.log("response.data", response.data);
-      setboqDetails(response.data);
-    }
-    // Fetch the BOQ details using the boqId
-    // You can use an API call here to get the details based on the boqId
-    console.log("response:", response);
-  };
+ const getBOQDetails = async (boqId) => {
+  console.log("boqId", typeof boqId, boqId);
+  const response = await getBoqDetails(Number(boqId));
+  if (response?.status === 204 || response?.status === 500) {
+    toast.warning("No Data Found");
+    return;
+  }
+
+  if (response?.data) {
+    console.log("response.data", response.data);
+    setboqDetails(response.data);
+
+    // ✅ Extract approvers and map for display
+    const approversMapped = (response.data.approvers || []).map((emp) => ({
+      ...emp,
+      label: emp.roleName,
+      value: emp.roleName,
+    }));
+    setBoqApprovers(approversMapped);  // <-- This line adds approver data
+  }
+
+  console.log("response:", response);
+};
+
 
   const isValidforApproval = () => {
     const path = location.pathname.split("/").slice(1);
@@ -236,19 +249,16 @@ const MaterialViewScreen = () => {
           </Form.Group>
         </div>
         <div className="col-md-6">
-          <Form.Group className="mb-3">
-            <Form.Label className="text-black fs-5">Send Approve</Form.Label>
-            <Dropdown>
-              <Dropdown.Toggle disabled className="w-100 text-start border-1 custom-dropdown">
-                CEO <RiArrowDropDownLine />
-              </Dropdown.Toggle>
+     <Form.Group className="mb-3">
+  <Form.Label className="text-black fs-5">Send Approve</Form.Label>
+  <MultipleSelect
+    placeholder="Approved By"
+    selectedOptions={boqApprovers}
+    disabled
+    isMulti={true}
+  />
+</Form.Group>
 
-              <Dropdown.Menu>
-                <Dropdown.Item>Manager</Dropdown.Item>
-                <Dropdown.Item>Director</Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
-          </Form.Group>
         </div>
       </div>
 

@@ -17,7 +17,7 @@
 }
 .bg-orange .text-center{
   background-color: #FF6F00 !important;
-  color:#fff;
+  color:#fff !important;
 }
 
 .form-title {
@@ -54,6 +54,57 @@
 }
 .icon{
   color:white !important;
+}
+
+.boq-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.boq-table th {
+  padding: 10px;
+  background-color: #ff8c00; /* orange color */
+}
+
+.boq-table td {
+  padding: 5px;
+  vertical-align: middle;
+}
+
+/* Remove any borders from cells */
+.cell-no-border {
+  border: none !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Style inputs to remove borders and backgrounds */
+.input-no-border {
+  width: 100%;
+  border: none !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+  padding: 5px;
+}
+
+.input-no-border:focus {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+
+.boq-table, .boq-table th, .boq-table td {
+  border: 1px solid #dee2e6; /* light gray border */
+}
+
+.boq-table.no-borders, 
+.boq-table.no-borders th, 
+.boq-table.no-borders td {
+  border: none !important;
 }
 
 @media (max-width: 768px) {

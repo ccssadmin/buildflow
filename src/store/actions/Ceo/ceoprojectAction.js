@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { crateFinanceApproved, createceoproject, createProjectBudget, createProjectMilestone, createProjectTeam, getAllProjectByFilter, getPmProjectDetails, getProjectDetails, getProjectTypeSector } from "../../../services";
-
+const BASE_URL = process.env.REACT_APP_MASTER_API_BASE_URL;
 
 // Get PM Project Details
 export const getPmProject = createAsyncThunk(
@@ -19,6 +19,33 @@ export const getProjectTypeSectorAction = createAsyncThunk(
   }
 );
 
+
+//delete project 
+
+export const deleteProjectAction = createAsyncThunk(
+  'project/delete',
+  async (projectId) => {
+    const token = localStorage.getItem('accessToken');
+
+    const response = await fetch(`${BASE_URL}/api/Project/Delete-project/${projectId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to delete project');
+    }
+
+    const data = await response.json(); // Assuming server returns a JSON response
+    return data;
+  }
+);
+
+
+
 // Create Project
 export const createCeoProjectAction = createAsyncThunk(
   "project/create",
@@ -28,7 +55,6 @@ export const createCeoProjectAction = createAsyncThunk(
   }
 );
 
-//Create Project Budget
 
 // ceoprojectAction.js
 export const createProjectBudgetAction = createAsyncThunk(

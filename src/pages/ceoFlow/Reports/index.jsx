@@ -42,8 +42,31 @@ const Report = () => {
 
   // Get report type name based on reporttype ID
   const getReportTypeName = (typeId) => {
-    const reportType = reportTypes.find(type => type.reportTypeId === typeId);
+    const reportType = reportTypes.find((type) => type.reportTypeId === typeId);
     return reportType ? reportType.reportType : typeId;
+  };
+  const getInitials = (name) => {
+    if (!name) return "";
+    const words = name.trim().split(" ");
+    const first = words[0]?.[0]?.toUpperCase() || "";
+    const second = words[1]?.[0]?.toUpperCase() || "";
+    return first + second;
+  };
+
+  const getRandomColor = () => {
+    const colors = [
+      "#FF5733",
+      "#33B5E5",
+      "#8E44AD",
+      "#16A085",
+      "#E67E22",
+      "#2ECC71",
+      "#3498DB",
+      "#F39C12",
+      "#1ABC9C",
+      "#E74C3C",
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
   };
 
   return (
@@ -102,10 +125,8 @@ const Report = () => {
                   <thead>
                     <tr>
                       <th>Report ID</th>
-                      <th>Report Code</th>
-                      <th>Project ID</th>
-                      <th>Report Type</th>
-                      <th>Report Date</th>
+                      <th>Project</th>
+                      <th>Type</th>
                       <th>Reported By</th>
                       <th>Action</th>
                     </tr>
@@ -114,25 +135,46 @@ const Report = () => {
                     {reports && reports.length > 0 ? (
                       reports.map((report) => (
                         <tr key={report.reportid}>
-                          <td>{report.reportid}</td>
-                          <td>{report.reportcode}</td>
-                          <td>{report.projectid}</td>
-                          <td>{getReportTypeName(report.reporttype)}</td>
-                          <td>{new Date(report.reportdate).toLocaleDateString()}</td>
-                          <td>{report.reportedby || "N/A"}</td>
-                          <td>
-                            <button
+                          <td>{report.reportCode}</td>
+                          <td>{report.projectName}</td>
+                          <td>{report.reportTypeName}</td>
+
+                          <td className="text-center">
+                            <div className="d-flex justify-content-center align-items-center gap-2">
+                              <div
+                                className="rounded-circle text-white d-flex align-items-center justify-content-center"
+                                style={{
+                                  width: "20px",
+                                  height: "20px",
+                                  fontSize: "8px",
+                                  backgroundColor: getRandomColor(),
+                                  flexShrink: 0,
+                                }}
+                              >
+                                {getInitials(report.reportedBy)}
+                              </div>
+                              <span>{report.reportedBy}</span>
+                            </div>
+                          </td>
+
+                          <td
+                            onClick={() =>
+                              navigate(`/ceo/reportview/${report.reportId}`)
+                            }
+                          >
+                            <a
+                              href="#"
                               className="view-link"
-                              onClick={() => navigate(`/ceo/reportview/${report.reportid}`)}
+                              onClick={(e) => e.preventDefault()}
                             >
                               View
-                            </button>
+                            </a>
                           </td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="7" className="no-data">
+                        <td colSpan="5" className="no-data">
                           No reports available for this category.
                         </td>
                       </tr>
