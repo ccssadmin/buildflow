@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
+  createDailyReportAttachmentAction,
   createReportAttachmentAction,
   getNewReportCode,
   uploadReportAttachments,
@@ -23,7 +24,7 @@ function ReportCreateScreen() {
   const navigate = useNavigate();
    const { projects = [] } = useSelector((state) => state.project);
 
-  const [attachedFile, setAttachedFile] = useState(null);
+  const [attachedFile, setAttachedFile] = useState([]);
   const [formErrors, setFormErrors] = useState({});
   const { newReportCode } = useSelector((state) => state.report);
   const { uploadMessage, error } = useSelector((state) => state.report);;
@@ -176,6 +177,8 @@ const getProjectIdFromLocalStorage = () => {
       reportDate: date ? date.toISOString().slice(0, 10) : "",
     });
   };
+
+
 // Extracts initials from the name
   const getInitials = (name) => {
     if (!name) return "";
@@ -298,7 +301,6 @@ const getProjectIdFromLocalStorage = () => {
     };
     setIssueRiskRows([...issueRiskRows, newRow]);
   };
-  
 
   const handlePhotoUpload = (e, rowId) => {
     const file = e.target.files[0];
@@ -312,12 +314,12 @@ const getProjectIdFromLocalStorage = () => {
   };
   
 const handleAttachedFileUpload = (e) => {
-  const file = e.target.files[0];
-  if (file instanceof File) {
-    console.log("File selected:", file);
-    setAttachedFile(file);
+  const files = Array.from(e.target.files);
+  if (files.length > 0) {
+    console.log("Files selected:", files);
+    setAttachedFile(files);
   } else {
-    console.warn("Not a valid File object:", file);
+    console.warn("Not a valid File object:", files);
   }
 };
 
@@ -364,7 +366,7 @@ const handleAttachedFileUpload = (e) => {
     };
 
     const reportIdNumeric =
-      parseInt(reportData.reportId.replace(/\D/g, "")) || 0;
+    parseInt(reportData.reportId.replace(/\D/g, "")) || 0;
 
     const updatedReportData = {
       reportId: 0,
@@ -385,23 +387,32 @@ const handleAttachedFileUpload = (e) => {
         toast.success("Report created successfully!");
         const reportId = resultAction.payload.reportId;
 
-    if (attachedFile) {
+   if (attachedFile.length > 0) {
   const formData = new FormData();
-  formData.append("files", attachedFile);
+  attachedFile.forEach((file) => formData.append("files", file));
   dispatch(createReportAttachmentAction({ reportId, files: formData }));
 }
 
-        for (const row of dailyProgressRows) {
-          if (row.photo) {
-            const rowFormData = new FormData();
-            rowFormData.append("files", row.photo);
-            rowFormData.append("section", "dailyprogresssummary");
-            rowFormData.append("rowId", row.id);
-            dispatch(
-              createReportAttachmentAction({ reportId, files: rowFormData })
-            );
-          }
-        }
+
+const sNoArray = [];
+const fileList = [];
+
+dailyProgressRows.forEach((row) => {
+  if (row.photo) {
+    sNoArray.push(row.id);
+    fileList.push(row.photo);
+  }
+});
+
+if (fileList.length > 0) {
+  dispatch(
+    createDailyReportAttachmentAction({
+      reportId,
+      sNoArray,
+      fileList,
+    })
+  );
+}
 
         navigate("/admin/engineerreport", { state: resultAction.payload });
       } else {
@@ -425,13 +436,10 @@ const handleAttachedFileUpload = (e) => {
     }
   };
 
-
-
   const getReportTypeNameById = (id) => {
   const found = reportTypes.find(type => type.reportTypeId.toString() === id.toString());
   return found ? found.reportType : "Unknown";
-};
-
+  };
 
   return (
     <div className="report-container">
@@ -471,17 +479,17 @@ const handleAttachedFileUpload = (e) => {
         </div>
         <div className="col-sm-12 col-md-6 col-lg-4">
           <label className="text-dark fs-20-500 d-block mb-2">Project</label>
-          <input
-  className="h48px border-radius-4 mb-4 w-100 cursor-not-allowed py-1 px-3 fs-16-500 bg-light text-dark border-1-silver-gray"
-  disabled
-  type="text"
-  value={
-    projects.find((proj) => proj.project_id === reportData.project)?.project_name || ''
-  }
-  placeholder="Project"
-  name="project"
-  readOnly
-/>
+        <input
+        className="h48px border-radius-4 mb-4 w-100 cursor-not-allowed py-1 px-3 fs-16-500 bg-light text-dark border-1-silver-gray"
+        disabled
+        type="text"
+        value={
+        projects.find((proj) => proj.project_id === reportData.project)?.project_name || ''
+        }
+        placeholder="Project"
+        name="project"
+        readOnly
+        />
 
         </div>
         <div className="col-sm-12 col-md-6 col-lg-4">
@@ -535,12 +543,10 @@ const handleAttachedFileUpload = (e) => {
         </div>
       </div>
 
-      
-
       {/* Daily Progress Summary */}
       <div className="report-section">
         <div className="section-header">
-          <h3>Daily Progress Summary</h3>
+        <h3>Daily Progress Summary</h3>
         </div>
         <div className="report-table">
           <table>
@@ -586,6 +592,8 @@ const handleAttachedFileUpload = (e) => {
                       }
                     />
                   </td>
+
+
                   <td>
                     <div className="upload-container">
                       <label className="upload-btn">
@@ -602,6 +610,8 @@ const handleAttachedFileUpload = (e) => {
                       )}
                     </div>
                   </td>
+
+
                 </tr>
               ))}
             </tbody>
@@ -839,25 +849,23 @@ const handleAttachedFileUpload = (e) => {
             <span>Choose File</span>
             <input
               type="file"
+              multiple
               onChange={handleAttachedFileUpload}
               style={{ display: "none" }}
             />
           </label>
         </div>
-
           {/* ✅ Show upload result */}
   {uploadMessage && (
     <div className="mt-2 text-success">
       ✅ {uploadMessage}
     </div>
   )}
-
   {error && typeof error === 'string' && (
     <div className="mt-2 text-danger">
       ⚠️ {error}
     </div>
   )}
-
       </div>
 
       {/* Form Buttons */}
