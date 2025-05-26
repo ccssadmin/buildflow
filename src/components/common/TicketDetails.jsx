@@ -77,30 +77,7 @@ const EngineerTicketDetails = () => {
     fetchEmployeesByDepartment,
   } = useDepartments();
 
-  const [comments, setComments] = useState([
-    {
-      id: 1,
-      user: "Surya Pratha",
-      role: "Finance Head",
-      avatar: "SP",
-      avatarColor: "danger",
-      time: "12:00",
-      status: "Declined",
-      statusColor: "danger",
-      content: "This quotation not accepted",
-      files: [],
-    },
-    {
-      id: 2,
-      user: "Vicky Keerthana",
-      role: "Site Engineer",
-      avatar: "VK",
-      avatarColor: "info",
-      content:
-        "First Milestone cement is finished. I want second phase of cements.",
-      files: [],
-    },
-  ]);
+  const [comments, setComments] = useState([]);
   useEffect(() => {
     dispatch(getVendorsAndSubcontractors());
   }, [dispatch]);
@@ -134,6 +111,31 @@ const EngineerTicketDetails = () => {
     { id: 5, text: "Review", color: "secondary" },
     { id: 6, text: "Completed", color: "primary" },
   ]);
+  // Get initials from full name
+  const getInitial = (name) => {
+    if (!name) return "";
+    const words = name.trim().split(" ");
+    const first = words[0]?.charAt(0).toUpperCase() || "";
+    const second = words[1]?.charAt(0).toUpperCase() || "";
+    return first + second;
+  };
+
+  // Generate a random background color
+  const getRandomColor = () => {
+    const colors = [
+      "#FF5733",
+      "#33B5E5",
+      "#8E44AD",
+      "#16A085",
+      "#E67E22",
+      "#2ECC71",
+      "#3498DB",
+      "#F39C12",
+      "#1ABC9C",
+      "#E74C3C",
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
+  };
 
   // Show label selector
   const [showLabelSelector, setShowLabelSelector] = useState(false);
@@ -402,35 +404,36 @@ const EngineerTicketDetails = () => {
     const empId = userData?.empId;
     const vendorId = userData?.vendorId;
     const ticketId = ticketData?.ticket_id;
-     const roleName = userData?.roleName?.toLowerCase();
+    const roleName = userData?.roleName?.toLowerCase();
     console.log("EmpID =>", empId);
     console.log();
     console.log("Employee ID For Ticket Comment:", empId);
 
-  if (roleName === "vendor" && !vendorId) {
-  showToastNotification("Vendor ID is missing.");
-  return;
-}
-if (roleName !== "vendor" && !empId) {
-  showToastNotification("Employee ID is missing.");
-  return;
-}
-if (!ticketId) {
-  showToastNotification("Ticket ID is missing.");
-  return;
-}
+    if (roleName === "vendor" && !vendorId) {
+      showToastNotification("Vendor ID is missing.");
+      return;
+    }
+    if (roleName !== "vendor" && !empId) {
+      showToastNotification("Employee ID is missing.");
+      return;
+    }
+    if (!ticketId) {
+      showToastNotification("Ticket ID is missing.");
+      return;
+    }
 
-const formData = new FormData();
-formData.append("TicketId", ticketId);
-formData.append("Comment", commentText.trim());
+    const formData = new FormData();
+    formData.append("TicketId", ticketId);
+    formData.append("Comment", commentText.trim());
 
-const createdBy = roleName === "vendor" ? vendorId : empId;
-formData.append("CreatedBy", createdBy);
-formData.append("CreatedByType", roleName === "vendor" ? "Vendor" : "Employee");
+    const createdBy = roleName === "vendor" ? vendorId : empId;
+    formData.append("CreatedBy", createdBy);
+    formData.append(
+      "CreatedByType",
+      roleName === "vendor" ? "Vendor" : "Employee"
+    );
 
-
-console.log("Employee roleName", roleName);
-
+    console.log("Employee roleName", roleName);
 
     // Append each file as fileUpload
     [...uploadedFiles, ...uploadedImages].forEach((fileObj) => {
@@ -704,6 +707,26 @@ console.log("Employee roleName", roleName);
   const createdby = ticketData?.created_by;
   const approved_status = ticketData?.isapproved;
   const ticket_type = ticketData?.ticket_type;
+  const vendorId = ticketData?.vendorId;
+  const vendorName = ticketData?.vendorName;
+
+// Only the matching vendor as an option
+const filteredVendors = vendors.filter((vendor) => vendor.id === vendorId);
+
+// Convert to Select option format
+const vendorOptions = filteredVendors.map((vendor) => ({
+  label: vendor.vendorName,
+  value: vendor.id,
+}));
+
+// Get selected value if chosen
+const selectedOption = selectedVendor
+  ? {
+      label: selectedVendor.vendorName,
+      value: selectedVendor.id,
+    }
+  : null;
+
   const customMenuList = (props) => {
     return (
       <components.MenuList {...props}>
@@ -1096,7 +1119,7 @@ console.log("Employee roleName", roleName);
             <div className="py-3">{renderTicketDetails(ticketData)}</div>
 
             {/* Tabs */}
-            <div className="border-bottom-0 mb-2 overflow-auto">
+            <div className="border-bottom-0 mb-2 overflow-auto comments-container">
               <Nav
                 className="border-bottom-0 flex-nowrap"
                 style={{ whiteSpace: "nowrap" }}
@@ -1186,27 +1209,30 @@ console.log("Employee roleName", roleName);
 
             {/* Comments Tab Content */}
             {(activeTab === "all" || activeTab === "comments") && (
-              <div className="mt-4">
+              <div className="mt-4 ticket-comment-main">
                 {ticketData?.commentsAndAttachments?.map((comment, index) => (
-                  <div key={comment.id} className="d-flex mb-4">
+                  <div key={comment.id} className="d-flex mb-4 ticket-comment">
                     <div className="me-2">
                       <div
-                        className={`rounded-circle bg-${comment.avatarColor} text-white d-flex align-items-center justify-content-center`}
+                        className="rounded-circle text-white d-flex align-items-center justify-content-center"
                         style={{
                           width: "36px",
                           height: "36px",
                           fontSize: "16px",
                           flexShrink: 0,
+                          backgroundColor: getRandomColor(), // Random background color
                         }}
                       >
-                        {comment.avatar}
+                        {getInitial(comment.created_by_name)}
                       </div>
                     </div>
                     <div style={{ width: "100%" }}>
                       <div className="d-flex align-items-center flex-wrap">
-                        <span className="fw-bold">{comment.user}</span>
+                        <span className="fw-bold">
+                          {comment.created_by_name}
+                        </span>
                         <span className="text-muted ms-2 small">
-                          {comment.role}
+                          {comment.created_by_role}
                         </span>
                         {comment.time && (
                           <span className="text-muted ms-2 small">
@@ -1230,7 +1256,7 @@ console.log("Employee roleName", roleName);
                       </div>
 
                       {comment.filename && comment.file_path && (
-                        <div className="mt-2 p-2 bg-light rounded">
+                        <div className="mt-2 p-2">
                           <div className="d-flex align-items-center mb-1">
                             <BsPaperclip className="me-1" size={12} />
                             <small className="text-muted">Attached File:</small>
@@ -1674,11 +1700,13 @@ console.log("Employee roleName", roleName);
                 className={`department-employee-selector border-bottom pb-3`}
               >
                 {/* Employee Selector */}
-                <div className={`mb-3 d-flex justify-content-between align-items-center flex-wrap ${
-                  ticket_type === "BOQ_APPROVAL" || ticket_type === "submit"
-                    ? "d-block"
-                    : "d-none"
-                }`}>
+                <div
+                  className={`mb-3 d-flex justify-content-between align-items-center flex-wrap ${
+                    ticket_type === "BOQ_APPROVAL" || ticket_type === "submit"
+                      ? "d-block"
+                      : "d-none"
+                  }`}
+                >
                   <span className="text-muted">Move To Employee</span>
                   <div style={{ justifyContent: "end", width: "300px" }}>
                     <Select
@@ -1708,31 +1736,20 @@ console.log("Employee roleName", roleName);
                   <span className="text-muted">Move To Vendor</span>
                   <div style={{ justifyContent: "end", width: "300px" }}>
                     <Select
-                      options={vendors.map((vendor) => ({
-                        label: vendor.vendorName,
-                        value: vendor.id,
-                      }))}
-                      placeholder="Select Vendor"
-                      value={
-                        selectedVendor
-                          ? {
-                              label: selectedVendor.vendorName,
-                              value: selectedVendor.id,
-                            }
-                          : null
-                      }
-                      onChange={(option) => {
-                        const vendor = vendors.find(
-                          (v) => v.id === option.value
-                        );
-                        setSelectedVendor(vendor);
-                        // Clear employee selection when vendor is selected
-                        if (option) {
-                          setSelectedEmployee(null);
-                        }
-                      }}
-                      isSearchable={true}
-                    />
+  options={vendorOptions}
+  placeholder="Select Vendor"
+  value={selectedOption} // Shows the selected item
+  onChange={(option) => {
+    const vendor = vendors.find((v) => v.id === option.value);
+    setSelectedVendor(vendor);
+    if (option) {
+      setSelectedEmployee(null);
+    }
+  }}
+  isSearchable={false}
+/>
+
+
                   </div>
                 </div>
 
@@ -1752,11 +1769,11 @@ console.log("Employee roleName", roleName);
               </div>
             </div>
             {/* Approved By */}
-            <div className={`approve-reject mb-3 mt-3 d-flex justify-content-between align-items-center border-bottom pb-3 pt-3 
-    ${hasUserApprovedStatusShow ? "d-none" : "d-block"} ${empId === createdby ? "same" : "not-same"} ${approved_status === 1
-                  ? "d-none"
-                  : "d-block"
-              }`}
+            <div
+              className={`approve-reject mb-3 mt-3 d-flex justify-content-between align-items-center border-bottom pb-3 pt-3 
+    ${hasUserApprovedStatusShow ? "d-none" : "d-block"} ${
+                empId === createdby ? "same" : "not-same"
+              } ${approved_status === 1 ? "d-none" : "d-block"}`}
             >
               <span className="text-muted">Action</span>
               <div className="d-flex align-items-center">
@@ -2004,5 +2021,4 @@ console.log("Employee roleName", roleName);
     </Container>
   );
 };
-
 export default EngineerTicketDetails;
