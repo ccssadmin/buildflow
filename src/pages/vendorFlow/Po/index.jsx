@@ -42,9 +42,12 @@ export default function VendorPurchaseOrder() {
     }
   };
 
-  const getStatusText = (status) => {
-    return status === null ? "Pending" : status;
-  };
+ const getStatusText = (status) => {
+  if (status === null) return "Pending";
+  if (status.toLowerCase() === "completed") return "Delivery";
+  return status;
+};
+
 
   return (
     <div className="container mt-4">

@@ -30,4 +30,21 @@ export const getNewBoqId = createAsyncThunk(
   }
 );
 
+// actions/Engineer/getEmployeeRoles.js
+
+
+
+export const getEmployeeRoles = createAsyncThunk(
+  "boq/getEmployeeRoles",
+  async (projectId, { rejectWithValue }) => {
+    try {
+      const response = await api.GET(
+        `/api/Project/get-ProjectTeamDetailsByProjectId/${projectId}`
+      );
+      return response.data.value;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Failed to fetch employee roles");
+    }
+  }
+);
 

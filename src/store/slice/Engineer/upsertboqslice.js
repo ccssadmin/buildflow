@@ -1,13 +1,12 @@
-// features/boq/boqSlice.js
-
 import { createSlice } from "@reduxjs/toolkit";
-import { getNewBoqId, upsertBoq } from "../../actions/Engineer/upsertboqaction";
+import { getEmployeeRoles, getNewBoqId, upsertBoq } from "../../actions/Engineer/upsertboqaction";
 
 const initialState = {
   loading: false,
   error: null,
   boqId: null,
   boqData: null,
+  employeeRoles: null, // ✅ New state
 };
 
 const boqSlice = createSlice({
@@ -19,11 +18,11 @@ const boqSlice = createSlice({
       state.error = null;
       state.boqId = null;
       state.boqData = null;
+      state.employeeRoles = null; // ✅ Reset role data
     },
   },
   extraReducers: (builder) => {
     builder
-
       // getNewBoqId handlers
       .addCase(getNewBoqId.pending, (state) => {
         state.loading = true;
@@ -48,6 +47,20 @@ const boqSlice = createSlice({
         state.boqData = action.payload;
       })
       .addCase(upsertBoq.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // ✅ getEmployeeRoles handlers
+      .addCase(getEmployeeRoles.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getEmployeeRoles.fulfilled, (state, action) => {
+        state.loading = false;
+        state.employeeRoles = action.payload;
+      })
+      .addCase(getEmployeeRoles.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
