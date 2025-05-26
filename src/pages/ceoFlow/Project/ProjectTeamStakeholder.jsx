@@ -1,19 +1,19 @@
-"use client"
+"use client";
 
-import { useEffect, useState, useRef } from "react"
-import { Form, Row, Col, Button, Spinner, Table, Modal } from "react-bootstrap"
-import { useRoleBasedEmp } from "../../../hooks/Ceo/useRoleBasedEmp"
-import { useProject } from "../../../hooks/Ceo/useCeoProject"
-import Swal from "sweetalert2"
+import { useEffect, useState, useRef } from "react";
+import { Form, Row, Col, Button, Spinner, Table, Modal } from "react-bootstrap";
+import { useRoleBasedEmp } from "../../../hooks/Ceo/useRoleBasedEmp";
+import { useProject } from "../../../hooks/Ceo/useCeoProject";
+import Swal from "sweetalert2";
 import {
   createProjectFinanceApprovedAction,
   createProjectTeamAction,
   getProjectDetailsAction,
-} from "../../../store/actions/Ceo/ceoprojectAction"
-import { useDispatch } from "react-redux"
-import { useNavigate } from "react-router-dom"
-import { profile } from "../../../assets/images"
-import { getAllEmployeesByRolesAction } from "../../../store/actions/Ceo/RoleBasedEmpAction"
+} from "../../../store/actions/Ceo/ceoprojectAction";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { profile } from "../../../assets/images";
+import { getAllEmployeesByRolesAction } from "../../../store/actions/Ceo/RoleBasedEmpAction";
 
 const ProjectTeamStakeholder = ({
   formData,
@@ -36,40 +36,44 @@ const ProjectTeamStakeholder = ({
     loading,
     fetchAllEmployees,
     fetchVendorsAndSubcontractors,
-  } = useRoleBasedEmp()
+  } = useRoleBasedEmp();
 
-  const { createProjectteams, createProjectFinanceApprove, loading: projectActionLoading } = useProject()
+  const {
+    createProjectteams,
+    createProjectFinanceApprove,
+    loading: projectActionLoading,
+  } = useProject();
 
-  const [dataLoaded, setDataLoaded] = useState(false)
-  const [localDropdownVisible, setLocalDropdownVisible] = useState({})
-  const [submitLoading, setSubmitLoading] = useState(false)
-  const [errorMessage, setErrorMessage] = useState(null)
-  const [permissionData, setPermissionData] = useState([])
-  const isSubmitting = useRef(false)
-  const [filteredRoles, setFilteredRoles] = useState([])
-  const [showModal, setShowModal] = useState(false)
-  const [selectedUsers, setSelectedUsers] = useState([])
-  const [localProjectId, setLocalProjectId] = useState(null)
-  const [employeesData, setEmployeesData] = useState({})
-  const [hrEmployees, setHrEmployees] = useState([])
+  const [dataLoaded, setDataLoaded] = useState(false);
+  const [localDropdownVisible, setLocalDropdownVisible] = useState({});
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [permissionData, setPermissionData] = useState([]);
+  const isSubmitting = useRef(false);
+  const [filteredRoles, setFilteredRoles] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedUsers, setSelectedUsers] = useState([]);
+  const [localProjectId, setLocalProjectId] = useState(null);
+  const [employeesData, setEmployeesData] = useState({});
+  const [hrEmployees, setHrEmployees] = useState([]);
 
-  const navigate = useNavigate()
-  const dispatch = useDispatch()
-  const projectId = localStorage.getItem("projectId")
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const projectId = localStorage.getItem("projectId");
 
   // Enhanced fetchProjectTeamDetails function with better data handling
   const fetchProjectTeamDetails = async (projectId) => {
     try {
-      const result = await dispatch(getProjectDetailsAction(projectId))
+      const result = await dispatch(getProjectDetailsAction(projectId));
 
       if (result?.payload?.value) {
-        const projectData = result.payload.value
-        const team = projectData.team_details || []
-        const finance = projectData.finance_approval_data || []
-        const vendorDetails = projectData.vendor_details || []
-        const subcontractorDetails = projectData.subcontractor_details || []
+        const projectData = result.payload.value;
+        const team = projectData.team_details || [];
+        const finance = projectData.finance_approval_data || [];
+        const vendorDetails = projectData.vendor_details || [];
+        const subcontractorDetails = projectData.subcontractor_details || [];
 
-        console.log("Project Data:", projectData)
+        console.log("Project Data:", projectData);
 
         const roleToFieldMap = {
           "Project Manager": "projectManager",
@@ -83,7 +87,7 @@ const ProjectTeamStakeholder = ({
           "Site Engineer": "siteEngineer",
           Engineer: "engineer",
           Designer: "designer",
-        }
+        };
 
         const updatedFormData = {
           projectManager: [],
@@ -97,20 +101,20 @@ const ProjectTeamStakeholder = ({
           designer: [],
           vendors: [],
           subcontractors: [],
-        }
+        };
 
         // Process team data with better role matching
         if (Array.isArray(team) && team.length > 0) {
           team.forEach((member) => {
-            const field = roleToFieldMap[member.role]
+            const field = roleToFieldMap[member.role];
             if (field && member.emp_id && member.emp_name) {
               updatedFormData[field].push({
                 id: member.emp_id,
                 name: member.emp_name,
                 empId: member.emp_id,
-              })
+              });
             }
-          })
+          });
         }
 
         // Process vendor data
@@ -121,123 +125,140 @@ const ProjectTeamStakeholder = ({
                 id: vendor.vendor_id,
                 name: vendor.vendor_name,
                 vendorName: vendor.vendor_name,
-              })
+              });
             }
-          })
+          });
         }
 
         // Process subcontractor data
-        if (Array.isArray(subcontractorDetails) && subcontractorDetails.length > 0) {
+        if (
+          Array.isArray(subcontractorDetails) &&
+          subcontractorDetails.length > 0
+        ) {
           subcontractorDetails.forEach((subcontractor) => {
-            if (subcontractor.subcontractor_id && subcontractor.subcontractor_name) {
+            if (
+              subcontractor.subcontractor_id &&
+              subcontractor.subcontractor_name
+            ) {
               updatedFormData.subcontractors.push({
                 id: subcontractor.subcontractor_id,
                 name: subcontractor.subcontractor_name,
                 subcontractorName: subcontractor.subcontractor_name,
-              })
+              });
             }
-          })
+          });
         }
 
         setFormData((prev) => ({
           ...prev,
           ...updatedFormData,
-        }))
+        }));
 
         // Enhanced finance approval data processing with proper ordering
         if (Array.isArray(finance) && finance.length > 0) {
           const permissionMapped = finance.map((item, index) => {
-            const teamMember = Array.isArray(team) ? team.find((t) => t.emp_id === item.emp_id) : null
+            const teamMember = Array.isArray(team)
+              ? team.find((t) => t.emp_id === item.emp_id)
+              : null;
             return {
               id: index + 1,
               role: teamMember?.role || "N/A",
               employee: item.emp_name || "N/A",
               employeeId: item.emp_id || 0,
               amount: item.amount || 0,
-            }
-          })
+            };
+          });
 
           // Sort to ensure Managing Director appears first
           const sortedPermissions = permissionMapped.sort((a, b) => {
-            if (a.role === "Managing Director") return -1
-            if (b.role === "Managing Director") return 1
-            return 0
-          })
+            if (a.role === "Managing Director") return -1;
+            if (b.role === "Managing Director") return 1;
+            return 0;
+          });
 
-          setPermissionData(sortedPermissions)
+          setPermissionData(sortedPermissions);
         } else {
-          setPermissionData([])
+          setPermissionData([]);
         }
       }
     } catch (error) {
-      console.error("Error fetching project team details:", error)
-      setPermissionData([])
+      console.error("Error fetching project team details:", error);
+      setPermissionData([]);
     }
-  }
+  };
 
   useEffect(() => {
-    const id = formData.projectId || Number.parseInt(localStorage.getItem("projectId"))
+    const id =
+      formData.projectId || Number.parseInt(localStorage.getItem("projectId"));
     if (id) {
-      fetchProjectTeamDetails(id)
+      fetchProjectTeamDetails(id);
     }
-  }, [])
+  }, []);
 
   // Enhanced fetch all employees by roles with better error handling
   useEffect(() => {
     dispatch(getAllEmployeesByRolesAction())
       .unwrap()
       .then((response) => {
-        console.log("API Response:", response)
+        console.log("API Response:", response);
         if (response && response.employeesByRole) {
-          setEmployeesData(response.employeesByRole)
+          setEmployeesData(response.employeesByRole);
 
-          const mappedEmployees = {}
+          const mappedEmployees = {};
 
           // Enhanced mapping with null checks
           const roleMapping = [
             { apiRole: "Project Manager", stateKey: "projectManagerEmployees" },
-            { apiRole: "Assistant Project Manager", stateKey: "assistantProjectManagerEmployees" },
+            {
+              apiRole: "Assistant Project Manager",
+              stateKey: "assistantProjectManagerEmployees",
+            },
             { apiRole: "Lead Engineer", stateKey: "leadEngineerEmployees" },
             { apiRole: "Site Supervisor", stateKey: "siteSupervisorEmployees" },
             { apiRole: "QS", stateKey: "qsEmployees" },
             { apiRole: "Quantity Surveyor", stateKey: "qsEmployees" }, // Alternative mapping
             { apiRole: "Assistant QS", stateKey: "assistantQsEmployees" },
-            { apiRole: "Assistant Quantity Surveyor", stateKey: "assistantQsEmployees" }, // Alternative mapping
+            {
+              apiRole: "Assistant Quantity Surveyor",
+              stateKey: "assistantQsEmployees",
+            }, // Alternative mapping
             { apiRole: "Site Engineer", stateKey: "siteEngineerEmployees" },
             { apiRole: "Engineer", stateKey: "engineerEmployees" },
             { apiRole: "Designer", stateKey: "designerEmployees" },
-          ]
+          ];
 
           roleMapping.forEach(({ apiRole, stateKey }) => {
             if (response.employeesByRole[apiRole]) {
-              mappedEmployees[stateKey] = response.employeesByRole[apiRole].map((emp) => ({
-                empId: emp.empId,
-                employeeName: emp.employeeName,
-                isAllocated: emp.isAllocated,
-              }))
+              mappedEmployees[stateKey] = response.employeesByRole[apiRole].map(
+                (emp) => ({
+                  empId: emp.empId,
+                  employeeName: emp.employeeName,
+                  isAllocated: emp.isAllocated,
+                })
+              );
             }
-          })
+          });
 
           // Store HR employees for modal
           if (response.employeesByRole["HR"]) {
-            setHrEmployees(response.employeesByRole["HR"])
+            setHrEmployees(response.employeesByRole["HR"]);
           }
 
           // Update roleBasedEmployees with mapped data
           Object.keys(mappedEmployees).forEach((key) => {
-            roleBasedEmployees[key] = mappedEmployees[key] || []
-          })
+            roleBasedEmployees[key] = mappedEmployees[key] || [];
+          });
         }
       })
       .catch((error) => {
-        console.error("API Error:", error)
-      })
-  }, [dispatch])
+        console.error("API Error:", error);
+      });
+  }, [dispatch]);
 
   // Enhanced updateFinanceApprovalWithSelectedTeam with proper role hierarchy
   const updateFinanceApprovalWithSelectedTeam = () => {
-    const newPermissionData = []
-    let idCounter = 1
+    const newPermissionData = [];
+    let idCounter = 1;
 
     // Define the proper hierarchy order for finance approvals
     const financeHierarchy = [
@@ -248,7 +269,7 @@ const ProjectTeamStakeholder = ({
       { role: "General Manager (Operation)", roleCode: "GMOPER" },
       { role: "Head Finance", roleCode: "HEADFINANCE" },
       { role: "Finance", roleCode: "FINANCE" },
-    ]
+    ];
 
     if (employeesData) {
       financeHierarchy.forEach(({ role, roleCode }) => {
@@ -261,78 +282,90 @@ const ProjectTeamStakeholder = ({
                 employee: emp.employeeName,
                 employeeId: emp.empId,
                 amount: existingAmountMap[emp.empId] || 0,
-              })
+              });
             }
-          })
+          });
         }
-      })
+      });
     }
 
-    setPermissionData(newPermissionData)
-  }
+    setPermissionData(newPermissionData);
+  };
 
   // Enhanced data loading with vendors and subcontractors
   useEffect(() => {
     if (!dataLoaded) {
       const loadAllData = async () => {
         try {
-          await Promise.all([fetchAllEmployees(), fetchVendorsAndSubcontractors()])
-          setDataLoaded(true)
+          await Promise.all([
+            fetchAllEmployees(),
+            fetchVendorsAndSubcontractors(),
+          ]);
+          setDataLoaded(true);
         } catch (error) {
-          console.error("Error loading role data:", error)
-          setErrorMessage("Failed to load employee data. Please refresh and try again.")
+          console.error("Error loading role data:", error);
+          setErrorMessage(
+            "Failed to load employee data. Please refresh and try again."
+          );
         }
-      }
-      loadAllData()
+      };
+      loadAllData();
     }
-  }, [dataLoaded])
+  }, [dataLoaded]);
 
   const handleCheckboxChange = (userId) => {
-    setSelectedUsers((prev) => (prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]))
-  }
+    setSelectedUsers((prev) =>
+      prev.includes(userId)
+        ? prev.filter((id) => id !== userId)
+        : [...prev, userId]
+    );
+  };
 
   const getRoleNameById = (id) => {
-    const role = filteredRoles.find((r) => r.roleId === Number.parseInt(id))
-    return role?.roleName || null
-  }
+    const role = filteredRoles.find((r) => r.roleId === Number.parseInt(id));
+    return role?.roleName || null;
+  };
 
   useEffect(() => {
     const getFilteredRoles = async () => {
       try {
-        const { success, data } = await fetchroles()
+        const { success, data } = await fetchroles();
         if (success && data) {
-          const filtered = data.filter((r) => r.roleName === "HR")
-          setFilteredRoles(filtered)
+          const filtered = data.filter((r) => r.roleName === "HR");
+          setFilteredRoles(filtered);
         }
       } catch (error) {
-        console.error("Error fetching roles:", error)
+        console.error("Error fetching roles:", error);
       }
-    }
+    };
 
-    getFilteredRoles()
-  }, [])
+    getFilteredRoles();
+  }, []);
 
   // Create existing amount map with null safety
-  const existingAmountMap = {}
+  const existingAmountMap = {};
   if (Array.isArray(permissionData)) {
     permissionData.forEach((item) => {
       if (item && item.employeeId) {
-        existingAmountMap[item.employeeId] = item.amount || 0
+        existingAmountMap[item.employeeId] = item.amount || 0;
       }
-    })
+    });
   }
 
   const handleTicketSubmission = async () => {
-    const projectId = formData.projectId || localProjectId || Number.parseInt(localStorage.getItem("projectId"))
-    const createdBy = Number.parseInt(localStorage.getItem("userRoleId"))
+    const projectId =
+      formData.projectId ||
+      localProjectId ||
+      Number.parseInt(localStorage.getItem("projectId"));
+    const createdBy = Number.parseInt(localStorage.getItem("userRoleId"));
 
     if (selectedUsers.length === 0) {
       Swal.fire({
         icon: "warning",
         title: "No Employees Selected",
         text: "Please select at least one employee to assign the ticket.",
-      })
-      return
+      });
+      return;
     }
 
     const ticketPayload = {
@@ -340,15 +373,15 @@ const ProjectTeamStakeholder = ({
       ticketType: "permissionFinanceApproval",
       assignTo: selectedUsers,
       createdBy: createdBy,
-    }
+    };
 
     try {
-      const ticketResponse = await createTicket(ticketPayload)
-      const ticketId = ticketResponse?.data?.data?.ticketId
-      const projectName = ticketResponse?.data?.data?.projectName
+      const ticketResponse = await createTicket(ticketPayload);
+      const ticketId = ticketResponse?.data?.data?.ticketId;
+      const projectName = ticketResponse?.data?.data?.projectName;
 
       if (!ticketId) {
-        throw new Error("Ticket ID not returned from createTicket")
+        throw new Error("Ticket ID not returned from createTicket");
       }
 
       const notificationPayload = {
@@ -356,9 +389,9 @@ const ProjectTeamStakeholder = ({
         notificationType: "Resource_Allocation",
         sourceEntityId: ticketId,
         message: `We would like you to Allocate Resources for our ${projectName} Project with consideration to all criteria's required.Kindly provide your confirmation at the earliest to avoid any delays in the process.`,
-      }
+      };
 
-      await createNotify(notificationPayload)
+      await createNotify(notificationPayload);
 
       Swal.fire({
         icon: "success",
@@ -366,13 +399,13 @@ const ProjectTeamStakeholder = ({
         text: "Tickets and notifications successfully submitted.",
         timer: 1500,
         showConfirmButton: false,
-      })
+      });
 
-      setShowModal(false)
+      setShowModal(false);
     } catch (err) {
-      console.error("Failed to create ticket or notification:", err)
+      console.error("Failed to create ticket or notification:", err);
     }
-  }
+  };
 
   const getRoleMapping = (position) => {
     const roleMapping = {
@@ -385,59 +418,81 @@ const ProjectTeamStakeholder = ({
       siteEngineer: "Site Engineer",
       engineer: "Engineer",
       designer: "Designer",
-    }
-    return roleMapping[position] || position
-  }
+    };
+    return roleMapping[position] || position;
+  };
 
   const handleToggleDropdown = (field) => {
     setLocalDropdownVisible((prev) => ({
       ...prev,
       [field]: !prev[field],
-    }))
+    }));
     if (toggleDropdown) {
-      toggleDropdown(field)
+      toggleDropdown(field);
     }
-  }
+  };
 
-  const closeAllDropdowns = () => setLocalDropdownVisible({})
+  const closeAllDropdowns = () => setLocalDropdownVisible({});
 
   const handleAmountChange = (id, value) => {
-    const sanitizedValue = value.replace(/[^0-9.]/g, "")
+    const sanitizedValue = value.replace(/[^0-9.]/g, "");
     setPermissionData((prevData) =>
-      prevData.map((item) => (item.id === id ? { ...item, amount: sanitizedValue } : item)),
-    )
-  }
+      prevData.map((item) =>
+        item.id === id ? { ...item, amount: sanitizedValue } : item
+      )
+    );
+  };
 
   const handleSubmit = async () => {
-    if (isSubmitting.current) return
-    isSubmitting.current = true
+    if (isSubmitting.current) return;
+    isSubmitting.current = true;
 
-    setSubmitLoading(true)
-    setErrorMessage(null)
+    setSubmitLoading(true);
+    setErrorMessage(null);
 
-    const projectId = Number(localStorage.getItem("projectId") || formData.projectId)
+    const projectId = Number(
+      localStorage.getItem("projectId") || formData.projectId
+    );
     if (!projectId) {
-      setErrorMessage("Missing Project ID. Please create a project first.")
-      setSubmitLoading(false)
-      isSubmitting.current = false
-      return
+      setErrorMessage("Missing Project ID. Please create a project first.");
+      setSubmitLoading(false);
+      isSubmitting.current = false;
+      return;
     }
 
     try {
       const teamData = {
         projectId,
-        pmId: (formData.projectManager || []).map((emp) => Number(emp.empId || emp.id)),
-        apmId: (formData.assistantProjectManager || []).map((emp) => Number(emp.empId || emp.id)),
-        LeadEnggId: (formData.leadEngineer || []).map((emp) => Number(emp.empId || emp.id)),
-        SiteSupervisorId: (formData.siteSupervisor || []).map((emp) => Number(emp.empId || emp.id)),
+        pmId: (formData.projectManager || []).map((emp) =>
+          Number(emp.empId || emp.id)
+        ),
+        apmId: (formData.assistantProjectManager || []).map((emp) =>
+          Number(emp.empId || emp.id)
+        ),
+        LeadEnggId: (formData.leadEngineer || []).map((emp) =>
+          Number(emp.empId || emp.id)
+        ),
+        SiteSupervisorId: (formData.siteSupervisor || []).map((emp) =>
+          Number(emp.empId || emp.id)
+        ),
         qsId: (formData.qs || []).map((emp) => Number(emp.empId || emp.id)),
-        aqsId: (formData.assistantQs || []).map((emp) => Number(emp.empId || emp.id)),
-        SiteEnggId: (formData.siteEngineer || []).map((emp) => Number(emp.empId || emp.id)),
-        EnggId: (formData.engineer || []).map((emp) => Number(emp.empId || emp.id)),
-        designerId: (formData.designer || []).map((emp) => Number(emp.empId || emp.id)),
+        aqsId: (formData.assistantQs || []).map((emp) =>
+          Number(emp.empId || emp.id)
+        ),
+        SiteEnggId: (formData.siteEngineer || []).map((emp) =>
+          Number(emp.empId || emp.id)
+        ),
+        EnggId: (formData.engineer || []).map((emp) =>
+          Number(emp.empId || emp.id)
+        ),
+        designerId: (formData.designer || []).map((emp) =>
+          Number(emp.empId || emp.id)
+        ),
         vendorId: (formData.vendors || []).map((emp) => Number(emp.id)),
-        subcontractorId: (formData.subcontractors || []).map((emp) => Number(emp.id)),
-      }
+        subcontractorId: (formData.subcontractors || []).map((emp) =>
+          Number(emp.id)
+        ),
+      };
 
       const financeData = {
         projectId,
@@ -447,27 +502,29 @@ const ProjectTeamStakeholder = ({
             empId: Number(emp.employeeId),
             amount: Number.parseFloat(emp.amount || 0),
           })),
-      }
+      };
 
       const [teamResult, financeResult] = await Promise.all([
         dispatch(createProjectTeamAction(teamData)),
         dispatch(createProjectFinanceApprovedAction(financeData)),
-      ])
+      ]);
 
-      const teamSuccess = teamResult?.payload?.success
-      const financeSuccess = financeResult?.payload?.success
+      const teamSuccess = teamResult?.payload?.success;
+      const financeSuccess = financeResult?.payload?.success;
 
-      const teamMessage = teamResult?.payload?.message
-      const financeMessage = financeResult?.payload?.message
+      const teamMessage = teamResult?.payload?.message;
+      const financeMessage = financeResult?.payload?.message;
 
       if (!teamSuccess || !financeSuccess) {
-        throw new Error("One or more operations failed")
+        throw new Error("One or more operations failed");
       }
 
       const combinedMessage =
         teamMessage && financeMessage
           ? `${teamMessage} & ${financeMessage}`
-          : teamMessage || financeMessage || "Project team and finance data saved successfully"
+          : teamMessage ||
+            financeMessage ||
+            "Project team and finance data saved successfully";
 
       await Swal.fire({
         title: "Success!",
@@ -475,43 +532,66 @@ const ProjectTeamStakeholder = ({
         icon: "success",
         timer: 1500,
         showConfirmButton: false,
-      })
+      });
 
-      const nextPath = `/ceo/project/timelinemilestone/${projectId}`
+      const nextPath = `/ceo/project/timelinemilestone/${projectId}`;
       if (onNext) {
-        onNext()
+        onNext();
       } else {
         navigate(nextPath, {
           state: { projectId },
           replace: true,
-        })
+        });
       }
     } catch (err) {
-      console.error("Submit error:", err)
-      setErrorMessage("Something went wrong. Please try again.")
+      console.error("Submit error:", err);
+      setErrorMessage("Something went wrong. Please try again.");
     } finally {
-      setSubmitLoading(false)
-      isSubmitting.current = false
+      setSubmitLoading(false);
+      isSubmitting.current = false;
     }
-  }
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (!event.target.closest(".multi-select-container")) {
-        closeAllDropdowns()
+        closeAllDropdowns();
       }
-    }
-    document.addEventListener("mousedown", handleClickOutside)
+    };
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
-  }, [])
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     if (dataLoaded && employeesData) {
-      updateFinanceApprovalWithSelectedTeam()
+      updateFinanceApprovalWithSelectedTeam();
     }
-  }, [formData.projectManager, dataLoaded, employeesData])
+  }, [formData.projectManager, dataLoaded, employeesData]);
+  function getInitials(name) {
+    if (!name) return "";
+    const words = name.trim().split(" ");
+    const first = words[0]?.charAt(0).toUpperCase() || "";
+    const second = words[1]?.charAt(0).toUpperCase() || "";
+    return first + second;
+  }
+
+  function getRandomColor() {
+    const colors = [
+      "#007bff",
+      "#28a745",
+      "#dc3545",
+      "#ffc107",
+      "#17a2b8",
+      "#6610f2",
+      "#fd7e14",
+      "#6f42c1",
+      "#20c997",
+      "#e83e8c",
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
+  }
 
   // Enhanced getEmployeesByField with better vendor/subcontractor handling
   const getEmployeesByField = (field) => {
@@ -523,7 +603,7 @@ const ProjectTeamStakeholder = ({
             name: emp.employeeName,
             value: emp.isAllocated,
           })) || []
-        )
+        );
       case "assistantProjectManager":
         return (
           roleBasedEmployees.assistantProjectManagerEmployees?.map((emp) => ({
@@ -531,7 +611,7 @@ const ProjectTeamStakeholder = ({
             name: emp.employeeName,
             value: emp.isAllocated,
           })) || []
-        )
+        );
       case "leadEngineer":
         return (
           roleBasedEmployees.leadEngineerEmployees?.map((emp) => ({
@@ -539,7 +619,7 @@ const ProjectTeamStakeholder = ({
             name: emp.employeeName,
             value: emp.isAllocated,
           })) || []
-        )
+        );
       case "siteSupervisor":
         return (
           roleBasedEmployees.siteSupervisorEmployees?.map((emp) => ({
@@ -547,7 +627,7 @@ const ProjectTeamStakeholder = ({
             name: emp.employeeName,
             value: emp.isAllocated,
           })) || []
-        )
+        );
       case "qs":
         return (
           roleBasedEmployees.qsEmployees?.map((emp) => ({
@@ -555,7 +635,7 @@ const ProjectTeamStakeholder = ({
             name: emp.employeeName,
             value: emp.isAllocated,
           })) || []
-        )
+        );
       case "assistantQs":
         return (
           roleBasedEmployees.assistantQsEmployees?.map((emp) => ({
@@ -563,7 +643,7 @@ const ProjectTeamStakeholder = ({
             name: emp.employeeName,
             value: emp.isAllocated,
           })) || []
-        )
+        );
       case "siteEngineer":
         return (
           roleBasedEmployees.siteEngineerEmployees?.map((emp) => ({
@@ -571,7 +651,7 @@ const ProjectTeamStakeholder = ({
             name: emp.employeeName,
             value: emp.isAllocated,
           })) || []
-        )
+        );
       case "engineer":
         return (
           roleBasedEmployees.engineerEmployees?.map((emp) => ({
@@ -579,7 +659,7 @@ const ProjectTeamStakeholder = ({
             name: emp.employeeName,
             value: emp.isAllocated,
           })) || []
-        )
+        );
       case "designer":
         return (
           roleBasedEmployees.designerEmployees?.map((emp) => ({
@@ -587,7 +667,7 @@ const ProjectTeamStakeholder = ({
             name: emp.employeeName,
             value: emp.isAllocated,
           })) || []
-        )
+        );
       case "vendors":
         return (
           vendors?.map((v) => ({
@@ -595,7 +675,7 @@ const ProjectTeamStakeholder = ({
             name: v.vendorName || v.vendor_name || v.name,
             value: false,
           })) || []
-        )
+        );
       case "subcontractors":
         return (
           subcontractors?.map((s) => ({
@@ -603,75 +683,86 @@ const ProjectTeamStakeholder = ({
             name: s.subcontractorName || s.subcontractor_name || s.name,
             value: false,
           })) || []
-        )
+        );
       default:
-        return []
+        return [];
     }
-  }
+  };
 
   const handleLocalSelectItem = (field, item) => {
     setFormData((prevState) => {
-      const currentSelection = prevState[field] || []
+      const currentSelection = prevState[field] || [];
       const isSelected = currentSelection.some(
         (selected) =>
           (selected.id && String(selected.id) === String(item.id)) ||
-          (selected.empId && String(selected.empId) === String(item.id)),
-      )
-      const updatedSelection = isSelected ? currentSelection : [...currentSelection, item]
+          (selected.empId && String(selected.empId) === String(item.id))
+      );
+      const updatedSelection = isSelected
+        ? currentSelection
+        : [...currentSelection, item];
 
       return {
         ...prevState,
         [field]: updatedSelection,
-      }
-    })
+      };
+    });
 
     setLocalDropdownVisible((prev) => ({
       ...prev,
       [field]: true,
-    }))
+    }));
 
     // If this is a Project Manager selection, update the finance approvals table
     if (field === "projectManager") {
-      updateFinanceApprovalWithSelectedTeam()
+      updateFinanceApprovalWithSelectedTeam();
     }
-  }
+  };
 
   const isItemSelected = (field, itemId) => {
     return (formData[field] || []).some(
       (item) =>
-        (item.id && String(item.id) === String(itemId)) || (item.empId && String(item.empId) === String(itemId)),
-    )
-  }
+        (item.id && String(item.id) === String(itemId)) ||
+        (item.empId && String(item.empId) === String(itemId))
+    );
+  };
 
   const getFilteredItems = (field) => {
-    const itemsList = getEmployeesByField(field)
-    if (!searchFilters[field]) return itemsList
-    return itemsList.filter((item) => item.name.toLowerCase().includes(searchFilters[field].toLowerCase()))
-  }
+    const itemsList = getEmployeesByField(field);
+    if (!searchFilters[field]) return itemsList;
+    return itemsList.filter((item) =>
+      item.name.toLowerCase().includes(searchFilters[field].toLowerCase())
+    );
+  };
 
   const MultiSelect = ({ field, label }) => {
-    const inputRef = useRef(null)
-    const isDropdownVisible = localDropdownVisible[field] || false
+    const inputRef = useRef(null);
+    const isDropdownVisible = localDropdownVisible[field] || false;
 
     useEffect(() => {
       if (isDropdownVisible && inputRef.current) {
-        inputRef.current.focus()
+        inputRef.current.focus();
       }
-    }, [isDropdownVisible])
+    }, [isDropdownVisible]);
 
     const handleItemClick = (item) => {
-      handleLocalSelectItem(field, item)
-      handleSearchFilterChange({ target: { value: "" } }, field)
-      handleToggleDropdown(field)
-    }
+      handleLocalSelectItem(field, item);
+      handleSearchFilterChange({ target: { value: "" } }, field);
+      handleToggleDropdown(field);
+    };
 
     return (
       <Form.Group style={{ position: "relative", marginBottom: "15px" }}>
         <Form.Label className="text-dark">{label}</Form.Label>
-        <div className="multi-select-container" style={{ position: "relative" }}>
+        <div
+          className="multi-select-container"
+          style={{ position: "relative" }}
+        >
           <div className="selected-items mb-2">
             {(formData[field] || []).map((item) => (
-              <div key={item.id || item.empId} className="selected-item d-inline-block bg-light p-1 me-2 mb-1 rounded">
+              <div
+                key={item.id || item.empId}
+                className="selected-item d-inline-block bg-white p-1 me-2 mb-1 rounded"
+              >
                 <span>{item.name}</span>
                 <button
                   type="button"
@@ -688,7 +779,13 @@ const ProjectTeamStakeholder = ({
             ref={inputRef}
             type="text"
             className="dropdown-toggle w-100"
-            placeholder={formData[field] && formData[field].length > 0 ? "" : loading ? "Loading..." : "Search..."}
+            placeholder={
+              formData[field] && formData[field].length > 0
+                ? ""
+                : loading
+                ? "Loading..."
+                : "Search..."
+            }
             value={searchFilters[field] || ""}
             onChange={(e) => handleSearchFilterChange(e, field)}
             onClick={() => handleToggleDropdown(field)}
@@ -697,19 +794,26 @@ const ProjectTeamStakeholder = ({
           />
 
           {isDropdownVisible && (
-            <div className="dropdown-menu show w-100" style={{ maxHeight: "200px", overflowY: "auto", zIndex: "9999" }}>
+            <div
+              className="dropdown-menu show w-100"
+              style={{ maxHeight: "200px", overflowY: "auto", zIndex: "9999" }}
+            >
               {getFilteredItems(field).length > 0 ? (
                 getFilteredItems(field).map((item) => (
                   <div
                     key={item.id}
-                    className={`dropdown-item ${isItemSelected(field, item.id) ? "active" : ""}`}
+                    className={`dropdown-item ${
+                      isItemSelected(field, item.id) ? "active" : ""
+                    }`}
                     onClick={() => handleItemClick(item)}
                     style={{ cursor: "pointer" }}
                   >
                     <div className="d-flex justify-content-between align-items-center text-capitalize">
                       <span>{item.name}</span>
                       <span
-                        className={`allocate-status small fs-12-400 ms-2 ${item.value ? "text-danger" : "text-success"}`}
+                        className={`allocate-status small fs-12-400 ms-2 ${
+                          item.value ? "text-danger" : "text-success"
+                        }`}
                       >
                         {item.value ? "Allocated" : "Not Allocated"}
                       </span>
@@ -723,8 +827,8 @@ const ProjectTeamStakeholder = ({
           )}
         </div>
       </Form.Group>
-    )
-  }
+    );
+  };
 
   return (
     <Form>
@@ -739,14 +843,24 @@ const ProjectTeamStakeholder = ({
 
       {!loading && (
         <>
-          {errorMessage && <div className="alert alert-danger mb-3">{errorMessage}</div>}
+          {errorMessage && (
+            <div className="alert alert-danger mb-3">{errorMessage}</div>
+          )}
 
           <Row>
             <Col md={6} lg={4}>
-              <MultiSelect field="projectManager" label="Project Manager" required />
+              <MultiSelect
+                field="projectManager"
+                label="Project Manager"
+                required
+              />
             </Col>
             <Col md={6} lg={4}>
-              <MultiSelect field="assistantProjectManager" label="Assistant Project Manager" required />
+              <MultiSelect
+                field="assistantProjectManager"
+                label="Assistant Project Manager"
+                required
+              />
             </Col>
             <Col md={6} lg={4}>
               <MultiSelect field="leadEngineer" label="Lead Engineer" />
@@ -777,29 +891,63 @@ const ProjectTeamStakeholder = ({
             </Col>
           </Row>
 
-          <h5 className="mt-4 mb-3">Finance Approvals</h5>
-          <Table striped bordered hover responsive>
+          <h5 className="mt-4 mb-3 fs-28-700">
+            Permission and Finance Approval
+          </h5>
+          <table className="tbl w-100">
             <thead>
               <tr>
-                <th>#</th>
-                <th>Role</th>
-                <th>Employee</th>
-                <th>Amount Limit (%)</th>
+                <th className="w48 text-center fs-18-500 text-dark">S.No</th>
+                <th className="text-center">Role</th>
+                <th className="text-center fs-18-500 text-dark">Employee</th>
+                <th className="text-center fs-18-500 text-dark">
+                  Amount Limit (%)
+                </th>
               </tr>
             </thead>
             <tbody>
               {permissionData && permissionData.length > 0 ? (
                 permissionData.map((item, index) => (
                   <tr key={item.id}>
-                    <td>{index + 1}</td>
-                    <td>{item.role}</td>
-                    <td>{item.employee || "Not assigned"}</td>
-                    <td>
+                    <td className="text-center fs-16-500 text-dark-gray w48">
+                      {index + 1}
+                    </td>
+                    <td className="text-center fs-16-500 text-dark-gray">
+                      {item.role}
+                    </td>
+                    <td className="text-center fs-16-500 text-dark ">
+                      {item.employee ? (
+                        <>
+                          <div className="d-flex align-items-center justify-content-center">
+                            <div
+                              className="rounded-circle text-white d-inline-flex align-items-center justify-content-center"
+                              style={{
+                                width: "20px",
+                                height: "20px",
+                                fontSize: "8px",
+                                backgroundColor: getRandomColor(item.employee), // optional: stable color
+                                display: "inline-block",
+                              }}
+                            >
+                              {getInitials(item.employee)}
+                            </div>
+                            <span className="ms-2">{item.employee}</span>
+                          </div>
+                        </>
+                      ) : (
+                        "Not assigned"
+                      )}
+                    </td>
+
+                    <td className="text-center fs-16-500 text-dark-gray">
                       <Form.Control
+                        className="finance-approvals text-center"
                         type="text"
                         value={item.amount || ""}
-                        placeholder="Amount"
-                        onChange={(e) => handleAmountChange(item.id, e.target.value)}
+                        placeholder=""
+                        onChange={(e) =>
+                          handleAmountChange(item.id, e.target.value)
+                        }
                       />
                     </td>
                   </tr>
@@ -807,23 +955,27 @@ const ProjectTeamStakeholder = ({
               ) : (
                 <tr>
                   <td colSpan="4" className="text-center text-muted">
-                    {formData.projectManager && formData.projectManager.length > 0
+                    {formData.projectManager &&
+                    formData.projectManager.length > 0
                       ? "Loading finance approval data..."
                       : "Please select a Project Manager to populate finance approval data."}
                   </td>
                 </tr>
               )}
             </tbody>
-          </Table>
+          </table>
         </>
       )}
 
-      <div className="d-flex justify-content-end align-items-end" style={{ minHeight: "80px", marginTop: "20px" }}>
+      <div
+        className="d-flex justify-content-end align-items-end"
+        style={{ minHeight: "80px", marginTop: "20px" }}
+      >
         <Button
           className="btn-primary btn fs-14-600 bg-transparent text-primary border-0 border-radius-2"
           onClick={async () => {
-            const roleKey = "HR"
-            const { success, data } = await fetchAllEmployees()
+            const roleKey = "HR";
+            const { success, data } = await fetchAllEmployees();
 
             if (
               !success ||
@@ -835,12 +987,12 @@ const ProjectTeamStakeholder = ({
                 icon: "info",
                 title: "No Employees",
                 text: `No employees found in HR team.`,
-              })
-              return
+              });
+              return;
             }
 
-            setHrEmployees(data.employeesByRole[roleKey])
-            setShowModal(true)
+            setHrEmployees(data.employeesByRole[roleKey]);
+            setShowModal(true);
           }}
         >
           <svg
@@ -862,9 +1014,9 @@ const ProjectTeamStakeholder = ({
           className="btn-primary btn fs-14-600 bg-primary border-0 border-radius-2"
           onClick={async () => {
             if (!submitLoading) {
-              await handleSubmit()
+              await handleSubmit();
               if (onNext) {
-                onNext()
+                onNext();
               }
             }
           }}
@@ -881,7 +1033,12 @@ const ProjectTeamStakeholder = ({
         </Button>
       </div>
 
-      <Modal show={showModal} className="model-approvel-send" onHide={() => setShowModal(false)} centered>
+      <Modal
+        show={showModal}
+        className="model-approvel-send"
+        onHide={() => setShowModal(false)}
+        centered
+      >
         <Modal.Body>
           {hrEmployees.map((user) => (
             <div key={user.empId} className="d-flex align-items-center mb-3">
@@ -899,14 +1056,18 @@ const ProjectTeamStakeholder = ({
               />
               <p className="mb-0 fs-22-700 text-dark">
                 {user.employeeName}
-                <span className="d-block fs-14-400 text-dark-grey">{user.role}</span>
+                <span className="d-block fs-14-400 text-dark-grey">
+                  {user.role}
+                </span>
               </p>
             </div>
           ))}
         </Modal.Body>
         <Modal.Footer className="justify-content-center">
           <Button
-            className={`d-flex justify-content-center ${selectedUsers.length > 0 ? "btn-allow" : "btn-not-allow"}`}
+            className={`d-flex justify-content-center ${
+              selectedUsers.length > 0 ? "btn-allow" : "btn-not-allow"
+            }`}
             onClick={handleTicketSubmission}
             disabled={selectedUsers.length === 0}
           >
@@ -915,7 +1076,7 @@ const ProjectTeamStakeholder = ({
         </Modal.Footer>
       </Modal>
     </Form>
-  )
-}
+  );
+};
 
-export default ProjectTeamStakeholder
+export default ProjectTeamStakeholder;
