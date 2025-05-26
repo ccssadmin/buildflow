@@ -2,42 +2,138 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { createReportAttachmentAction, getNewReportCode, uploadReportAttachments, upsertReport } from '../../../store/actions/report/reportcreateaction';
-import { toast } from 'react-toastify';
+import { toast } from 'react-toastify'; // Import toast for notifications
 import { fetchProjects } from '../../../store/actions/hr/projectaction';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { resetReportState } from '../../../store/slice/report/reportslice';
 import { getCEOReportTypes } from '../../../store/actions/report/ceoreportaction';
-import { CiFileOn } from "react-icons/ci";
+import { useProject } from '../../../hooks/Ceo/useCeoProject';
+import { selectProjectDetails } from '../../../store/selector/ceo/ceoProjectSelector';
 
 function ReportCreateScreen() {
   const { loading } = useSelector((state) => state.report);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { projects = [] } = useSelector((state) => state.project);
+   const { projects = [] } = useSelector((state) => state.project);
 
   const [attachedFile, setAttachedFile] = useState(null);
   const [formErrors, setFormErrors] = useState({});
-  const { newReportCode } = useSelector((state) => state.report);
-  const { uploadMessage, error } = useSelector((state) => state.report);
-  const { reportTypes, reportTypesLoading, reportTypesError } = useSelector((state) => state.ceoReport);
+const { newReportCode } = useSelector((state) => state.report);
+const { uploadMessage, error } = useSelector((state) => state.report);
+const { reportTypes, reportTypesLoading, reportTypesError } = useSelector((state) => state.ceoReport);
+  const { fetchProjectDetails } = useProject();
+ 
+  const [projectName, setProjectName] = useState('');
 
-  useEffect(() => {
-    dispatch(getCEOReportTypes());
-  }, [dispatch]);
+   // Local state to hold project details
+  //  const [projectDetails, setProjectDetails] = useState(null);
 
-  useEffect(() => {
-    if (uploadMessage) {
-      const timer = setTimeout(() => {
-        dispatch(resetReportState());
-      }, 5000);
-      return () => clearTimeout(timer);
+useEffect(() => {
+  const storedData = localStorage.getItem("userData");
+  if (storedData) {
+    try {
+      const parsedData = JSON.parse(storedData);
+      const firstName = parsedData.firstName || "";
+      const project = parsedData.projects?.[0];
+      setReportData((prev) => ({
+        ...prev,
+        reportedBy: firstName,
+        reportDate: new Date().toISOString().slice(0, 10),
+        project: project?.projectId || "", // ✅ Ensure projectId is set here
+      }));
+      setProjectName(project?.projectName || ""); // Set project name for display
+    } catch (e) {
+      console.error("Error parsing userData:", e);
     }
-  }, [uploadMessage]);
+  }
+}, []);
+
+
+
+
+
+
+useEffect(() => {
+  if (uploadMessage) {
+    const timer = setTimeout(() => {
+      dispatch(resetReportState());
+    }, 5000);
+    return () => clearTimeout(timer);
+  }
+}, [uploadMessage]);
+
+
+  const getProjectIdFromLocalStorage = () => {
+    const storedData = localStorage.getItem("userData"); // Assuming key is 'userDetails'
+  
+    if (storedData) {
+      try {
+        const parsedData = JSON.parse(storedData);
+  
+        // Ensure projects array exists
+        if (parsedData.projects && Array.isArray(parsedData.projects)) {
+          return parsedData.projects[0]?.projectId || null; // Get projectId of the first project
+        } else {
+          console.error("No projects found in local storage");
+          return null;
+        }
+      } catch (error) {
+        console.error("Error parsing local storage data:", error);
+        return null;
+      }
+    } else {
+      console.error("No data found in local storage for key 'userDetails'");
+      return null;
+    }
+  };
+
+
+
+
+ 
+   // Retrieve projectId dynamically from local storage
+   const projectId = getProjectIdFromLocalStorage();
+ 
+   useEffect(() => {
+     if (!projectId) {
+       console.error("Project ID not found in local storage");
+       return;
+     }
+ 
+     const getDetails = async () => {
+       try {
+         const details = await fetchProjectDetails(projectId);
+         selectProjectDetails(details);
+         console.log("Fetched Project Details:", details);
+       } catch (error) {
+         console.error("Error fetching project details:", error);
+       }
+     };
+ 
+     getDetails();
+   }, [projectId]);
+ 
+ 
+
+useEffect(() => {
+  dispatch(getCEOReportTypes());
+}, [dispatch]);
+
+
+useEffect(() => {
+  if (uploadMessage) {
+    const timer = setTimeout(() => {
+      dispatch(resetReportState());
+    }, 5000);
+    return () => clearTimeout(timer);
+  }
+}, [uploadMessage]);
+
 
   useEffect(() => {
-    dispatch(getNewReportCode());
-  }, []);
+  dispatch(getNewReportCode());
+}, []);
 
   useEffect(() => {
     if (newReportCode) {
@@ -48,59 +144,70 @@ function ReportCreateScreen() {
     }
   }, [newReportCode]);
 
-  useEffect(() => {
+
+ useEffect(() => {
     dispatch(fetchProjects());
   }, [dispatch]);
+  
 
-  const [dailyProgressRows, setDailyProgressRows] = useState([{
-    id: 1,
+
+  // State for Daily Progress Summary
+  const [dailyProgressRows, setDailyProgressRows] = useState([{ 
+    id: 1, 
     workActivity: '',
     status: '',
     action: '',
     photo: null
   }]);
+  
 
-  const [materialUsageRows, setMaterialUsageRows] = useState([{
+  // State for Material Usage Report
+  const [materialUsageRows, setMaterialUsageRows] = useState([{ 
     id: 1,
     material: '',
     stock: '',
     level: ''
   }]);
+  
 
-  const [safetyComplianceRows, setSafetyComplianceRows] = useState([{
+  // State for Safety & Compliance Report
+  const [safetyComplianceRows, setSafetyComplianceRows] = useState([{ 
     id: 1,
     item: '',
     report: ''
   }]);
 
-  const [issueRiskRows, setIssueRiskRows] = useState([{
+  // State for Issue & Risk Report
+  const [issueRiskRows, setIssueRiskRows] = useState([{ 
     id: 1,
     issueRisk: '',
     impact: ''
   }]);
 
+  // State for form data
   const [reportData, setReportData] = useState({
     reportId: '',
-    reportTypeId: '',
+reportTypeId: '',
     project: '',
     dateTime: '',
     reportedBy: '',
   });
-
   const handleDateChange = (date) => {
     setReportData({
       ...reportData,
-      reportDate: date ? date.toISOString().slice(0, 10) : '',
+      reportDate: date ? date.toISOString().slice(0, 10) : '', // Format date as YYYY-MM-DD
     });
   };
 
+  // Handle input changes for main form fields
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setReportData({
       ...reportData,
       [name]: value
     });
-
+    
+    // Clear error for this field if it exists
     if (formErrors[name]) {
       setFormErrors({
         ...formErrors,
@@ -109,25 +216,26 @@ function ReportCreateScreen() {
     }
   };
 
+  // Handle input changes for table rows
   const handleRowChange = (rowType, rowId, field, value) => {
     switch (rowType) {
       case 'dailyProgress':
-        setDailyProgressRows(prevRows =>
+        setDailyProgressRows(prevRows => 
           prevRows.map(row => row.id === rowId ? { ...row, [field]: value } : row)
         );
         break;
       case 'materialUsage':
-        setMaterialUsageRows(prevRows =>
+        setMaterialUsageRows(prevRows => 
           prevRows.map(row => row.id === rowId ? { ...row, [field]: value } : row)
         );
         break;
       case 'safetyCompliance':
-        setSafetyComplianceRows(prevRows =>
+        setSafetyComplianceRows(prevRows => 
           prevRows.map(row => row.id === rowId ? { ...row, [field]: value } : row)
         );
         break;
       case 'issueRisk':
-        setIssueRiskRows(prevRows =>
+        setIssueRiskRows(prevRows => 
           prevRows.map(row => row.id === rowId ? { ...row, [field]: value } : row)
         );
         break;
@@ -136,8 +244,9 @@ function ReportCreateScreen() {
     }
   };
 
+  // Function to add a new row to Daily Progress Summary
   const addDailyProgressRow = () => {
-    const newRow = {
+    const newRow = { 
       id: dailyProgressRows.length + 1,
       workActivity: '',
       status: '',
@@ -146,9 +255,11 @@ function ReportCreateScreen() {
     };
     setDailyProgressRows([...dailyProgressRows, newRow]);
   };
+  
 
+  // Function to add a new row to Material Usage Report
   const addMaterialUsageRow = () => {
-    const newRow = {
+    const newRow = { 
       id: materialUsageRows.length + 1,
       material: '',
       stock: '',
@@ -156,18 +267,22 @@ function ReportCreateScreen() {
     };
     setMaterialUsageRows([...materialUsageRows, newRow]);
   };
+  
 
+  // Function to add a new row to Safety & Compliance Report
   const addSafetyComplianceRow = () => {
-    const newRow = {
+    const newRow = { 
       id: safetyComplianceRows.length + 1,
       item: '',
       report: ''
     };
     setSafetyComplianceRows([...safetyComplianceRows, newRow]);
   };
+  
 
+  // Function to add a new row to Issue & Risk Report
   const addIssueRiskRow = () => {
-    const newRow = {
+    const newRow = { 
       id: issueRiskRows.length + 1,
       issue: '',
       impact: ''
@@ -195,6 +310,7 @@ const handleAttachedFileUpload = (e) => {
   }
 };
 
+  // Form validation
   const validateForm = () => {
     const errors = {};
     
@@ -211,93 +327,6 @@ const handleAttachedFileUpload = (e) => {
     return Object.keys(errors).length === 0;
   };
 
-  const handleSubmit = async () => {
-    if (!validateForm()) {
-      toast.error('Please fill in all required fields');
-      return;
-    }
-
-    const reportDataobj = {
-      dailyprogresssummary: dailyProgressRows.map(row => ({
-        serialno: row.id,
-        workactivity: row.workActivity || "",
-        status: row.status || "",
-        action: row.action || ""
-      })),
-      materialusagereport: materialUsageRows.map(row => ({
-        serialno: row.id,
-        material: row.material || "",
-        stock: row.stock || "",
-        level: row.level || ""
-      })),
-      safetycompliancereport: safetyComplianceRows.map(row => ({
-        serialno: row.id,
-        item: row.item || "",
-        report: row.report || ""
-      })),
-      issueriskreport: issueRiskRows.map(row => ({
-        serialno: row.id,
-        issue: row.issue || "",
-        impact: row.impact || ""
-      }))
-    };
-
-    const reportIdNumeric = parseInt(reportData.reportId.replace(/\D/g, '')) || 0;
-
-    const updatedReportData = {
-      reportId: 0,
-      reportCode: reportData.reportId || ('RPT-' + new Date().getTime()),
-      reportType: parseInt(reportData.reportTypeId),
-      projectId: reportData.project,
-      reportDate: reportData.reportDate,
-      reportedBy: reportData.reportedBy,
-      report: `Report for ${reportData.project} - ${reportData.reportTypeId}`,
-      reportData: reportDataobj,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    try {
-      const resultAction = await dispatch(upsertReport(updatedReportData));
-      if (upsertReport.fulfilled.match(resultAction)) {
-        toast.success('Report created successfully!');
-        const reportId = resultAction.payload.reportId;
-
-        if (attachedFile) {
-          const formData = new FormData();
-          formData.append("files", attachedFile);
-          dispatch(createReportAttachmentAction({ reportId, files: formData }));
-        }
-
-        for (const row of dailyProgressRows) {
-          if (row.photo) {
-            const rowFormData = new FormData();
-            rowFormData.append("files", row.photo);
-            rowFormData.append("section", "dailyprogresssummary");
-            rowFormData.append("rowId", row.id);
-            dispatch(createReportAttachmentAction({ reportId, files: rowFormData }));
-          }
-        }
-
-        navigate('/admin/engineerreport', { state: resultAction.payload });
-      } else {
-        let errorMessage = 'Report creation failed. Please try again.';
-        if (resultAction.payload?.errors) {
-          const errorDetails = [];
-          Object.entries(resultAction.payload.errors).forEach(([key, messages]) => {
-            messages.forEach(msg => errorDetails.push(`${key}: ${msg}`));
-          });
-          if (errorDetails.length > 0) {
-            errorMessage = `Report creation failed: ${errorDetails.join(', ')}`;
-          }
-        }
-        toast.error(errorMessage);
-      }
-    } catch (err) {
-      console.error('Unexpected error:', err);
-      toast.error('An unexpected error occurred. Please try again.');
-    }
-  };
   // Function to handle form submission
   const handleSubmit = async () => {
     if (!validateForm()) {
@@ -330,25 +359,17 @@ const handleAttachedFileUpload = (e) => {
       }))
       
     };
-    const handleInputChange = (e) => {
-      const { name, value } = e.target;
-      setReportData(prev => ({
-        ...prev,
-        [name]: value
-      }));
-    };
-    
-  
-    const reportIdNumeric = parseInt(reportData.reportId.replace(/\D/g, '')) || 0;
+
+  const reportIdNumeric = parseInt(reportData.reportId.replace(/\D/g, '')) || 0;
   
    const updatedReportData = {
   reportId: 0,
   reportCode: reportData.reportId || ('RPT-' + new Date().getTime()),
   reportType: parseInt(reportData.reportTypeId),
-  projectId: String(reportData.project),  // ✅ as string
+  projectId: String(reportData.project),
   reportDate: reportData.reportDate,
   reportedBy: reportData.reportedBy,
-  report: `Report for ${projectName} - ${getReportTypeNameById(reportData.reportTypeId)}`,  // ✅ user-friendly
+  report: `Report for ${projectName} - ${getReportTypeNameById(reportData.reportTypeId)}`,
   reportData: JSON.stringify(reportDataobj),
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
@@ -357,8 +378,30 @@ const handleAttachedFileUpload = (e) => {
 try {
   const resultAction = await dispatch(upsertReport(updatedReportData));
 
-  if (upsertReport.fulfilled.match(resultAction)) {
+   if (upsertReport.fulfilled.match(resultAction)) {
     toast.success('Report created successfully!');
+
+
+// REPORT ATTACHMENT
+  const reportId = resultAction.payload.reportId;
+
+    if (attachedFile) {
+  const formData = new FormData();
+  formData.append("files", attachedFile);
+  dispatch(createReportAttachmentAction({ reportId, files: formData }));
+}
+
+for (const row of dailyProgressRows) {
+  if (row.photo) {
+    const rowFormData = new FormData();
+    rowFormData.append("files", row.photo);
+    rowFormData.append("section", "dailyprogresssummary");
+    rowFormData.append("rowId", row.id);
+
+    dispatch(createReportAttachmentAction({ reportId, files: rowFormData }));
+  }
+}
+
     navigate('/report-view', { state: resultAction.payload });
   } else {
     let errorMessage = 'Report creation failed. Please try again.';
@@ -377,8 +420,10 @@ try {
   console.error('Unexpected error:', err);
   toast.error('An unexpected error occurred. Please try again.');
 }
-
   };
+
+
+
   const getReportTypeNameById = (id) => {
   const found = reportTypes.find(type => type.reportTypeId.toString() === id.toString());
   return found ? found.reportType : "Unknown";
@@ -387,249 +432,243 @@ try {
 
   return (
     <div className="report-container">
-      <div className="report-header">
-        <h2>Daily Report</h2>
+      <div className="row mb-3">
+        <div className="col-md-4">
+          <label>Report ID</label>
+          <input
+            type="text"
+            className="form-control"
+            value={reportData.reportId}
+            onChange={(e) =>
+              setReportData({ ...reportData, reportId: e.target.value })
+            }
+          />
+        </div>
+      
+    
+
+     <div className="col-md-4">
+  <label>Report Type</label><span className='text-danger'>*</span>
+  <select
+    className="form-control"
+    name="reportTypeId"
+    value={reportData.reportTypeId}
+    onChange={handleInputChange}
+  >
+    <option value="">Select</option>
+    {reportTypes.map((type) => (
+     <option key={type.reportTypeId} value={type.reportTypeId}>
+  {type.reportType}
+</option>
+
+    ))}
+  </select>
+{formErrors.reportTypeId && <div className="text-danger">{formErrors.reportTypeId}</div>}
+</div>
+
+        <div className="col-md-4">
+          <label>Project</label><span className='text-danger'>*</span>
+       <input
+  type="text"
+  className="form-control"
+  name="projectName"
+  value={projectName}
+  readOnly
+/>
+<input
+  type="hidden"
+  name="project"
+  value={reportData.project}
+/>
+
+
+          {formErrors.project && <div className="text-danger">{formErrors.project}</div>}
+        </div>
       </div>
 
-      {/* Report ID and Details Section */}
-      <div className="report-details-section">
-        {/* Row 1: Report ID, Report Type, Project */}
-        <div className="detail-row">
-          <div className="detail-item">
-            <label>Report ID</label>
-            <div className="detail-value">{reportData.reportId}</div>
-          </div>
+      {/* Second Row: Date & Time, Reported By */}
+      <div className="row mb-3">
+      <DatePicker
+            selected={reportData.reportDate ? new Date(reportData.reportDate) : null} // Display the selected date
+            onChange={handleDateChange}
+            dateFormat="yyyy-MM-dd" // Set date format to YYYY-MM-DD
+            className="form-control"
+            placeholderText="Select a date"
+          />
+        <div className="col-md-6">
+          <label>Reported By</label><span className='text-danger'>*</span>
+          <input 
+  type="text" 
+  name="reportedBy"    // ✅ Must match key in useState
+  className="form-control" 
+  value={reportData.reportedBy} 
+  onChange={handleInputChange}
+/>
 
-          <div className="detail-item">
-            <label>Report Type <span className="text-danger">*</span></label>
-            <div className="custom-select">
-              <select
-                className="form-control detail-value"
-                name="reportTypeId"
-                value={reportData.reportTypeId}
-                onChange={handleInputChange}
-              >
-                <option value="">Select</option>
-                {reportTypes.map((type) => (
-                  <option key={type.reportTypeId} value={type.reportTypeId}>
-                    {type.reportType}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {formErrors.reportTypeId && <div className="text-danger">{formErrors.reportTypeId}</div>}
-          </div>
-
-          <div className="detail-item">
-            <label>Project <span className="text-danger">*</span></label>
-            <div className="custom-select">
-              <select
-                className="form-control detail-value"
-                name="project"
-                value={reportData.project}
-                onChange={handleInputChange}
-              >
-                <option value="">Select</option>
-                {projects.map((proj) => (
-                  <option key={proj.project_id} value={proj.project_id}>
-                    {proj.project_name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {formErrors.project && <div className="text-danger">{formErrors.project}</div>}
-          </div>
-        </div>
-
-        {/* Row 2: Date & Time, Reported By */}
-        <div className="detail-row">
-          <div className="detail-item">
-            <label>Date & Time</label>
-            <DatePicker
-              selected={reportData.reportDate ? new Date(reportData.reportDate) : null}
-              onChange={handleDateChange}
-              dateFormat="dd-MM-yyyy hh:mm a"
-              showTimeSelect
-              timeFormat="hh:mm a"
-              className="form-control detail-value"
-              placeholderText="Select date and time"
-            />
-          </div>
-
-          <div className="detail-item">
-            <label>Reported By <span className="text-danger">*</span></label>
-            <input
-              type="text"
-              name="reportedBy"
-              className="form-control detail-value"
-              value={reportData.reportedBy}
-              onChange={handleInputChange}
-            />
-          </div>
         </div>
       </div>
 
       {/* Daily Progress Summary */}
-      <div className="report-section">
-        <div className="section-header">
-          <h3>Daily Progress Summary</h3>
-        </div>
-        <div className="report-table">
-          <table>
-            <thead>
-              <tr>
-                <th>S.No</th>
-                <th>Work Activities</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {dailyProgressRows.map((row) => (
-                <tr key={row.id}>
-                  <td>{row.id}</td>
-                  <td>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={row.workActivity}
-                      onChange={(e) => handleRowChange('dailyProgress', row.id, 'workActivity', e.target.value)}
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={row.status}
-                      onChange={(e) => handleRowChange('dailyProgress', row.id, 'status', e.target.value)}
-                    />
-                  </td>
-                  <td>
-                    <div className="upload-container">
-                      <label className="upload-btn">
-                        <span>Upload Photo</span>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => handlePhotoUpload(e, row.id)}
-                          style={{ display: 'none' }}
-                        />
-                      </label>
-                      {row.photo && <span className="file-name">{row.photo.name}</span>}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <button type="button" className="btn btn-add" onClick={addDailyProgressRow}>
-            + Add Column
-          </button>
-        </div>
-      </div>
+{/* Daily Progress Summary */}
+<div className="daily-progress-summary">
+  <div className="d-flex justify-content-between align-items-center mb-3">
+    <h3>Daily Progress Summary</h3>
+    <button type="button" className="btn btn-add-column" onClick={addDailyProgressRow}>
+      + Add Column
+    </button>
+  </div>
+  <table className="table table-bordered">
+    <thead>
+      <tr>
+        <th>S.No</th>
+        <th>Work Activities</th>
+        <th>Status</th>
+        <th>Action</th>
+        <th>Photo</th>
+      </tr>
+    </thead>
+    <tbody>
+      {dailyProgressRows.map((row) => (
+        <tr key={row.id}>
+          <td>{row.id}</td>
+          <td>
+            <input 
+              type="text" 
+              className="form-control" 
+              value={row.workActivity}
+              onChange={(e) => handleRowChange('dailyProgress', row.id, 'workActivity', e.target.value)}
+            />
+          </td>
+          <td>
+            <input 
+              type="text" 
+              className="form-control" 
+              value={row.status}
+              onChange={(e) => handleRowChange('dailyProgress', row.id, 'status', e.target.value)}
+            />
+          </td>
+          <td>
+            <input 
+              type="text" 
+              className="form-control" 
+              value={row.action || ""}
+              onChange={(e) => handleRowChange('dailyProgress', row.id, 'action', e.target.value)}
+            />
+          </td>
+          <td>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => handlePhotoUpload(e, row.id)}
+              className="form-control"
+            />
+            {row.photo && <span className="file-name">{row.photo.name}</span>}
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
 
       {/* Material Usage Report */}
-      <div className="report-section">
-        <div className="section-header">
-          <h3>Material Usage Report</h3>
-        </div>
-        <div className="report-table">
-          <table>
-            <thead>
-              <tr>
-                <th>S.No</th>
-                <th>Materials</th>
-                <th>Stock</th>
-                <th>Level</th>
-              </tr>
-            </thead>
-            <tbody>
-              {materialUsageRows.map((row) => (
-                <tr key={row.id}>
-                  <td>{row.id}</td>
-                  <td>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={row.material}
-                      onChange={(e) => handleRowChange('materialUsage', row.id, 'material', e.target.value)}
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={row.stock}
-                      onChange={(e) => handleRowChange('materialUsage', row.id, 'stock', e.target.value)}
-                    />
-                  </td>
-                  <td>
-                    <div className="custom-select">
-                      <select
-                        className="form-control"
-                        value={row.level}
-                        onChange={(e) => handleRowChange('materialUsage', row.id, 'level', e.target.value)}
-                      >
-                        <option value="">Select </option>
-                        <option value="High">High</option>
-                        <option value="Medium">Medium</option>
-                        <option value="Low">Low</option>
-                      </select>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <button type="button" className="btn btn-add" onClick={addMaterialUsageRow}>
-            + Add Column
-          </button>
-        </div>
-      </div>
+      <div className="material-usage-report">
+  <div className="d-flex justify-content-between align-items-center mb-3">
+    <h3>Material Usage Report</h3>
+    <button type="button" className="btn btn-add-column" onClick={addMaterialUsageRow}>
+      + Add Column
+    </button>
+  </div>
+  <table className="table table-bordered">
+    <thead>
+      <tr>
+        <th>S.No</th>
+        <th>Material</th>
+        <th>Stock</th>
+        <th>Level</th>
+      </tr>
+    </thead>
+    <tbody>
+      {materialUsageRows.map((row) => (
+        <tr key={row.id}>
+          <td>{row.id}</td>
+          <td>
+            <input 
+              type="text" 
+              className="form-control" 
+              value={row.material}
+              onChange={(e) => handleRowChange('materialUsage', row.id, 'material', e.target.value)}
+            />
+          </td>
+          <td>
+            <input 
+              type="text" 
+              className="form-control" 
+              value={row.stock}
+              onChange={(e) => handleRowChange('materialUsage', row.id, 'stock', e.target.value)}
+            />
+          </td>
+          <td>
+            <select 
+              className="form-control"
+              value={row.level}
+              onChange={(e) => handleRowChange('materialUsage', row.id, 'level', e.target.value)}
+            >
+              <option value="">Select</option>
+              <option value="High">High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+            </select>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
 
       {/* Safety & Compliance Report */}
       <div className="safety-compliance-report">
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <h3>Safety & Compliance Report</h3>
-        </div>
-        <div className="report-table">
-          <table>
-            <thead>
-              <tr>
-                <th>S.No</th>
-                <th>Safety & Compliance</th>
-                <th>Report</th>
-              </tr>
-            </thead>
-            <tbody>
-              {safetyComplianceRows.map((row) => (
-                <tr key={row.id}>
-                  <td>{row.id}</td>
-                  <td>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={row.item}
-                      onChange={(e) => handleRowChange('safetyCompliance', row.id, 'item', e.target.value)}
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={row.report}
-                      onChange={(e) => handleRowChange('safetyCompliance', row.id, 'report', e.target.value)}
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <button type="button" className="btn btn-add" onClick={addSafetyComplianceRow}>
-            + Add Column
-          </button>
-        </div>
-      </div>
+  <div className="d-flex justify-content-between align-items-center mb-3">
+    <h3>Safety & Compliance Report</h3>
+    <button type="button" className="btn btn-add-column" onClick={addSafetyComplianceRow}>
+      + Add Column
+    </button>
+  </div>
+  <table className="table table-bordered">
+    <thead>
+      <tr>
+        <th>S.No</th>
+        <th>Item</th>
+        <th>Report</th>
+      </tr>
+    </thead>
+    <tbody>
+      {safetyComplianceRows.map((row) => (
+        <tr key={row.id}>
+          <td>{row.id}</td>
+          <td>
+            <input 
+              type="text" 
+              className="form-control" 
+              value={row.item}
+              onChange={(e) => handleRowChange('safetyCompliance', row.id, 'item', e.target.value)}
+            />
+          </td>
+          <td>
+            <input 
+              type="text" 
+              className="form-control" 
+              value={row.report}
+              onChange={(e) => handleRowChange('safetyCompliance', row.id, 'report', e.target.value)}
+            />
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
 
       {/* Issue & Risk Report */}
       <div className="issue-risk-report">
@@ -678,40 +717,45 @@ try {
 </div>
 
 
-{/* Attached File Section */}
-     <div className="attached-file">
-  <h3>Attached File</h3>
+      {/* Attached File Section */}
+      <div className="attached-file">
+        <h3>Attached File</h3>
+<input
+  type="file"
+  className="form-control"
+  onChange={handleAttachedFileUpload}
+/>
+        {attachedFile && (
+          <div className="mt-2">
+               <span>Selected file: {attachedFile.name}</span>
+          </div>
+        )}
 
-  <label className="upload-photo-btn" style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}>
-    Upload File
-    <input
-      type="file"
-      multiple
-      style={{ display: "none" }}
-      onChange={handleGeneralFileChange}
-    />
-  </label>
-</div>
+          {/* ✅ Show upload result */}
+  {uploadMessage && (
+    <div className="mt-2 text-success">
+      ✅ {uploadMessage}
+    </div>
+  )}
 
-        <div className="file-upload-container">
-          {attachedFile && (
-            <span className="file-name">{attachedFile.name}</span>
-          )}
-        </div>
+  {error && typeof error === 'string' && (
+    <div className="mt-2 text-danger">
+      ⚠️ {error}
+    </div>
+  )}
+
       </div>
 
-      {/* Form Buttons */}
-      <div className="form-buttons">
-        <button type="button" className="btn btn-cancel" onClick={() => navigate(-1)}>
-          Cancel
-        </button>
+      {/* Cancel and Submit Buttons */}
+      <div className="form-buttons mt-4">
+        <button type="button" className="btn btn-cancel" onClick={() => navigate(-1)}>Cancel</button>
         <button
           type="button"
-          className="btn btn-submit"
+          className="btn btn-primary"
           onClick={handleSubmit}
           disabled={loading}
         >
-          {loading ? 'Submitting...' : 'Submit'}
+          {loading ? 'Saving...' : 'Save Report'}
         </button>
       </div>
     </div>
@@ -719,289 +763,3 @@ try {
 }
 
 export default ReportCreateScreen;
-
-const styles = `
-.report-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-  font-family: Arial, sans-serif;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.report-header {
-  margin-bottom: 20px;
-}
-
-.report-header h2 {
-  color: #333;
-  font-size: 24px;
-  margin: 0;
-}
-
-.report-details-section {
-  margin-bottom: 30px;
-}
-
-.detail-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  margin-bottom: 15px;
-}
-
-.detail-item {
-  flex: 1;
-  min-width: 200px;
-}
-
-.detail-item label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-  color: #555;
-}
-
-.detail-value {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-}
-
-.react-datepicker-wrapper {
-  width: 100%;
-}
-
-.report-section {
-  margin-bottom: 30px;
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-.section-header h3 {
-  margin: 0;
-  font-size: 18px;
-  color: #333;
-}
-
-.btn-add {
-  background: none;
-  border: none;
-  color: #FF6F00;
-  font-weight: bold;
-  cursor: pointer;
-  padding: 0;
-  margin-top: 15px;
-  float: right;
-}
-
-.btn-add:hover {
-  text-decoration: underline;
-}
-
-.report-table {
-  width: 100%;
-  overflow-x: auto;
-}
-
-.report-table table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.report-table th,
-.report-table td {
-  padding: 12px 15px;
-  border: 1px solid #ddd;
-  text-align: center;
-}
-
-.report-table th {
-  background-color: #DEDEDE;
-  font-weight: bold;
-}
-
-.report-table tr:nth-child(even) {
-  background-color: #f9f9f9;
-}
-
-.upload-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.upload-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
-  cursor: pointer;
-  font-size: 14px;
-  text-decoration: none;
-  border: none;
-  background: none;
-}
-
-.upload-btn span {
-  color: #0456D0;
-  text-decoration: underline;
-}
-
-.attached-file-section {
-  margin-bottom: 16px;
-}
-
-.header-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.upload-icons {
-  color: #0456D0 !important;
-  font-size: 20px;
-}
-
-.upload-btn-2 {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
-  cursor: pointer;
-  font-size: 20px;
-  text-decoration: none;
-  border: none;
-  background: none;
-}
-
-.upload-btn-2 span {
-  color: #0456D0;
-}
-
-.file-name {
-  margin-left: 10px;
-  font-size: 14px;
-  color: #666;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 150px;
-}
-
-.attached-file-section {
-  margin-bottom: 30px;
-}
-
-.attached-file-section h3 {
-  margin-bottom: 15px;
-  font-size: 18px;
-  color: #333;
-}
-
-.file-upload-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.form-buttons {
-  display: flex;
-  justify-content: flex-end;
-  gap: 15px;
-  margin-top: 30px;
-}
-
-.btn-cancel {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  font-weight: bold;
-  width: 120px;
-  height: 40px;
-  margin-top: 20px;
-  margin-right: 1px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.btn-submit {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.btn-cancel {
-  background-color: #f0f0f0;
-  color: #333;
-  border: 1px solid #ddd;
-}
-.btn-cancel:hover{
-  border: 1px solid #ddd;
-}
-.btn-submit {
-  background-color: #FF6F00;
-  color: #fff;
-}
-.text-danger {
-  color: #dc3545;
-  font-size: 12px;
-  margin-top: 5px;
-}
-
-/* Custom select styles */
-.custom-select {
-  position: relative;
-  width: 100%;
-}
-
-.custom-select select {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  width: 100%;
-  padding: 8px 30px 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background-color: white;
-  cursor: pointer;
-}
-
-.custom-select::after {
-  content: "▼";
-  font-size: 12px;
-  color: #555;
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none;
-}
-
-/* For Material Usage and Issue Risk tables */
-.report-table .custom-select {
-  width: auto;
-}
-
-.report-table .custom-select select {
-  width: 100%;
-  min-width: 120px;
-}
-`;
-
-// Add styles to the document head
-const styleElement = document.createElement('style');
-styleElement.innerHTML = styles;
-document.head.appendChild(styleElement);
