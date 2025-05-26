@@ -224,8 +224,8 @@ const ProjectBasicDetails = ({
     <div className="step-basic-details">
       <h2 className="section-title">Project Basic Details</h2>
       <Form>
-        <Row>
-          <Col md={6}>
+        <div className="row">
+          <div className="col-sm-12 col-md-6 col-lg-4">
             <Form.Group className="mb-4">
               <Form.Label className="text-dark">
                 Project Name <span className="required">*</span>
@@ -240,9 +240,8 @@ const ProjectBasicDetails = ({
               />
               <Form.Control.Feedback type="invalid">{formErrors?.projectName}</Form.Control.Feedback>
             </Form.Group>
-          </Col>
-
-          <Col md={6}>
+          </div>
+          <div className="col-sm-12 col-md-6 col-lg-4">
             <Form.Group className="mb-4">
               <Form.Label className="text-dark">
                 Location <span className="required">*</span>
@@ -257,11 +256,8 @@ const ProjectBasicDetails = ({
               />
               <Form.Control.Feedback type="invalid">{formErrors?.projectLocation}</Form.Control.Feedback>
             </Form.Group>
-          </Col>
-        </Row>
-
-        <Row>
-          <Col md={6}>
+          </div>
+          <div className="col-sm-12 col-md-6 col-lg-4">
             <Form.Group className="mb-4">
               <Form.Label className="text-dark">
                 Project Type <span className="required">*</span>
@@ -285,9 +281,8 @@ const ProjectBasicDetails = ({
               </Form.Select>
               <Form.Control.Feedback type="invalid">{formErrors?.projectTypeId}</Form.Control.Feedback>
             </Form.Group>
-          </Col>
-
-          <Col md={6}>
+          </div>
+          <div className="col-sm-12 col-md-6 col-lg-4">
             <Form.Group className="mb-4">
               <Form.Label className="text-dark">
                 Project Sector <span className="required">*</span>
@@ -322,11 +317,8 @@ const ProjectBasicDetails = ({
               <Form.Control.Feedback type="invalid">{formErrors?.projectSectorId}</Form.Control.Feedback>
               
             </Form.Group>
-          </Col>
-        </Row>
-
-        <Row>
-          <Col md={6}>
+          </div>
+          <div className="col-sm-12 col-md-6 col-lg-4">
             <Form.Group className="mb-4">
               <Form.Label className="text-dark">
                 Project Start Date <span className="required">*</span>
@@ -346,9 +338,8 @@ const ProjectBasicDetails = ({
               </div>
               <Form.Control.Feedback type="invalid">{formErrors?.projectStartDate}</Form.Control.Feedback>
             </Form.Group>
-          </Col>
-
-          <Col md={6}>
+          </div>
+          <div className="col-sm-12 col-md-6 col-lg-4">
             <Form.Group className="mb-4">
               <Form.Label className="text-dark">
                 Expected Completion Date <span className="required">*</span>
@@ -368,11 +359,8 @@ const ProjectBasicDetails = ({
               </div>
               <Form.Control.Feedback type="invalid">{formErrors?.expectedCompletionDate}</Form.Control.Feedback>
             </Form.Group>
-          </Col>
-        </Row>
-
-        <Row>
-          <Col md={12}>
+          </div>
+          <div className="col-sm-12 col-md-12 col-lg-12">
             <Form.Group className="mb-4">
               <Form.Label className="text-dark">
                 Project Description <span className="required">*</span>
@@ -388,13 +376,10 @@ const ProjectBasicDetails = ({
               />
               <Form.Control.Feedback type="invalid">{formErrors?.description}</Form.Control.Feedback>
             </Form.Group>
-          </Col>
-        </Row>
-
-        <Row className="d-flex justify-content-end align-items-end" style={{ minHeight: "100px" }}>
-          <Col xs="auto">
+          </div>
+          <div className="col-sm-12 col-md-12 col-lg-12">
             <Button
-              className="btn-primary btn fs-14-600 bg-primary border-0 border-radius-2"
+              className="btn-primary me-0 ms-auto mt-4 btn fs-14-600 bg-primary border-0 border-radius-2"
               onClick={handleCreateClick}
               disabled={submitting || projectCreated}
             >
@@ -408,8 +393,8 @@ const ProjectBasicDetails = ({
                 "Next >"
               )}
             </Button>
-          </Col>
-        </Row>
+          </div>
+        </div>
       </Form>
     </div>
   );

@@ -209,7 +209,7 @@ const ProjectSummary = ({ formData, onBackClick }) => {
 
   // Enhanced empty state components
   const EmptyState = ({ message = "No data available", showIcon = true }) => (
-    <div className="text-center py-4 text-muted border rounded bg-light">
+    <div className="text-center py-4 text-muted border rounded bg-white">
       {showIcon && <div className="mb-2">📋</div>}
       <p className="mb-0 fs-16-500">{message}</p>
     </div>
@@ -284,12 +284,12 @@ const ProjectSummary = ({ formData, onBackClick }) => {
       </div>
 
       {/* 01. Enhanced Project Basic Details */}
-      <div className="summary-section mt-4">
+      <div className="summary-section mt-5">
         <div className="summary-header d-flex justify-content-between align-items-center mb-3">
-          <h3>01. Project Basic Details</h3>
+          <h3 className="fs-28-700 text-dark">01. Project Basic Details</h3>
           <Button
             variant="link"
-            className="edit-btn text-primary"
+            className="edit-btn text-primary me-0 pe-0"
             onClick={() =>
               navigate(`../createproject/${projectId}`, { state: { step: 0 } })
             }
@@ -301,44 +301,43 @@ const ProjectSummary = ({ formData, onBackClick }) => {
         <Row className="mb-3">
           <Col md={6} lg={4}>
             <div className="summary-field">
-              <label className="fw-bold text-dark mb-2">Project Name</label>
+              <label className="text-dark fs-20-500 mb-2">Project Name</label>
               <Form.Control
                 disabled
                 type="text"
                 value={displayValue(projectData?.project?.project_name)}
-                className={
-                  isEmpty(projectData?.project?.project_name)
-                    ? "text-muted"
-                    : ""
-                }
+                className={`bg-white text-dark-gray  fs-16-500  h48px border-radius-4  ${
+  isEmpty(projectData?.project?.project_name) ? "text-muted" : ""
+}`}
+
               />
             </div>
           </Col>
           <Col md={6} lg={4}>
             <div className="summary-field">
-              <label className="fw-bold text-dark mb-2">Location</label>
+              <label className="text-dark fs-20-500 mb-2">Location</label>
               <Form.Control
                 disabled
                 type="text"
                 value={displayValue(projectData?.project?.project_location)}
-                className={
+                className={`bg-white text-dark-gray  fs-16-500  h48px border-radius-4  ${
                   isEmpty(projectData?.project?.project_location)
                     ? "text-muted"
                     : ""
-                }
+                }`}
               />
             </div>
           </Col>
           <Col md={6} lg={4}>
             <div className="summary-field">
-              <label className="fw-bold text-dark mb-2">Project Type</label>
+              <label className="text-dark fs-20-500 mb-2">Project Type</label>
               <Form.Control
                 disabled
                 type="text"
                 value={getProjectTypeName()}
-                className={
+                className={`bg-white text-dark-gray  fs-16-500  h48px border-radius-4  ${
                   getProjectTypeName() === "Not Available" ? "text-muted" : ""
-                }
+                 }`}
               />
             </div>
           </Col>
@@ -347,20 +346,20 @@ const ProjectSummary = ({ formData, onBackClick }) => {
         <Row className="mb-3">
           <Col md={6} lg={4}>
             <div className="summary-field">
-              <label className="fw-bold text-dark mb-2">Project Sector</label>
+              <label className="text-dark fs-20-500 mb-2">Project Sector</label>
               <Form.Control
                 disabled
                 type="text"
                 value={getProjectSectorName()}
-                className={
+                className={`bg-white text-dark-gray  fs-16-500  h48px border-radius-4  ${
                   getProjectSectorName() === "Not Available" ? "text-muted" : ""
-                }
+                }`}
               />
             </div>
           </Col>
           <Col md={6} lg={4}>
             <div className="summary-field">
-              <label className="fw-bold text-dark mb-2">
+              <label className="text-dark fs-20-500 mb-2">
                 Project Start Date
               </label>
               <div className="position-relative w-100">
@@ -368,11 +367,11 @@ const ProjectSummary = ({ formData, onBackClick }) => {
                   disabled
                   type="text"
                   value={formatDate(projectData?.project?.project_start_date)}
-                  className={
+                  className={`bg-white text-dark-gray  fs-16-500  h48px border-radius-4  ${
                     isEmpty(projectData?.project?.project_start_date)
                       ? "text-muted"
                       : ""
-                  }
+                  }`}
                 />
                 <Calendar
                   className="position-absolute"
@@ -389,7 +388,7 @@ const ProjectSummary = ({ formData, onBackClick }) => {
           </Col>
           <Col md={6} lg={4}>
             <div className="summary-field">
-              <label className="fw-bold text-dark mb-2">
+              <label className="text-dark fs-20-500 mb-2">
                 Expected Completion Date
               </label>
               <div className="position-relative w-100">
@@ -397,11 +396,11 @@ const ProjectSummary = ({ formData, onBackClick }) => {
                   disabled
                   type="text"
                   value={formatDate(projectData?.project?.project_end_date)}
-                  className={
+                  className={`bg-white text-dark-gray  fs-16-500  h48px border-radius-4  ${
                     isEmpty(projectData?.project?.project_end_date)
                       ? "text-muted"
                       : ""
-                  }
+                  }`}
                 />
                 <Calendar
                   className="position-absolute"
@@ -421,17 +420,17 @@ const ProjectSummary = ({ formData, onBackClick }) => {
         <Row>
           <Col>
             <div className="summary-field">
-              <label className="fw-bold text-dark mb-2">Description</label>
+              <label className="text-dark fs-20-500 mb-2">Description</label>
               <Form.Control
                 disabled
                 as="textarea"
                 rows={3}
                 value={displayValue(projectData?.project?.project_description)}
-                className={
+                className={`bg-white text-dark-gray  fs-16-500  border-radius-4  ${
                   isEmpty(projectData?.project?.project_description)
                     ? "text-muted"
                     : ""
-                }
+                }`}
               />
             </div>
           </Col>
@@ -439,12 +438,12 @@ const ProjectSummary = ({ formData, onBackClick }) => {
       </div>
 
       {/* 02. Enhanced Budget & Financial Allocation */}
-      <div className="summary-section">
+      <div className="summary-section mt-5">
         <div className="summary-header d-flex justify-content-between align-items-center mb-3">
-          <h3>02. Budget & Financial Allocation</h3>
+          <h3 className="fs-28-700 text-dark">02. Budget & Financial Allocation</h3>
           <Button
             variant="link"
-            className="edit-btn text-primary"
+            className="edit-btn text-primary me-0 pe-0"
             onClick={() =>
               navigate(`../createproject/${projectId}`, { state: { step: 1 } })
             }
@@ -456,7 +455,7 @@ const ProjectSummary = ({ formData, onBackClick }) => {
         <Row className="mb-3">
           <Col md={6}>
             <div className="summary-field">
-              <label className="fw-bold text-dark mb-2">
+              <label className="text-dark fs-26-700 mb-2">
                 Total Project Budget
               </label>
               <Form.Control
@@ -465,10 +464,10 @@ const ProjectSummary = ({ formData, onBackClick }) => {
                 value={displayAmount(
                   projectData?.project?.project_total_budget
                 )}
-                className={`fs-5 fw-bold ${
+                className={`bg-white text-dark-gray h48px fs-16-500  border-radius-4  ${
                   isEmpty(projectData?.project?.project_total_budget)
-                    ? "text-muted"
-                    : "text-success"
+                    ? ""
+                    : ""
                 }`}
               />
             </div>
@@ -476,7 +475,7 @@ const ProjectSummary = ({ formData, onBackClick }) => {
         </Row>
 
         <div className="budget-breakdown-summary">
-          <h4 className="text-dark-gray fs-22-700 mb-3">Budget Breakdown</h4>
+          <h4 className="text-dark-gray fs-22-700 mb-0">Budget Breakdown</h4>
           {!isEmpty(projectData?.budget_details) ? (
             <Table bordered responsive className="mt-4 w-100">
               <thead className="table-light">
@@ -523,12 +522,12 @@ const ProjectSummary = ({ formData, onBackClick }) => {
       </div>
 
       {/* 03. Enhanced Project Team & Stakeholder Assignment */}
-      <div className="summary-section">
+      <div className="summary-section mt-5">
         <div className="summary-header d-flex justify-content-between align-items-center mb-3">
-          <h3>03. Project Team & Stakeholder Assignment</h3>
+          <h3 className="fs-28-700 text-dark">03. Project Team & Stakeholder Assignment</h3>
           <Button
             variant="link"
-            className="edit-btn text-primary"
+            className="edit-btn text-primary me-0 pe-0"
             onClick={() =>
               navigate(`../createproject/${projectId}`, { state: { step: 2 } })
             }
@@ -536,18 +535,16 @@ const ProjectSummary = ({ formData, onBackClick }) => {
             ✏️ Edit
           </Button>
         </div>
-
-        <h5 className="mb-3">Team Members</h5>
         <Row className="mb-4">
           {getAllRolesWithMembers().map((roleData, index) => (
             <Col md={6} lg={4} key={roleData.role || index} className="mb-3">
               <div className="summary-field">
-                <label className="fw-bold text-dark mb-2">
+                <label className="text-dark fs-20-500 mb-2">
                   {displayValue(roleData.role)}
                 </label>
                 {roleData.isAssigned ? (
                   <div>
-                    <div className="d-flex align-items-center p-2 border rounded bg-light mb-2">
+                    <div className="d-flex align-items-center p-2 minh48px border border-radius-4 bg-white mb-2">
                       <div className="flex-grow-1">
                         {roleData.members.map((member, memberIndex) => (
                           <span className="text-dark d-block">
@@ -558,7 +555,7 @@ const ProjectSummary = ({ formData, onBackClick }) => {
                     </div>
                   </div>
                 ) : (
-                  <div className="d-flex align-items-center p-2 border rounded bg-light">
+                  <div className="d-flex align-items-center p-2 border rounded bg-white">
                     <div className="me-2">
                       <div
                         className=" text-white d-flex align-items-center justify-content-center"
@@ -575,9 +572,9 @@ const ProjectSummary = ({ formData, onBackClick }) => {
           ))}
           <div class="mb-3 col-lg-4 col-md-6">
             <div class="summary-field">
-              <label class="fw-bold text-dark mb-2">Subcontractor</label>
+              <label className="text-dark fs-20-500 mb-2">Subcontractor</label>
               {!isEmpty(projectData?.subcontractor_details) ? (
-                <div className="d-flex align-items-center p-2 border rounded bg-light">
+                <div className="d-flex align-items-center p-2 border rounded bg-white">
                   <div className="me-2">
                     {projectData.subcontractor_details.map(
                       (subcontractor, index) => (
@@ -591,7 +588,7 @@ const ProjectSummary = ({ formData, onBackClick }) => {
                   </div>
                 </div>
               ) : (
-                <div className="d-flex align-items-center p-2 border rounded bg-light">
+                <div className="d-flex align-items-center p-2 border rounded bg-white">
                   <div className="me-2">
                     <div
                       className=" text-white d-flex align-items-center justify-content-center"
@@ -608,9 +605,9 @@ const ProjectSummary = ({ formData, onBackClick }) => {
           </div>
           <div class="mb-3 col-lg-4 col-md-6">
             <div class="summary-field">
-              <label class="fw-bold text-dark mb-2">Vendor</label>
+              <label className="text-dark fs-20-500 mb-2">Vendor</label>
               {!isEmpty(projectData?.vendor_details) ? (
-                <div className="d-flex align-items-center p-2 border rounded bg-light">
+                <div className="d-flex align-items-center p-2 border rounded bg-white">
                   <div className="me-2">
                     {projectData.vendor_details.map((vendor, index) => (
                         <div className="">
@@ -623,7 +620,7 @@ const ProjectSummary = ({ formData, onBackClick }) => {
                   </div>
                 </div>
               ) : (
-                <div className="d-flex align-items-center p-2 border rounded bg-light">
+                <div className="d-flex align-items-center p-2 border rounded bg-white">
                   <div className="me-2">
                     <div
                       className=" text-white d-flex align-items-center justify-content-center"
@@ -688,12 +685,12 @@ const ProjectSummary = ({ formData, onBackClick }) => {
       </div>
 
       {/* 04. Enhanced Timeline & Milestone Planning */}
-      <div className="summary-section">
+      <div className="summary-section mt-5">
         <div className="summary-header d-flex justify-content-between align-items-center mb-3">
-          <h3>04. Timeline & Milestone Planning</h3>
+          <h3 className="fs-28-700 text-dark">04. Timeline & Milestone Planning</h3>
           <Button
             variant="link"
-            className="edit-btn text-primary"
+            className="edit-btn text-primary me-0 pe-0"
             onClick={() =>
               navigate(`../createproject/${projectId}`, { state: { step: 3 } })
             }
@@ -756,12 +753,12 @@ const ProjectSummary = ({ formData, onBackClick }) => {
       </div>
 
       {/* 05. Enhanced Risk & Compliance Assessment */}
-      <div className="summary-section">
+      <div className="summary-section mt-5">
         <div className="summary-header d-flex justify-content-between align-items-center mb-3">
-          <h3>05. Risk & Compliance Assessment</h3>
+          <h3 className="fs-28-700 text-dark">05. Risk & Compliance Assessment</h3>
           <Button
             variant="link"
-            className="edit-btn text-primary"
+            className="edit-btn text-primary me-0 pe-0"
             onClick={() =>
               navigate(`../createproject/${projectId}`, { state: { step: 4 } })
             }

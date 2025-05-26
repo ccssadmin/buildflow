@@ -264,7 +264,7 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
   };
 
   return (
-    <div className="form-section">
+    <div className="form-section risk-container">
       <h2 className="section-title">Risk & Compliance Assessment</h2>
       <table className="tbl mt-4 w-100 table table-bordered">
         <thead>
@@ -272,7 +272,7 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
             <th className="text-center text-dark fs-18-500">S. No</th>
             <th className="text-center text-dark fs-18-500">Category</th>
             <th className="text-center text-dark fs-18-500">Status</th>
-            <th className="text-center text-dark fs-18-500">File</th>
+            <th className="text-center text-dark fs-18-500 w280">File</th>
           </tr>
         </thead>
         <tbody>
@@ -294,18 +294,18 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
                   size="sm"
                 />
               </td>
-              <td className="text-center text-dark-gray fs-16-500">
+              <td className="text-center text-dark-gray fs-16-500 w180">
                 <Form.Select
                   value={risk.status}
                   onChange={(e) => handleStatusChange(risk.id, e.target.value)}
                   size="sm"
                 >
                   <option value="">Select Status</option>
-                  <option value="Completed">Completed</option>
-                  <option value="Pending">Pending</option>
+                  <option value="Completed">✅ Completed</option>
+                  <option value="Pending">⚠ Pending</option>
                 </Form.Select>
               </td>
-              <td>
+              <td className="text-center w280">
                 <input
                   type="file"
                   id={`file-input-${risk.id}`}

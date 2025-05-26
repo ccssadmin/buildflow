@@ -436,20 +436,20 @@ const TimelineMilestonePlanning = ({
               <table className="tbl mt-4 table table-bordered w-100">
                 <thead>
                   <tr>
-                    <th className="text-center text-dark fs-18-500">S.No</th>
+                    <th className="text-center text-dark fs-18-500 w48">S.No</th>
                     <th className="text-center text-dark fs-18-500">
                       Milestone Name
                     </th>
                     <th className="text-center text-dark fs-18-500">Description</th>
-                    <th className="text-center text-dark fs-18-500">Start Date</th>
-                    <th className="text-center text-dark fs-18-500">End Date</th>
+                    <th className="text-center text-dark fs-18-500 w140">Start Date</th>
+                    <th className="text-center text-dark fs-18-500 w140">End Date</th>
                     <th className="text-center text-dark fs-18-500">Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   {sortedMilestones.map((item, index) => (
                     <tr key={item.id}>
-                      <td className="text-center text-dark-gray fs-16-500">
+                      <td className="text-center text-dark-gray fs-16-500 w48">
                         {index + 1}
                       </td>
                       <td className="text-center text-dark-gray fs-16-500">
@@ -482,37 +482,35 @@ const TimelineMilestonePlanning = ({
                           placeholder="Enter description"
                         />
                       </td>
-                      <td className="text-center text-dark-gray fs-16-500">
+                      <td className="text-center text-dark-gray fs-16-500 w140">
                         <div style={{ position: "relative" }}>
                           <DatePicker
                             selected={parseDate(item.startDate)}
                             onChange={(date) => handleDateChange(item.id, "startDate", date)}
-                            className="form-control pe-3 border-1 shadow-none bg-transparent"
+                            className="form-control pe-3 text-light-gray-1 border-1 shadow-none bg-transparent"
                             dateFormat="d MMMM yyyy"
-                            placeholderText="Select start date"
+                            placeholderText="DD/MM/YYYY"
                             isClearable
                             showYearDropdown
                             showMonthDropdown
                             dropdownMode="select"
                           />
-                          <CiCalendar />
                         </div>
                       </td>
-                      <td className="text-center text-dark-gray fs-16-500">
+                      <td className="text-center text-dark-gray fs-16-500 w140">
                         <div style={{ position: "relative" }}>
                           <DatePicker
                             selected={parseDate(item.endDate)}
                             onChange={(date) => handleDateChange(item.id, "endDate", date)}
-                            className="form-control pe-3 border-1 shadow-none bg-transparent"
+                            className="form-control pe-3 text-light-gray-1 border-1 shadow-none bg-transparent"
                             dateFormat="d MMMM yyyy"
-                            placeholderText="Select end date"
+                            placeholderText="DD/MM/YYYY"
                             minDate={parseDate(item.startDate)}
                             isClearable
                             showYearDropdown
                             showMonthDropdown
                             dropdownMode="select"
                           />
-                         <CiCalendar />
                         </div>
                       </td>
                       <td className="text-center text-dark-gray fs-16-500">
