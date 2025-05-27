@@ -119,3 +119,117 @@ body .page-pmdashboard .budget-usage-conatiner .progress-container {
 .page-pmdashboard .quickalert-max-height {
     height: 380px;
 }
+
+
+
+/* index-po */
+
+
+/* Container for PO screen */
+.po-container {
+  padding: 20px;
+  border-radius: 10px;
+  margin-top: 20px;
+}
+
+/* Heading style */
+.po-header-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Filter + Button wrapper */
+.po-filter-action-bar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* Dropdown filter */
+.po-filter-select {
+  width: 120px;
+  height: 40px;
+  background-color: #f8f9fa;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 0 10px;
+  justify-content: space-between;
+}
+
+/* Create PO button */
+.po-create-btn {
+  width: 140px;
+  height: 40px;
+  background-color: #FF6600;
+  color: white;
+ 
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  gap: 10px;
+}
+
+.po-create-btn:hover {
+  background-color: #e65c00;
+}
+
+/* Table layout */
+.po-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.po-table thead {
+  background-color: #f8f9fa;
+}
+
+.po-table th,
+.po-table td {
+  text-align: center;
+  padding: 10px;
+  border: 1px solid #dee2e6;
+  font-size: 14px;
+  vertical-align: middle;
+  color: #333333;
+}
+
+/* Status styling */
+.po-status {
+  font-weight: 500;
+  color: #30A335;
+}
+
+/* Action link */
+.po-view-link {
+  color: #0d6efd;
+  text-decoration: none;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.po-view-link:hover {
+  text-decoration: underline;
+}
+
+/* Empty state */
+.po-empty {
+  text-align: center;
+  color: #999;
+  font-style: italic;
+  padding: 20px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .po-filter-action-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .po-filter-select,
+  .po-create-btn {
+    width: 100%;
+  }
+}
