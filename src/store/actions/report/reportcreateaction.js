@@ -167,3 +167,41 @@ export const createReportAttachmentAction = createAsyncThunk(
     }
   }
 );
+
+export const createDailyReportAttachmentAction = createAsyncThunk(
+  "report/uploadDailyAttachments",
+  async ({ reportId, sNoArray, fileList }, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const formData = new FormData();
+
+      // Append ReportId
+      formData.append("ReportId", reportId);
+
+      // Append SNo as array
+      sNoArray.forEach((sno) => {
+        formData.append("SNo", sno); // field name should stay consistent with backend
+      });
+
+      // Append Files as array
+      fileList.forEach((file) => {
+        formData.append("Files", file);
+      });
+
+      const response = await axios.post(
+        `${BASE_URL}/api/Report/upload-daily-attachments`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);

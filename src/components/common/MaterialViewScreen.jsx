@@ -191,7 +191,7 @@ const MaterialViewScreen = () => {
       >
         <h2 style={{ margin: 0, fontSize: "16px", color: "#333" }}>
           <span
-            onClick={() => navigate("/admin/engineermaterial")}
+            onClick={() => navigate("#")}
             style={{ cursor: "pointer" }}
           >
             BOQ

@@ -29,9 +29,9 @@ const MaterialCreateScreen = () => {
   const [selectedApprover, setSelectedApprover] = useState([]);
   const { boqId } = useSelector((state) => state.boq);
   const { createTicket } = useTicket();
-  const { createNotify } = useNotification();
+  const {  createNotify  } = useNotification();
   const [initialApproverArray, setInitialApproverArray] = useState([]);
-  const [validationErrors, setValidationErrors] = useState({
+    const [validationErrors, setValidationErrors] = useState({
     title: false,
     vendor: false,
     approver: false
@@ -111,7 +111,7 @@ const MaterialCreateScreen = () => {
     const value = e.target.value;
     setSelectedVendorId(value);
     if (value) {
-      setValidationErrors({ ...validationErrors, vendor: false });
+      setValidationErrors({  ...validationErrors, vendor: false  });
     }
   }
 
@@ -153,10 +153,12 @@ const MaterialCreateScreen = () => {
     }
     let empData = JSON.parse(localStorage.getItem("userData"));
 
+
     if (!selectedVendorId) {
       toast.warn("Please select a vendor.");
       return;
     }
+
 
     const boqPayload = {
       empId: empData?.empId,
@@ -195,7 +197,7 @@ const MaterialCreateScreen = () => {
 
         const ticketId = ticketResponse?.data?.data?.ticketId;
         const projectName = ticketResponse?.data?.data?.projectName;
-
+  
         // Step 3: Send Notification with ticketId
         try {
           await createNotify({
@@ -208,6 +210,7 @@ const MaterialCreateScreen = () => {
         } catch (error) {
           console.warn("Notification failed:", error);
         }
+
 
         // Step 4: Navigate to Ticket Details
         const ticketDetails = await dispatch(getticketbyidAction(ticketId)).unwrap();
@@ -234,6 +237,7 @@ const MaterialCreateScreen = () => {
       toast.error("BOQ creation failed.");
     }
   };
+
 
 
   useEffect(() => {
