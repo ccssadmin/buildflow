@@ -93,6 +93,9 @@ body .bg-primary {
 .cursor-pointer {
     cursor: pointer !important;
 }
+html body .border-0, html body .border-0:focus {
+    border: 0px !important;
+}
 .border-radius-0 {
     border-radius: 0px !important;
 }
@@ -229,6 +232,9 @@ body .bg-primary {
 .h48px {
     height: 48px !important;
 }
+.h148px {
+    height: 148px;
+}
 .minh48px {
     min-height: 48px;
 }
@@ -254,6 +260,9 @@ body .bg-primary {
 }
 .w280 {
     width: 280px;
+}
+.w220 {
+    width: 220px;
 }
 .w200 {
     width: 200px;

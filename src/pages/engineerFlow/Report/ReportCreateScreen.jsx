@@ -447,7 +447,7 @@ if (fileList.length > 0) {
         <div className="col-sm-12 col-md-6 col-lg-4">
           <label className="text-dark fs-20-500 d-block mb-2">Report ID</label>
           <input
-            className="h48px border-radius-4 mb-4 w-100 cursor-not-allowed py-1 px-3 fs-16-500 bg-light text-light-gray-1 border-1-silver-gray"
+            className="h48px border-radius-4 mb-4 w-100 cursor-not-allowed py-1 px-3 fs-16-500 bg-white text-light-gray-1 border-1-silver-gray"
             disabled
             type="text"
             value={reportData.reportId}
@@ -460,7 +460,7 @@ if (fileList.length > 0) {
           </label>
           <div className="custom-select">
               <select
-                className="form-control detail-value h48px border-radius-4 mb-4 w-100 py-1 px-3 fs-16-500 bg-light text-light-gray-1 border-1-silver-gray"
+                className="form-control detail-value h48px border-radius-4 mb-4 w-100 py-1 px-3 fs-16-500 bg-white text-light-gray-1 border-1-silver-gray"
                 name="reportTypeId"
                 value={reportData.reportTypeId}
                 onChange={handleInputChange}
@@ -480,7 +480,7 @@ if (fileList.length > 0) {
         <div className="col-sm-12 col-md-6 col-lg-4">
           <label className="text-dark fs-20-500 d-block mb-2">Project</label>
         <input
-        className="h48px border-radius-4 mb-4 w-100 cursor-not-allowed py-1 px-3 fs-16-500 bg-light text-dark border-1-silver-gray"
+        className="h48px border-radius-4 mb-4 w-100 cursor-not-allowed py-1 px-3 fs-16-500 bg-white text-dark border-1-silver-gray"
         disabled
         type="text"
         value={
@@ -504,7 +504,7 @@ if (fileList.length > 0) {
               dateFormat="dd-MM-yyyy hh:mm a"
               showTimeSelect
               timeFormat="hh:mm a"
-              className="h48px border-radius-4 mb-4 w-100 py-1 px-3 fs-16-500 bg-light text-dark border-1-silver-gray"
+              className="h48px border-radius-4 mb-4 w-100 py-1 px-3 fs-16-500 bg-white text-dark border-1-silver-gray"
               placeholderText="Select date and time"
             />
         </div>
@@ -517,9 +517,9 @@ if (fileList.length > 0) {
             <div
               className="rounded-circle text-white d-flex align-items-center justify-content-center"
               style={{
-                width: "36px",
-                height: "36px",
-                fontSize: "16px",
+                width: "20px",
+                height: "20px",
+                fontSize: "8px",
                 flexShrink: 0,
                 backgroundColor: getRandomColor(), // random color
                 position: "absolute",
@@ -531,12 +531,12 @@ if (fileList.length > 0) {
 
             {/* Disabled input with name */}
             <input
-              className="h48px border-radius-4 w-100 cursor-not-allowed py-1 fs-16-500 bg-light text-dark border-1-silver-gray"
+              className="h48px border-radius-4 w-100 cursor-not-allowed py-1 fs-16-500 bg-white text-dark border-1-silver-gray"
               disabled
               type="text"
               value={reportData.reportedBy}
               readOnly
-              style={{ paddingLeft: "60px" }}
+              style={{ paddingLeft: "40px" }}
               name="reportedBy"
             />
           </div>
@@ -546,23 +546,23 @@ if (fileList.length > 0) {
       {/* Daily Progress Summary */}
       <div className="report-section">
         <div className="section-header">
-        <h3>Daily Progress Summary</h3>
+        <h3 className="fs-26-700 text-dark mb-4 mt-4">Daily Progress Summary</h3>
         </div>
         <div className="report-table">
-          <table>
+          <table className="tbl w-100">
             <thead>
               <tr>
-                <th>S.No</th>
-                <th>Work Activities</th>
-                <th>Status</th>
-                <th>Action</th>
+                <th className="text-center w48">S.No</th>
+                <th className="text-center">Work Activities</th>
+                <th className="text-center">Status</th>
+                <th className="text-center">Action</th>
               </tr>
             </thead>
             <tbody>
               {dailyProgressRows.map((row) => (
                 <tr key={row.id}>
-                  <td>{row.id}</td>
-                  <td>
+                  <td className="text-center">{row.id}</td>
+                  <td className="text-center">
                     <input
                       type="text"
                       className="form-control"
@@ -577,7 +577,7 @@ if (fileList.length > 0) {
                       }
                     />
                   </td>
-                  <td>
+                  <td className="text-center">
                     <input
                       type="text"
                       className="form-control"
@@ -594,7 +594,7 @@ if (fileList.length > 0) {
                   </td>
 
 
-                  <td>
+                  <td className="text-center">
                     <div className="upload-container">
                       <label className="upload-btn">
                         <span>Upload Photo</span>
@@ -629,23 +629,23 @@ if (fileList.length > 0) {
       {/* Material Usage Report */}
       <div className="report-section">
         <div className="section-header">
-          <h3>Material Usage Report</h3>
+          <h3 className="fs-26-700 text-dark mb-4 mt-4">Material Usage Report</h3>
         </div>
         <div className="report-table">
-          <table>
+          <table className="tbl w-100">
             <thead>
               <tr>
-                <th>S.No</th>
-                <th>Materials</th>
-                <th>Stock</th>
-                <th>Level</th>
+                <th className="text-center w48">S.No</th>
+                <th className="text-center">Materials</th>
+                <th className="text-center">Stock</th>
+                <th className="text-center">Level</th>
               </tr>
             </thead>
             <tbody>
               {materialUsageRows.map((row) => (
                 <tr key={row.id}>
-                  <td>{row.id}</td>
-                  <td>
+                  <td className="text-center">{row.id}</td>
+                  <td className="text-center">
                     <input
                       type="text"
                       className="form-control"
@@ -660,7 +660,7 @@ if (fileList.length > 0) {
                       }
                     />
                   </td>
-                  <td>
+                  <td className="text-center">
                     <input
                       type="text"
                       className="form-control"
@@ -675,10 +675,10 @@ if (fileList.length > 0) {
                       }
                     />
                   </td>
-                  <td>
+                  <td className="text-center">
                     <div className="custom-select">
                       <select
-                        className="form-control"
+                        className="form-control border-0"
                         value={row.level}
                         onChange={(e) =>
                           handleRowChange(
@@ -713,22 +713,22 @@ if (fileList.length > 0) {
       {/* Safety & Compliance Report */}
       <div className="safety-compliance-report">
         <div className="d-flex justify-content-between align-items-center mb-3">
-          <h3>Safety & Compliance Report</h3>
+          <h3 className="fs-26-700 text-dark mb-4 mt-4">Safety & Compliance Report</h3>
         </div>
         <div className="report-table">
-          <table>
+          <table className="tbl w-100">
             <thead>
               <tr>
-                <th>S.No</th>
-                <th>Safety & Compliance</th>
-                <th>Report</th>
+                <th className="text-center w48">S.No</th>
+                <th className="text-center">Safety & Compliance</th>
+                <th className="text-center">Report</th>
               </tr>
             </thead>
             <tbody>
               {safetyComplianceRows.map((row) => (
                 <tr key={row.id}>
-                  <td>{row.id}</td>
-                  <td>
+                  <td className="text-center">{row.id}</td>
+                  <td className="text-center">
                     <input
                       type="text"
                       className="form-control"
@@ -743,7 +743,7 @@ if (fileList.length > 0) {
                       }
                     />
                   </td>
-                  <td>
+                  <td className="text-center">
                     <input
                       type="text"
                       className="form-control"
@@ -775,22 +775,22 @@ if (fileList.length > 0) {
       {/* Issue & Risk Report */}
       <div className="report-section">
         <div className="section-header">
-          <h3>Issue & Risk Report</h3>
+          <h3 className="fs-26-700 text-dark mb-4 mt-4">Issue & Risk Report</h3>
         </div>
         <div className="report-table">
-          <table>
+          <table className="tbl w-100">
             <thead>
               <tr>
-                <th>S.No</th>
-                <th>Issue & Risk</th>
-                <th>Impact</th>
+                <th className="text-center w48">S.No</th>
+                <th className="text-center">Issue & Risk</th>
+                <th className="text-center">Impact</th>
               </tr>
             </thead>
             <tbody>
               {issueRiskRows.map((row) => (
                 <tr key={row.id}>
-                  <td>{row.id}</td>
-                  <td>
+                  <td className="text-center">{row.id}</td>
+                  <td className="text-center">
                     <input
                       type="text"
                       className="form-control"
@@ -805,10 +805,10 @@ if (fileList.length > 0) {
                       }
                     />
                   </td>
-                  <td>
-                    <div className="custom-select">
+                  <td className="text-center">
+                    <div className="custom-select ">
                       <select
-                        className="form-control"
+                        className="form-control  border-0"
                         value={row.impact}
                         onChange={(e) =>
                           handleRowChange(
@@ -819,7 +819,7 @@ if (fileList.length > 0) {
                           )
                         }
                       >
-                        <option value="">Select</option>
+                        <option className="" value="">Select</option>
                         <option value="High">High</option>
                         <option value="Medium">Medium</option>
                         <option value="Low">Low</option>
@@ -841,9 +841,9 @@ if (fileList.length > 0) {
       </div>
 
       {/* Attached File Section */}
-      <div className="attached-file-section">
-        <div className="header-row">
-          <h3>Attached File</h3>
+      <div className="attached-file-section mt-4">
+        <div className="header-row w-100">
+          <h3 className="fs-26-700 text-dark mb-4 mt-4">Attached File</h3>
           <label className="upload-btn-2">
             <CiFileOn className="upload-icons" />
             <span>Choose File</span>
@@ -872,14 +872,14 @@ if (fileList.length > 0) {
       <div className="form-buttons">
         <button
           type="button"
-          className="btn btn-cancel"
+          className="btn btn-cancel border-radius-4 text-dark-gray border-0"
           onClick={() => navigate(-1)}
         >
           Cancel
         </button>
         <button
           type="button"
-          className="btn btn-primary"
+          className="btn btn-primary border-0 w220 bg-primary border-radius-4"
           onClick={handleSubmit}
           disabled={loading}
         >
@@ -907,7 +907,10 @@ const styles = `
 .report-details-section {
   margin-bottom: 30px;
 }
-
+table th, table td {
+  height: 48px;
+  padding: 0px 0px !important;
+}
 .detail-row {
   display: flex;
   flex-wrap: wrap;
@@ -943,18 +946,6 @@ const styles = `
   margin-bottom: 30px;
 }
 
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-.section-header h3 {
-  margin: 0;
-  font-size: 18px;
-  color: #333;
-}
 
 .btn-add {
   background: none;
@@ -970,32 +961,14 @@ const styles = `
 .btn-add:hover {
   text-decoration: underline;
 }
-
-.report-table {
-  width: 100%;
-  overflow-x: auto;
+.form-control, .form-control:focus {
+border: 0px !important; 
+text-align: center;
+margin-bottom: 0px;
+padding: 0px;
+height: 48px;
 }
 
-.report-table table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.report-table th,
-.report-table td {
-  padding: 12px 15px;
-  border: 1px solid #ddd;
-  text-align: center;
-}
-
-.report-table th {
-  background-color: #DEDEDE;
-  font-weight: bold;
-}
-
-.report-table tr:nth-child(even) {
-  background-color: #f9f9f9;
-}
 
 .upload-container {
   display: flex;
@@ -1007,7 +980,7 @@ const styles = `
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 12px;
+  padding: 0px 12px;
   cursor: pointer;
   font-size: 14px;
   text-decoration: none;
@@ -1065,11 +1038,6 @@ const styles = `
   margin-bottom: 30px;
 }
 
-.attached-file-section h3 {
-  margin-bottom: 15px;
-  font-size: 18px;
-  color: #333;
-}
 
 .file-upload-container {
   display: flex;
@@ -1091,7 +1059,6 @@ const styles = `
   font-weight: bold;
   width: 120px;
   height: 40px;
-  margin-top: 20px;
   margin-right: 1px;
   cursor: pointer;
   font-size: 14px;
@@ -1130,18 +1097,21 @@ const styles = `
   width: 100%;
 }
 
-.custom-select select {
+.custom-select select, .custom-select select:focus {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
   width: 100%;
-  padding: 8px 30px 8px 12px;
-  border: 1px solid #ddd;
+  padding: 0px 10px !important;
+  border: 1px solid #C1C1C1 !important;
   border-radius: 4px;
   background-color: white;
   cursor: pointer;
+  text-align: left;
 }
-
+.custom-select select option {
+padding:  5px 10px !important;
+}
 .custom-select::after {
   content: "▼";
   font-size: 12px;
@@ -1161,6 +1131,7 @@ const styles = `
 .report-table .custom-select select {
   width: 100%;
   min-width: 120px;
+  padding: 0px;
 }
 `;
 

@@ -1,6 +1,9 @@
 import { Link, useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import fileattach_xlsx from '../../../assets/images/attached-xlsx.png'
+import fileattach_pdf from '../../../assets/images/attached-pdf.png'
+import fileattach_other from '../../../assets/images/attached-pdf.png'
 import { getReportAttachmentsById, getReportById } from '../../../store/actions/report/reportcreateaction';
 const BASE_URL = process.env.REACT_APP_MASTER_API_BASE_URL;
 const ReportViewScreen = ({}) => {
@@ -141,7 +144,7 @@ const ReportViewScreen = ({}) => {
 
       <div className="row mb-4">
         <div className="col-lg-12">
-          <h3 className="fs-26-700 text-dark">Daily Progress Summary</h3>
+          <h3 className="fs-26-700 text-dark mb-4 mt-4">Daily Progress Summary</h3>
           <div className="table-responsive">
             <table className="tbl w-100">
               <thead>
@@ -167,8 +170,13 @@ const ReportViewScreen = ({}) => {
                       {item.status}
                     </td>
                     <td className="fs-16-500 text-center text-dark">
-                      {item.action}
+                      {item.filePath ? (
+                        <Link to={`${BASE_URL}${item.filePath}`} target='_blank'>View</Link>
+                      ) : (
+                        'Not Available'
+                      )}
                     </td>
+
                   </tr>
                 ))}
               </tbody>
@@ -178,7 +186,7 @@ const ReportViewScreen = ({}) => {
       </div>
       <div className="row mb-4">
         <div className="col-lg-12">
-          <h3 className="fs-26-700 text-dark">Material Usage Report</h3>
+          <h3 className="fs-26-700 text-dark mb-4 mt-4">Material Usage Report</h3>
           <div className="table-responsive">
             <table className="tbl w-100">
               <thead>
@@ -213,7 +221,7 @@ const ReportViewScreen = ({}) => {
       </div>
       <div className="row mb-4">
         <div className="col-lg-12">
-          <h3 className="fs-26-700 text-dark">Safety & Compliance Report</h3>
+          <h3 className="fs-26-700 text-dark mb-4 mt-4">Safety & Compliance Report</h3>
           <div className="table-responsive">
             <table className="tbl w-100">
               <thead>
@@ -244,7 +252,7 @@ const ReportViewScreen = ({}) => {
       </div>
       <div className="row mb-4">
         <div className="col-lg-12">
-          <h3 className="fs-26-700 text-dark">Issue & Risk Report</h3>
+          <h3 className="fs-26-700 text-dark mb-4 mt-4">Issue & Risk Report</h3>
           <div className="table-responsive">
             <table className="tbl w-100">
               <thead>
@@ -276,22 +284,29 @@ const ReportViewScreen = ({}) => {
 
       <div className="row mb-4">
         <div className="col-lg-12">
-          <h3>Attached File</h3>
+          <h3 className="fs-26-700 text-dark mb-4 mt-4">Attached File</h3>
           <div className="attached-files">
             {loading && <p>Loading attachments...</p>}
             {error && <p style={{ color: "red" }}>{error}</p>}
             {!loading && attachments?.length > 0 ? (
-              <ul>
+              <ul className="list-unstyled">
                 {attachments.map((file) => (
                   <li key={file.attachmentId}>
-                    <a
-                      href={`${BASE_URL}/${file.filePath.replace(/\\/g, "/")}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {file.fileName}
-                    </a>
-                  </li>
+  <a
+    href={`${BASE_URL}/${file.filePath.replace(/\\/g, "/")}`}
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    {file.filePath.endsWith(".pdf") ? (
+      <img className='h148px' src={fileattach_pdf} alt="PDF file" />
+    ) : file.filePath.endsWith(".xlsx") || file.filePath.endsWith(".xls") ? (
+      <img className='h148px' src={fileattach_xlsx} alt="Excel file" />
+    ) : (
+      <img className='h148px' src={fileattach_other} alt="Other file" />
+    )}
+  </a>
+</li>
+
                 ))}
               </ul>
             ) : (
