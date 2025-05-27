@@ -29,6 +29,7 @@ function ReportCreateScreen() {
   const { newReportCode } = useSelector((state) => state.report);
   const { uploadMessage, error } = useSelector((state) => state.report);;
   const { fetchProjectDetails } = useProject();
+  const [attachedFilePreviews, setAttachedFilePreviews] = useState([]);
  
   const [projectName, setProjectName] = useState('');
   const { reportTypes, reportTypesLoading, reportTypesError } = useSelector(
@@ -316,12 +317,17 @@ const getProjectIdFromLocalStorage = () => {
 const handleAttachedFileUpload = (e) => {
   const files = Array.from(e.target.files);
   if (files.length > 0) {
-    console.log("Files selected:", files);
     setAttachedFile(files);
-  } else {
-    console.warn("Not a valid File object:", files);
   }
 };
+
+
+const removeAttachedFile = (indexToRemove) => {
+  setAttachedFile((prevFiles) =>
+    prevFiles.filter((_, index) => index !== indexToRemove)
+  );
+};
+
 
   // Form validation
   const validateForm = () => {
@@ -840,33 +846,62 @@ if (fileList.length > 0) {
         </div>
       </div>
 
-      {/* Attached File Section */}
-      <div className="attached-file-section mt-4">
-        <div className="header-row w-100">
-          <h3 className="fs-26-700 text-dark mb-4 mt-4">Attached File</h3>
-          <label className="upload-btn-2">
-            <CiFileOn className="upload-icons" />
-            <span>Choose File</span>
-            <input
-              type="file"
-              multiple
-              onChange={handleAttachedFileUpload}
-              style={{ display: "none" }}
-            />
-          </label>
-        </div>
-          {/* ✅ Show upload result */}
+     {/* Attached File Section */}
+<div className="attached-file-section mt-4">
+  <div className="header-row w-100">
+    <h3 className="fs-26-700 text-dark mb-4 mt-4">Attached File</h3>
+    <label className="upload-btn-2">
+      <CiFileOn className="upload-icons" />
+      <span>Choose File</span>
+      <input
+        type="file"
+        multiple
+        onChange={handleAttachedFileUpload}
+        style={{ display: "none" }}
+      />
+    </label>
+  </div>
+
   {uploadMessage && (
-    <div className="mt-2 text-success">
-      ✅ {uploadMessage}
-    </div>
+    <div className="mt-2 text-success">{uploadMessage}</div>
   )}
-  {error && typeof error === 'string' && (
-    <div className="mt-2 text-danger">
-      ⚠️ {error}
-    </div>
+  {error && typeof error === "string" && (
+    <div className="mt-2 text-danger">{error}</div>
   )}
-      </div>
+
+ {attachedFile.length > 0 && (
+  <ul className="mt-3 ps-3">
+    {attachedFile.map((file, index) => (
+      <li
+        key={index}
+        className="d-flex align-items-center justify-content-between text-dark small mb-2"
+        style={{ maxWidth: "300px" }}
+      >
+        <span className="text-truncate" style={{ maxWidth: "220px" }}>
+          📄 {file.name}
+        </span>
+        <button
+          type="button"
+          onClick={() => removeAttachedFile(index)}
+          style={{
+            marginLeft: "10px",
+            background: "transparent",
+            border: "none",
+            color: "#dc3545",
+            fontWeight: "bold",
+            cursor: "pointer",
+          }}
+        >
+          ❌
+        </button>
+      </li>
+    ))}
+  </ul>
+)}
+
+</div>
+
+
 
       {/* Form Buttons */}
       <div className="form-buttons">
