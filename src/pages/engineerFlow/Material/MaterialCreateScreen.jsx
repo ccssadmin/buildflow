@@ -32,9 +32,9 @@ const MaterialCreateScreen = () => {
     const { projects = [] } = useSelector((state) => state.project);
   const { boqId } = useSelector((state) => state.boq);
   const { createTicket } = useTicket();
-  const {  createNotify  } = useNotification();
+  const { createNotify } = useNotification();
   const [initialApproverArray, setInitialApproverArray] = useState([]);
-    const [validationErrors, setValidationErrors] = useState({
+  const [validationErrors, setValidationErrors] = useState({
     title: false,
     vendor: false,
     approver: false
@@ -147,7 +147,7 @@ useEffect(() => {
     const value = e.target.value;
     setSelectedVendorId(value);
     if (value) {
-      setValidationErrors({  ...validationErrors, vendor: false  });
+      setValidationErrors({ ...validationErrors, vendor: false });
     }
   }
 
@@ -189,12 +189,10 @@ useEffect(() => {
     }
     let empData = JSON.parse(localStorage.getItem("userData"));
 
-
     if (!selectedVendorId) {
       toast.warn("Please select a vendor.");
       return;
     }
-
 
     const boqPayload = {
       empId: empData?.empId,
@@ -233,7 +231,7 @@ useEffect(() => {
 
         const ticketId = ticketResponse?.data?.data?.ticketId;
         const projectName = ticketResponse?.data?.data?.projectName;
-  
+
         // Step 3: Send Notification with ticketId
         try {
           await createNotify({
@@ -246,7 +244,6 @@ useEffect(() => {
         } catch (error) {
           console.warn("Notification failed:", error);
         }
-
 
         // Step 4: Navigate to Ticket Details
         const ticketDetails = await dispatch(getticketbyidAction(ticketId)).unwrap();
@@ -273,7 +270,6 @@ useEffect(() => {
       toast.error("BOQ creation failed.");
     }
   };
-
 
 
   useEffect(() => {
@@ -307,7 +303,8 @@ useEffect(() => {
 
       <h2 className="form-title">New BOQ</h2>
 
-      <Form onSubmit={handleSubmit}>
+<div className="">
+      <Form onSubmit={handleSubmit} className="boq-form-css" >
         <div className="row">
           <div className="col-md-6">
             <Form.Group className="mb-3">
@@ -355,6 +352,7 @@ useEffect(() => {
             <Form.Group className="mb-3">
               <Form.Label className="text-black fs-5">Vendor</Form.Label>
               <Form.Select
+              className="form-control"
                 style={{ backgroundColor: "white" }}
                 value={selectedVendorId}
                 onChange={(e) => setSelectedVendorId(e.target.value)}
@@ -372,8 +370,11 @@ useEffect(() => {
           <div className={validationErrors.approver ? "col-md-6 is-invalid" : "col-md-6"}>
             <Form.Group className="mb-3">
               <Form.Label className="text-black fs-5">Approved By</Form.Label>
+              
 <MultipleSelect
   required
+  
+  
   selectedOptions={selectedApprover}
   handleSelected={setSelectedApprover}
   data={initialApproverArray}
@@ -390,7 +391,7 @@ useEffect(() => {
           </div>
         </div>
 
-      <table className="boq-table">
+      <table className="boq-table clean-inputs">
       <thead className="bg-orange">
         <tr>
           <th className="text-center text-white">S. No</th>
@@ -448,13 +449,14 @@ useEffect(() => {
     </table>
 
         <div className="d-flex flex-column align-items-end mt-3">
-          <Button
-            variant=""
-            className="text-orange bg-orange add-column-btn p-0 mb-3"
-            onClick={handleAddRow}
-          >
-            + Add Row
-          </Button>
+         <Button
+  variant=""
+  className="text-orange bg-orange add-column-btn p-0 mb-3"
+  onClick={handleAddRow}
+>
+  + Add Row
+</Button>
+
           <Button
             type="submit"
             className="submit-btn"
@@ -481,6 +483,7 @@ useEffect(() => {
 
         </div>
       </Form>
+      </div>
     </div>
   );
 };
