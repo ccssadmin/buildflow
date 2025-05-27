@@ -8,6 +8,7 @@ import { getVendorsAndSubcontractors } from "../../../store/actions/vendor/getve
 import { fetchRoles } from "../../../store/actions/hr/designationaction";
 import MultipleSelect from "../../../components/DropDown/MultipleSelect";
 import {
+  getEmployeeRoles,
   getNewBoqId,
   upsertBoq,
 } from "../../../store/actions/Engineer/upsertboqaction";
@@ -16,6 +17,7 @@ import { useTicket } from "../../../hooks/Ceo/useTicket";
 import { getAllEmployeesByRolesAction } from "../../../store/actions/Ceo/RoleBasedEmpAction";
 import { getticketbyidAction } from "../../../store/actions/Ceo/TicketCreateAction";
 import { useNotification } from "../../../hooks/Ceo/useNotification";
+import { fetchProjects } from "../../../store/actions/hr/projectaction";
 
 const MaterialCreateScreen = () => {
   const navigate = useNavigate();
@@ -27,6 +29,7 @@ const MaterialCreateScreen = () => {
   const [title, setTitle] = useState("");
   const [selectedVendorId, setSelectedVendorId] = useState("");
   const [selectedApprover, setSelectedApprover] = useState([]);
+    const { projects = [] } = useSelector((state) => state.project);
   const { boqId } = useSelector((state) => state.boq);
   const { createTicket } = useTicket();
   const {  createNotify  } = useNotification();
@@ -53,41 +56,74 @@ const MaterialCreateScreen = () => {
     );
     setApprovedBy(selectedOptions);
   };
-
-  useEffect(() => {
-    const fetchEmployees = async () => {
+  const getProjectIdFromLocalStorage = () => {
+    const storedData = localStorage.getItem("userData"); // Assuming key is 'userDetails'
+  
+    if (storedData) {
       try {
-        const result = await dispatch(getAllEmployeesByRolesAction()).unwrap();
-        const firstEmployees = Object.entries(result.employeesByRole).map(
-          ([role, employees]) => ({
-            role,
-            employee: employees[0], // Only the first employee
-          })
-        );
-        const approverRoles = firstEmployees
-          ?.filter((role) =>
-            [
-              "CEO",
-              "Head Finance",
-              "Managing Director",
-              "Project Manager",
-              "Assistant QS",
-            ].includes(role.role)
-          )
-          .map((role) => ({
-            ...role.employee,
-            value: role.role,
-            label: role.role,
-          }));
-
-        setInitialApproverArray(approverRoles);
+        const parsedData = JSON.parse(storedData);
+  
+        // Ensure projects array exists
+        if (parsedData.projects && Array.isArray(parsedData.projects)) {
+          return parsedData.projects[0]?.projectId || null; // Get projectId of the first project
+        } else {
+          console.error("No projects found in local storage");
+          return null;
+        }
       } catch (error) {
-        console.error("Failed to fetch employees:", error);
+        console.error("Error parsing local storage data:", error);
+        return null;
       }
-    };
+    } else {
+      console.error("No data found in local storage for key 'userDetails'");
+      return null;
+    }
 
-    fetchEmployees();
-  }, [dispatch]);
+
+  };
+
+
+    useEffect(() => {
+      dispatch(fetchProjects());
+    }, [dispatch]);
+     // Retrieve projectId dynamically from local storage
+   const projectId = getProjectIdFromLocalStorage();
+
+useEffect(() => {
+  if (projectId) {
+    dispatch(getEmployeeRoles(projectId))
+      .unwrap()
+      .then(result => {
+        // The API response seems to have the roles directly, not under employeesByRole
+        const employeesByRole = result; // Changed this line
+
+        const APPROVER_ROLE_CODES = ["CEO", "HEADFINANCE", "MD", "PROJECTMANAGER", "AQS"];
+
+        const approverList = [];
+
+        for (const roleGroup of Object.values(employeesByRole)) {
+          if (Array.isArray(roleGroup)) {
+            roleGroup.forEach((employee) => {
+              if (APPROVER_ROLE_CODES.includes(employee.role_code)) {
+                approverList.push({
+                  value: employee.emp_id,
+                  label: `${employee.emp_name} - ${employee.role_code}`,
+                  empId: employee.emp_id,
+                });
+              }
+            });
+          }
+        }
+
+        setInitialApproverArray(approverList);
+      })
+      .catch(error => {
+        console.error("Failed to fetch employees:", error);
+      });
+  }
+}, [dispatch, projectId]);
+
+
 
   useEffect(() => {
     dispatch(getNewBoqId());
@@ -336,14 +372,15 @@ const MaterialCreateScreen = () => {
           <div className={validationErrors.approver ? "col-md-6 is-invalid" : "col-md-6"}>
             <Form.Group className="mb-3">
               <Form.Label className="text-black fs-5">Approved By</Form.Label>
-              <MultipleSelect required
-                selectedOptions={selectedApprover}
-                handleSelected={setSelectedApprover}
-                data={initialApproverArray}
-                isSearchable={true}
-                placeholder={"Select Approver"}
-                isMulti={true}
-              />
+<MultipleSelect
+  required
+  selectedOptions={selectedApprover}
+  handleSelected={setSelectedApprover}
+  data={initialApproverArray}
+  isSearchable={true}
+  placeholder={"Select Approver"}
+  isMulti={true}
+/>
               {validationErrors.approver && (
                 <div className="invalid-feedback" style={{ display: "block" }}>
                   Please select at least one approver.
