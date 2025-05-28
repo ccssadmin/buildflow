@@ -78,7 +78,7 @@ const Material = () => {
   return (
     <Fragment>
       <main className="page-engineer-dashboard d-flex">
-        <div className="left-container w-100">
+        <div className="container w-100">
           <div className="row mt-4 align-items-center">
             <div className="col-sm-6 col-md-6 col-lg-6 text-start">
               <select className="form-select select-custom" style={{ backgroundColor: "#E8E8E8" }}
@@ -117,7 +117,7 @@ const Material = () => {
                         <td className="fs-16-500 text-center text-dark-gray">100</td>
                         <td className="fs-16-500 text-center text-dark-gray">500</td>
                         <td  className="fs-16-500 text-center text-dark-gray">{getLevelBadge("High")}</td>
-                        <td className="fs-16-500 text-center text-dark-gray fw-light">{getStatusBadge("Approval")}</td>
+                        <td className="fs-16-500 text-center text-dark-gray fw-light">{getStatusBadge(material.approvalStatus)}</td>
                         <td className="fs-16-500 text-center text-dark-gray">
                           <a href="" style={{ color: material.action === "View" ? "#0456D0" : "#0456D0", }}
                             onClick={() =>

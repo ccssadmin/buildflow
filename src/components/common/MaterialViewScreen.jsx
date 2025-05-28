@@ -117,6 +117,31 @@ const MaterialViewScreen = () => {
   };
 
 
+    // Generates a random color
+  const getRandomColor = () => {
+    const colors = [
+      "#FF5733",
+      "#33B5E5",
+      "#8E44AD",
+      "#16A085",
+      "#E67E22",
+      "#2ECC71",
+      "#3498DB",
+      "#F39C12",
+      "#1ABC9C",
+      "#E74C3C",
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
+  };
+
+    const getInitials = (name) => {
+    if (!name) return "";
+    const parts = name.trim().split(" ");
+    const first = parts[0]?.charAt(0).toUpperCase() || "";
+    const second = parts[1]?.charAt(0).toUpperCase() || "";
+    return first + second;
+  };
+
 
 
   useEffect(() => {
@@ -183,20 +208,22 @@ const MaterialViewScreen = () => {
     <div className="container mt-4">
       <div
         style={{
-          paddingTop: "20px",
-          paddingBottom: "20px",
+     
+          paddingBottom: "15px",
           borderBottom: "1px solid #ddd",
-          marginBottom: "20px",
+          marginBottom: "40px",
+          marginTop:"-10px"
         }}
       >
-        <h2 style={{ margin: 0, fontSize: "16px", color: "#333" }}>
+        <h2 style={{ margin: 0, fontSize: "16px", color: "#333", }}>
           <span
             onClick={() => navigate("#")}
-            style={{ cursor: "pointer" }}
+            style={{ cursor: "pointer",  }}
           >
+         
             BOQ
           </span>{" "}
-          &gt; <span style={{ color: "#FF6F00" }}>View BOQ</span>
+          &gt; <span style={{ color: "#FF6F00" ,paddingLeft:"10px" }}>Open BOQ</span>
         </h2>
       </div>
 
@@ -233,31 +260,73 @@ const MaterialViewScreen = () => {
 
       <div className="row">
         <div className="col-md-6">
-          <Form.Group className="mb-3">
-            <Form.Label className="text-black fs-5">Vendor</Form.Label>
-            <Dropdown>
-              <Dropdown.Toggle disabled className="w-100 text-start border-1 custom-dropdown">
-                <span className="text-danger me-2">⬤</span>
-                <span>{boqDetails?.vendorName}</span> <RiArrowDropDownLine />
-              </Dropdown.Toggle>
+      <Form.Group className="mb-3">
+  <Form.Label className="text-black fs-5">Vendor</Form.Label>
+  <div className="d-flex align-items-center gap-2 position-relative mb-3">
+    <div
+      className="rounded-circle text-white d-flex align-items-center justify-content-center"
+      style={{
+         width: "30px",
+                height: "30px",
+                fontSize: "16px",
+                flexShrink: 0,
+                backgroundColor: getRandomColor(), // random color
+                position: "absolute",
+                left: "10px",   
+               
+                marginTop:"-5px"
+      }}
+    >
+      {getInitials(boqDetails?.vendorName)}
+    </div>
+    <Form.Control
+      className="ps-5"
+      type="text"
+      disabled
+      value={boqDetails?.vendorName}
+    />
+  </div>
+</Form.Group>
 
-              <Dropdown.Menu>
-                <Dropdown.Item>Vendor 1</Dropdown.Item>
-                <Dropdown.Item>Vendor 2</Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
-          </Form.Group>
         </div>
         <div className="col-md-6">
-     <Form.Group className="mb-3">
-  <Form.Label className="text-black fs-5">Send Approve</Form.Label>
-  <MultipleSelect
-    placeholder="Approved By"
-    selectedOptions={boqApprovers}
-    disabled
-    isMulti={true}
-  />
+  <Form.Group className="mb-3">
+  <Form.Label className="text-black fs-5">Approved By</Form.Label>
+  <div className=" flex-wrap gap-2 mb-2">
+    {boqApprovers.map((approver, index) => (
+      <div key={index} className="d-flex align-items-center gap-2 position-relative mb-3">
+        <div
+          className="rounded-circle text-white d-flex align-items-center justify-content-center"
+          style={{
+           width: "30px",
+            height: "30px",
+            fontSize: "14px",
+            flexShrink: 0,
+            backgroundColor: getRandomColor(),
+            position: "absolute",
+            left: "10px",
+            top: "50%",
+            transform: "translateY(-50%)",
+              marginTop:"-3px"
+        
+            
+          }}
+        >
+          {getInitials(approver?.employeeName)}
+          
+        </div>
+                   <Form.Control
+      className="ps-5"
+      type="text"
+      disabled
+      value={approver?.employeeName}
+    />
+
+      </div>
+    ))}
+  </div>
 </Form.Group>
+
 
         </div>
       </div>
