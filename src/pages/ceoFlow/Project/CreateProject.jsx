@@ -536,6 +536,7 @@ const CeoCreateProject = () => {
         formData={formData}
         setFormData={setFormData}
         formErrors={formErrors}
+        setFormErrors={setFormErrors}
         onProjectCreated={handleProjectCreated}
       />
     );
