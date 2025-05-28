@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { crateFinanceApproved, createceoproject, createProjectBudget, createProjectMilestone, createProjectTeam, getAllProjectByFilter, getPmProjectDetails, getProjectDetails, getProjectTypeSector } from "../../../services";
+import { crateFinanceApproved, createceoproject, createProjectBudget, createProjectMilestone, createProjectTeam, createUploadFiles, getAllProjectByFilter, getPmProjectDetails, getProjectDetails, getProjectTypeSector } from "../../../services";
 const BASE_URL = process.env.REACT_APP_MASTER_API_BASE_URL;
 
 // Get PM Project Details
@@ -19,7 +19,15 @@ export const getProjectTypeSectorAction = createAsyncThunk(
   }
 );
 
+//Step 5 multi upload 
 
+export const createUploadFilesAction = createAsyncThunk(
+  "project/risk",
+  async (payload) => {
+    const response = await createUploadFiles(payload); // Pass data here
+    return response.data;
+  }
+);
 //delete project 
 
 export const deleteProjectAction = createAsyncThunk(

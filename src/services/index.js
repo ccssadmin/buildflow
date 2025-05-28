@@ -55,7 +55,8 @@ export const crateFinanceApproved = (params) =>
   api.POST(API.CREATE_FINACIAL_APPROVAL, params);
 export const createProjectMilestone = (params) =>
   api.POST(API.CREATE_PROJECT_MILESTONE, params);
-
+export const createUploadFiles = (params) => 
+  api.POST(API.UPSERTRISK_UPLOAD, params);
 /** Tickets Comments Create */
 export const createTicketsDetails = (params) =>
   api.POST(API.CREATE_TICKET_DETAILS, params);
