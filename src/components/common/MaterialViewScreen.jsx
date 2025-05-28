@@ -312,14 +312,14 @@ const MaterialViewScreen = () => {
             
           }}
         >
-          {getInitials(approver?.employeeName)}
+          {getInitials(approver?.roleName)}
           
         </div>
                    <Form.Control
       className="ps-5"
       type="text"
       disabled
-      value={approver?.employeeName}
+      value={approver?.roleName}
     />
 
       </div>

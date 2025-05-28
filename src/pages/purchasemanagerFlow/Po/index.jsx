@@ -17,9 +17,9 @@ export default function PurchaseOrdersPage() {
   if (error) return <p className="text-danger">Error: {error}</p>;
 
   return (
-    <div className="po-container">
-      <div className="row mb-4">
-        <div className="col-md-6">
+    <div className="container w-100">
+      <div className="row mt-4 align-items-center">
+        <div className="col-sm-6 col-md-6 col-lg-6 text-start">
           <h1 className="po-header-title">All POs</h1>
         </div>
         <div className="col-md-6">
@@ -40,17 +40,19 @@ export default function PurchaseOrdersPage() {
         </div>
       </div>
 
+ <div className="row mt-5">
+            <div className="col-lg-12">
       <div className="table-responsive">
-        <table className="po-table">
+        <table className="tbl w-100">
           <thead>
             <tr>
-              <th>PO ID</th>
-              <th>Project</th>
-              <th>Vendor</th>
-              <th>Date</th>
-              <th>Status</th>
-              <th>Contact No</th>
-              <th>Action</th>
+              <th className="fs-16-500 text-center text-dark">PO ID</th>
+              <th className="fs-16-500 text-center text-dark">Project</th>
+              <th className="fs-16-500 text-center text-dark">Vendor</th>
+              <th className="fs-16-500 text-center text-dark">Date</th>
+              <th className="fs-16-500 text-center text-dark">Status</th>
+              <th className="fs-16-500 text-center text-dark">Contact No</th>
+              <th className="fs-16-500 text-center text-dark">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -86,6 +88,8 @@ export default function PurchaseOrdersPage() {
             )}
           </tbody>
         </table>
+        </div>
+        </div>
       </div>
     </div>
   );

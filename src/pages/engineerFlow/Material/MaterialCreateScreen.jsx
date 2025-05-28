@@ -110,7 +110,7 @@ const MaterialCreateScreen = () => {
                 if (APPROVER_ROLE_CODES.includes(employee.role_code)) {
                   approverList.push({
                     value: employee.emp_id,
-                    label: `${employee.emp_name} - ${employee.role_code}`,
+                    label: `${employee.role_name}`,
                     empId: employee.emp_id,
                   });
                 }
