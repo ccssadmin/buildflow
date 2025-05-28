@@ -13,7 +13,7 @@ import { useRoleBasedEmp } from "../../../hooks/Ceo/useRoleBasedEmp";
 import { useTicket } from "../../../hooks/Ceo/useTicket";
 import { useNavigate, useParams } from "react-router-dom";
 import { useNotification } from "../../../hooks/Ceo/useNotification";
-import { getProjectDetailsAction } from "../../../store/actions/Ceo/ceoprojectAction";
+import { createUploadFilesAction, getProjectDetailsAction } from "../../../store/actions/Ceo/ceoprojectAction";
 import { useDispatch } from "react-redux";
 import { useLocation } from 'react-router-dom';
 import { set } from "lodash";
@@ -335,8 +335,11 @@ const CeoCreateProject = () => {
 
     if (currentStep === 4) {
       console.log("Step 4: Final submission");
+      console.log("Risks Data: ", formData.risks);
+      dispatch(createUploadFilesAction({ risks: formData.risks }));
       await handleFinalReview();
       return;
+
     }
 
     // Default case: simply move to next step
@@ -536,6 +539,7 @@ const CeoCreateProject = () => {
         formData={formData}
         setFormData={setFormData}
         formErrors={formErrors}
+        setFormErrors={setFormErrors}
         onProjectCreated={handleProjectCreated}
       />
     );

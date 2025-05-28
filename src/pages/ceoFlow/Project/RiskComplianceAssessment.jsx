@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Button, Dropdown, Form, Spinner } from "react-bootstrap";
-
+import { Button, Form, Spinner } from "react-bootstrap";
 import Swal from "sweetalert2";
 import { uploadRiskData } from "../../../store/slice/Ceo/riskSlice";
 import { useNavigate } from "react-router-dom";
@@ -21,36 +20,46 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
 
   const projectId = localStorage.getItem("projectId");
 
-  // Initial risk data
+  // Initial risk data with consistent property names
   const initialRisks = [
     {
       id: 1,
-      category: "Complete excavation and concrete laying",
+      riskId: 0,
+      categoryName: "Complete excavation and concrete laying",
       status: "Pending",
+      projectId: projectId,
       file: null,
     },
     {
       id: 2,
-      category: "Environmental Clearance",
+      riskId: 0,
+      categoryName: "Environmental Clearance",
       status: "Pending",
+      projectId: projectId,
       file: null,
     },
     {
       id: 3,
-      category: "Labor Safety Measures",
+      riskId: 0,
+      categoryName: "Labor Safety Measures",
       status: "Pending",
+      projectId: projectId,
       file: null,
     },
     {
       id: 4,
-      category: "PPE Compliance Checklists",
+      riskId: 0,
+      categoryName: "PPE Compliance Checklists",
       status: "Pending",
+      projectId: projectId,
       file: null,
     },
     {
       id: 5,
-      category: "Legal Dispute Files",
+      riskId: 0,
+      categoryName: "Legal Dispute Files",
       status: "Pending",
+      projectId: projectId,
       file: null,
     },
   ];
@@ -63,7 +72,7 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
         risks: initialRisks,
       }));
     }
-  }, []);
+  }, [setFormData]);
 
   useEffect(() => {
     if (projectId) {
@@ -78,13 +87,13 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
       console.log("Risk Details===>", riskDetails);
 
       if (Array.isArray(riskDetails) && riskDetails.length > 0) {
-        const risks = riskDetails.map((item) => ({
+        const risks = riskDetails.map((item, index) => ({
+          id: index + 1,
           riskId: item.risk_id,
-          category: item.category_name,
+          CategoryName: item.category_name,
           status: item.risk_status,
-          file: { name: item.image_url }, // simulate file with name
-          id: item.risk_id,
-          dbId: item.risk_id,
+          projectId: projectId,
+          file: item.image_url, // Initialize file as null
         }));
         console.log("Processed risks =>", risks);
 
@@ -98,6 +107,7 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
         setFormData((prev) => ({
           ...prev,
           risks: prev.risks || initialRisks,
+        
         }));
       }
     } catch (error) {
@@ -112,12 +122,13 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
 
   const handleAddRow = () => {
     const newRisk = {
-      id:
-        formData.risks.length > 0
-          ? Math.max(...formData.risks.map(r => r.id)) + 1
-          : 1,
-      category: "",
+      id: formData.risks.length > 0
+        ? Math.max(...formData.risks.map(r => r.id)) + 1
+        : 1,
+      riskId: 0,
+      CategoryName: "",
       status: "",
+      projectId: localProjectId || projectId,
       file: null,
     };
 
@@ -138,7 +149,7 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
       }).then((result) => {
         if (result.isConfirmed) {
           navigate("/login");
-        }
+        } 
       });
     }
   }, [isAuthenticated, token, navigate]);
@@ -176,16 +187,29 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
         return risk;
       });
       setFormData((prev) => ({ ...prev, risks: updatedRisks }));
-      setUploadingForId(null);
+      
+      // Find the updated risk and upload it
       const risk = updatedRisks.find((r) => r.id === riskId);
-      await handleUpload(risk);
+      if (risk) {
+        await handleUpload(risk);
+      }
     }
   };
 
-  const handleStatusChange = async (riskId, newStatus) => {
+  const handleStatusChange = (riskId, newStatus) => {
     const updatedRisks = formData.risks.map((risk) => {
       if (risk.id === riskId) {
         return { ...risk, status: newStatus };
+      }
+      return risk;
+    });
+    setFormData((prev) => ({ ...prev, risks: updatedRisks }));
+  };
+
+  const handleCategoryChange = (riskId, newCategory) => {
+    const updatedRisks = formData.risks.map((risk) => {
+      if (risk.id === riskId) {
+        return { ...risk, category: newCategory };
       }
       return risk;
     });
@@ -207,11 +231,13 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
       });
       return;
     }
+const categoryName = risk.category || risk.CategoryName;
 
-    if (!risk.category?.trim()) {
-      Swal.fire({ icon: "warning", title: "Category Name is required." });
-      return;
-    }
+if (!categoryName?.trim()) {
+  Swal.fire({ icon: "warning", title: "Category Name is required." });
+  return;
+}
+
 
     if (!risk.status?.trim()) {
       Swal.fire({ icon: "warning", title: "Status is required." });
@@ -229,6 +255,8 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
     }
 
     try {
+      setUploadingForId(risk.id);
+      
       Swal.fire({
         title: "Uploading...",
         text: `Uploading ${risk.category} file`,
@@ -242,24 +270,50 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
           icon: "warning",
           title: "Invalid file. Please select a valid file.",
         });
+        setUploadingForId(null);
         return;
       }
 
       const riskData = {
-        riskId: risk.dbId || 0,
+        riskId: risk.riskId || 0,
         category: String(risk.category).trim(),
         status: String(risk.status).trim(),
         projectId: parseInt(localProjectId),
         file: risk.file,
-        id: risk.id,
+    
       };
 
       const resultAction = await dispatch(uploadRiskData(riskData));
-      Swal.close();
+      
+      if (resultAction.type.endsWith('/fulfilled')) {
+        Swal.close();
+        Swal.fire({
+          icon: "success",
+          title: "Upload Successful",
+          text: `${risk.categoryName} file uploaded successfully!`,
+          timer: 2000,
+          showConfirmButton: false,
+        });
+        
+        // Mark this risk as uploaded
+        setUploadedRisks(prev => ({
+          ...prev,
+          [risk.id]: true
+        }));
+      } else {
+        throw new Error(resultAction.payload || 'Upload failed');
+      }
+      
     } catch (error) {
       console.error("Upload failed:", error);
       Swal.close();
-      Swal.fire({ icon: "error", title: "Upload Failed" });
+      Swal.fire({ 
+        icon: "error", 
+        title: "Upload Failed",
+        text: error.message || "An error occurred during upload."
+      });
+    } finally {
+      setUploadingForId(null);
     }
   };
 
@@ -278,25 +332,21 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
         <tbody>
           {(formData.risks || []).map((risk, index) => (
             <tr key={risk.id}>
-              <td className="text-center text-dark-gray fs-16-400 ">
+              <td className="text-center text-dark-gray fs-16-400">
                 {index + 1}
               </td>
               <td className="text-center text-dark-gray fs-16-500">
                 <Form.Control
                   type="text"
-                  value={risk.category}
-                  onChange={(e) => {
-                    const updatedRisks = formData.risks.map((r) =>
-                      r.id === risk.id ? { ...r, category: e.target.value } : r
-                    );
-                    setFormData((prev) => ({ ...prev, risks: updatedRisks }));
-                  }}
+                  value={risk.CategoryName || risk.categoryName|| ""}
+                  onChange={(e) => handleCategoryChange(risk.id, e.target.value)}
                   size="sm"
+                  placeholder="Enter category name"
                 />
               </td>
               <td className="text-center text-dark-gray fs-16-500 w180">
                 <Form.Select
-                  value={risk.status}
+                  value={risk.status || ""}
                   onChange={(e) => handleStatusChange(risk.id, e.target.value)}
                   size="sm"
                 >
@@ -311,15 +361,32 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
                   id={`file-input-${risk.id}`}
                   style={{ display: "none" }}
                   onChange={(e) => handleFileChange(risk.id, e)}
+                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
                 />
                 <Button
-                  variant="link"
-                  onClick={() => {
-                    document.getElementById(`file-input-${risk.id}`).click();
-                  }}
-                >
-                  {risk.file?.name || risk.file || "Upload"}
-                </Button>
+  variant="link"
+  onClick={() => {
+    document.getElementById(`file-input-${risk.id}`).click();
+  }}
+  disabled={uploadingForId === risk.id}
+>
+  {uploadingForId === risk.id ? (
+    <>
+      <Spinner size="sm" className="me-2" />
+      Uploading...
+    </>
+  ) : (
+    <>
+      {risk.file instanceof File
+        ? risk.file.name
+        : typeof risk.file === "string"
+        ? risk.file.split("/").pop()
+        : "Choose File"}
+      {uploadedRisks[risk.id] && " ✅"}
+    </>
+  )}
+</Button>
+
               </td>
             </tr>
           ))}

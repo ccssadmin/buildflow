@@ -108,45 +108,53 @@ const ProjectBasicDetails = ({
     if (completionDateInputRef.current) completionDateInputRef.current.showPicker();
   };
 
-  const validateInputs = () => {
-    const letterRegex = /[a-zA-Z]/;   
-    const errors = {};
-    
-    if (!formData.projectName?.trim()) {
-      errors.projectName = "Project Name is required.";
-    }
-    
-    if (!formData.projectLocation?.trim()) {
-      errors.projectLocation = "Location is required.";
-    }
-    
-    if (formData.projectLocation && !letterRegex.test(formData.projectLocation)) {
-      errors.projectLocation = "Location must contain letters.";
-    }
-    
-    if (!formData.projectTypeId || formData.projectTypeId === "") {
-      errors.projectTypeId = "Project Type must be selected.";
-    }
-    
-    if (!formData.projectSectorId || formData.projectSectorId === "") {
-      errors.projectSectorId = "Project Sector must be selected.";
-    }
-    
-    if (!formData.projectStartDate) {
-      errors.projectStartDate = "Project Start Date is required.";
-    }
-    
-    if (!formData.expectedCompletionDate) {
-      errors.expectedCompletionDate = "Expected Completion Date is required.";
-    }
-    
-    if (!formData.description?.trim()) {
-      errors.description = "Project Description is required.";
-    }
+ const validateInputs = () => {
+  const letterRegex = /[a-zA-Z]/;
+  const errors = {};
 
-    if (setFormErrors) setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
+  if (!formData.projectName?.trim()) {
+    errors.projectName = "Project Name is required.";
+  }
+
+  if (!formData.projectLocation?.trim()) {
+    errors.projectLocation = "Location is required.";
+  } else if (!letterRegex.test(formData.projectLocation)) {
+    errors.projectLocation = "Location must contain letters.";
+  }
+
+  if (!formData.projectTypeId || formData.projectTypeId === "") {
+    errors.projectTypeId = "Project Type must be selected.";
+  }
+
+  if (!formData.projectSectorId || formData.projectSectorId === "") {
+    errors.projectSectorId = "Project Sector must be selected.";
+  }
+
+  if (!formData.projectStartDate) {
+    errors.projectStartDate = "Project Start Date is required.";
+  }
+
+  if (!formData.expectedCompletionDate) {
+    errors.expectedCompletionDate = "Expected Completion Date is required.";
+  }
+  
+  if (
+    formData.projectStartDate &&
+    formData.expectedCompletionDate &&
+    new Date(formData.projectStartDate) > new Date(formData.expectedCompletionDate)
+  ) {
+    errors.expectedCompletionDate = "Completion Date must be after Start Date.";
+  }
+
+   if (!formData.description || formData.description.trim() === "") {
+    errors.description = "Project Description is required";
+  }
+
+  setFormErrors(errors);
+  return Object.keys(errors).length === 0;
+};
+
+
 
   const handleCreateClick = async () => {
     if (!validateInputs()) return;
@@ -337,29 +345,54 @@ const ProjectBasicDetails = ({
                 </span>
               </div>
               <Form.Control.Feedback type="invalid">{formErrors?.projectStartDate}</Form.Control.Feedback>
+               {formErrors?.projectStartDate && (
+      <div className="invalid-feedback d-block">
+        {formErrors.projectStartDate}
+      </div>
+    )}
             </Form.Group>
           </div>
-          <div className="col-sm-12 col-md-6 col-lg-4">
-            <Form.Group className="mb-4">
-              <Form.Label className="text-dark">
-                Expected Completion Date <span className="required">*</span>
-              </Form.Label>
-              <div className="date-input-container" onClick={handleContainerClickCompletionDate}>
-                <Form.Control
-                  ref={completionDateInputRef}
-                  type="date"
-                  name="expectedCompletionDate"
-                  value={formData.expectedCompletionDate || ""}
-                  onChange={handleInputChange}
-                  isInvalid={!!formErrors?.expectedCompletionDate}
-                />
-                <span className="date-icon">
-                  <Calendar size={18} />
-                </span>
-              </div>
-              <Form.Control.Feedback type="invalid">{formErrors?.expectedCompletionDate}</Form.Control.Feedback>
-            </Form.Group>
-          </div>
+
+        <div className="col-sm-12 col-md-6 col-lg-4">
+  <Form.Group className="mb-4">
+    <Form.Label className="text-dark">
+      Expected Completion Date <span className="required">*</span>
+    </Form.Label>
+
+    <div className="position-relative">
+      <Form.Control
+        ref={completionDateInputRef}
+        type="date"
+        name="expectedCompletionDate"
+        value={formData.expectedCompletionDate || ""}
+        onChange={handleInputChange}
+        isInvalid={!!formErrors?.expectedCompletionDate}
+      />
+      <span
+        className="date-icon"
+        onClick={handleContainerClickCompletionDate}
+        style={{
+          position: "absolute",
+          top: "50%",
+          right: "10px",
+          transform: "translateY(-50%)",
+          cursor: "pointer",
+        }}
+      >
+        <Calendar size={18} />
+      </span>
+
+      {/* ✅ MUST be inside this div to work */}
+      <Form.Control.Feedback type="invalid">
+        {formErrors?.expectedCompletionDate}
+      </Form.Control.Feedback>
+    </div>
+  </Form.Group>
+</div>
+
+
+
+
           <div className="col-sm-12 col-md-12 col-lg-12">
             <Form.Group className="mb-4">
               <Form.Label className="text-dark">
@@ -377,6 +410,9 @@ const ProjectBasicDetails = ({
               <Form.Control.Feedback type="invalid">{formErrors?.description}</Form.Control.Feedback>
             </Form.Group>
           </div>
+
+
+
           <div className="col-sm-12 col-md-12 col-lg-12">
             <Button
               className="btn-primary me-0 ms-auto mt-4 btn fs-14-600 bg-primary border-0 border-radius-2"

@@ -29,7 +29,7 @@ const MaterialCreateScreen = () => {
   const [title, setTitle] = useState("");
   const [selectedVendorId, setSelectedVendorId] = useState("");
   const [selectedApprover, setSelectedApprover] = useState([]);
-    const { projects = [] } = useSelector((state) => state.project);
+  const { projects = [] } = useSelector((state) => state.project);
   const { boqId } = useSelector((state) => state.boq);
   const { createTicket } = useTicket();
   const { createNotify } = useNotification();
@@ -37,7 +37,7 @@ const MaterialCreateScreen = () => {
   const [validationErrors, setValidationErrors] = useState({
     title: false,
     vendor: false,
-    approver: false
+    approver: false,
   });
   const { vendors, loading, error } = useSelector((state) => state.vendor);
 
@@ -58,11 +58,11 @@ const MaterialCreateScreen = () => {
   };
   const getProjectIdFromLocalStorage = () => {
     const storedData = localStorage.getItem("userData"); // Assuming key is 'userDetails'
-  
+
     if (storedData) {
       try {
         const parsedData = JSON.parse(storedData);
-  
+
         // Ensure projects array exists
         if (parsedData.projects && Array.isArray(parsedData.projects)) {
           return parsedData.projects[0]?.projectId || null; // Get projectId of the first project
@@ -78,52 +78,53 @@ const MaterialCreateScreen = () => {
       console.error("No data found in local storage for key 'userDetails'");
       return null;
     }
-
-
   };
 
+  useEffect(() => {
+    dispatch(fetchProjects());
+  }, [dispatch]);
+  // Retrieve projectId dynamically from local storage
+  const projectId = getProjectIdFromLocalStorage();
 
-    useEffect(() => {
-      dispatch(fetchProjects());
-    }, [dispatch]);
-     // Retrieve projectId dynamically from local storage
-   const projectId = getProjectIdFromLocalStorage();
+  useEffect(() => {
+    if (projectId) {
+      dispatch(getEmployeeRoles(projectId))
+        .unwrap()
+        .then((result) => {
+          // The API response seems to have the roles directly, not under employeesByRole
+          const employeesByRole = result; // Changed this line
 
-useEffect(() => {
-  if (projectId) {
-    dispatch(getEmployeeRoles(projectId))
-      .unwrap()
-      .then(result => {
-        // The API response seems to have the roles directly, not under employeesByRole
-        const employeesByRole = result; // Changed this line
+          const APPROVER_ROLE_CODES = [
+            "CEO",
+            "HEADFINANCE",
+            "MD",
+            "PROJECTMANAGER",
+            "AQS",
+          ];
 
-        const APPROVER_ROLE_CODES = ["CEO", "HEADFINANCE", "MD", "PROJECTMANAGER", "AQS"];
+          const approverList = [];
 
-        const approverList = [];
-
-        for (const roleGroup of Object.values(employeesByRole)) {
-          if (Array.isArray(roleGroup)) {
-            roleGroup.forEach((employee) => {
-              if (APPROVER_ROLE_CODES.includes(employee.role_code)) {
-                approverList.push({
-                  value: employee.emp_id,
-                  label: `${employee.emp_name} - ${employee.role_code}`,
-                  empId: employee.emp_id,
-                });
-              }
-            });
+          for (const roleGroup of Object.values(employeesByRole)) {
+            if (Array.isArray(roleGroup)) {
+              roleGroup.forEach((employee) => {
+                if (APPROVER_ROLE_CODES.includes(employee.role_code)) {
+                  approverList.push({
+                    value: employee.emp_id,
+                    label: `${employee.emp_name} - ${employee.role_code}`,
+                    empId: employee.emp_id,
+                  });
+                }
+              });
+            }
           }
-        }
 
-        setInitialApproverArray(approverList);
-      })
-      .catch(error => {
-        console.error("Failed to fetch employees:", error);
-      });
-  }
-}, [dispatch, projectId]);
-
-
+          setInitialApproverArray(approverList);
+        })
+        .catch((error) => {
+          console.error("Failed to fetch employees:", error);
+        });
+    }
+  }, [dispatch, projectId]);
 
   useEffect(() => {
     dispatch(getNewBoqId());
@@ -149,7 +150,7 @@ useEffect(() => {
     if (value) {
       setValidationErrors({ ...validationErrors, vendor: false });
     }
-  }
+  };
 
   // Function to handle title change and clear validation error
   const handleTitleChange = (e) => {
@@ -158,18 +159,18 @@ useEffect(() => {
     if (value.trim()) {
       setValidationErrors({ ...validationErrors, title: false });
     }
-  }
+  };
   const validateForm = () => {
     const errors = {
       title: !title.trim(),
       vendor: !selectedVendorId,
-      approver: !selectedApprover.length
+      approver: !selectedApprover.length,
     };
 
     setValidationErrors(errors);
 
     // Return true if no errors
-    return !Object.values(errors).some(error => error);
+    return !Object.values(errors).some((error) => error);
   };
   const handleApproverSelect = (selectedOptions) => {
     setSelectedApprover(selectedOptions);
@@ -184,7 +185,8 @@ useEffect(() => {
       // If validation fails, show appropriate toast messages
       if (validationErrors.title) toast.warn("Please enter a title.");
       if (validationErrors.vendor) toast.warn("Please select a vendor.");
-      if (validationErrors.approver) toast.warn("Please select at least one approver.");
+      if (validationErrors.approver)
+        toast.warn("Please select at least one approver.");
       return;
     }
     let empData = JSON.parse(localStorage.getItem("userData"));
@@ -246,7 +248,9 @@ useEffect(() => {
         }
 
         // Step 4: Navigate to Ticket Details
-        const ticketDetails = await dispatch(getticketbyidAction(ticketId)).unwrap();
+        const ticketDetails = await dispatch(
+          getticketbyidAction(ticketId)
+        ).unwrap();
 
         setTimeout(() => {
           navigate(`../ticket/${ticketId}`, {
@@ -259,7 +263,9 @@ useEffect(() => {
         }, 500);
 
         // Reset form
-        setRows([{ itemName: "", unit: "", rate: "", quantity: "", total: "" }]);
+        setRows([
+          { itemName: "", unit: "", rate: "", quantity: "", total: "" },
+        ]);
         setTitle("");
         setSelectedVendorId("");
         setSelectedApprover([]);
@@ -270,7 +276,6 @@ useEffect(() => {
       toast.error("BOQ creation failed.");
     }
   };
-
 
   useEffect(() => {
     dispatch(fetchRoles());
@@ -284,7 +289,6 @@ useEffect(() => {
     <div className="container boq-form">
       <div
         style={{
-          paddingTop: "20px",
           paddingBottom: "20px",
           borderBottom: "1px solid #ddd",
           marginBottom: "20px",
@@ -294,47 +298,60 @@ useEffect(() => {
           <span
             onClick={() => navigate("/admin/engineermaterial")}
             style={{ cursor: "pointer" }}
+            className="me-2"
           >
             Material
-          </span>{" "}
-          &gt; <span style={{ color: "#FF6F00" }}>Create</span>
+          </span>
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="M6 4.5L9.5 8L6 11.5" stroke="#606060" />
+          </svg>
+
+          <span style={{ color: "#FF6F00" }} className="ms-2">
+            Create
+          </span>
         </h2>
       </div>
 
       <h2 className="form-title">New BOQ</h2>
 
-<div className="">
-      <Form onSubmit={handleSubmit} className="boq-form-css" >
-        <div className="row">
-          <div className="col-md-6">
-            <Form.Group className="mb-3">
-              <Form.Label className="text-black fs-5">BOQ ID</Form.Label>
-              <Form.Control
-                style={{ backgroundColor: "white" }}
-                type="text"
-                placeholder="BOQ ID"
-                value={boqId}
-                // onChange={(e) => setBoqId(e.target.value)}
-                required
-                disabled
-              />{" "}
-            </Form.Group>
-          </div>
-          <div className="col-md-6">
-            <Form.Group className="mb-3">
-              <Form.Label className="text-black fs-5">
-                Title <span className="text-danger">*</span>
-              </Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="BOQ TITLE"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-              />{" "}
-            </Form.Group>
-          </div>
-          {/* <div className="col-md-6">
+      <div className="">
+        <Form onSubmit={handleSubmit} className="boq-form-css">
+          <div className="row">
+            <div className="col-md-6">
+              <Form.Group className="mb-3">
+                <Form.Label className="text-black fs-5">BOQ ID</Form.Label>
+                <Form.Control
+                  style={{ backgroundColor: "white" }}
+                  type="text"
+                  placeholder="BOQ ID"
+                  value={boqId}
+                  // onChange={(e) => setBoqId(e.target.value)}
+                  required
+                  disabled
+                />{" "}
+              </Form.Group>
+            </div>
+            <div className="col-md-6">
+              <Form.Group className="mb-3">
+                <Form.Label className="text-black fs-5">
+                  Title <span className="text-danger">*</span>
+                </Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="BOQ TITLE"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
+                />{" "}
+              </Form.Group>
+            </div>
+            {/* <div className="col-md-6">
             <Form.Group className="mb-3">
               <Form.Label className="text-black fs-5">Description</Form.Label>
               <Form.Control
@@ -345,144 +362,148 @@ useEffect(() => {
               />{" "}
             </Form.Group>
           </div> */}
-        </div>
-
-        <div className="row">
-          <div className="col-md-6">
-            <Form.Group className="mb-3">
-              <Form.Label className="text-black fs-5">Vendor</Form.Label>
-              <Form.Select
-              className="form-control"
-                style={{ backgroundColor: "white" }}
-                value={selectedVendorId}
-                onChange={(e) => setSelectedVendorId(e.target.value)}
-              >
-                {" "}
-                <option>Select Vendor</option>
-                {vendors.map((vendor) => (
-                  <option key={vendor.id} value={vendor.id}>
-                    {vendor.vendorName}
-                  </option>
-                ))}
-              </Form.Select>
-            </Form.Group>
           </div>
-          <div className={validationErrors.approver ? "col-md-6 is-invalid" : "col-md-6"}>
-            <Form.Group className="mb-3">
-              <Form.Label className="text-black fs-5">Approved By</Form.Label>
-              
-<MultipleSelect
-  required
-  
-  
-  selectedOptions={selectedApprover}
-  handleSelected={setSelectedApprover}
-  data={initialApproverArray}
-  isSearchable={true}
-  placeholder={"Select Approver"}
-  isMulti={true}
-/>
-              {validationErrors.approver && (
-                <div className="invalid-feedback" style={{ display: "block" }}>
-                  Please select at least one approver.
-                </div>
-              )}
-            </Form.Group>
+
+          <div className="row">
+            <div className="col-md-6">
+              <Form.Group className="mb-3">
+                <Form.Label className="text-black fs-5">Vendor</Form.Label>
+                <Form.Select
+                  className="form-control"
+                  style={{ backgroundColor: "white" }}
+                  value={selectedVendorId}
+                  onChange={(e) => setSelectedVendorId(e.target.value)}
+                >
+                  {" "}
+                  <option>Select Vendor</option>
+                  {vendors.map((vendor) => (
+                    <option key={vendor.id} value={vendor.id}>
+                      {vendor.vendorName}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+            </div>
+            <div
+              className={
+                validationErrors.approver ? "col-md-6 is-invalid" : "col-md-6"
+              }
+            >
+              <Form.Group className="mb-3">
+                <Form.Label className="text-black fs-5">Approved By</Form.Label>
+
+                <MultipleSelect
+                  required
+                  selectedOptions={selectedApprover}
+                  handleSelected={setSelectedApprover}
+                  data={initialApproverArray}
+                  isSearchable={true}
+                  placeholder={"Select Approver"}
+                  isMulti={true}
+                />
+                {validationErrors.approver && (
+                  <div
+                    className="invalid-feedback"
+                    style={{ display: "block" }}
+                  >
+                    Please select at least one approver.
+                  </div>
+                )}
+              </Form.Group>
+            </div>
           </div>
-        </div>
 
-      <table className="boq-table clean-inputs">
-      <thead className="bg-orange">
-        <tr>
-          <th className="text-center text-white">S. No</th>
-          <th className="text-center text-white">Item Name</th>
-          <th className="text-center text-white">Unit</th>
-          <th className="text-center text-white">Rate</th>
-          <th className="text-center text-white">Quantity</th>
-          <th className="text-center text-white">Total</th>
-        </tr>
-      </thead>
-      <tbody className="tbl">
-        {rows.map((row, index) => (
-          <tr key={index}>
-            <td className="text-center">{index + 1}</td>
-            <td className="cell-no-border">
-              <input
-                type="text"
-                name="itemName"
-                value={row.itemName}
-                onChange={(e) => handleInputChange(index, e)}
-                className="input-no-border"
-              />
-            </td>
-            <td className="cell-no-border">
-              <input
-                type="text"
-                name="unit"
-                value={row.unit}
-                onChange={(e) => handleInputChange(index, e)}
-                className="input-no-border"
-              />
-            </td>
-            <td className="cell-no-border">
-              <input
-                type="number"
-                name="rate"
-                value={row.rate}
-                onChange={(e) => handleInputChange(index, e)}
-                className="input-no-border"
-              />
-            </td>
-            <td className="cell-no-border">
-              <input
-                type="number"
-                name="quantity"
-                value={row.quantity}
-                onChange={(e) => handleInputChange(index, e)}
-                className="input-no-border"
-              />
-            </td>
-            <td className="text-center">{row.total}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+          <table className="boq-table clean-inputs">
+            <thead className="bg-orange">
+              <tr>
+                <th className="text-center text-white">S. No</th>
+                <th className="text-center text-white">Item Name</th>
+                <th className="text-center text-white">Unit</th>
+                <th className="text-center text-white">Rate</th>
+                <th className="text-center text-white">Quantity</th>
+                <th className="text-center text-white">Total</th>
+              </tr>
+            </thead>
+            <tbody className="tbl">
+              {rows.map((row, index) => (
+                <tr key={index}>
+                  <td className="text-center">{index + 1}</td>
+                  <td className="cell-no-border">
+                    <input
+                      type="text"
+                      name="itemName"
+                      value={row.itemName}
+                      onChange={(e) => handleInputChange(index, e)}
+                      className="input-no-border"
+                    />
+                  </td>
+                  <td className="cell-no-border">
+                    <input
+                      type="text"
+                      name="unit"
+                      value={row.unit}
+                      onChange={(e) => handleInputChange(index, e)}
+                      className="input-no-border"
+                    />
+                  </td>
+                  <td className="cell-no-border">
+                    <input
+                      type="number"
+                      name="rate"
+                      value={row.rate}
+                      onChange={(e) => handleInputChange(index, e)}
+                      className="input-no-border"
+                    />
+                  </td>
+                  <td className="cell-no-border">
+                    <input
+                      type="number"
+                      name="quantity"
+                      value={row.quantity}
+                      onChange={(e) => handleInputChange(index, e)}
+                      className="input-no-border"
+                    />
+                  </td>
+                  <td className="text-center">{row.total}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
 
-        <div className="d-flex flex-column align-items-end mt-3">
-         <Button
-  variant=""
-  className="text-orange bg-orange add-column-btn p-0 mb-3"
-  onClick={handleAddRow}
->
-  + Add Row
-</Button>
+          <div className="d-flex flex-column align-items-end mt-3">
+            <Button
+              variant=""
+              className="text-orange bg-orange add-column-btn p-0 mb-3"
+              onClick={handleAddRow}
+            >
+              + Add Row
+            </Button>
 
-          <Button
-            type="submit"
-            className="submit-btn"
-            style={{
-              backgroundColor: "#FF6F00",
-              borderColor: "#FF6F00",
-              color: "white",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-            }}
-          >
-            <FontAwesomeIcon
-              icon={faPaperPlane}
+            <Button
+              type="submit"
+              className="submit-btn"
               style={{
+                backgroundColor: "#FF6F00",
+                borderColor: "#FF6F00",
                 color: "white",
-                fill: "white", // Add this
-                filter: "brightness(100%)",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
               }}
-            />
+            >
+              <FontAwesomeIcon
+                icon={faPaperPlane}
+                style={{
+                  color: "white",
+                  fill: "white", // Add this
+                  filter: "brightness(100%)",
+                }}
+              />
 
-            <span style={{ color: "white" }}>Submit</span>
-          </Button>
-
-        </div>
-      </Form>
+              <span style={{ color: "white" }}>Submit</span>
+            </Button>
+          </div>
+        </Form>
       </div>
     </div>
   );
