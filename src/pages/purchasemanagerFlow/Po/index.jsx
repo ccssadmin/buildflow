@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import "bootstrap/dist/css/bootstrap.min.css";
 import { getAllPurchaseOrder } from "../../../store/actions/Purchase/purcharseorderidaction";
 
 export default function PurchaseOrdersPage() {
@@ -18,78 +17,59 @@ export default function PurchaseOrdersPage() {
   if (error) return <p className="text-danger">Error: {error}</p>;
 
   return (
-    <div className="container mt-4">
+    <div className="po-container">
       <div className="row mb-4">
         <div className="col-md-6">
-          <h1 style={{ fontSize: "28px", fontWeight: "bold", color: "#333" }}>All POs</h1>
+          <h1 className="po-header-title">All POs</h1>
         </div>
-        <div className="col-md-6 d-flex justify-content-end">
-          <div className="d-flex gap-2">
-            <select
-              className="form-select"
-              style={{
-                width: "150px",
-                height: "40px",
-                backgroundColor: "#f8f9fa",
-                border: "1px solid #ced4da",
-                borderRadius : "none",
-              }}
-            >
+        <div className="col-md-6">
+          <div className="po-filter-action-bar">
+            <select className="po-filter-select">
               <option>All</option>
               <option>In Transit</option>
               <option>Delivered</option>
               <option>Pending</option>
             </select>
             <button
-              className="btn"
-              style={{
-                width: "150px",
-                height: "40px",
-                backgroundColor: "#ff6600",
-                color: "white",
-                fontWeight: "500",
-                borderRadius: "none"
-              }}
+              className="po-create-btn"
               onClick={() => navigate("/purchasemanager/poCreate")}
             >
               + Create PO
             </button>
           </div>
-
         </div>
       </div>
 
       <div className="table-responsive">
-        <table className="table table-bordered">
-          <thead style={{ backgroundColor: "#f8f9fa" }}>
+        <table className="po-table">
+          <thead>
             <tr>
-              <th className="text-center">PO ID</th>
-              <th className="text-center">Project</th>
-              <th className="text-center">Vendor</th>
-              <th className="text-center">Date</th>
-              <th className="text-center">Status</th>
-              <th className="text-center">Contact</th>
-              <th className="text-center">Action</th>
+              <th>PO ID</th>
+              <th>Project</th>
+              <th>Vendor</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Contact No</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
             {allPurchaseOrders?.length > 0 ? (
               allPurchaseOrders.map((po, index) => (
                 <tr key={index}>
-                  <td className="text-center">{po.poId || "-"}</td>
-                  <td className="text-center">{po.projectName || "-"}</td>
-                  <td className="text-center">{po.vendor || "-"}</td>
-                  <td className="text-center">{po.deliveryStatusDate || "-"}</td>
-                  <td className="text-center">
-                    <span className="text-success">
+                  <td>{po.poId || "-"}</td>
+                  <td>{po.projectName || "-"}</td>
+                  <td>{po.vendor || "-"}</td>
+                  <td>{po.deliveryStatusDate || "-"}</td>
+                  <td>
+                    <span className="po-status">
                       {po.deliveryStatus ? po.deliveryStatus : "Pending"}
                     </span>
                   </td>
-                  <td className="text-center">{po.vendorMobileNumber || "-"}</td>
-                  <td className="text-center">
+                  <td>{po.vendorMobileNumber || "-"}</td>
+                  <td>
                     <button
-                      className="btn btn-link"
-                      style={{ color: "#0d6efd", textDecoration: "none" }}
+                      className="po-view-link"
                       onClick={() => navigate(`/purchasemanager/poDetails/${po.purchaseOrderId}`)}
                     >
                       View
@@ -99,13 +79,12 @@ export default function PurchaseOrdersPage() {
               ))
             ) : (
               <tr>
-                <td colSpan="7" className="text-center text-muted">
+                <td colSpan="7" className="po-empty">
                   No Purchase Orders found.
                 </td>
               </tr>
             )}
           </tbody>
-
         </table>
       </div>
     </div>

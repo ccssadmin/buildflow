@@ -1,9 +1,6 @@
 .boq-form {
   padding: 20px;
-  background: #fff;
   border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  margin-top: 20px;
 }
 
 .breadcrumb {
@@ -21,9 +18,11 @@
 }
 
 .form-title {
-  font-size: 22px;
-  font-weight: bold;
+  font-size: 28px;
+  font-weight: 700;
   margin-bottom: 20px;
+  width: 1180px;
+  height: 36px;
 }
 
 .boq-table th {
@@ -64,7 +63,7 @@
 
 .boq-table th {
   padding: 10px;
-  background-color: #ff8c00; /* orange color */
+  background-color: #ff8c00 !important; /* orange color */
 }
 
 .boq-table td {
@@ -123,4 +122,10 @@
   .submit-btn {
     width: 100%;
   }
+}
+
+
+.boq-form-css{
+ justify-content: left ;
+gap: 22px !important;
 }

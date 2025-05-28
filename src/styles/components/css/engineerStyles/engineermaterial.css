@@ -68,10 +68,6 @@
   color: white;
 }
 
-/* Status Styling */
-.status-badge {
-  font-weight: bold;
-}
 
 /* Responsive Design */
 @media (max-width: 768px) {
