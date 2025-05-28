@@ -90,10 +90,10 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
         const risks = riskDetails.map((item, index) => ({
           id: index + 1,
           riskId: item.risk_id,
-          CategoryName: item.category_name,
+          categoryName: item.category_name, // Fixed: use consistent property name
           status: item.risk_status,
           projectId: projectId,
-          file: item.image_url, // Initialize file as null
+          file: item.image_url,
         }));
         console.log("Processed risks =>", risks);
 
@@ -107,7 +107,6 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
         setFormData((prev) => ({
           ...prev,
           risks: prev.risks || initialRisks,
-        
         }));
       }
     } catch (error) {
@@ -122,11 +121,11 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
 
   const handleAddRow = () => {
     const newRisk = {
-      id: formData.risks.length > 0
+      id: formData.risks && formData.risks.length > 0
         ? Math.max(...formData.risks.map(r => r.id)) + 1
         : 1,
       riskId: 0,
-      CategoryName: "",
+      categoryName: "", // Fixed: use consistent property name
       status: "",
       projectId: localProjectId || projectId,
       file: null,
@@ -134,7 +133,7 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
 
     setFormData((prev) => ({
       ...prev,
-      risks: [...prev.risks, newRisk],
+      risks: [...(prev.risks || []), newRisk], // Fixed: handle case when risks is undefined
     }));
   };
 
@@ -206,10 +205,11 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
     setFormData((prev) => ({ ...prev, risks: updatedRisks }));
   };
 
+  // Fixed: handleCategoryChange function
   const handleCategoryChange = (riskId, newCategory) => {
     const updatedRisks = formData.risks.map((risk) => {
       if (risk.id === riskId) {
-        return { ...risk, category: newCategory };
+        return { ...risk, categoryName: newCategory }; // Fixed: use consistent property name
       }
       return risk;
     });
@@ -231,13 +231,15 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
       });
       return;
     }
-const categoryName = risk.category || risk.CategoryName;
 
-if (!categoryName?.trim()) {
-  Swal.fire({ icon: "warning", title: "Category Name is required." });
-  return;
-}
+    // Fixed: use consistent property name
+    const categoryName = risk.categoryName;
 
+    // Uncomment if category validation is needed
+    // if (!categoryName?.trim()) {
+    //   Swal.fire({ icon: "warning", title: "Category Name is required." });
+    //   return;
+    // }
 
     if (!risk.status?.trim()) {
       Swal.fire({ icon: "warning", title: "Status is required." });
@@ -259,7 +261,7 @@ if (!categoryName?.trim()) {
       
       Swal.fire({
         title: "Uploading...",
-        text: `Uploading ${risk.category} file`,
+        text: `Uploading ${risk.categoryName} file`,
         allowOutsideClick: false,
         didOpen: () => Swal.showLoading(),
       });
@@ -274,13 +276,13 @@ if (!categoryName?.trim()) {
         return;
       }
 
+      // Fixed: use consistent property name
       const riskData = {
         riskId: risk.riskId || 0,
-        category: String(risk.category).trim(),
+        category: String(risk.categoryName || "").trim(),
         status: String(risk.status).trim(),
         projectId: parseInt(localProjectId),
         file: risk.file,
-    
       };
 
       const resultAction = await dispatch(uploadRiskData(riskData));
@@ -338,7 +340,7 @@ if (!categoryName?.trim()) {
               <td className="text-center text-dark-gray fs-16-500">
                 <Form.Control
                   type="text"
-                  value={risk.CategoryName || risk.categoryName|| ""}
+                  value={risk.categoryName || ""} // Fixed: use consistent property name
                   onChange={(e) => handleCategoryChange(risk.id, e.target.value)}
                   size="sm"
                   placeholder="Enter category name"
@@ -364,29 +366,28 @@ if (!categoryName?.trim()) {
                   accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
                 />
                 <Button
-  variant="link"
-  onClick={() => {
-    document.getElementById(`file-input-${risk.id}`).click();
-  }}
-  disabled={uploadingForId === risk.id}
->
-  {uploadingForId === risk.id ? (
-    <>
-      <Spinner size="sm" className="me-2" />
-      Uploading...
-    </>
-  ) : (
-    <>
-      {risk.file instanceof File
-        ? risk.file.name
-        : typeof risk.file === "string"
-        ? risk.file.split("/").pop()
-        : "Choose File"}
-      {uploadedRisks[risk.id] && " ✅"}
-    </>
-  )}
-</Button>
-
+                  variant="link"
+                  onClick={() => {
+                    document.getElementById(`file-input-${risk.id}`).click();
+                  }}
+                  disabled={uploadingForId === risk.id}
+                >
+                  {uploadingForId === risk.id ? (
+                    <>
+                      <Spinner size="sm" className="me-2" />
+                      Uploading...
+                    </>
+                  ) : (
+                    <>
+                      {risk.file instanceof File
+                        ? risk.file.name
+                        : typeof risk.file === "string"
+                        ? risk.file.split("/").pop()
+                        : "Choose File"}
+                      {uploadedRisks[risk.id] && " ✅"}
+                    </>
+                  )}
+                </Button>
               </td>
             </tr>
           ))}
