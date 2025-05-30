@@ -23,7 +23,7 @@ const TimelineMilestonePlanning = ({
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [hasInitialized, setHasInitialized] = useState(false);
   const [nextTempId, setNextTempId] = useState(1);
-  const { projectId } = useParams();
+
   const { createProjectMilestone, loading, currentProject } = useProject();
   const [localProjectId, setLocalProjectId] = useState(null);
 
@@ -103,6 +103,8 @@ const TimelineMilestonePlanning = ({
         : [...prevSelected, userId]
     );
   };
+    const projectId = localStorage.getItem("projectId");
+    console.log("projecttt    Id =>",projectId)
 
   useEffect(() => {
     if (projectId) {
@@ -116,7 +118,7 @@ const TimelineMilestonePlanning = ({
       const milestoneDetails = result?.payload?.value?.milestone_details;
       if (Array.isArray(milestoneDetails) && milestoneDetails.length > 0) {
         const milestones = milestoneDetails.map((item, index) => ({
-          id: item.milestone_id || `existing_${Date.now()}_${index}`,
+          id: item.milestone_id || 0,
           name: item.milestone_name,
           description: item.milestone_description,
           startDate: item.milestone_start_date,
