@@ -16,6 +16,7 @@
     --burnt-orange : #C65600;
     --green : #30A335;
     --bright-royal-blue-1 : #0456D0;
+    --off-white-gray: #EBEBEB;
 }
 * {
     font-family: "DM Sans", sans-serif;
@@ -54,6 +55,9 @@ body .text-dark-gray {
 .text-golden-yellow {
     color: var(--golden-yellow) !important;
 }
+.text-off-white-gray {
+    color: var(--off-white-gray) !important;
+}
 /* .text-bright-royal-blue {
     color: var(--bright-royal-blue) !important;
 }
@@ -89,6 +93,9 @@ body .bg-primary {
 }
 .bg-burnt-orange {
     background-color: var(--burnt-orange) !important;
+}
+.bg-off-white-gray {
+    background-color: var(--off-white-gray) !important;
 }
 .cursor-pointer {
     cursor: pointer !important;
