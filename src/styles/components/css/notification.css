@@ -5,11 +5,11 @@
     color: #606060 !important;
     background: #84848433 !important;
     margin: 0px 5px;
-    height: 28px;
+    height: 24px;
     display: flex;
     align-items: center;
     border-radius: 4px !important;
-    font-size: 12px;
+    font-size: 10px;
     font-weight: 500;
     padding: 12px;
 }

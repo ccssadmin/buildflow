@@ -432,7 +432,7 @@ const TimelineMilestonePlanning = ({
 
         {sortedMilestones.length > 0 && (
           <div className="form-section">
-            <div className="table-responsive">
+            <div className="">
               <table className="tbl mt-4 table table-bordered w-100">
                 <thead>
                   <tr>
@@ -528,7 +528,7 @@ const TimelineMilestonePlanning = ({
                         >
                           <option value="Planned">Planned</option>
                           <option value="In Progress">In Progress</option>
-                          <option value="Completed">Completed</option>
+                          <option value="Completed">✅ Completed</option>
                           <option value="Delayed">Delayed</option>
                         </Form.Select>
                       </td>

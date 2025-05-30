@@ -12,7 +12,8 @@ import { fetchRoles } from "../../store/actions/hr/designationaction";
 import { useRoleBasedEmp } from "../../hooks/Ceo/useRoleBasedEmp";
 import { useTicket } from "../../hooks/Ceo/useTicket";
 import { useNotification } from "../../hooks/Ceo/useNotification";
-
+import { useProject } from "../../hooks/Ceo/useCeoProject";
+const BASE_URL = process.env.REACT_APP_MASTER_API_BASE_URL;
 const ProjectSummary = ({ formData, onBackClick }) => {
   const { projectId } = useParams();
   const dispatch = useDispatch();
@@ -20,7 +21,7 @@ const ProjectSummary = ({ formData, onBackClick }) => {
   const { createTicket } = useTicket();
   const { fetchAllEmployees } = useRoleBasedEmp();
   const { createNotify } = useNotification();
-
+const { fetchProjectTypeSector } = useProject();
   const { loading } = useSelector((state) => state.project.getProjectDetails);
 
   const [showModal, setShowModal] = useState(false);
@@ -28,20 +29,47 @@ const ProjectSummary = ({ formData, onBackClick }) => {
   const [employeesByRole, setEmployeesByRole] = useState([]);
   const [projectData, setProjectData] = useState(null);
   const [dataLoading, setDataLoading] = useState(true);
+  const [loadings, setLoadings] = useState(true);
+  const [dataFetched, setDataFetched] = useState(false);
+
+
+  const [projectTypes, setProjectTypes] = useState({});
+const [projectSectors, setProjectSectors] = useState({});
+
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      setLoadings(true);
+      const data = await fetchProjectTypeSector();
+      console.log("Project Type & Sector Full Response:", data);
+
+      // Transform arrays into objects with id as key
+      const typeMap = {};
+      data.projectTypes.forEach(item => {
+        typeMap[item.id] = item.projectTypeName;
+      });
+
+      const sectorMap = {};
+      data.projectSectors.forEach(item => {
+        sectorMap[item.id] = item.projectSectorName;
+      });
+
+      setProjectTypes(typeMap);
+      setProjectSectors(sectorMap);
+      setDataFetched(true);
+    } catch (error) {
+      console.error("Error fetching project types/sectors:", error);
+    } finally {
+      setLoadings(false);
+    }
+  };
+  fetchData();
+}, []);
 
   // Enhanced data mapping constants
   const PROJECT_TYPES = {
-    1: "Residential",
-    2: "Industrial",
-    3: "Commercial",
-    4: "Infrastructure",
   };
-
   const PROJECT_SECTORS = {
-    1: "Public",
-    2: "Private",
-    3: "Government",
-    4: "Corporate",
   };
 
   const ALL_PROJECT_ROLES = [
@@ -257,7 +285,7 @@ const ProjectSummary = ({ formData, onBackClick }) => {
   }
 
   return (
-    <div className="project-summary p-5">
+    <div className="project-summary p-4">
       {/* Enhanced Breadcrumb */}
       <div className="breadcrumb-container pb-3 d-flex align-items-center">
         <span className="breadcrumb-item">Projects</span>
@@ -289,12 +317,17 @@ const ProjectSummary = ({ formData, onBackClick }) => {
           <h3 className="fs-28-700 text-dark">01. Project Basic Details</h3>
           <Button
             variant="link"
-            className="edit-btn text-primary me-0 pe-0"
+            className="edit-btn fs-18-500 text-primary text-decoration-none me-0 pe-0 d-flex align-items-center"
             onClick={() =>
               navigate(`../createproject/${projectId}`, { state: { step: 0 } })
             }
           >
-            ✏️ Edit
+          <svg className="me-2" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 21H21" stroke="#FF6F00" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M7 17V13L17 3L21 7L11 17H7Z" stroke="#FF6F00" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M14 6L18 10" stroke="#FF6F00" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+           Edit
           </Button>
         </div>
 
@@ -443,12 +476,17 @@ const ProjectSummary = ({ formData, onBackClick }) => {
           <h3 className="fs-28-700 text-dark">02. Budget & Financial Allocation</h3>
           <Button
             variant="link"
-            className="edit-btn text-primary me-0 pe-0"
+            className="edit-btn fs-18-500 text-primary text-decoration-none me-0 pe-0 d-flex align-items-center"
             onClick={() =>
               navigate(`../createproject/${projectId}`, { state: { step: 1 } })
             }
           >
-            ✏️ Edit
+            <svg className="me-2" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 21H21" stroke="#FF6F00" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M7 17V13L17 3L21 7L11 17H7Z" stroke="#FF6F00" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M14 6L18 10" stroke="#FF6F00" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+           Edit
           </Button>
         </div>
 
@@ -480,7 +518,7 @@ const ProjectSummary = ({ formData, onBackClick }) => {
             <Table bordered responsive className="mt-4 w-100">
               <thead className="table-light">
                 <tr>
-                  <th className="text-center text-dark fs-18-500">S.No</th>
+                  <th className="text-center text-dark fs-18-500 w48">S.No</th>
                   <th className="text-center text-dark fs-18-500">
                     Expense Category
                   </th>
@@ -495,7 +533,7 @@ const ProjectSummary = ({ formData, onBackClick }) => {
               <tbody>
                 {projectData.budget_details.map((item, index) => (
                   <tr key={item.project_budget_id || index}>
-                    <td className="text-center text-dark-gray fs-16-500">
+                    <td className="text-center text-dark-gray fs-16-500 w48">
                       {String(index + 1).padStart(2, "0")}
                     </td>
                     <td className="text-center text-dark-gray fs-16-500">
@@ -527,12 +565,17 @@ const ProjectSummary = ({ formData, onBackClick }) => {
           <h3 className="fs-28-700 text-dark">03. Project Team & Stakeholder Assignment</h3>
           <Button
             variant="link"
-            className="edit-btn text-primary me-0 pe-0"
+            className="edit-btn fs-18-500 text-primary text-decoration-none me-0 pe-0 d-flex align-items-center"
             onClick={() =>
               navigate(`../createproject/${projectId}`, { state: { step: 2 } })
             }
           >
-            ✏️ Edit
+            <svg className="me-2" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 21H21" stroke="#FF6F00" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M7 17V13L17 3L21 7L11 17H7Z" stroke="#FF6F00" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M14 6L18 10" stroke="#FF6F00" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+           Edit
           </Button>
         </div>
         <Row className="mb-4">
@@ -574,7 +617,7 @@ const ProjectSummary = ({ formData, onBackClick }) => {
             <div class="summary-field">
               <label className="text-dark fs-20-500 mb-2">Subcontractor</label>
               {!isEmpty(projectData?.subcontractor_details) ? (
-                <div className="d-flex align-items-center p-2 border rounded bg-white">
+                <div className="d-flex align-items-center p-2 border rounded bg-white h48px">
                   <div className="me-2">
                     {projectData.subcontractor_details.map(
                       (subcontractor, index) => (
@@ -588,7 +631,7 @@ const ProjectSummary = ({ formData, onBackClick }) => {
                   </div>
                 </div>
               ) : (
-                <div className="d-flex align-items-center p-2 border rounded bg-white">
+                <div className="d-flex align-items-center p-2 border rounded bg-white h48px">
                   <div className="me-2">
                     <div
                       className=" text-white d-flex align-items-center justify-content-center"
@@ -607,7 +650,7 @@ const ProjectSummary = ({ formData, onBackClick }) => {
             <div class="summary-field">
               <label className="text-dark fs-20-500 mb-2">Vendor</label>
               {!isEmpty(projectData?.vendor_details) ? (
-                <div className="d-flex align-items-center p-2 border rounded bg-white">
+                <div className="d-flex align-items-center p-2 border rounded bg-white h48px">
                   <div className="me-2">
                     {projectData.vendor_details.map((vendor, index) => (
                         <div className="">
@@ -620,7 +663,7 @@ const ProjectSummary = ({ formData, onBackClick }) => {
                   </div>
                 </div>
               ) : (
-                <div className="d-flex align-items-center p-2 border rounded bg-white">
+                <div className="d-flex align-items-center p-2 border rounded bg-white h48px">
                   <div className="me-2">
                     <div
                       className=" text-white d-flex align-items-center justify-content-center"
@@ -636,12 +679,12 @@ const ProjectSummary = ({ formData, onBackClick }) => {
         </Row>
 
         <div className="permission-approval-summary">
-          <h5 className="mb-3">Permission and Finance Approval</h5>
+          <h5 className="mb-3 fs-28-700">Permission and Finance Approval</h5>
           {!isEmpty(projectData?.finance_approval_data) ? (
             <Table bordered responsive className="mt-4 w-100">
               <thead className="table-light">
                 <tr>
-                  <th className="text-center text-dark fs-18-500">S.No</th>
+                  <th className="text-center text-dark fs-18-500 w48">S.No</th>
                   <th className="text-center text-dark fs-18-500">Employee</th>
                   <th className="text-center text-dark fs-18-500">Amount %</th>
                 </tr>
@@ -649,7 +692,7 @@ const ProjectSummary = ({ formData, onBackClick }) => {
               <tbody>
                 {projectData.finance_approval_data.map((item, index) => (
                   <tr key={item.permission_finance_approval_id || index}>
-                    <td className="text-center text-dark-gray fs-16-500">
+                    <td className="text-center text-dark-gray fs-16-500 w48">
                       {String(index + 1).padStart(2, "0")}
                     </td>
                     <td className="text-center text-dark-gray fs-16-500">
@@ -690,12 +733,17 @@ const ProjectSummary = ({ formData, onBackClick }) => {
           <h3 className="fs-28-700 text-dark">04. Timeline & Milestone Planning</h3>
           <Button
             variant="link"
-            className="edit-btn text-primary me-0 pe-0"
+            className="edit-btn fs-18-500 text-primary text-decoration-none me-0 pe-0 d-flex align-items-center"
             onClick={() =>
               navigate(`../createproject/${projectId}`, { state: { step: 3 } })
             }
           >
-            ✏️ Edit
+            <svg className="me-2" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 21H21" stroke="#FF6F00" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M7 17V13L17 3L21 7L11 17H7Z" stroke="#FF6F00" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M14 6L18 10" stroke="#FF6F00" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+           Edit
           </Button>
         </div>
 
@@ -726,21 +774,13 @@ const ProjectSummary = ({ formData, onBackClick }) => {
                     {formatDate(milestone.milestone_end_date)}
                   </td>
                   <td className="text-center text-dark-gray fs-16-500">
-                    <span
-                      className={`badge ${
+                    <span>
+                      {
                         milestone.milestone_status?.toLowerCase() ===
                         "completed"
-                          ? "bg-success"
-                          : milestone.milestone_status?.toLowerCase() ===
-                            "in progress"
-                          ? "bg-warning"
-                          : milestone.milestone_status?.toLowerCase() ===
-                            "planned"
-                          ? "bg-info"
-                          : "bg-secondary"
-                      }`}
-                    >
-                      {displayValue(milestone.milestone_status)}
+                          ? "✅"
+                          : ""
+                      }{displayValue(milestone.milestone_status)}
                     </span>
                   </td>
                 </tr>
@@ -758,12 +798,18 @@ const ProjectSummary = ({ formData, onBackClick }) => {
           <h3 className="fs-28-700 text-dark">05. Risk & Compliance Assessment</h3>
           <Button
             variant="link"
-            className="edit-btn text-primary me-0 pe-0"
+            className="edit-btn fs-18-500 text-primary text-decoration-none me-0 pe-0 d-flex align-items-center"
             onClick={() =>
               navigate(`../createproject/${projectId}`, { state: { step: 4 } })
             }
           >
-            ✏️ Edit
+            
+            <svg className="me-2" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 21H21" stroke="#FF6F00" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M7 17V13L17 3L21 7L11 17H7Z" stroke="#FF6F00" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M14 6L18 10" stroke="#FF6F00" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+           Edit
           </Button>
         </div>
 
@@ -771,7 +817,7 @@ const ProjectSummary = ({ formData, onBackClick }) => {
           <Table bordered responsive className="mt-4 w-100">
             <thead className="table-light">
               <tr>
-                <th className="text-center text-dark fs-18-500">S. No</th>
+                <th className="text-center text-dark fs-18-500 w48">S.No</th>
                 <th className="text-center text-dark fs-18-500">Category</th>
                 <th className="text-center text-dark fs-18-500">Status</th>
                 <th className="text-center text-dark fs-18-500">File</th>
@@ -780,7 +826,7 @@ const ProjectSummary = ({ formData, onBackClick }) => {
             <tbody>
               {projectData.risk_management_data.map((risk, index) => (
                 <tr key={risk.risk_id || index}>
-                  <td className="text-center text-dark-gray fs-16-500">
+                  <td className="text-center text-dark-gray fs-16-500 w48">
                     {String(index + 1).padStart(2, "0")}
                   </td>
                   <td className="text-center text-dark-gray fs-16-500">
@@ -788,19 +834,13 @@ const ProjectSummary = ({ formData, onBackClick }) => {
                   </td>
                   <td className="text-center text-dark-gray fs-16-500">
                     <span
-                      className={`badge ${
-                        risk.risk_status?.toLowerCase() === "completed"
-                          ? "bg-success"
-                          : risk.risk_status?.toLowerCase() === "pending"
-                          ? "bg-warning"
-                          : "bg-secondary"
-                      }`}
+                      className=""
                     >
                       {risk.risk_status === "Completed" && (
-                        <span className="me-1">✓</span>
+                        <span className="me-1">✅</span>
                       )}
                       {risk.risk_status === "Pending" && (
-                        <span className="me-1">⏳</span>
+                        <span className="me-1">⚠</span>
                       )}
                       {displayValue(risk.risk_status)}
                     </span>
@@ -808,15 +848,15 @@ const ProjectSummary = ({ formData, onBackClick }) => {
                   <td className="text-center text-dark-gray fs-16-500">
                     {!isEmpty(risk.image_url) ? (
                       <a
-                        href={risk.image_url}
+                        href={`${BASE_URL}${risk.image_url}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-primary text-decoration-none"
+                        className="text-bright-royal-blue-1 text-decoration-none"
                       >
-                        📎 View File
+                        View
                       </a>
                     ) : (
-                      <span className="text-muted">Not Uploaded</span>
+                      <span className="text-muted"></span>
                     )}
                   </td>
                 </tr>
@@ -836,7 +876,7 @@ const ProjectSummary = ({ formData, onBackClick }) => {
           );
           return (
             <Button
-              className={`submit-btn px-4 py-2 border-0 bg-primary text-white ${
+              className={`px-4 py-2 h48px border-radius-2 fs-14-600 border-0 bg-primary text-white w220 me-0 ${
                 userRoleId === 1 ? "d-block" : "d-none"
               }`}
               onClick={async () => {
@@ -889,73 +929,58 @@ const ProjectSummary = ({ formData, onBackClick }) => {
                 }
               }}
             >
-              🚀 Submit for Approval
+              
+            <svg className="me-2" width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10.5 3.33464C9.72645 3.33464 8.98459 3.64193 8.43761 4.18891C7.89062 4.73589 7.58333 5.47775 7.58333 6.2513C7.58333 7.02485 7.89062 7.76672 8.43761 8.3137C8.98459 8.86068 9.72645 9.16797 10.5 9.16797C11.2735 9.16797 12.0154 8.86068 12.5624 8.3137C13.1094 7.76672 13.4167 7.02485 13.4167 6.2513C13.4167 5.47775 13.1094 4.73589 12.5624 4.18891C12.0154 3.64193 11.2735 3.33464 10.5 3.33464ZM5.91667 6.2513C5.91667 5.03573 6.39955 3.86994 7.25909 3.0104C8.11864 2.15085 9.28442 1.66797 10.5 1.66797C11.7156 1.66797 12.8814 2.15085 13.7409 3.0104C14.6004 3.86994 15.0833 5.03573 15.0833 6.2513C15.0833 7.46688 14.6004 8.63267 13.7409 9.49221C12.8814 10.3518 11.7156 10.8346 10.5 10.8346C9.28442 10.8346 8.11864 10.3518 7.25909 9.49221C6.39955 8.63267 5.91667 7.46688 5.91667 6.2513ZM3 15.8346C3 14.7296 3.43899 13.6698 4.22039 12.8884C5.00179 12.107 6.0616 11.668 7.16667 11.668H13.8333C14.9384 11.668 15.9982 12.107 16.7796 12.8884C17.561 13.6698 18 14.7296 18 15.8346V18.3346H3V15.8346ZM7.16667 13.3346C6.50363 13.3346 5.86774 13.598 5.3989 14.0669C4.93006 14.5357 4.66667 15.1716 4.66667 15.8346V16.668H16.3333V15.8346C16.3333 15.1716 16.0699 14.5357 15.6011 14.0669C15.1323 13.598 14.4964 13.3346 13.8333 13.3346H7.16667Z" fill="white"/>
+            </svg>
+
+              Submit for Approval
             </Button>
           );
         })()}
       </div>
 
-      {/* Enhanced Approval Modal */}
+      {/* Approval Modal */}
       <Modal
         show={showModal}
         className="model-approvel-send"
         onHide={() => setShowModal(false)}
         centered
-        size="lg"
       >
         <Modal.Header closeButton>
           <Modal.Title>Select Approvers</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {employeesByRole.length > 0 ? (
-            <div className="row">
-              {employeesByRole.map((emp) => (
-                <div key={emp.empId} className="col-md-6 mb-3">
-                  <div className="d-flex align-items-center p-3 border rounded">
-                    <Form.Check
-                      type="checkbox"
-                      className="me-3"
-                      checked={selectedUsers.includes(emp.empId)}
-                      onChange={() => handleCheckboxChange(emp.empId)}
-                    />
-                    <img
-                      src={profile || "/placeholder.svg"}
-                      alt={`${emp.employeeName || "Employee"}'s profile`}
-                      className="rounded-circle me-3"
-                      style={{
-                        width: "50px",
-                        height: "50px",
-                        objectFit: "cover",
-                      }}
-                    />
-                    <div>
-                      <p className="mb-0 fs-16-700 text-dark">
-                        {displayValue(emp.employeeName)}
-                      </p>
-                      <span className="fs-14-400 text-muted">
-                        {displayValue(emp.roleName)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            employeesByRole.map((emp) => (
+              <div key={emp.empId} className="d-flex align-items-center mb-3">
+                <Form.Check
+                  type="checkbox"
+                  className="me-3"
+                  checked={selectedUsers.includes(emp.empId)}
+                  onChange={() => handleCheckboxChange(emp.empId)}
+                />
+                <img
+                  src={profile}
+                  alt={`${emp.name || "Employee"}'s profile`}
+                  className="rounded-circle me-3"
+                  style={{ width: "50px", height: "50px", objectFit: "cover" }}
+                />
+                <p className="mb-0 fs-22-700 text-dark">
+                  {emp.employeeName}
+                  <span className="d-block fs-14-400 text-dark-grey">
+                    {emp.roleName}
+                  </span>
+                </p>
+              </div>
+            ))
           ) : (
-            <div className="text-center py-4">
-              <p>No employees found under selected roles.</p>
-            </div>
+            <p>No employees found under selected roles.</p>
           )}
         </Modal.Body>
         <Modal.Footer className="justify-content-center">
           <Button
-            variant="secondary"
-            onClick={() => setShowModal(false)}
-            className="me-2"
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="primary"
+            className="bg-primary border-0 btn-approval-send"
             disabled={selectedUsers.length === 0}
             onClick={async () => {
               if (selectedUsers.length === 0) {
@@ -969,52 +994,61 @@ const ProjectSummary = ({ formData, onBackClick }) => {
 
               try {
                 const userData = JSON.parse(localStorage.getItem("userData"));
-                const createdBy = Number.parseInt(
-                  localStorage.getItem("userRoleId")
-                );
 
+                // 1. Create Ticket
+                const createdBy = parseInt(localStorage.getItem("userRoleId"));
+
+                // 1. Create Ticket for all selected users at once
                 const ticketResponse = await createTicket({
                   projectId: projectData?.project.project_id,
                   ticketType: "submit",
                   assignTo: selectedUsers,
                   createdBy: userData.empId,
+                  assignTo: selectedUsers, // ✅ array of empIds
                 });
+
+                console.log("Ticket Response:", ticketResponse);
 
                 const createdTicketId = ticketResponse?.data?.data?.ticketId;
 
+                // 2. Create notification
                 await createNotify({
                   empId: selectedUsers,
+                  notificationType: "approval-request",
+                  sourceEntityId: 0,
+                  message: `Approval requested for project ${projectData.project.project_name}`,
                   notificationType: "Project_Finalisation_Approval",
                   sourceEntityId: createdTicketId,
-                  message: `We would like to update you that we are currently awaiting approval on the Project Finalisation Report submitted for ${projectData?.project?.project_name}. Kindly review and provide your confirmation at the earliest to avoid any delays in the process.`,
+                  message: `We would like to update you that we are currently awaiting approval on the Project Finalisation Report submitted for  ${projectData.projectName}. Kindly review and provide your confirmation at the earliest to avoid any delays in the process.`,
                 });
 
                 Swal.fire({
                   icon: "success",
                   title: "Success",
-                  text: "Project submitted for approval successfully!",
+                  text: "Project submitted for approval",
                   timer: 1500,
                   showConfirmButton: false,
                 });
 
                 setShowModal(false);
+                console.log("createdTicketId_createdTicketId", createdTicketId);
 
                 if (createdTicketId) {
                   setTimeout(() => {
                     navigate(`../ticket/${createdTicketId}`);
-                  }, 1600);
+                  }, 100);
                 }
               } catch (error) {
                 console.error("Failed to create ticket/notification:", error);
                 Swal.fire({
                   icon: "error",
                   title: "Error",
-                  text: "Could not submit for approval. Please try again.",
+                  text: "Could not submit for approval",
                 });
               }
             }}
           >
-            Submit ({selectedUsers.length} selected)
+            Submit
           </Button>
         </Modal.Footer>
       </Modal>

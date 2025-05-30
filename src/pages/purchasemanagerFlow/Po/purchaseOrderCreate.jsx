@@ -414,15 +414,15 @@ useEffect(() => {
         Purchase Order
       </h1>
 
-      <div className="row mb-4">
-        <div className="col-md-6 mb-3">
+      <div className="row mb-2">
+        <div className="col-md-6 mb-1">
           <div className="form-group">
-            <label style={{ fontWeight: "500", marginBottom: "8px" }}>
+            <label className="fs-20-500 text-dark  mb-2" >
               PO Id <span style={{ color: "red" }}>*</span>
             </label>
             <input
               type="text"
-              className="form-control"
+              className="form-control minh52px"
               value={loading ? "Loading..." : poId || ""}
               readOnly
               style={{
@@ -434,13 +434,13 @@ useEffect(() => {
           </div>
         </div>
 
-        <div className="col-md-6 mb-3">
+        <div className="col-md-6 mb-1">
           <div className="form-group">
-            <label style={{ fontWeight: "500", marginBottom: "8px" }}>
+            <label className="fs-20-500 text-dark  mb-2" >
               Projects <span style={{ color: "red" }}>*</span>
             </label>
             <select
-              className="form-control"
+              className="form-control minh52px"
               value={selectedProjectId}
               onChange={handleProjectChange}
               style={{
@@ -460,15 +460,15 @@ useEffect(() => {
         </div>
       </div>
 
-      <div className="row mb-4">
-        <div className="col-md-6 mb-3">
+      <div className="row mb-2">
+        <div className="col-md-6 mb-1">
           <div className="form-group">
-            <label style={{ fontWeight: "500", marginBottom: "8px" }}>
+            <label className="fs-20-500 text-dark  mb-2" >
               Title <span style={{ color: "red" }}>*</span>
             </label>
             <input
               type="text"
-              className="form-control"
+              className="form-control minh52px"
               value={boqDetails?.boqName || boqData?.boqName || ""}
               readOnly
               style={{
@@ -480,15 +480,15 @@ useEffect(() => {
           </div>
         </div>
 
-        <div className="col-md-6 mb-3">
-          <div className="form-group">
-            <label style={{ fontWeight: "500", marginBottom: "8px" }}>
+        <div className="col-md-6 mb-1">
+          <div className="form-group position-relative">
+            <label className="fs-20-500 text-dark  mb-2">
               BOQ Code <span style={{ color: "red" }}>*</span>
             </label>
             <div className="input-group">
               <input
                 type="text"
-                className="form-control"
+                className="form-control minh52px"
                 value={boqCodeInput}
                 onChange={handleBoqCodeChange}
                 placeholder="Enter BOQ Code (e.g. 47 or boq#47)"
@@ -518,21 +518,21 @@ useEffect(() => {
               )}
             </div>
             {boqSearchError && (
-              <div className="text-danger mt-2">{boqSearchError}</div>
+              <div className="text-danger fs-12-400  position-absolute" style={{ bottom: "-20px" }}>{boqSearchError}</div>
             )}
           </div>
         </div>
       </div>
 
-      <div className="row mb-4">
-        <div className="col-md-6 mb-3">
+      <div className="row mb-2">
+        <div className="col-md-6 mb-1">
           <div className="form-group">
-            <label style={{ fontWeight: "500", marginBottom: "8px" }}>
+            <label className="fs-20-500 text-dark  mb-2">
               Vendor Name
             </label>
             <input
               type="text"
-              className="form-control"
+              className="form-control minh52px"
               value={boqDetails?.vendorName || poData.vendorName || ""}
               readOnly
               style={{
@@ -545,8 +545,8 @@ useEffect(() => {
         </div>
 
         <div className="col-md-6">
-          <Form.Group className="mb-3">
-            <Form.Label className="text-black fs-5">Approved By</Form.Label>
+          <Form.Group className="mb-1">
+            <Form.Label className="fs-20-500 text-dark mb-2">Approved By</Form.Label>
             <MultipleSelect
               selectedOptions={selectedApprover}
               handleSelected={setSelectedApprover}
@@ -701,7 +701,7 @@ useEffect(() => {
           </tfoot>
         </table>
 
-        <button
+        {/* <button
           className="btn"
           onClick={handleAddRow}
           style={{
@@ -712,7 +712,7 @@ useEffect(() => {
           }}
         >
           + Add New Row
-        </button>
+        </button> */}
       </div>
 
       <div className="row mt-4">
