@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Form, Button, Table } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
 import { useDispatch, useSelector } from "react-redux";
@@ -110,7 +110,7 @@ const MaterialCreateScreen = () => {
                 if (APPROVER_ROLE_CODES.includes(employee.role_code)) {
                   approverList.push({
                     value: employee.emp_id,
-                    label: `${employee.emp_name} - ${employee.role_code}`,
+                    label: `${employee.role_name}`,
                     empId: employee.emp_id,
                   });
                 }
@@ -286,226 +286,208 @@ const MaterialCreateScreen = () => {
   }, [dispatch]);
 
   return (
-    <div className="container boq-form">
-      <div
-        style={{
-          paddingBottom: "20px",
-          borderBottom: "1px solid #ddd",
-          marginBottom: "20px",
-        }}
-      >
-        <h2 style={{ margin: 0, fontSize: "16px", color: "#333" }}>
-          <span
-            onClick={() => navigate("/admin/engineermaterial")}
-            style={{ cursor: "pointer" }}
-            className="me-2"
-          >
-            Material
-          </span>
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path d="M6 4.5L9.5 8L6 11.5" stroke="#606060" />
-          </svg>
-
-          <span style={{ color: "#FF6F00" }} className="ms-2">
-            Create
-          </span>
-        </h2>
-      </div>
-
-      <h2 className="form-title">New BOQ</h2>
-
-      <div className="">
-        <Form onSubmit={handleSubmit} className="boq-form-css">
-          <div className="row">
-            <div className="col-md-6">
-              <Form.Group className="mb-3">
-                <Form.Label className="text-black fs-5">BOQ ID</Form.Label>
-                <Form.Control
-                  style={{ backgroundColor: "white" }}
-                  type="text"
-                  placeholder="BOQ ID"
-                  value={boqId}
-                  // onChange={(e) => setBoqId(e.target.value)}
-                  required
-                  disabled
-                />{" "}
-              </Form.Group>
+    <main className="page-engineer-dashboard d-flex">
+      <div className="left-container w-100">
+        <div className="row align-items-center">
+          <div className="col-lg-12">
+            <div className="border-1 breadcrumb-container pt-1 pb-4 d-flex align-items-center">
+              <Link
+                to="/admin/engineermaterial"
+                className="text-decoration-none breadcrumb-item fs-16-500 text-dark-gray"
+                style={{ cursor: "pointer" }}
+              >
+                Material
+              </Link>
+              <svg
+                className="mx-2"
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M6 4.5L9.5 8L6 11.5" stroke="#606060"></path>
+              </svg>
+              <span className="breadcrumb-item fs-16-500 text-primary">
+                Create
+              </span>
             </div>
-            <div className="col-md-6">
-              <Form.Group className="mb-3">
-                <Form.Label className="text-black fs-5">
-                  Title <span className="text-danger">*</span>
-                </Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="BOQ TITLE"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  required
-                />{" "}
-              </Form.Group>
-            </div>
-            {/* <div className="col-md-6">
-            <Form.Group className="mb-3">
-              <Form.Label className="text-black fs-5">Description</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Write a description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />{" "}
-            </Form.Group>
-          </div> */}
           </div>
+        </div>
+        <div className="row mt-4 align-items-center">
+          <div className="col-lg-12">
+            <h2 className="fs-28-700">New BOQ</h2>
+          </div>
+        </div>
+        <div className="row mt-4 align-items-center">
+          <div className="col-lg-12">
+            <Form onSubmit={handleSubmit} className="boq-form-css">
+              <div className="row">
+                <div className="col-md-6">
+                  <Form.Group className="mb-3">
+                    <Form.Label className="text-black fs-5">BOQ ID <span className="text-danger">*</span></Form.Label>
+                    <Form.Control className="minh52px"
+                      style={{ backgroundColor: "white" }}
+                      type="text"
+                      placeholder="BOQ ID"
+                      value={boqId}
+                      // onChange={(e) => setBoqId(e.target.value)}
+                      required
+                      disabled
+                    />{" "}
+                  </Form.Group>
+                </div>
+                <div className="col-md-6">
+                  <Form.Group className="mb-3">
+                    <Form.Label className="text-black fs-5">
+                      Title <span className="text-danger">*</span>
+                    </Form.Label>
+                    <Form.Control
+                    className="minh52px"
+                      type="text"
+                      placeholder="BOQ TITLE"
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      required
+                    />{" "}
+                  </Form.Group>
+                </div>
+              </div>
 
-          <div className="row">
-            <div className="col-md-6">
-              <Form.Group className="mb-3">
-                <Form.Label className="text-black fs-5">Vendor</Form.Label>
-                <Form.Select
-                  className="form-control"
-                  style={{ backgroundColor: "white" }}
-                  value={selectedVendorId}
-                  onChange={(e) => setSelectedVendorId(e.target.value)}
+              <div className="row">
+                <div className="col-md-6">
+                  <Form.Group className="mb-3">
+                    <Form.Label className="text-black fs-5">Vendor <span className="text-danger">*</span></Form.Label>
+                    <Form.Select
+                      className="form-control minh52px"
+                      style={{ backgroundColor: "white" }}
+                      value={selectedVendorId}
+                      onChange={(e) => setSelectedVendorId(e.target.value)}
+                    >
+                      {" "}
+                      <option>Select Vendor</option>
+                      {vendors.map((vendor) => (
+                        <option key={vendor.id} value={vendor.id}>
+                          {vendor.vendorName}
+                        </option>
+                      ))}
+                    </Form.Select>
+                  </Form.Group>
+                </div>
+                <div
+                  className={
+                    validationErrors.approver
+                      ? "col-md-6 is-invalid"
+                      : "col-md-6"
+                  }
                 >
-                  {" "}
-                  <option>Select Vendor</option>
-                  {vendors.map((vendor) => (
-                    <option key={vendor.id} value={vendor.id}>
-                      {vendor.vendorName}
-                    </option>
+                  <Form.Group className="mb-3">
+                    <Form.Label className="text-black fs-5">
+                      Approved By <span className="text-danger">*</span>
+                    </Form.Label>
+
+                    <MultipleSelect className="minh52px"
+                      required
+                      selectedOptions={selectedApprover}
+                      handleSelected={setSelectedApprover}
+                      data={initialApproverArray}
+                      isSearchable={true}
+                      placeholder={"Select Approver"}
+                      isMulti={true}
+                    />
+                    {validationErrors.approver && (
+                      <div
+                        className="invalid-feedback"
+                        style={{ display: "block" }}
+                      >
+                        Please select at least one approver.
+                      </div>
+                    )}
+                  </Form.Group>
+                </div>
+              </div>
+
+              <table className="boq-table mt-4 clean-inputs">
+                <thead className="bg-orange">
+                  <tr>
+                    <th className="text-center text-white">S. No</th>
+                    <th className="text-center text-white">Item Name</th>
+                    <th className="text-center text-white">Unit</th>
+                    <th className="text-center text-white">Rate</th>
+                    <th className="text-center text-white">Quantity</th>
+                    <th className="text-center text-white">Total</th>
+                  </tr>
+                </thead>
+                <tbody className="tbl">
+                  {rows.map((row, index) => (
+                    <tr key={index}>
+                      <td className="text-center">{index + 1}</td>
+                      <td className="cell-no-border">
+                        <input
+                          type="text"
+                          name="itemName"
+                          value={row.itemName}
+                          onChange={(e) => handleInputChange(index, e)}
+                          className="input-no-border"
+                        />
+                      </td>
+                      <td className="cell-no-border">
+                        <input
+                          type="text"
+                          name="unit"
+                          value={row.unit}
+                          onChange={(e) => handleInputChange(index, e)}
+                          className="input-no-border text-center"
+                        />
+                      </td>
+                      <td className="cell-no-border">
+                        <input
+                          type="number"
+                          name="rate"
+                          value={row.rate}
+                          onChange={(e) => handleInputChange(index, e)}
+                          className="input-no-border text-center"
+                        />
+                      </td>
+                      <td className="cell-no-border">
+                        <input
+                          type="number"
+                          name="quantity"
+                          value={row.quantity}
+                          onChange={(e) => handleInputChange(index, e)}
+                          className="input-no-border text-center"
+                        />
+                      </td>
+                      <td className="text-center">{row.total}</td>
+                    </tr>
                   ))}
-                </Form.Select>
-              </Form.Group>
-            </div>
-            <div
-              className={
-                validationErrors.approver ? "col-md-6 is-invalid" : "col-md-6"
-              }
-            >
-              <Form.Group className="mb-3">
-                <Form.Label className="text-black fs-5">Approved By</Form.Label>
+                </tbody>
+              </table>
 
-                <MultipleSelect
-                  required
-                  selectedOptions={selectedApprover}
-                  handleSelected={setSelectedApprover}
-                  data={initialApproverArray}
-                  isSearchable={true}
-                  placeholder={"Select Approver"}
-                  isMulti={true}
-                />
-                {validationErrors.approver && (
-                  <div
-                    className="invalid-feedback"
-                    style={{ display: "block" }}
-                  >
-                    Please select at least one approver.
-                  </div>
-                )}
-              </Form.Group>
-            </div>
+              <div className="d-flex flex-column align-items-end mt-3">
+                <Button
+                  variant=""
+                  className="text-orange fs-16-500 bg-orange add-column-btn p-0 mb-3"
+                  onClick={handleAddRow}
+                >
+                  + Add Row
+                </Button>
+
+                <Button
+                  type="submit"
+                  className="mt-4 me-0 w180 bg-primary border-0 border-radius-4 fs-16-500 text-white d-flex align-items-center justify-content-center">                    
+                  <svg className="me-2" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M20.7885 2.50872C20.6693 2.40981 20.5245 2.34679 20.3709 2.32701C20.2173 2.30723 20.0612 2.33149 19.9209 2.39698L3.08105 10.3013V11.8307L10.1541 14.6599L14.6911 21.6399H16.2208L21.0544 3.34216C21.0936 3.19231 21.0895 3.03441 21.0424 2.88685C20.9953 2.73929 20.9072 2.60815 20.7885 2.50872ZM15.2763 20.1811L11.3766 14.1814L17.3776 7.60875L16.4281 6.74183L10.3802 13.3657L4.54841 11.033L19.5532 3.98986L15.2763 20.1811Z" fill="white"/>
+                  </svg>
+
+                  Submit
+                </Button>
+              </div>
+            </Form>
           </div>
-
-          <table className="boq-table clean-inputs">
-            <thead className="bg-orange">
-              <tr>
-                <th className="text-center text-white">S. No</th>
-                <th className="text-center text-white">Item Name</th>
-                <th className="text-center text-white">Unit</th>
-                <th className="text-center text-white">Rate</th>
-                <th className="text-center text-white">Quantity</th>
-                <th className="text-center text-white">Total</th>
-              </tr>
-            </thead>
-            <tbody className="tbl">
-              {rows.map((row, index) => (
-                <tr key={index}>
-                  <td className="text-center">{index + 1}</td>
-                  <td className="cell-no-border">
-                    <input
-                      type="text"
-                      name="itemName"
-                      value={row.itemName}
-                      onChange={(e) => handleInputChange(index, e)}
-                      className="input-no-border"
-                    />
-                  </td>
-                  <td className="cell-no-border">
-                    <input
-                      type="text"
-                      name="unit"
-                      value={row.unit}
-                      onChange={(e) => handleInputChange(index, e)}
-                      className="input-no-border"
-                    />
-                  </td>
-                  <td className="cell-no-border">
-                    <input
-                      type="number"
-                      name="rate"
-                      value={row.rate}
-                      onChange={(e) => handleInputChange(index, e)}
-                      className="input-no-border"
-                    />
-                  </td>
-                  <td className="cell-no-border">
-                    <input
-                      type="number"
-                      name="quantity"
-                      value={row.quantity}
-                      onChange={(e) => handleInputChange(index, e)}
-                      className="input-no-border"
-                    />
-                  </td>
-                  <td className="text-center">{row.total}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          <div className="d-flex flex-column align-items-end mt-3">
-            <Button
-              variant=""
-              className="text-orange bg-orange add-column-btn p-0 mb-3"
-              onClick={handleAddRow}
-            >
-              + Add Row
-            </Button>
-
-            <Button
-              type="submit"
-              className="submit-btn"
-              style={{
-                backgroundColor: "#FF6F00",
-                borderColor: "#FF6F00",
-                color: "white",
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-              }}
-            >
-              <FontAwesomeIcon
-                icon={faPaperPlane}
-                style={{
-                  color: "white",
-                  fill: "white", // Add this
-                  filter: "brightness(100%)",
-                }}
-              />
-
-              <span style={{ color: "white" }}>Submit</span>
-            </Button>
-          </div>
-        </Form>
+        </div>
       </div>
-    </div>
+    </main>
   );
 };
 

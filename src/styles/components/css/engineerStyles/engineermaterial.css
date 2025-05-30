@@ -67,7 +67,9 @@
   border-radius: 3px;
   color: white;
 }
-
+.css-1hpgw3h-control {
+    min-height: 52px !important;
+}
 
 /* Responsive Design */
 @media (max-width: 768px) {

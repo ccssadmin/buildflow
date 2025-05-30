@@ -91,7 +91,7 @@ const Material = () => {
               </select>
             </div>
             <div className="col-sm-6 col-md-6 col-lg-6 text-right">
-              <Button className="create-button border-radius-2 fs-14-600" onClick={() =>navigate("/admin/engineermaterialcreate", { state: { boqId: 123 } }) }>Create</Button>
+              <Button className="create-button border-radius-2 fs-14-600 border-0" onClick={() =>navigate("/admin/engineermaterialcreate", { state: { boqId: 123 } }) }>Create</Button>
             </div>
           </div>
           <div className="row mt-5">
@@ -117,7 +117,7 @@ const Material = () => {
                         <td className="fs-16-500 text-center text-dark-gray">100</td>
                         <td className="fs-16-500 text-center text-dark-gray">500</td>
                         <td  className="fs-16-500 text-center text-dark-gray">{getLevelBadge("High")}</td>
-                        <td className="fs-16-500 text-center text-dark-gray fw-light">{getStatusBadge("Approval")}</td>
+                        <td className="fs-16-500 text-center text-dark-gray fw-light">{getStatusBadge(material.approvalStatus)}</td>
                         <td className="fs-16-500 text-center text-dark-gray">
                           <a href="" style={{ color: material.action === "View" ? "#0456D0" : "#0456D0", }}
                             onClick={() =>

@@ -430,7 +430,7 @@ const BudgetFinancialAllocation = ({
                       boxShadow: "none",
                       backgroundColor: "transparent",
                     }}
-                    value={item.estimatedCost}
+                     value={item.estimatedCost === 0 || item.estimatedCost === "0" ? "" : item.estimatedCost}
                     onChange={(e) =>
                       handleBudgetBreakdownChange(
                         index,
@@ -449,7 +449,7 @@ const BudgetFinancialAllocation = ({
                       boxShadow: "none",
                       backgroundColor: "transparent",
                     }}
-                    value={item.approvedBudget}
+                    value={item.approvedBudget === 0 || item.approvedBudget === "0" ? "" : item.approvedBudget}
                     onChange={(e) =>
                       handleBudgetBreakdownChange(
                         index,

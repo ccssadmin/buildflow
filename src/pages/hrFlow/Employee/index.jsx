@@ -139,7 +139,7 @@ const EmployeeTable = () => {
             style={{
               margin: "0 5px",
               padding: "6px 12px",
-              backgroundColor: currentPage === 1 ? "#0456D0" : "#eee",
+              backgroundColor: currentPage === 1 ? "#e56c00" : "#eee",
               color: currentPage === 1 ? "#fff" : "#000",
               border: "none",
               borderRadius: "4px",
@@ -165,7 +165,7 @@ const EmployeeTable = () => {
                 style={{
                   margin: "0 5px",
                   padding: "6px 12px",
-                  backgroundColor: currentPage === page ? "#0456D0" : "#eee",
+                  backgroundColor: currentPage === page ? "#e56c00" : "#eee",
                   color: currentPage === page ? "#fff" : "#000",
                   border: "none",
                   borderRadius: "4px",
@@ -184,7 +184,7 @@ const EmployeeTable = () => {
               style={{
                 margin: "0 5px",
                 padding: "6px 12px",
-                backgroundColor: currentPage === totalPages ? "#0456D0" : "#eee",
+                backgroundColor: currentPage === totalPages ? "#e56c00" : "#eee",
                 color: currentPage === totalPages ? "#fff" : "#000",
                 border: "none",
                 borderRadius: "4px",

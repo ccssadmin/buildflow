@@ -289,9 +289,9 @@ const ReportViewScreen = ({}) => {
             {loading && <p>Loading attachments...</p>}
             {error && <p style={{ color: "red" }}>{error}</p>}
             {!loading && attachments?.length > 0 ? (
-              <ul className="list-unstyled">
+              <ul className="list-unstyled flex-wrap">
                 {attachments.map((file) => (
-                  <li key={file.attachmentId}>
+                  <li key={file.attachmentId} className="my-2">
   <a
     href={`${BASE_URL}/${file.filePath.replace(/\\/g, "/")}`}
     target="_blank"
