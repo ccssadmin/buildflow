@@ -28,23 +28,26 @@ export default function VendorPurchaseOrder() {
         })
       : "-";
 
-  const getStatusColorClass = (status) => {
-    const s = status?.toLowerCase();
-    switch (s) {
-      case "pending":
-        return "text-warning";
-      case "completed":
-        return "text-success";
-      case "dispatched":
-        return "text-info";
-      default:
-        return "text-secondary";
-    }
-  };
+ const getStatusColorStyle = (status) => {
+  const s = status?.toLowerCase();
+  switch (s) {
+    case "completed":
+      return { color: "#30A335" }; // Delivery
+    case "pending":
+      return { color: "#F1C300" };
+    case "dispatched":
+      return { color: "#606060" };
+    default:
+      return { color: "#6c757d" }; // fallback grey
+  }
+};
 
-  const getStatusText = (status) => {
-    return status === null ? "Pending" : status;
-  };
+ const getStatusText = (status) => {
+  if (status === null) return "Pending";
+  if (status.toLowerCase() === "completed") return "Delivery";
+  return status;
+};
+
 
   return (
     <div className="container mt-4">
@@ -80,26 +83,19 @@ export default function VendorPurchaseOrder() {
                     <td>{po.vendorMobile}</td>
                     <td>{formatDate(po.createdAt)}</td>
                     <td>{formatDate(po.deliveryStatusDate)}</td>
-                    <td className={`text-capitalize  ${getStatusColorClass(deliveryStatus)}`}>
+<td className="text-capitalize" style={getStatusColorStyle(deliveryStatus)}>
                       {getStatusText(po.deliveryStatus)}
                     </td>
-                    <td>
-                      {deliveryStatus.toLowerCase() === "completed" ? (
-                        <Link
-                          to={`/vendor/editpo/${po.purchaseOrderId}`}
-                          className="text-primary text-decoration-none"
-                        >
-                          View
-                        </Link>
-                      ) : (
-                        <Link
-                          to={`/vendor/editpo/${po.purchaseOrderId}`}
-                          className="text-primary text-decoration-none"
-                        >
-                          Update Status
-                        </Link>
-                      )}
-                    </td>
+               <td>
+  <Link
+    to={`/vendor/editpo/${po.purchaseOrderId}`}
+    className="text-decoration-none"
+    style={{ color: "#0456D0", fontWeight: 500 }}
+  >
+    {deliveryStatus.toLowerCase() === "completed" ? "View" : "Update Status"}
+  </Link>
+</td>
+
                   </tr>
                 );
               })}

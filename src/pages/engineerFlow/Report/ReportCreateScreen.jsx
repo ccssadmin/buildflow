@@ -2,12 +2,13 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
+  createDailyReportAttachmentAction,
   createReportAttachmentAction,
   getNewReportCode,
   uploadReportAttachments,
   upsertReport,
 } from "../../../store/actions/report/reportcreateaction";
-import { toast } from "react-toastify";
+import { toast } from "react-toastify"; // Import toast for notifications
 import { fetchProjects } from "../../../store/actions/hr/projectaction";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -21,13 +22,14 @@ function ReportCreateScreen() {
   const { loading } = useSelector((state) => state.report);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { projects = [] } = useSelector((state) => state.project);
+   const { projects = [] } = useSelector((state) => state.project);
 
-  const [attachedFile, setAttachedFile] = useState(null);
+  const [attachedFile, setAttachedFile] = useState([]);
   const [formErrors, setFormErrors] = useState({});
   const { newReportCode } = useSelector((state) => state.report);
   const { uploadMessage, error } = useSelector((state) => state.report);;
   const { fetchProjectDetails } = useProject();
+  const [attachedFilePreviews, setAttachedFilePreviews] = useState([]);
  
   const [projectName, setProjectName] = useState('');
   const { reportTypes, reportTypesLoading, reportTypesError } = useSelector(
@@ -48,8 +50,8 @@ function ReportCreateScreen() {
   }, [uploadMessage]);
 
   useEffect(() => {
-    dispatch(getNewReportCode());
-  }, []);
+  dispatch(getNewReportCode());
+}, []);
 
   useEffect(() => {
     if (newReportCode) {
@@ -78,7 +80,8 @@ function ReportCreateScreen() {
       }
     }
   }, []);
-  useEffect(() => {
+
+ useEffect(() => {
     dispatch(fetchProjects());
   }, [dispatch]);
 const getProjectIdFromLocalStorage = () => {
@@ -152,14 +155,16 @@ const getProjectIdFromLocalStorage = () => {
     },
   ]);
 
+  // State for Issue & Risk Report
   const [issueRiskRows, setIssueRiskRows] = useState([
-    {
+    { 
       id: 1,
       issueRisk: "",
       impact: "",
     },
   ]);
 
+  // State for form data
   const [reportData, setReportData] = useState({
     reportId: "",
     reportTypeId: "",
@@ -167,13 +172,14 @@ const getProjectIdFromLocalStorage = () => {
     dateTime: "",
     reportedBy: "",
   });
-
   const handleDateChange = (date) => {
     setReportData({
       ...reportData,
       reportDate: date ? date.toISOString().slice(0, 10) : "",
     });
   };
+
+
 // Extracts initials from the name
   const getInitials = (name) => {
     if (!name) return "";
@@ -205,7 +211,8 @@ const getProjectIdFromLocalStorage = () => {
       ...reportData,
       [name]: value,
     });
-
+    
+    // Clear error for this field if it exists
     if (formErrors[name]) {
       setFormErrors({
         ...formErrors,
@@ -214,6 +221,7 @@ const getProjectIdFromLocalStorage = () => {
     }
   };
 
+  // Handle input changes for table rows
   const handleRowChange = (rowType, rowId, field, value) => {
     switch (rowType) {
       case "dailyProgress":
@@ -231,14 +239,14 @@ const getProjectIdFromLocalStorage = () => {
         );
         break;
       case "safetyCompliance":
-        setSafetyComplianceRows((prevRows) =>
+        setSafetyComplianceRows((prevRows) => 
           prevRows.map((row) =>
             row.id === rowId ? { ...row, [field]: value } : row
           )
         );
         break;
       case "issueRisk":
-        setIssueRiskRows((prevRows) =>
+        setIssueRiskRows((prevRows) => 
           prevRows.map((row) =>
             row.id === rowId ? { ...row, [field]: value } : row
           )
@@ -249,8 +257,9 @@ const getProjectIdFromLocalStorage = () => {
     }
   };
 
+  // Function to add a new row to Daily Progress Summary
   const addDailyProgressRow = () => {
-    const newRow = {
+    const newRow = { 
       id: dailyProgressRows.length + 1,
       workActivity: "",
       status: "",
@@ -259,9 +268,11 @@ const getProjectIdFromLocalStorage = () => {
     };
     setDailyProgressRows([...dailyProgressRows, newRow]);
   };
+  
 
+  // Function to add a new row to Material Usage Report
   const addMaterialUsageRow = () => {
-    const newRow = {
+    const newRow = { 
       id: materialUsageRows.length + 1,
       material: "",
       stock: "",
@@ -269,18 +280,22 @@ const getProjectIdFromLocalStorage = () => {
     };
     setMaterialUsageRows([...materialUsageRows, newRow]);
   };
+  
 
+  // Function to add a new row to Safety & Compliance Report
   const addSafetyComplianceRow = () => {
-    const newRow = {
+    const newRow = { 
       id: safetyComplianceRows.length + 1,
       item: "",
       report: "",
     };
     setSafetyComplianceRows([...safetyComplianceRows, newRow]);
   };
+  
 
+  // Function to add a new row to Issue & Risk Report
   const addIssueRiskRow = () => {
-    const newRow = {
+    const newRow = { 
       id: issueRiskRows.length + 1,
       issue: "",
       impact: "",
@@ -298,14 +313,23 @@ const getProjectIdFromLocalStorage = () => {
       );
     }
   };
+  
+const handleAttachedFileUpload = (e) => {
+  const files = Array.from(e.target.files);
+  if (files.length > 0) {
+    setAttachedFile(files);
+  }
+};
 
-  const handleAttachedFileUpload = (e) => {
-    const file = e.target.files[0];
-    if (file instanceof File) {
-      setAttachedFile(file);
-    }
-  };
 
+const removeAttachedFile = (indexToRemove) => {
+  setAttachedFile((prevFiles) =>
+    prevFiles.filter((_, index) => index !== indexToRemove)
+  );
+};
+
+
+  // Form validation
   const validateForm = () => {
     const errors = {};
     if (!reportData.reportTypeId)
@@ -315,12 +339,13 @@ const getProjectIdFromLocalStorage = () => {
     return Object.keys(errors).length === 0;
   };
 
+  // Function to handle form submission
   const handleSubmit = async () => {
     if (!validateForm()) {
       toast.error("Please fill in all required fields");
       return;
     }
-
+  
     const reportDataobj = {
       dailyprogresssummary: dailyProgressRows.map((row) => ({
         serialno: row.id,
@@ -347,7 +372,7 @@ const getProjectIdFromLocalStorage = () => {
     };
 
     const reportIdNumeric =
-      parseInt(reportData.reportId.replace(/\D/g, "")) || 0;
+    parseInt(reportData.reportId.replace(/\D/g, "")) || 0;
 
     const updatedReportData = {
       reportId: 0,
@@ -368,23 +393,32 @@ const getProjectIdFromLocalStorage = () => {
         toast.success("Report created successfully!");
         const reportId = resultAction.payload.reportId;
 
-        if (attachedFile) {
-          const formData = new FormData();
-          formData.append("files", attachedFile);
-          dispatch(createReportAttachmentAction({ reportId, files: formData }));
-        }
+   if (attachedFile.length > 0) {
+  const formData = new FormData();
+  attachedFile.forEach((file) => formData.append("files", file));
+  dispatch(createReportAttachmentAction({ reportId, files: formData }));
+}
 
-        for (const row of dailyProgressRows) {
-          if (row.photo) {
-            const rowFormData = new FormData();
-            rowFormData.append("files", row.photo);
-            rowFormData.append("section", "dailyprogresssummary");
-            rowFormData.append("rowId", row.id);
-            dispatch(
-              createReportAttachmentAction({ reportId, files: rowFormData })
-            );
-          }
-        }
+
+const sNoArray = [];
+const fileList = [];
+
+dailyProgressRows.forEach((row) => {
+  if (row.photo) {
+    sNoArray.push(row.id);
+    fileList.push(row.photo);
+  }
+});
+
+if (fileList.length > 0) {
+  dispatch(
+    createDailyReportAttachmentAction({
+      reportId,
+      sNoArray,
+      fileList,
+    })
+  );
+}
 
         navigate("/admin/engineerreport", { state: resultAction.payload });
       } else {
@@ -408,13 +442,18 @@ const getProjectIdFromLocalStorage = () => {
     }
   };
 
+  const getReportTypeNameById = (id) => {
+  const found = reportTypes.find(type => type.reportTypeId.toString() === id.toString());
+  return found ? found.reportType : "Unknown";
+  };
+
   return (
     <div className="report-container">
       <div className="row">
         <div className="col-sm-12 col-md-6 col-lg-4">
           <label className="text-dark fs-20-500 d-block mb-2">Report ID</label>
           <input
-            className="h48px border-radius-4 mb-4 w-100 cursor-not-allowed py-1 px-3 fs-16-500 bg-light text-light-gray-1 border-1-silver-gray"
+            className="h48px border-radius-4 mb-4 w-100 cursor-not-allowed py-1 px-3 fs-16-500 bg-white text-light-gray-1 border-1-silver-gray"
             disabled
             type="text"
             value={reportData.reportId}
@@ -427,7 +466,7 @@ const getProjectIdFromLocalStorage = () => {
           </label>
           <div className="custom-select">
               <select
-                className="form-control detail-value h48px border-radius-4 mb-4 w-100 py-1 px-3 fs-16-500 bg-light text-light-gray-1 border-1-silver-gray"
+                className="form-control detail-value h48px border-radius-4 mb-4 w-100 py-1 px-3 fs-16-500 bg-white text-light-gray-1 border-1-silver-gray"
                 name="reportTypeId"
                 value={reportData.reportTypeId}
                 onChange={handleInputChange}
@@ -446,17 +485,17 @@ const getProjectIdFromLocalStorage = () => {
         </div>
         <div className="col-sm-12 col-md-6 col-lg-4">
           <label className="text-dark fs-20-500 d-block mb-2">Project</label>
-          <input
-  className="h48px border-radius-4 mb-4 w-100 cursor-not-allowed py-1 px-3 fs-16-500 bg-light text-dark border-1-silver-gray"
-  disabled
-  type="text"
-  value={
-    projects.find((proj) => proj.project_id === reportData.project)?.project_name || ''
-  }
-  placeholder="Project"
-  name="project"
-  readOnly
-/>
+        <input
+        className="h48px border-radius-4 mb-4 w-100 cursor-not-allowed py-1 px-3 fs-16-500 bg-white text-dark border-1-silver-gray"
+        disabled
+        type="text"
+        value={
+        projects.find((proj) => proj.project_id === reportData.project)?.project_name || ''
+        }
+        placeholder="Project"
+        name="project"
+        readOnly
+        />
 
         </div>
         <div className="col-sm-12 col-md-6 col-lg-4">
@@ -471,7 +510,7 @@ const getProjectIdFromLocalStorage = () => {
               dateFormat="dd-MM-yyyy hh:mm a"
               showTimeSelect
               timeFormat="hh:mm a"
-              className="h48px border-radius-4 mb-4 w-100 py-1 px-3 fs-16-500 bg-light text-dark border-1-silver-gray"
+              className="h48px border-radius-4 mb-4 w-100 py-1 px-3 fs-16-500 bg-white text-dark border-1-silver-gray"
               placeholderText="Select date and time"
             />
         </div>
@@ -484,9 +523,9 @@ const getProjectIdFromLocalStorage = () => {
             <div
               className="rounded-circle text-white d-flex align-items-center justify-content-center"
               style={{
-                width: "36px",
-                height: "36px",
-                fontSize: "16px",
+                width: "20px",
+                height: "20px",
+                fontSize: "8px",
                 flexShrink: 0,
                 backgroundColor: getRandomColor(), // random color
                 position: "absolute",
@@ -498,40 +537,38 @@ const getProjectIdFromLocalStorage = () => {
 
             {/* Disabled input with name */}
             <input
-              className="h48px border-radius-4 w-100 cursor-not-allowed py-1 fs-16-500 bg-light text-dark border-1-silver-gray"
+              className="h48px border-radius-4 w-100 cursor-not-allowed py-1 fs-16-500 bg-white text-dark border-1-silver-gray"
               disabled
               type="text"
               value={reportData.reportedBy}
               readOnly
-              style={{ paddingLeft: "60px" }}
+              style={{ paddingLeft: "40px" }}
               name="reportedBy"
             />
           </div>
         </div>
       </div>
 
-      
-
       {/* Daily Progress Summary */}
       <div className="report-section">
         <div className="section-header">
-          <h3>Daily Progress Summary</h3>
+        <h3 className="fs-26-700 text-dark mb-4 mt-4">Daily Progress Summary</h3>
         </div>
         <div className="report-table">
-          <table>
+          <table className="tbl w-100">
             <thead>
               <tr>
-                <th>S.No</th>
-                <th>Work Activities</th>
-                <th>Status</th>
-                <th>Action</th>
+                <th className="text-center w48">S.No</th>
+                <th className="text-center">Work Activities</th>
+                <th className="text-center">Status</th>
+                <th className="text-center">Action</th>
               </tr>
             </thead>
             <tbody>
               {dailyProgressRows.map((row) => (
                 <tr key={row.id}>
-                  <td>{row.id}</td>
-                  <td>
+                  <td className="text-center">{row.id}</td>
+                  <td className="text-center">
                     <input
                       type="text"
                       className="form-control"
@@ -546,7 +583,7 @@ const getProjectIdFromLocalStorage = () => {
                       }
                     />
                   </td>
-                  <td>
+                  <td className="text-center">
                     <input
                       type="text"
                       className="form-control"
@@ -561,7 +598,9 @@ const getProjectIdFromLocalStorage = () => {
                       }
                     />
                   </td>
-                  <td>
+
+
+                  <td className="text-center">
                     <div className="upload-container">
                       <label className="upload-btn">
                         <span>Upload Photo</span>
@@ -577,6 +616,8 @@ const getProjectIdFromLocalStorage = () => {
                       )}
                     </div>
                   </td>
+
+
                 </tr>
               ))}
             </tbody>
@@ -594,23 +635,23 @@ const getProjectIdFromLocalStorage = () => {
       {/* Material Usage Report */}
       <div className="report-section">
         <div className="section-header">
-          <h3>Material Usage Report</h3>
+          <h3 className="fs-26-700 text-dark mb-4 mt-4">Material Usage Report</h3>
         </div>
         <div className="report-table">
-          <table>
+          <table className="tbl w-100">
             <thead>
               <tr>
-                <th>S.No</th>
-                <th>Materials</th>
-                <th>Stock</th>
-                <th>Level</th>
+                <th className="text-center w48">S.No</th>
+                <th className="text-center">Materials</th>
+                <th className="text-center">Stock</th>
+                <th className="text-center">Level</th>
               </tr>
             </thead>
             <tbody>
               {materialUsageRows.map((row) => (
                 <tr key={row.id}>
-                  <td>{row.id}</td>
-                  <td>
+                  <td className="text-center">{row.id}</td>
+                  <td className="text-center">
                     <input
                       type="text"
                       className="form-control"
@@ -625,7 +666,7 @@ const getProjectIdFromLocalStorage = () => {
                       }
                     />
                   </td>
-                  <td>
+                  <td className="text-center">
                     <input
                       type="text"
                       className="form-control"
@@ -640,10 +681,10 @@ const getProjectIdFromLocalStorage = () => {
                       }
                     />
                   </td>
-                  <td>
+                  <td className="text-center">
                     <div className="custom-select">
                       <select
-                        className="form-control"
+                        className="form-control border-0"
                         value={row.level}
                         onChange={(e) =>
                           handleRowChange(
@@ -678,22 +719,22 @@ const getProjectIdFromLocalStorage = () => {
       {/* Safety & Compliance Report */}
       <div className="safety-compliance-report">
         <div className="d-flex justify-content-between align-items-center mb-3">
-          <h3>Safety & Compliance Report</h3>
+          <h3 className="fs-26-700 text-dark mb-4 mt-4">Safety & Compliance Report</h3>
         </div>
         <div className="report-table">
-          <table>
+          <table className="tbl w-100">
             <thead>
               <tr>
-                <th>S.No</th>
-                <th>Safety & Compliance</th>
-                <th>Report</th>
+                <th className="text-center w48">S.No</th>
+                <th className="text-center">Safety & Compliance</th>
+                <th className="text-center">Report</th>
               </tr>
             </thead>
             <tbody>
               {safetyComplianceRows.map((row) => (
                 <tr key={row.id}>
-                  <td>{row.id}</td>
-                  <td>
+                  <td className="text-center">{row.id}</td>
+                  <td className="text-center">
                     <input
                       type="text"
                       className="form-control"
@@ -708,7 +749,7 @@ const getProjectIdFromLocalStorage = () => {
                       }
                     />
                   </td>
-                  <td>
+                  <td className="text-center">
                     <input
                       type="text"
                       className="form-control"
@@ -740,22 +781,22 @@ const getProjectIdFromLocalStorage = () => {
       {/* Issue & Risk Report */}
       <div className="report-section">
         <div className="section-header">
-          <h3>Issue & Risk Report</h3>
+          <h3 className="fs-26-700 text-dark mb-4 mt-4">Issue & Risk Report</h3>
         </div>
         <div className="report-table">
-          <table>
+          <table className="tbl w-100">
             <thead>
               <tr>
-                <th>S.No</th>
-                <th>Issue & Risk</th>
-                <th>Impact</th>
+                <th className="text-center w48">S.No</th>
+                <th className="text-center">Issue & Risk</th>
+                <th className="text-center">Impact</th>
               </tr>
             </thead>
             <tbody>
               {issueRiskRows.map((row) => (
                 <tr key={row.id}>
-                  <td>{row.id}</td>
-                  <td>
+                  <td className="text-center">{row.id}</td>
+                  <td className="text-center">
                     <input
                       type="text"
                       className="form-control"
@@ -770,10 +811,10 @@ const getProjectIdFromLocalStorage = () => {
                       }
                     />
                   </td>
-                  <td>
-                    <div className="custom-select">
+                  <td className="text-center">
+                    <div className="custom-select ">
                       <select
-                        className="form-control"
+                        className="form-control  border-0"
                         value={row.impact}
                         onChange={(e) =>
                           handleRowChange(
@@ -784,7 +825,7 @@ const getProjectIdFromLocalStorage = () => {
                           )
                         }
                       >
-                        <option value="">Select</option>
+                        <option className="" value="">Select</option>
                         <option value="High">High</option>
                         <option value="Medium">Medium</option>
                         <option value="Low">Low</option>
@@ -805,40 +846,75 @@ const getProjectIdFromLocalStorage = () => {
         </div>
       </div>
 
-      {/* Attached File Section */}
-      <div className="attached-file-section">
-        <div className="header-row">
-          <h3>Attached File</h3>
-          <label className="upload-btn-2">
-            <CiFileOn className="upload-icons" />
-            <span>Choose File</span>
-            <input
-              type="file"
-              onChange={handleAttachedFileUpload}
-              style={{ display: "none" }}
-            />
-          </label>
-        </div>
+     {/* Attached File Section */}
+<div className="attached-file-section mt-4">
+  <div className="header-row w-100">
+    <h3 className="fs-26-700 text-dark mb-4 mt-4">Attached File</h3>
+    <label className="upload-btn-2">
+      <CiFileOn className="upload-icons" />
+      <span>Choose File</span>
+      <input
+        type="file"
+        multiple
+        onChange={handleAttachedFileUpload}
+        style={{ display: "none" }}
+      />
+    </label>
+  </div>
 
-        <div className="file-upload-container">
-          {attachedFile && (
-            <span className="file-name">{attachedFile.name}</span>
-          )}
-        </div>
-      </div>
+  {uploadMessage && (
+    <div className="mt-2 text-success">{uploadMessage}</div>
+  )}
+  {error && typeof error === "string" && (
+    <div className="mt-2 text-danger">{error}</div>
+  )}
+
+ {attachedFile.length > 0 && (
+  <ul className="mt-3 ps-3">
+    {attachedFile.map((file, index) => (
+      <li
+        key={index}
+        className="d-flex align-items-center justify-content-between text-dark small mb-2"
+        style={{ maxWidth: "300px" }}
+      >
+        <span className="text-truncate" style={{ maxWidth: "220px" }}>
+          📄 {file.name}
+        </span>
+        <button
+          type="button"
+          onClick={() => removeAttachedFile(index)}
+          style={{
+            marginLeft: "10px",
+            background: "transparent",
+            border: "none",
+            color: "#dc3545",
+            fontWeight: "bold",
+            cursor: "pointer",
+          }}
+        >
+          ❌
+        </button>
+      </li>
+    ))}
+  </ul>
+)}
+
+</div>
+
+
 
       {/* Form Buttons */}
       <div className="form-buttons">
         <button
           type="button"
-          className="btn btn-cancel"
+          className="btn btn-cancel border-radius-4 text-dark-gray border-0"
           onClick={() => navigate(-1)}
         >
           Cancel
         </button>
         <button
           type="button"
-          className="btn btn-submit"
+          className="btn btn-primary border-0 w220 bg-primary border-radius-4"
           onClick={handleSubmit}
           disabled={loading}
         >
@@ -866,7 +942,10 @@ const styles = `
 .report-details-section {
   margin-bottom: 30px;
 }
-
+table th, table td {
+  height: 48px;
+  padding: 0px 0px !important;
+}
 .detail-row {
   display: flex;
   flex-wrap: wrap;
@@ -902,18 +981,6 @@ const styles = `
   margin-bottom: 30px;
 }
 
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-.section-header h3 {
-  margin: 0;
-  font-size: 18px;
-  color: #333;
-}
 
 .btn-add {
   background: none;
@@ -929,32 +996,14 @@ const styles = `
 .btn-add:hover {
   text-decoration: underline;
 }
-
-.report-table {
-  width: 100%;
-  overflow-x: auto;
+.form-control, .form-control:focus {
+border: 0px !important; 
+text-align: center;
+margin-bottom: 0px;
+padding: 0px;
+height: 48px;
 }
 
-.report-table table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.report-table th,
-.report-table td {
-  padding: 12px 15px;
-  border: 1px solid #ddd;
-  text-align: center;
-}
-
-.report-table th {
-  background-color: #DEDEDE;
-  font-weight: bold;
-}
-
-.report-table tr:nth-child(even) {
-  background-color: #f9f9f9;
-}
 
 .upload-container {
   display: flex;
@@ -966,7 +1015,7 @@ const styles = `
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 12px;
+  padding: 0px 12px;
   cursor: pointer;
   font-size: 14px;
   text-decoration: none;
@@ -1024,11 +1073,6 @@ const styles = `
   margin-bottom: 30px;
 }
 
-.attached-file-section h3 {
-  margin-bottom: 15px;
-  font-size: 18px;
-  color: #333;
-}
 
 .file-upload-container {
   display: flex;
@@ -1050,7 +1094,6 @@ const styles = `
   font-weight: bold;
   width: 120px;
   height: 40px;
-  margin-top: 20px;
   margin-right: 1px;
   cursor: pointer;
   font-size: 14px;
@@ -1089,18 +1132,21 @@ const styles = `
   width: 100%;
 }
 
-.custom-select select {
+.custom-select select, .custom-select select:focus {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
   width: 100%;
-  padding: 8px 30px 8px 12px;
-  border: 1px solid #ddd;
+  padding: 0px 10px !important;
+  border: 1px solid #C1C1C1 !important;
   border-radius: 4px;
   background-color: white;
   cursor: pointer;
+  text-align: left;
 }
-
+.custom-select select option {
+padding:  5px 10px !important;
+}
 .custom-select::after {
   content: "▼";
   font-size: 12px;
@@ -1120,6 +1166,7 @@ const styles = `
 .report-table .custom-select select {
   width: 100%;
   min-width: 120px;
+  padding: 0px;
 }
 `;
 

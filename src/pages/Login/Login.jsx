@@ -265,20 +265,6 @@ export default function Login({ onLoginSuccess }) {
                     alt="Agent Board Icon"
                   />
                   
-                  {/* Login title showing current mode with appropriate icon */}
-                  <h3 className="mb-4">
-                    {loginMode === "employee" ? (
-                      <span className="d-flex align-items-center justify-content-center">
-                        <IoPerson className="me-2" size={24} />
-                        Employee Login
-                      </span>
-                    ) : (
-                      <span className="d-flex align-items-center justify-content-center">
-                        <PiBuildingOffice className="me-2" size={24} />
-                        Vendor Login
-                      </span>
-                    )}
-                  </h3>
                   
                   <div className="user-row">
                     <label>{t("Email Id")} </label>
@@ -341,16 +327,16 @@ export default function Login({ onLoginSuccess }) {
                   {inProgress ? (
                     t("login.inprogress")
                   ) : (
-                    <span className="d-flex align-items-center justify-content-center">
+                    <span className="d-flex text-white fs-14-600 align-items-center justify-content-center">
                       {loginMode === "employee" ? (
                         <>
-                          <IoPerson className="me-2" />
+                         
                           {t("login.with_eurolandID")}
                         </>
                       ) : (
                         <>
-                          <PiBuildingOffice className="me-2" />
-                          Login as Vendor
+                          
+                          Login
                         </>
                       )}
                     </span>
@@ -359,23 +345,18 @@ export default function Login({ onLoginSuccess }) {
                 
                 {/* Toggle button to switch between employee and vendor login with icons */}
                 <button
-                  className="login-form-container-button-common btn-toggle-login my-2"
+                  className="h48px login-form-container-button-common  btn-switch-role btn-toggle-login my-2"
                   onClick={toggleLoginMode}
                   type="button"
-                  style={{
-                    backgroundColor: "#EBEBEB",
-                    color: "#606060",
-                    border: "1px solid blue"
-                  }}
                 >
                   {loginMode === "employee" ? (
                     <span className="d-flex align-items-center justify-content-center">
-                      <PiBuildingOffice className="me-2" />
+                      
+
                       Switch to Vendor Login
                     </span>
                   ) : (
                     <span className="d-flex align-items-center justify-content-center">
-                      <IoPerson className="me-2" />
                       Switch to Employee Login
                     </span>
                   )}

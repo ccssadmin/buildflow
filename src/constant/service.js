@@ -19,7 +19,7 @@ export const API = {
   GET_TICKET_LABELS : "/api/Login/labels-with-tickets",
   CREATE_NEW_TICKET_TASK : "/api/Ticket/create-custom-ticket",
   UPDATE_PROJECT_APPROVAL: '/api/Ticket/update-ticket-by-id',
-
+  UPSERTRISK_UPLOAD:"/api/Project/upsertRisk",
 //department //
  GET_DEPARTMENTS : "/api/Department/get-department",
  GET_DEPARTMENTS_BY_ID : "/api/Login/getEmployeesByDepartment/",
@@ -262,6 +262,9 @@ GET_BOQCODE : '/api/Project/getBoqDetailsBy-BOQCode',
   /** AGENCY - CONTACT US */
   GET_AGENCY_ISSUETYPE: 'api/Agency/getagencyissuetype',
   SUBMIT_CONTACT_US_FORM: 'api/AgencyBoard/add-agencycontactusdetails'
+
+
+  
  
 };
 

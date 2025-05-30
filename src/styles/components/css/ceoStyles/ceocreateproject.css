@@ -518,7 +518,7 @@
 .page-ceo-createproject .summary-field input {
     cursor: not-allowed;
 }
-.model-approvel-send .btn-allow, .model-approvel-send .btn-not-allow {
+.model-approvel-send .btn-approval-send {
     width: 140px;
     height: 40px;
     align-items: center;
@@ -570,6 +570,12 @@
 }
 .page-ceo-createproject .risk-container select.form-select.form-select-sm {
     border: 0px !important;
+}
+
+.model-approvel-send .btn-approval-send:disabled {
+    background-color: #BBBBBB !important;
+    color: #8E8E8E;
+    cursor: not-allowed !important;
 }
 /* Responsive Styles */
 @media (max-width: 768px) {

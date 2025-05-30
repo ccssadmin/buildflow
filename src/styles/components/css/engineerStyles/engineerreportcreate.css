@@ -1,13 +1,4 @@
-.report-container {
-  width: auto;
-  height: auto;
-  padding: 20px;
-  background-color: #f8f9fa;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  margin: auto;
-  overflow-y: auto; /* Add scroll for overflow */
-}
+
 
 /* .report-header h2 {
   font-size: 24px;
@@ -17,7 +8,12 @@
 .report-details label {
   font-weight: bold;
 }
-
+.attached-files ul li {
+    margin-right: 10px;
+}
+.attached-files ul {
+  display: flex;
+}
 .daily-progress-summary,
 .material-usage-report,
 .safety-compliance-report,

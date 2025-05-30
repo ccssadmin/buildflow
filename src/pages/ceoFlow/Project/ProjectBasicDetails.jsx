@@ -16,7 +16,8 @@ const ProjectBasicDetails = ({
   const dispatch = useDispatch();
   const dateInputRef = useRef(null);
   const completionDateInputRef = useRef(null);
-  const { projectTypeSector, fetchProjectTypeSector, createProject } = useProject();
+  const { projectTypeSector, fetchProjectTypeSector, createProject } =
+    useProject();
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [projectCreated, setProjectCreated] = useState(false);
@@ -44,11 +45,13 @@ const ProjectBasicDetails = ({
 
   // Fetch existing project data only after sectors/types are loaded
   useEffect(() => {
-    if (effectiveProjectId && 
-        effectiveProjectId !== "0" && 
-        effectiveProjectId !== 0 && 
-        dataFetched && 
-        !loading) {
+    if (
+      effectiveProjectId &&
+      effectiveProjectId !== "0" &&
+      effectiveProjectId !== 0 &&
+      dataFetched &&
+      !loading
+    ) {
       getProjectsData(effectiveProjectId);
     }
   }, [effectiveProjectId, dataFetched, loading]);
@@ -59,7 +62,7 @@ const ProjectBasicDetails = ({
 
       if (result?.payload?.value?.project) {
         const step1 = result.payload.value.project;
-        
+
         console.log("Fetched Project Data =>", step1);
         console.log("Setting projectSectorId to:", step1.project_sector_id);
 
@@ -85,7 +88,7 @@ const ProjectBasicDetails = ({
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     console.log(`Input changed: ${name} = ${value}`); // Debug log
-    
+
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
@@ -105,46 +108,55 @@ const ProjectBasicDetails = ({
   };
 
   const handleContainerClickCompletionDate = () => {
-    if (completionDateInputRef.current) completionDateInputRef.current.showPicker();
+    if (completionDateInputRef.current)
+      completionDateInputRef.current.showPicker();
   };
 
   const validateInputs = () => {
-    const letterRegex = /[a-zA-Z]/;   
+    const letterRegex = /[a-zA-Z]/;
     const errors = {};
-    
+
     if (!formData.projectName?.trim()) {
       errors.projectName = "Project Name is required.";
     }
-    
+
     if (!formData.projectLocation?.trim()) {
       errors.projectLocation = "Location is required.";
-    }
-    
-    if (formData.projectLocation && !letterRegex.test(formData.projectLocation)) {
+    } else if (!letterRegex.test(formData.projectLocation)) {
       errors.projectLocation = "Location must contain letters.";
     }
-    
+
     if (!formData.projectTypeId || formData.projectTypeId === "") {
       errors.projectTypeId = "Project Type must be selected.";
     }
-    
+
     if (!formData.projectSectorId || formData.projectSectorId === "") {
       errors.projectSectorId = "Project Sector must be selected.";
     }
-    
+
     if (!formData.projectStartDate) {
       errors.projectStartDate = "Project Start Date is required.";
     }
-    
+
     if (!formData.expectedCompletionDate) {
       errors.expectedCompletionDate = "Expected Completion Date is required.";
     }
-    
-    if (!formData.description?.trim()) {
-      errors.description = "Project Description is required.";
+
+    if (
+      formData.projectStartDate &&
+      formData.expectedCompletionDate &&
+      new Date(formData.projectStartDate) >
+        new Date(formData.expectedCompletionDate)
+    ) {
+      errors.expectedCompletionDate =
+        "Completion Date must be after Start Date.";
     }
 
-    if (setFormErrors) setFormErrors(errors);
+    if (!formData.description || formData.description.trim() === "") {
+      errors.description = "Project Description is required";
+    }
+
+    setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
@@ -197,7 +209,8 @@ const ProjectBasicDetails = ({
         Swal.fire({
           icon: "error",
           title: "Failed!",
-          text: result?.message || "Failed to create project. Please try again.",
+          text:
+            result?.message || "Failed to create project. Please try again.",
         });
       }
     } catch (error) {
@@ -238,7 +251,9 @@ const ProjectBasicDetails = ({
                 placeholder="Enter project name"
                 isInvalid={!!formErrors?.projectName}
               />
-              <Form.Control.Feedback type="invalid">{formErrors?.projectName}</Form.Control.Feedback>
+              <Form.Control.Feedback type="invalid">
+                {formErrors?.projectName}
+              </Form.Control.Feedback>
             </Form.Group>
           </div>
           <div className="col-sm-12 col-md-6 col-lg-4">
@@ -254,7 +269,9 @@ const ProjectBasicDetails = ({
                 placeholder="Enter location"
                 isInvalid={!!formErrors?.projectLocation}
               />
-              <Form.Control.Feedback type="invalid">{formErrors?.projectLocation}</Form.Control.Feedback>
+              <Form.Control.Feedback type="invalid">
+                {formErrors?.projectLocation}
+              </Form.Control.Feedback>
             </Form.Group>
           </div>
           <div className="col-sm-12 col-md-6 col-lg-4">
@@ -279,7 +296,9 @@ const ProjectBasicDetails = ({
                   )) || []
                 )}
               </Form.Select>
-              <Form.Control.Feedback type="invalid">{formErrors?.projectTypeId}</Form.Control.Feedback>
+              <Form.Control.Feedback type="invalid">
+                {formErrors?.projectTypeId}
+              </Form.Control.Feedback>
             </Form.Group>
           </div>
           <div className="col-sm-12 col-md-6 col-lg-4">
@@ -297,16 +316,25 @@ const ProjectBasicDetails = ({
                 <option value="">Select project sector</option>
                 {loading ? (
                   <option disabled>Loading sectors...</option>
-                ) : projectTypeSector?.projectSectors && projectTypeSector.projectSectors.length > 0 ? (
+                ) : projectTypeSector?.projectSectors &&
+                  projectTypeSector.projectSectors.length > 0 ? (
                   projectTypeSector.projectSectors.map((sector) => {
-                    console.log(`Rendering sector: ${sector.id} - ${sector.projectSectorName}, Selected: ${formData.projectSectorId}`);
+                    console.log(
+                      `Rendering sector: ${sector.id} - ${sector.projectSectorName}, Selected: ${formData.projectSectorId}`
+                    );
                     return (
-                      <option 
-                        key={sector.id} 
+                      <option
+                        key={sector.id}
                         value={sector.id}
-                        selected={parseInt(formData.projectSectorId) === parseInt(sector.id)}
+                        selected={
+                          parseInt(formData.projectSectorId) ===
+                          parseInt(sector.id)
+                        }
                       >
-                        {sector.projectSectorName || sector.name || sector.sectorName || 'Unnamed Sector'}
+                        {sector.projectSectorName ||
+                          sector.name ||
+                          sector.sectorName ||
+                          "Unnamed Sector"}
                       </option>
                     );
                   })
@@ -314,8 +342,9 @@ const ProjectBasicDetails = ({
                   <option disabled>No sectors available</option>
                 )}
               </Form.Select>
-              <Form.Control.Feedback type="invalid">{formErrors?.projectSectorId}</Form.Control.Feedback>
-              
+              <Form.Control.Feedback type="invalid">
+                {formErrors?.projectSectorId}
+              </Form.Control.Feedback>
             </Form.Group>
           </div>
           <div className="col-sm-12 col-md-6 col-lg-4">
@@ -323,7 +352,10 @@ const ProjectBasicDetails = ({
               <Form.Label className="text-dark">
                 Project Start Date <span className="required">*</span>
               </Form.Label>
-              <div className="date-input-container" onClick={handleContainerClick}>
+              <div
+                className="date-input-container"
+                onClick={handleContainerClick}
+              >
                 <Form.Control
                   ref={dateInputRef}
                   type="date"
@@ -336,15 +368,24 @@ const ProjectBasicDetails = ({
                   <Calendar size={18} />
                 </span>
               </div>
-              <Form.Control.Feedback type="invalid">{formErrors?.projectStartDate}</Form.Control.Feedback>
+              <Form.Control.Feedback type="invalid">
+                {formErrors?.projectStartDate}
+              </Form.Control.Feedback>
+              {formErrors?.projectStartDate && (
+                <div className="invalid-feedback d-block">
+                  {formErrors.projectStartDate}
+                </div>
+              )}
             </Form.Group>
           </div>
+
           <div className="col-sm-12 col-md-6 col-lg-4">
-            <Form.Group className="mb-4">
+            <Form.Group className="mb-4" onClick={handleContainerClickCompletionDate}>
               <Form.Label className="text-dark">
                 Expected Completion Date <span className="required">*</span>
               </Form.Label>
-              <div className="date-input-container" onClick={handleContainerClickCompletionDate}>
+
+              <div className="position-relative">
                 <Form.Control
                   ref={completionDateInputRef}
                   type="date"
@@ -353,13 +394,29 @@ const ProjectBasicDetails = ({
                   onChange={handleInputChange}
                   isInvalid={!!formErrors?.expectedCompletionDate}
                 />
-                <span className="date-icon">
+                <span
+                  className="date-icon"
+                  onClick={handleContainerClickCompletionDate}
+                  style={{
+                    position: "absolute",
+                    top: "50%",
+                    right: "10px",
+                    transform: "translateY(-50%)",
+                    cursor: "pointer",
+                    pointerEvents: "none",
+                  }}
+                >
                   <Calendar size={18} />
                 </span>
+
+                {/* ✅ MUST be inside this div to work */}
+                <Form.Control.Feedback type="invalid">
+                  {formErrors?.expectedCompletionDate}
+                </Form.Control.Feedback>
               </div>
-              <Form.Control.Feedback type="invalid">{formErrors?.expectedCompletionDate}</Form.Control.Feedback>
             </Form.Group>
           </div>
+
           <div className="col-sm-12 col-md-12 col-lg-12">
             <Form.Group className="mb-4">
               <Form.Label className="text-dark">
@@ -374,9 +431,12 @@ const ProjectBasicDetails = ({
                 placeholder="Enter project description"
                 isInvalid={!!formErrors?.description}
               />
-              <Form.Control.Feedback type="invalid">{formErrors?.description}</Form.Control.Feedback>
+              <Form.Control.Feedback type="invalid">
+                {formErrors?.description}
+              </Form.Control.Feedback>
             </Form.Group>
           </div>
+
           <div className="col-sm-12 col-md-12 col-lg-12">
             <Button
               className="btn-primary me-0 ms-auto mt-4 btn fs-14-600 bg-primary border-0 border-radius-2"
@@ -385,7 +445,8 @@ const ProjectBasicDetails = ({
             >
               {submitting ? (
                 <>
-                  <Spinner animation="border" size="sm" /> <span>Saving...</span>
+                  <Spinner animation="border" size="sm" />{" "}
+                  <span>Saving...</span>
                 </>
               ) : projectCreated ? (
                 "Created ✓"

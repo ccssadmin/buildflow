@@ -388,7 +388,11 @@ const EngineerTicketDetails = () => {
       setIsLoading(false);
     }
   };
+
+
   const BASE_URL = process.env.REACT_APP_MASTER_API_BASE_URL;
+
+
   const handleSendComment = async () => {
     if (!commentText.trim()) {
       showToastNotification("Please enter a comment.");
@@ -903,13 +907,37 @@ const selectedOption = selectedVendor
       {/* Main Content */}
       <Row className="g-0">
         <div className="d-flex align-items-center ms-3 mt-4">
-          <small
-            className="text-muted me-2"
-            // onClick={() => navigate("/approvals")}
-            // style={{ cursor: "pointer" }}
-          >
-            Approvals
-          </small>
+        <small
+  className="text-muted me-2"
+  onClick={() => {
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    const roleCode = userData?.roleCode;
+
+    let path = "/approvals"; // default path
+
+    if (roleCode === "CEO") {
+      path = "/ceo/approvals";
+    } else if (roleCode === "ENGINEER" || roleCode === "SITEENGINEER" || roleCode === "LEADENGINEER") {
+      path = "/admin/engineerapprovals";
+    } else if (roleCode === "HR") {
+      path = "/hr/approvals";
+    } else if (roleCode === "AQS" || roleCode === "QS") {
+      path = "/aqs/aqsapprovals";
+    } else if (roleCode === "FINANCE" || roleCode === "HEADFINANCE") {
+      path = "/finance/approvals";
+    } else if (roleCode === "PURCHASEMANAGER") {
+      path = "/purchasemanager/approvals";
+    } else if (roleCode === "PM" || roleCode === "PROJECTMANAGER") {
+      path = "/pm/approvals";
+    }
+
+    navigate(path);
+  }}
+  style={{ cursor: "pointer" }}
+>
+  Approvals
+</small>
+
           <small className="text-muted mx-2">›</small>
           <small style={{ color: "#FF6F00" }}>
             {ticketData?.name || "Ticket Details"}

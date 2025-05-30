@@ -19,6 +19,10 @@ import { useTicket } from "../../hooks/Ceo/useTicket";
 import { debounce } from "lodash";
 import { getPurchaseOrderDetails } from "../../store/actions/vendorflow/po-vendroaction";
 import Select from "react-dropdown-select";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faClipboardCheck, faDownload } from "@fortawesome/free-solid-svg-icons";
+import * as XLSX from "xlsx";
+
 
 export default function POViewPage({ params }) {
   const location = useLocation();
@@ -47,6 +51,26 @@ export default function POViewPage({ params }) {
     vendorName: boqData?.vendorName || "",
     items: [],
   });
+
+
+
+
+const thStyle = {
+  padding: "12px 16px",
+  fontWeight: "500",
+  color: "#A2A2A2",
+  border: "1px solid #A2A2A2",
+};
+
+const tdStyle = {
+  padding: "12px 16px",
+  fontWeight: "400",
+  color: "#333",
+  border: "1px solid #A2A2A2",
+};
+
+
+
 
   useEffect(() => {
     if (route.purchaseOrderId) {
@@ -350,8 +374,8 @@ export default function POViewPage({ params }) {
     if (purchaseData?.approvers?.length > 0) {
       const employeeOptions = purchaseData?.approvers?.map((emp) => ({
         ...emp,
-        label: emp.employeeName,
-        value: emp.employeeName,
+        label: emp.roleName,
+        value: emp.roleName,
       }));
       console.log("employeeOptions_employeeOptions", employeeOptions);
       return employeeOptions;
@@ -359,6 +383,53 @@ export default function POViewPage({ params }) {
   };
 
   console.log("AppovedBy", getApproverName());
+
+
+  
+   const getRandomColor = () => {
+    const colors = [
+      "#FF5733",
+      "#33B5E5",
+      "#8E44AD",
+      "#16A085",
+      "#E67E22",
+      "#2ECC71",
+      "#3498DB",
+      "#F39C12",
+      "#1ABC9C",
+      "#E74C3C",
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
+  };
+
+    const getInitials = (name) => {
+    if (!name) return "";
+    const parts = name.trim().split(" ");
+    const first = parts[0]?.charAt(0).toUpperCase() || "";
+    const second = parts[1]?.charAt(0).toUpperCase() || "";
+    return first + second;
+  };
+
+
+  const handleDownloadPOExcel = () => {
+  const items = purchaseData?.purchaseOrderItems || [];
+
+  const formattedData = items.map((item, index) => ({
+    "S. No": index + 1,
+    "Item Name": item.itemName,
+    "Unit": item.unit,
+    "Rate ₹": item.price,
+    "Quantity": item.quantity,
+    "Total ₹": item.total,
+  }));
+
+  const ws = XLSX.utils.json_to_sheet(formattedData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Purchase Order");
+
+  XLSX.writeFile(wb, "Purchase_Order.xlsx");
+};
+
 
   return (
     <div className="container mt-4 mb-5">
@@ -495,24 +566,46 @@ export default function POViewPage({ params }) {
       </div>
 
       <div className="row mb-4">
-        <div className="col-md-6 mb-3">
-          <div className="form-group">
-            <label style={{ fontWeight: "500", marginBottom: "8px" }}>
-              Vendor Name
-            </label>
-            <input
-              type="text"
-              className="form-control"
-              value={purchaseData?.vendorName || poData.vendorName || ""}
-              readOnly
-              style={{
-                padding: "10px 12px",
-                border: "1px solid #ced4da",
-                borderRadius: "4px",
-              }}
-            />
-          </div>
-        </div>
+     <div className="col-md-6 mb-3">
+  <div className="form-group">
+    <label style={{ fontWeight: "500", marginBottom: "12px" }}>
+      Vendor Name
+    </label>
+
+    <div className="d-flex align-items-center gap-2 position-relative mb-3">
+      <div
+        className="rounded-circle text-white d-flex align-items-center justify-content-center"
+        style={{
+          width: "30px",
+          height: "30px",
+          fontSize: "15px",
+          flexShrink: 0,
+          backgroundColor: getRandomColor(), // random color
+          position: "absolute",
+          left: "10px",
+          top: "50%",
+          transform: "translateY(-50%)",
+          marginTop:"-3px"
+        }}
+      >
+        {getInitials(purchaseData?.vendorName || poData.vendorName)}
+      </div>
+
+      <input
+        type="text"
+        className="form-control ps-5"
+        value={purchaseData?.vendorName || poData.vendorName || ""}
+        readOnly
+        style={{
+          padding: "10px 12px",
+          border: "1px solid #ced4da",
+          borderRadius: "4px",
+        }}
+      />
+    </div>
+  </div>
+</div>
+
 
         <div className="col-md-6">
           <Form.Group className="mb-3">
@@ -537,150 +630,42 @@ export default function POViewPage({ params }) {
         </div>
       </div>
 
-      <div className="table-responsive mt-4">
-        <table className="table table-bordered">
-          <thead style={{ backgroundColor: "#f0f0f0" }}>
-            <tr>
-              <th
-                className="text-center"
-                style={{
-                  padding: "12px 16px",
-                  fontWeight: "500",
-                  color: "#555",
-                  width: "80px",
-                }}
-              >
-                S. No
-              </th>
-              <th
-                className="text-center"
-                style={{
-                  padding: "12px 16px",
-                  fontWeight: "500",
-                  color: "#555",
-                }}
-              >
-                Item Name
-              </th>
-              <th
-                className="text-center"
-                style={{
-                  padding: "12px 16px",
-                  fontWeight: "500",
-                  color: "#555",
-                  width: "120px",
-                }}
-              >
-                Unit
-              </th>
-              <th
-                className="text-center"
-                style={{
-                  padding: "12px 16px",
-                  fontWeight: "500",
-                  color: "#555",
-                  width: "120px",
-                }}
-              >
-                Rate ₹
-              </th>
-              <th
-                className="text-center"
-                style={{
-                  padding: "12px 16px",
-                  fontWeight: "500",
-                  color: "#555",
-                  width: "120px",
-                }}
-              >
-                Quantity
-              </th>
-              <th
-                className="text-center"
-                style={{
-                  padding: "12px 16px",
-                  fontWeight: "500",
-                  color: "#555",
-                  width: "120px",
-                }}
-              >
-                Total
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {purchaseData?.purchaseOrderItems?.map((item, index) => (
-              <tr key={item.id} style={{ borderBottom: "1px solid #dee2e6" }}>
-                <td className="text-center" style={{ padding: "12px 16px" }}>
-                  {item.id}
-                </td>
-                <td className="text-center">
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={item.itemName}
-                    onChange={(e) =>
-                      handleInputChange(index, "name", e.target.value)
-                    }
-                  />
-                </td>
-                <td className="text-center">
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={item.unit}
-                    onChange={(e) =>
-                      handleInputChange(index, "unit", e.target.value)
-                    }
-                  />
-                </td>
-                <td className="text-center">
-                  <input
-                    type="number"
-                    className="form-control"
-                    value={item.price}
-                    onChange={(e) =>
-                      handleInputChange(index, "rate", e.target.value)
-                    }
-                  />
-                </td>
-                <td className="text-center">
-                  <input
-                    type="number"
-                    className="form-control"
-                    value={item.quantity}
-                    onChange={(e) =>
-                      handleInputChange(index, "quantity", e.target.value)
-                    }
-                  />
-                </td>
-                <td className="text-center" style={{ padding: "12px 16px" }}>
-                  ₹ {(item.total || 0).toLocaleString()}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-          <tfoot>
-            <tr>
-              <td
-                colSpan="6"
-                className=""
-                style={{
-                  fontWeight: "bold",
-                  padding: "12px 16px",
-                  backgroundColor: "#FF6F00",
-                }}
-              >
-                <div className="d-flex justify-content-between">
-                  <p className="m-0 text-white">Grand Total:</p>{" "}
-                  <p className="m-0 text-white">
-                    ₹ {totalAmount?.toLocaleString()}
-                  </p>
-                </div>
-              </td>
-            </tr>
-          </tfoot>
-        </table>
+  <div className="table-responsive mt-4">
+  <table className="table table-bordered" style={{ borderCollapse: "collapse" }}>
+    <thead style={{ backgroundColor: "#f0f0f0" }}>
+      <tr>
+        <th className="text-center" style={thStyle}>S. No</th>
+        <th className="text-center" style={thStyle}>Item Name</th>
+        <th className="text-center" style={thStyle}>Unit</th>
+        <th className="text-center" style={thStyle}>Rate ₹</th>
+        <th className="text-center" style={thStyle}>Quantity</th>
+        <th className="text-center" style={thStyle}>Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      {purchaseData?.purchaseOrderItems?.map((item, index) => (
+        <tr key={item.id}>
+          <td className="text-center" style={tdStyle}>{String(index + 1).padStart(2, "0")}</td>
+          <td className="text-center" style={tdStyle}>{item.itemName}</td>
+          <td className="text-center" style={tdStyle}>{item.unit}</td>
+          <td className="text-center" style={tdStyle}>{item.price}</td>
+          <td className="text-center" style={tdStyle}>{item.quantity}</td>
+          <td className="text-center" style={tdStyle}>₹ {item.total.toLocaleString()}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
+{/* Total section styled like image */}
+<div className="mt-3" style={{ backgroundColor: "#FF6F00", padding: "12px 16px", borderRadius: "4px" }}>
+  <div className="d-flex justify-content-between align-items-center">
+    <p className="m-0 text-white" style={{ fontWeight: "500" }}>Total</p>
+    <p className="m-0 text-white" style={{ fontWeight: "500" }}>
+      ₹ {totalAmount?.toLocaleString()}
+    </p>
+  </div>
+</div>
 
         {/* <button
           className="btn"
@@ -694,7 +679,21 @@ export default function POViewPage({ params }) {
         >
           + Add New Row
         </button> */}
-      </div>
+
+             <div className="d-flex justify-content-end align-items-center mt-3 gap-2">
+         
+          <button
+  className="btn text-white d-flex align-items-center"
+  style={{ backgroundColor: "#ff6600" }}
+  onClick={handleDownloadPOExcel}
+>
+  <FontAwesomeIcon
+    icon={faDownload}
+    className="me-2"
+    style={{ color: "white" }}
+  />
+  Download .xlsx
+</button>
 
       {/* <div className="row mt-4">
         <div className="col-12 d-flex justify-content-end">
@@ -718,6 +717,7 @@ export default function POViewPage({ params }) {
           </button>
         </div>
       </div> */}
+      </div>
     </div>
   );
 }
