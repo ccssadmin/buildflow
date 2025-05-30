@@ -78,7 +78,7 @@ const Material = () => {
   return (
     <Fragment>
       <main className="page-engineer-dashboard d-flex">
-        <div className="container w-100">
+        <div className="left-container w-100">
           <div className="row mt-4 align-items-center">
             <div className="col-sm-6 col-md-6 col-lg-6 text-start">
               <select className="form-select select-custom" style={{ backgroundColor: "#E8E8E8" }}
@@ -91,7 +91,7 @@ const Material = () => {
               </select>
             </div>
             <div className="col-sm-6 col-md-6 col-lg-6 text-right">
-              <Button className="create-button border-radius-2 fs-14-600" onClick={() =>navigate("/admin/engineermaterialcreate", { state: { boqId: 123 } }) }>Create</Button>
+              <Button className="create-button border-radius-2 fs-14-600 border-0" onClick={() =>navigate("/admin/engineermaterialcreate", { state: { boqId: 123 } }) }>Create</Button>
             </div>
           </div>
           <div className="row mt-5">
