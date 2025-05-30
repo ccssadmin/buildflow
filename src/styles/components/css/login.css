@@ -90,7 +90,12 @@
     border: 1px solid #FF6F00;
     box-shadow: unset;
 }
-
+.btn-switch-role {
+    border: 0px;
+    background-color: var(--off-white-gray);
+    color: var(--text-dark-gray);
+    width: 340px;
+}
 /* .google {
     border-top: 1px solid #E3E3E3;
     padding-top: 30px;
