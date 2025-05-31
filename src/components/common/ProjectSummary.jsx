@@ -367,10 +367,12 @@ useEffect(() => {
               <Form.Control
                 disabled
                 type="text"
-                value={getProjectTypeName()}
+                value={displayValue(projectData?.project?.project_type_name)}
                 className={`bg-white text-dark-gray  fs-16-500  h48px border-radius-4  ${
-                  getProjectTypeName() === "Not Available" ? "text-muted" : ""
-                 }`}
+                  isEmpty(projectData?.project?.project_type_name)
+                    ? "text-muted"
+                    : ""
+                }`}
               />
             </div>
           </Col>
@@ -383,9 +385,11 @@ useEffect(() => {
               <Form.Control
                 disabled
                 type="text"
-                value={getProjectSectorName()}
+                value={displayValue(projectData?.project?.project_sector_name)}
                 className={`bg-white text-dark-gray  fs-16-500  h48px border-radius-4  ${
-                  getProjectSectorName() === "Not Available" ? "text-muted" : ""
+                  isEmpty(projectData?.project?.project_sector_name)
+                    ? "text-muted"
+                    : ""
                 }`}
               />
             </div>
