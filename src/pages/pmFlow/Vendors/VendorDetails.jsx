@@ -4,7 +4,7 @@ import { Container, Row, Col, Form, Button, Table, Badge } from 'react-bootstrap
 import { useNavigate } from 'react-router-dom';
 
 
-const AqsVendorDetails = () => {
+const PmVendorDetails = () => {
 
   const navigate = useNavigate();
 
@@ -75,7 +75,7 @@ const AqsVendorDetails = () => {
         <span 
         className="text-muted"
         style={ { cursor : 'pointer'}}
-        onClick={ ( ) => navigate('/aqs/aqsvendor')}
+        onClick={ ( ) => navigate('/pm/vendor')}
         >Vendors</span>
         <span className="mx-2">›</span>
         <span 
@@ -92,7 +92,7 @@ const AqsVendorDetails = () => {
           <h5 className="mb-0">SS Enterprises</h5>
         </div>
         <Button variant="warning" className="view-price-btn" style={{ backgroundColor: "#FF6F00" }}
-        onClick={ () => navigate('/aqs/aqsvendorpricedetails')}
+        onClick={ () => navigate('/pm/vendorpricedetails')}
         >View Price Details</Button>
       </div>
 
@@ -228,4 +228,4 @@ const AqsVendorDetails = () => {
   );
 };
 
-export default AqsVendorDetails;
+export default PmVendorDetails;

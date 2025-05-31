@@ -6,27 +6,52 @@ import { Link } from "react-router-dom";
 export default function VendorPurchaseOrder() {
   const dispatch = useDispatch();
   const { purchaseOrders, loading, error } = useSelector((state) => state.purchaseOrder);
-  const vendorId = localStorage.getItem("vendorId");
-  localStorage.setItem("vendorId", vendorId);
 
   useEffect(() => {
-  const userData = JSON.parse(localStorage.getItem("userData"));
-  const vendorId = userData?.vendorId;
-  
-  if (vendorId) {
-    dispatch(getPurchaseOrdersByVendorId(vendorId));
+    const storedUserData = localStorage.getItem("userData");
+    if (storedUserData) {
+      const userData = JSON.parse(storedUserData);
+      const vendorId = userData?.vendorId;
+
+      if (vendorId) {
+        dispatch(getPurchaseOrdersByVendorId(vendorId));
+      }
+    }
+  }, [dispatch]);
+
+  const formatDate = (dateStr) =>
+    dateStr
+      ? new Date(dateStr).toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        })
+      : "-";
+
+ const getStatusColorStyle = (status) => {
+  const s = status?.toLowerCase();
+  switch (s) {
+    case "completed":
+      return { color: "#30A335" }; // Delivery
+    case "pending":
+      return { color: "#F1C300" };
+    case "dispatched":
+      return { color: "#606060" };
+    default:
+      return { color: "#6c757d" }; // fallback grey
   }
-}, [dispatch]);
+};
 
-  
+ const getStatusText = (status) => {
+  if (status === null) return "Pending";
+  if (status.toLowerCase() === "completed") return "Delivery";
+  return status;
+};
 
-  const formatDate = (dateStr) => new Date(dateStr).toLocaleDateString("en-GB", {
-    day: "2-digit", month: "short", year: "numeric"
-  });
 
   return (
     <div className="container mt-4">
-      <h3 className="mb-3">All Po</h3>
+      <h3 className="mb-3">All Purchase Orders</h3>
 
       {loading ? (
         <p>Loading purchase orders...</p>
@@ -41,36 +66,39 @@ export default function VendorPurchaseOrder() {
               <tr>
                 <th>PO Number</th>
                 <th>Project Name</th>
-                <th>Contact No.</th>
-                <th>Date Received</th>
-                <th>Delivery Date</th>
+                <th>Vendor Contact</th>
+                <th>PO Received</th>
+                <th>Delivery Status Date</th>
                 <th>Status</th>
                 <th>Action</th>
               </tr>
             </thead>
             <tbody>
-              {purchaseOrders.map((po) => (
-                <tr key={po.purchaseOrderId}>
-                  <td>{po.poId}</td>
-                  <td>{po.projectName}</td>
-                  <td>9123212135</td> {/* Static as in your image */}
-                  <td>{formatDate(po.createdAt)}</td>
-                  <td>{formatDate(po.createdAt)}</td> {/* Delivery date not in response, using same */}
-                  <td className={`text-capitalize fw-semibold ${getStatusColorClass(po.status)}`}>
-                    {po.status}
-                  </td>
-                  <td>
-                    {po.status === "completed" ? (
-                      <a href="#" className="text-primary text-decoration-none">View</a>
-                    ) : <Link
-                    to={`/vendor/editpo/${po.purchaseOrderId}`}
-                    className="text-primary text-decoration-none"
-                  >
-                    Update Status
-                  </Link>}
-                  </td>
-                </tr>
-              ))}
+              {purchaseOrders.map((po) => {
+                const deliveryStatus = po.deliveryStatus || "pending"; // handle null
+                return (
+                  <tr key={po.purchaseOrderId}>
+                    <td>{po.poId}</td>
+                    <td>{po.projectName}</td>
+                    <td>{po.vendorMobile}</td>
+                    <td>{formatDate(po.createdAt)}</td>
+                    <td>{formatDate(po.deliveryStatusDate)}</td>
+<td className="text-capitalize" style={getStatusColorStyle(deliveryStatus)}>
+                      {getStatusText(po.deliveryStatus)}
+                    </td>
+               <td>
+  <Link
+    to={`/vendor/editpo/${po.purchaseOrderId}`}
+    className="text-decoration-none"
+    style={{ color: "#0456D0", fontWeight: 500 }}
+  >
+    {deliveryStatus.toLowerCase() === "completed" ? "View" : "Update Status"}
+  </Link>
+</td>
+
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -78,12 +106,3 @@ export default function VendorPurchaseOrder() {
     </div>
   );
 }
-
-const getStatusColorClass = (status) => {
-  switch (status.toLowerCase()) {
-    case "pending": return "text-warning";
-    case "completed": return "text-success";
-    case "dispatched": return "text-info";
-    default: return "text-secondary";
-  }
-};

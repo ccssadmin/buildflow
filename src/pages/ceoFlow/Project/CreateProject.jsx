@@ -13,9 +13,11 @@ import { useRoleBasedEmp } from "../../../hooks/Ceo/useRoleBasedEmp";
 import { useTicket } from "../../../hooks/Ceo/useTicket";
 import { useNavigate, useParams } from "react-router-dom";
 import { useNotification } from "../../../hooks/Ceo/useNotification";
-import { getProjectDetailsAction } from "../../../store/actions/Ceo/ceoprojectAction";
+import { createUploadFilesAction, getProjectDetailsAction } from "../../../store/actions/Ceo/ceoprojectAction";
 import { useDispatch } from "react-redux";
+import { useLocation } from 'react-router-dom';
 import { set } from "lodash";
+
 
 // Form validation schema
 const validateForm = (step, formData) => {
@@ -62,32 +64,7 @@ const CeoCreateProject = () => {
     totalBudget: "",
     sendTo: "",
     budgetBreakdown: [
-      {
-        id: 1,
-        category: "Employee Salary",
-        estimatedCost: "",
-        approvedBudget: "",
-      },
-      { id: 2, category: "Labor Cost", estimatedCost: "", approvedBudget: "" },
-      {
-        id: 3,
-        category: "Material Cost",
-        estimatedCost: "",
-        approvedBudget: "",
-      },
-      {
-        id: 4,
-        category: "Equipment Cost",
-        estimatedCost: "",
-        approvedBudget: "",
-      },
-      {
-        id: 5,
-        category: "Subcontractors",
-        estimatedCost: "",
-        approvedBudget: "",
-      },
-      { id: 6, category: "Contingency", estimatedCost: "", approvedBudget: "" },
+     
     ],
 
     // Step 3: Project Team & Stakeholder Assignment
@@ -102,100 +79,6 @@ const CeoCreateProject = () => {
     designer: [],
     vendors: [],
     subcontractors: [],
-
-    // Step 4: Timeline & Milestone Planning
-    milestones: [
-      {
-        id: 1,
-        name: "Foundation Work",
-        description: "Complete excavation and concrete laying",
-        startDate: "",
-        endDate: "",
-        status: "Planned",
-      },
-      {
-        id: 2,
-        name: "Structural Framing",
-        description: "Assemble steel and structural framing",
-        startDate: "",
-        endDate: "",
-        status: "Planned",
-      },
-      {
-        id: 3,
-        name: "Roofing Installation",
-        description: "Complete installation of roofing system",
-        startDate: "",
-        endDate: "",
-        status: "Planned",
-      },
-      {
-        id: 4,
-        name: "Exterior Walls",
-        description: "Brickwork, plastering, and painting",
-        startDate: "",
-        endDate: "",
-        status: "Planned",
-      },
-      {
-        id: 5,
-        name: "Plumbing & Electrical Work",
-        description: "Install pipes, wiring, and fixtures",
-        startDate: "",
-        endDate: "",
-        status: "Planned",
-      },
-      {
-        id: 6,
-        name: "Interior Design & Finishing",
-        description: "Install doors, windows & interiors",
-        startDate: "",
-        endDate: "",
-        status: "Planned",
-      },
-      {
-        id: 7,
-        name: "Final Inspection & Handover",
-        description: "Quality check and handover to client",
-        startDate: "",
-        endDate: "",
-        status: "Planned",
-      },
-    ],
-
-    // Step 5: Risk & Compliance Assessment
-    risks: [
-      {
-        id: 1,
-        category: "Complete excavation and concrete laying",
-        status: "Completed",
-        file: null,
-      },
-      {
-        id: 2,
-        category: "Environmental Clearance",
-        status: "Pending",
-        file: null,
-      },
-      {
-        id: 3,
-        category: "Labor Safety Measures",
-        status: "Completed",
-        file: null,
-      },
-      {
-        id: 4,
-        category: "PPE Compliance Checklists",
-        status: "Pending",
-        file: null,
-      },
-      {
-        id: 5,
-        category: "Legal Dispute Files",
-        status: "Completed",
-        file: null,
-      },
-    ],
   });
 
   useEffect(() => {
@@ -208,19 +91,25 @@ const CeoCreateProject = () => {
     const result = await dispatch(getProjectDetailsAction(route?.projectId));
     if (result?.payload) {
       let step1  = result?.payload?.value?.project;
-      console.log("result?.payloa" , result?.payload?.value)
+      console.log("GetProjectsData=>" , result?.payload?.value)
       setFormData((prevState) => ({
         ...prevState,
         projectId: step1?.project_id,
         projectName: step1?.project_name,
         location: step1?.project_location,
         projectType: step1?.project_type_name,
+        projectSectorName: step1?.project_sector_name,
+        description:step1?.project_description,
+        projectStartDate:step1?.project_start_date,
+        expectedCompletionDate:step1?.project_end_date,
+        projectSectorId:step1?.project_sector_name,
+
       }));
     }
   };
 
 
-  const handleProjectCreated = (projectId) => {
+  const handleProjectCreated = (projectId,message) => {
     if (!projectId) {
       console.error("❌ No project ID received!");
       Swal.fire({
@@ -248,7 +137,7 @@ const CeoCreateProject = () => {
     Swal.fire({
       icon: "success",
       title: "Success!",
-      text: `Project #${numericId} created successfully.`,
+      text:  message || "Project saved successfully!",
       timer: 1500,
       showConfirmButton: false,
     });
@@ -446,8 +335,11 @@ const CeoCreateProject = () => {
 
     if (currentStep === 4) {
       console.log("Step 4: Final submission");
+      console.log("Risks Data: ", formData.risks);
+      dispatch(createUploadFilesAction({ risks: formData.risks }));
       await handleFinalReview();
       return;
+
     }
 
     // Default case: simply move to next step
@@ -468,7 +360,7 @@ const CeoCreateProject = () => {
 
     try {
       const formattedMilestones = formData.milestones.map((milestone) => ({
-        milestoneId: 0,
+        milestoneId: milestone.id || 0,
         milestoneName: milestone.name,
         milestoneDescription: milestone.description,
         milestoneStartDate: milestone.startDate,
@@ -565,27 +457,7 @@ const CeoCreateProject = () => {
         ...prevFormData,
         budgetBreakdown: [...prevFormData.budgetBreakdown, newColumn],
       }));
-    } else if (currentStep === 3) {
-      // For milestones
-      const nextId =
-        formData.milestones.length > 0
-          ? Math.max(...formData.milestones.map((m) => m.id)) + 1
-          : 1;
-
-      const milestoneToAdd = newMilestone || {
-        id: nextId,
-        name: "",
-        description: "",
-        startDate: "",
-        endDate: "",
-        status: "Planned",
-      };
-
-      setFormData((prevFormData) => ({
-        ...prevFormData,
-        milestones: [...prevFormData.milestones, milestoneToAdd],
-      }));
-    }
+    } 
   };
 
   const renderProgressBar = () => {
@@ -667,6 +539,7 @@ const CeoCreateProject = () => {
         formData={formData}
         setFormData={setFormData}
         formErrors={formErrors}
+        setFormErrors={setFormErrors}
         onProjectCreated={handleProjectCreated}
       />
     );
@@ -715,7 +588,7 @@ const CeoCreateProject = () => {
       <TimelineMilestonePlanning
         formData={formData}
         handleMilestoneChange={handleMilestoneChange}
-        handleAddColumn={handleAddColumn}
+       
         fetchAllEmployees={fetchAllEmployees}
         employees={employees}
         createTicket={createTicket}
@@ -731,10 +604,19 @@ const CeoCreateProject = () => {
       <RiskComplianceAssessment
         formData={formData}
         setFormData={setFormData}
-        handleAddColumn={handleAddColumn}
+       
       />
     );
   };
+
+
+  const location = useLocation();
+
+  useEffect(() => {
+  if (location.state?.step !== undefined) {
+    setCurrentStep(location.state.step);
+  }
+}, [location.state]);
 
   const renderFormStep = () => {
     switch (currentStep) {

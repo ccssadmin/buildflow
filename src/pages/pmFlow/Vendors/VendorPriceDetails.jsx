@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const AqsVendorPriceDetails = () => {
+const PmVendorPriceDetails = () => {
   const navigate = useNavigate();
   const [vendorData, setVendorData] = useState({
     vendorName: 'SS Enterprises',
@@ -57,7 +57,7 @@ const AqsVendorPriceDetails = () => {
         <span 
           className="text-muted" 
           style={{ cursor: 'pointer' }}
-          onClick={() => navigate('/aqs/aqsvendordetails')}>Open</span>
+          onClick={() => navigate('/pm/vendordetails')}>Open</span>
         <span className="mx-2">›</span>
         <span className="text-orange">Price Details</span>
       </div>
@@ -184,4 +184,4 @@ const AqsVendorPriceDetails = () => {
   );
 };
 
-export default AqsVendorPriceDetails;
+export default PmVendorPriceDetails;

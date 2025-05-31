@@ -1,5 +1,4 @@
 import { useState } from "react";
-
 import { NavLink, useLocation } from "react-router-dom";
 import * as menu from "../../../assets/images";
 import useAuth from "../../../hooks/useAuth";
@@ -18,6 +17,8 @@ const CeoSidenav = ({ onChange }) => {
   const [collaps, setCollaps] = useState(false);
   const [{ data: auth }] = useAuth();
   const [contactUsForm, setContactUsForm] = useState(false);
+  const location = useLocation();
+
   const expandCollaps = (e) => {
     let showTitle = collaps ? !collaps : true;
     setCollaps(showTitle);
@@ -30,17 +31,25 @@ const CeoSidenav = ({ onChange }) => {
   const closeModal = () => {
     setContactUsForm(false);
   };
-  const location = useLocation();
-  const isProjectActive =
-    location.pathname === "/ceo/projects" ||
-    location.pathname === "/ceo/projectdetails" ||
-    location.pathname === "/ceo/createproject";
-  const isApprovelActive =
-    location.pathname === "/ceo/approvals" ||
-    location.pathname.startsWith("/ceo/ticketdetails");
-  const isReportviewlActive =
-    location.pathname === "/ceo/report" ||
+
+  // Check active states for each nav item including sub-routes
+  const isDashboardActive = location.pathname.startsWith("/ceo/dashboard");
+  const isProjectActive = 
+    location.pathname.startsWith("/ceo/project") ||
+    location.pathname.startsWith("/ceo/projectdetails") ||
+    location.pathname.startsWith("/ceo/createproject");
+  const isApprovalsActive = 
+    location.pathname.startsWith("/ceo/approvals") ||
+    location.pathname.startsWith("/ceo/ticket");
+  const isChatsActive = location.pathname.startsWith("/ceo/chats");
+  const isFinanceActive = location.pathname.startsWith("/ceo/finance");
+  const isResourcesActive = location.pathname.startsWith("/ceo/resources");
+  const isDepartmentsActive = location.pathname.startsWith("/ceo/departments");
+  const isReportsActive = 
+    location.pathname.startsWith("/ceo/reports") ||
     location.pathname.startsWith("/ceo/reportview");
+  const isSettingsActive = location.pathname.startsWith("/ceo/settings");
+
   return (
     <>
       <div className="sidenav-content">
@@ -53,22 +62,23 @@ const CeoSidenav = ({ onChange }) => {
             }
           >
             {/* DASHBOARD */}
-
             <h5
               className="sidenav-content__headings-lists--title"
-              title="Home"
+              title="Dashboard"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/ceo/dashboard" className="link-tag">
-                {({ isActive, isPending }) => (
-                  <>
-                    <img src={IconDashboard} alt={"Kanban"} />
-                    <span>Dashboard </span>
-                    {collaps && "Kanban"}
-                  </>
-                )}
+              <NavLink
+                to="/ceo/dashboard"
+                className={`link-tag ${isDashboardActive ? "active" : ""}`}
+                isActive={(match, location) => location.pathname.startsWith('/ceo/dashboard')}
+              >
+                <img src={IconDashboard} alt={"Dashboard"} />
+                <span>Dashboard</span>
+                {collaps && "Dashboard"}
               </NavLink>
             </h5>
+
+            {/* PROJECTS */}
             <h5
               className="sidenav-content__headings-lists--title"
               title="Projects"
@@ -77,17 +87,19 @@ const CeoSidenav = ({ onChange }) => {
               <NavLink
                 to="/ceo/project"
                 className={`link-tag ${isProjectActive ? "active" : ""}`}
+                isActive={(match, location) => 
+                  location.pathname.startsWith('/ceo/project') ||
+                  location.pathname.startsWith('/ceo/projectdetails') ||
+                  location.pathname.startsWith('/ceo/createproject')
+                }
               >
-                {({ isActive, isPending }) => (
-                  <>
-                    <img src={menu.IconProjects} alt={"Projects"} />
-                    <span>Projects</span>
-                    {collaps && "Projects"}
-                  </>
-                )}
+                <img src={IconProjects} alt={"Projects"} />
+                <span>Projects</span>
+                {collaps && "Projects"}
               </NavLink>
             </h5>
-            {/* TEAM */}
+
+            {/* APPROVALS */}
             <h5
               className="sidenav-content__headings-lists--title"
               title="Approvals"
@@ -95,113 +107,127 @@ const CeoSidenav = ({ onChange }) => {
             >
               <NavLink
                 to="/ceo/approvals"
-                className={`link-tag ${isApprovelActive ? "active" : ""}`}
+                className={`link-tag ${isApprovalsActive ? "active" : ""}`}
+                isActive={(match, location) => 
+                  location.pathname.startsWith('/ceo/approvals') ||
+                  location.pathname.startsWith('/ceo/ticket')
+                }
               >
-                {({ isActive, isPending }) => (
-                  <>
-                    <img src={IconProjects} alt={"Projects"} />
-                    <span>Approvals</span>
-                    {collaps && "Projects"}
-                  </>
-                )}
+                <img src={IconApprovals} alt={"Approvals"} />
+                <span>Approvals</span>
+                {collaps && "Approvals"}
               </NavLink>
             </h5>
+
+            {/* CHATS */}
             <h5
               className="sidenav-content__headings-lists--title"
               title="Chats"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/ceo/chats" className="link-tag">
-                {({ isActive, isPending }) => (
-                  <>
-                    <img src={IconChat} alt={"Approval"} />
-                    <span>Chats</span>
-                    {collaps && "Chats"}
-                  </>
-                )}
+              <NavLink
+                to="/ceo/chats"
+                className={`link-tag ${isChatsActive ? "active" : ""}`}
+                isActive={(match, location) => location.pathname.startsWith('/ceo/chats')}
+              >
+                <img src={IconChat} alt={"Chats"} />
+                <span>Chats</span>
+                {collaps && "Chats"}
               </NavLink>
             </h5>
+
+            {/* FINANCE */}
             <h5
               className="sidenav-content__headings-lists--title"
               title="Finance"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/ceo/finance" className="link-tag">
-                {({ isActive, isPending }) => (
-                  <>
-                    <img src={IconFinance} alt={"Chat"} className="d-block" />
-                    <span>Finance</span>
-                    {collaps && "Finance"}
-                  </>
-                )}
+              <NavLink
+                to="/ceo/finance"
+                className={`link-tag ${isFinanceActive ? "active" : ""}`}
+                isActive={(match, location) => location.pathname.startsWith('/ceo/finance')}
+              >
+                <img src={IconFinance} alt={"Finance"} />
+                <span>Finance</span>
+                {collaps && "Finance"}
               </NavLink>
             </h5>
+
+            {/* RESOURCES */}
             <h5
               className="sidenav-content__headings-lists--title"
               title="Resources"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/ceo/resources" className="link-tag">
-                {({ isActive, isPending }) => (
-                  <>
-                    <img src={IconResources} alt={"Chat"} className="d-block" />
-                    <span>Resources</span>
-                    {collaps && "Resources"}
-                  </>
-                )}
+              <NavLink
+                to="/ceo/resources"
+                className={`link-tag ${isResourcesActive ? "active" : ""}`}
+                isActive={(match, location) => location.pathname.startsWith('/ceo/resources')}
+              >
+                <img src={IconResources} alt={"Resources"} />
+                <span>Resources</span>
+                {collaps && "Resources"}
               </NavLink>
             </h5>
+
+            {/* DEPARTMENTS */}
             <h5
               className="sidenav-content__headings-lists--title"
               title="Departments"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/ceo/departments" className="link-tag">
-                {({ isActive, isPending }) => (
-                  <>
-                    <img src={IconDepartments} alt={"Chat"} className="d-block" />
-                    <span>Departments</span>
-                    {collaps && "Departments"}
-                  </>
-                )}
+              <NavLink
+                to="/ceo/departments"
+                className={`link-tag ${isDepartmentsActive ? "active" : ""}`}
+                isActive={(match, location) => location.pathname.startsWith('/ceo/departments')}
+              >
+                <img src={IconDepartments} alt={"Departments"} />
+                <span>Departments</span>
+                {collaps && "Departments"}
               </NavLink>
             </h5>
+
+            {/* REPORTS */}
             <h5
               className="sidenav-content__headings-lists--title"
               title="Reports"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/ceo/reports" className={`link-tag ${isReportviewlActive ? "active" : ""}`}>
-                {({ isActive, isPending }) => (
-                  <>
-                    <img src={menu.IconReports} alt={"Chat"} className="d-block" />
-                    <span>Reports</span>
-                    {collaps && "Reports"}
-                  </>
-                )}
+              <NavLink
+                to="/ceo/reports"
+                className={`link-tag ${isReportsActive ? "active" : ""}`}
+                isActive={(match, location) => 
+                  location.pathname.startsWith('/ceo/reports') ||
+                  location.pathname.startsWith('/ceo/reportview')
+                }
+              >
+                <img src={menu.IconReports} alt={"Reports"} />
+                <span>Reports</span>
+                {collaps && "Reports"}
               </NavLink>
             </h5>
+
+            {/* SETTINGS */}
             <h5
               className="sidenav-content__headings-lists--title"
               title="Settings"
               disabled={auth?.details?.roleName == null ? true : false}
             >
-              <NavLink to="/ceo/settings" className="link-tag">
-                {({ isActive, isPending }) => (
-                  <>
-                    <img src={IconSettings} alt={"Chat"} className="d-block" />
-                    <span>Settings</span>
-                    {collaps && "Settings"}
-                  </>
-                )}
+              <NavLink
+                to="/ceo/settings"
+                className={`link-tag ${isSettingsActive ? "active" : ""}`}
+                isActive={(match, location) => location.pathname.startsWith('/ceo/settings')}
+              >
+                <img src={IconSettings} alt={"Settings"} />
+                <span>Settings</span>
+                {collaps && "Settings"}
               </NavLink>
             </h5>
           </div>
         </div>
-        <div
-          className={!collaps ? "others__options collaps" : "others__options"}
-        >
-          <div className="setting__info">            
+
+        <div className={!collaps ? "others__options collaps" : "others__options"}>
+          <div className="setting__info">
             {/* CONTACT US */}
             {auth.activeWorkSpace === 3 && (
               <p
@@ -210,12 +236,11 @@ const CeoSidenav = ({ onChange }) => {
                 disabled={auth?.details?.roleName == null ? true : false}
               >
                 <button onClick={handleContactUs}>
-                  <img src={menu.ContactUs} />
+                  <img src={menu.ContactUs} alt="Contact Us" />
                   {collaps && "Contact us"}
                 </button>
               </p>
             )}
-            
           </div>
         </div>
       </div>

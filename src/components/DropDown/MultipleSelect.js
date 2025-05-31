@@ -13,13 +13,20 @@ const MultipleSelect = ({
   disabled,
 }) => {
   const selectStyles = {
-    control: (provided) => ({
-      ...provided,
-      // height: height ? height : "45px",
-      textTransform: "capitalize",
-      backgroundColor: "#FFFF",
-      borderRadius: "4px",
-    }),
+ control: (provided) => ({
+  ...provided,
+  borderRadius: "4px",
+  border: "1px solid #ced4da",
+  padding: "4px 8px",
+  minHeight: height ? height : "45px",
+  backgroundColor: "#fff",
+  textTransform: "capitalize",
+  boxShadow: "none", // removes blue shadow on focus
+  "&:hover": {
+    borderColor: "#b3b3b3",
+  },
+}),
+
     placeholder: (provided) => ({
       ...provided,
       textAlign: "left",

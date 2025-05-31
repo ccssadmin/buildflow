@@ -11,10 +11,11 @@ import riskReducer from "./slice/Ceo/riskSlice";
 import roleReducer from "./slice/hr/designationslice"
 import employeeReducer from "./slice/hr/createemployeeslice";
 import boqReducer from "./slice/Engineer/upsertboqslice";
-import vendorReducer from "./slice/Vendor/getvendorslice";
 import purchaseReducer from "./slice/Purchase/purchaseorderidslice";
 import purchaseOrderReducer from "./slice/vendorflow/po-vendorslice";
-
+import reportReducer from './slice/report/reportslice';
+import vendorReducer from  "./slice/Vendor/getvendorslice";
+import ceoReportReducer from './slice/report/ceoreportslice';
 export const rootReducer = combineReducers({
   auth: authSlice.reducer,
   toast: toastSlice.reducer,
@@ -32,6 +33,6 @@ export const rootReducer = combineReducers({
   vendor: vendorReducer, 
   purchase: purchaseReducer,
   purchaseOrder: purchaseOrderReducer,
-
-
+  report: reportReducer,
+  ceoReport: ceoReportReducer,
 });

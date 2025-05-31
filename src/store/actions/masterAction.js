@@ -745,3 +745,28 @@ export const getBoqItemsAction = createAsyncThunk(
     return response.data;
   }
 );
+
+/** CRETAE REPORT ATTACHMENT */
+export const createReportAttachmentAction = createAsyncThunk(
+  "report/createAttachment",
+  async ({ reportId, files }, { rejectWithValue }) => {
+    try {
+      // ✅ Get token from localStorage (or wherever you store it)
+      const token = localStorage.getItem("accessToken");
+
+      const response = await axios.post(
+        `${BASE_URL}/api/Report/upload-attachments?reportId=${reportId}`,
+        files,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);

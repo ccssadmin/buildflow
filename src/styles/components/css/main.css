@@ -2,6 +2,7 @@
     --primary-color : #FF6F00; 
     --gray-color : #C7C7C7;
     --light-gray : #E8E8E8;
+    --light-gray-1 : #BBBBBB;
     --silver-gray : #C1C1C1;
     --neutral-gray : #8E8E8E;
     --dark-gray-color : #606060;
@@ -15,6 +16,7 @@
     --burnt-orange : #C65600;
     --green : #30A335;
     --bright-royal-blue-1 : #0456D0;
+    --off-white-gray: #EBEBEB;
 }
 * {
     font-family: "DM Sans", sans-serif;
@@ -29,13 +31,16 @@ body .text-primary {
 .text-gray {
     color: var(--gray-color) !important;
 }
+.text-light-gray-1 {
+    color: var(--light-gray-1) !important;
+}
 .text-dark {
     color: var(--text-dark) !important;
 }
 .text-neutral-gray {
     color: var(--neutral-gray) !important;
 }
-.text-dark-gray {
+body .text-dark-gray {
     color: var(--dark-gray-color) !important;
 }
 .text-crimson-red {
@@ -49,6 +54,9 @@ body .text-primary {
 }
 .text-golden-yellow {
     color: var(--golden-yellow) !important;
+}
+.text-off-white-gray {
+    color: var(--off-white-gray) !important;
 }
 /* .text-bright-royal-blue {
     color: var(--bright-royal-blue) !important;
@@ -86,8 +94,14 @@ body .bg-primary {
 .bg-burnt-orange {
     background-color: var(--burnt-orange) !important;
 }
+.bg-off-white-gray {
+    background-color: var(--off-white-gray) !important;
+}
 .cursor-pointer {
     cursor: pointer !important;
+}
+html body .border-0, html body .border-0:focus {
+    border: 0px !important;
 }
 .border-radius-0 {
     border-radius: 0px !important;
@@ -107,6 +121,10 @@ body .bg-primary {
 .border-radius-10 {
     border-radius: 10px !important;
 }
+.border-1-silver-gray {
+    border: 1px solid var(--silver-gray);
+}
+
 .btn.btn-primary {
     width: 140px;
     display: flex;
@@ -122,7 +140,9 @@ body .bg-primary {
     justify-content: center;
 }
 
-
+.cursor-not-allowed{
+    cursor: not-allowed;
+}
 
 .title-1 {
     font-size: 26px;
@@ -216,6 +236,18 @@ body .bg-primary {
 .h44px {
     height: 44px !important;
 }
+.h48px {
+    height: 48px !important;
+}
+.h148px {
+    height: 148px;
+}
+.minh48px {
+    min-height: 48px;
+}
+.minh52px {
+    min-height: 52px;
+}
 .h50px {
     height: 50px;
 }
@@ -226,6 +258,27 @@ body .bg-primary {
 .h24-w24 {
     height: 24px;
     width: 24px;
+}
+.w48 {
+    width: 48px;
+}
+.w140 {
+    width: 140px;
+}
+.w180 {
+    width: 180px;
+}
+.w280 {
+    width: 280px;
+}
+.w240 {
+    width: 240px !important;
+}
+.w220 {
+    width: 220px !important;
+}
+.w200 {
+    width: 200px;
 }
 .scrollbar-none::-webkit-scrollbar {
     width: 0px;
@@ -254,6 +307,10 @@ main .right-container {
     position: fixed;
     height: calc(100vh - 113px);
     right: 0px;
+}
+main .left-container.w-100 {
+    width: 100%;
+    max-width: 100%;
 }
 main .right-container::-webkit-scrollbar {
     width: 0px;
@@ -360,6 +417,7 @@ h5.sidenav-content__headings-lists--title {
     width: 220px;
     min-width: 220px;
     justify-content: flex-start;
+    padding-bottom: 100px;
 }
 
 .layout-large-sidenav-container.layout-container {
@@ -394,10 +452,56 @@ h5.sidenav-content__headings-lists--title {
     border: unset;
     border-radius: unset;
 }
+.approve-reject.same {
+    display: none !important;
+}
+.approve-reject.not-same {
+    display: block;
+}
+.moveto-dropdown {
+    display: none;
+}
+.moveto-dropdown.vendor-moveto {
+    display: block;
+}
+.moveto-dropdown.emp-moveto {
+    display: block;
+}
+.moveto-dropdown.ispprovedfalse {
+    display: none;
+}
+.moveto-dropdown.emp-moveto.ispprovedtrue {
+    display: block;
+}
 
 
+.ticket-comment {
+    border-bottom: 1px solid var(--gray-color);
+    padding-bottom: 12px;
+}
+.ticket-comment-main .ticket-comment:last-child {
+    border-bottom: none;
+}
 
-
+.form-check-input {
+    cursor: pointer;
+}
+.form-check-input {
+    background-color: #DDDDDD;
+    border-color: #DDDDDD;
+    border-radius: 1px;
+    width: 24px;
+    height: 24px;
+}
+.form-check-input:checked {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+}
+body .form-check-input:focus {
+    border-color: #ff6f0047 !important;
+    outline: 0 !important;
+    box-shadow: 0 0 0 0.25rem #ff6f0047;
+}
 @media (max-width: 1440px) {
     
     main .left-container {

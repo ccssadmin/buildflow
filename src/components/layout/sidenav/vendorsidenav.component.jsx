@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import * as menu from "../../../assets/images";
 import useAuth from "../../../hooks/useAuth";
 import PopupModal from "../../common/PopupModal";
@@ -14,6 +14,7 @@ const VendorsideNav = ({ onChange }) => {
   const [collaps, setCollaps] = useState(false);
   const [{ data: auth }] = useAuth();
   const [contactUsForm, setContactUsForm] = useState(false);
+  const location = useLocation();
 
   const expandCollaps = (e) => {
     let showTitle = collaps ? !collaps : true;
@@ -29,6 +30,17 @@ const VendorsideNav = ({ onChange }) => {
     setContactUsForm(false);
   };
 
+  // Check active states for each nav item including sub-routes
+  const isDashboardActive = location.pathname.startsWith("/vendor/dashboard");
+  const isPoActive = 
+    location.pathname.startsWith("/vendor/po") ||
+    location.pathname.startsWith("/vendor/editpo");
+  const isApprovalsActive = 
+    location.pathname.startsWith("/vendor/approvals") ||
+    location.pathname.startsWith("/vendor/ticket");
+  const isChatsActive = location.pathname.startsWith("/vendor/chats");
+  const isSettingsActive = location.pathname.startsWith("/vendor/settings");
+
   return (
     <>
       <div className="sidenav-content">
@@ -38,11 +50,12 @@ const VendorsideNav = ({ onChange }) => {
             <h5
               className="sidenav-content__headings-lists--title"
               title="Dashboard"
+              disabled={auth?.details?.roleName == null ? true : false}
             >
               <NavLink 
                 to="/vendor/dashboard" 
-                className="link-tag"
-                activeClassName="active"
+                className={`link-tag ${isDashboardActive ? "active" : ""}`}
+                isActive={(match, location) => location.pathname.startsWith('/vendor/dashboard')}
               >
                 <img src={IconDashboard} alt={"Dashboard"} />
                 <span>Dashboard</span>
@@ -54,11 +67,15 @@ const VendorsideNav = ({ onChange }) => {
             <h5
               className="sidenav-content__headings-lists--title"
               title="POs"
+              disabled={auth?.details?.roleName == null ? true : false}
             >
               <NavLink 
                 to="/vendor/po" 
-                className="link-tag"
-                activeClassName="active"
+                className={`link-tag ${isPoActive ? "active" : ""}`}
+                isActive={(match, location) => 
+                  location.pathname.startsWith('/vendor/po') ||
+                  location.pathname.startsWith('/vendor/editpo')
+                }
               >
                 <img src={IconChat} alt={"POs"} className="d-block" />
                 <span>POs</span>
@@ -70,11 +87,15 @@ const VendorsideNav = ({ onChange }) => {
             <h5
               className="sidenav-content__headings-lists--title"
               title="Approvals"
+              disabled={auth?.details?.roleName == null ? true : false}
             >
               <NavLink 
                 to="/vendor/approvals" 
-                className="link-tag"
-                activeClassName="active"
+                className={`link-tag ${isApprovalsActive ? "active" : ""}`}
+                isActive={(match, location) => 
+                  location.pathname.startsWith('/vendor/approvals') ||
+                  location.pathname.startsWith('/vendor/ticket')
+                }
               >
                 <img src={IconApprovals} alt={"Approvals"} />
                 <span>Approvals</span>
@@ -86,11 +107,12 @@ const VendorsideNav = ({ onChange }) => {
             <h5
               className="sidenav-content__headings-lists--title"
               title="Chat"
+              disabled={auth?.details?.roleName == null ? true : false}
             >
               <NavLink 
                 to="/vendor/chats" 
-                className="link-tag"
-                activeClassName="active"
+                className={`link-tag ${isChatsActive ? "active" : ""}`}
+                isActive={(match, location) => location.pathname.startsWith('/vendor/chats')}
               >
                 <img src={IconProjects} alt={"Chat"} className="d-block" />
                 <span>Chat</span>
@@ -102,11 +124,12 @@ const VendorsideNav = ({ onChange }) => {
             <h5
               className="sidenav-content__headings-lists--title"
               title="Settings"
+              disabled={auth?.details?.roleName == null ? true : false}
             >
               <NavLink 
                 to="/vendor/settings" 
-                className="link-tag"
-                activeClassName="active"
+                className={`link-tag ${isSettingsActive ? "active" : ""}`}
+                isActive={(match, location) => location.pathname.startsWith('/vendor/settings')}
               >
                 <img src={IconSettings} alt={"Settings"} />
                 <span>Settings</span>
@@ -116,17 +139,19 @@ const VendorsideNav = ({ onChange }) => {
           </div>
         </div>
 
-        {/* Contact Us */}
-        {auth?.activeWorkSpace === 3 && (
-          <div className="setting__info">
-            <p className="setting__info-contact" title="Contact Us">
-              <button onClick={handleContactUs}>
-                <img src={menu.ContactUs} alt="Contact Us" />
-                {collaps && "Contact us"}
-              </button>
-            </p>
-          </div>
-        )}
+        <div className={!collaps ? "others__options collaps" : "others__options"}>
+          {/* Contact Us */}
+          {auth?.activeWorkSpace === 3 && (
+            <div className="setting__info">
+              <p className="setting__info-contact" title="Contact Us">
+                <button onClick={handleContactUs}>
+                  <img src={menu.ContactUs} alt="Contact Us" />
+                  {collaps && "Contact us"}
+                </button>
+              </p>
+            </div>
+          )}
+        </div>
       </div>
 
       {contactUsForm && (

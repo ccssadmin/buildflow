@@ -15,7 +15,7 @@ const vendors = [
   { name: "RK Enterprises", category: "Materials, Labor, and Rental Assets", color: "bg-rV-alt" }
 ];
 
-const AqsVendor = () => {
+const PmVendor = () => {
   const [selectedSite, setSelectedSite] = useState("MRM Site");
 
   const sites = ["MRM Site", "Vendor Site", "Customer Site", "Admin Site"];
@@ -54,7 +54,7 @@ const AqsVendor = () => {
 
       <div className="row"
         style={{ cursor: 'pointer' }}
-        onClick={() => navigate('/aqs/aqsvendordetails')}>
+        onClick={() => navigate('/pm/vendordetails')}>
         {vendors.map((vendor, index) => (
           <div key={index} className="col-md-6 mb-3">
             <div className="card p-3 shadow-sm">
@@ -92,4 +92,4 @@ const AqsVendor = () => {
   );
 };
 
-export default AqsVendor;
+export default PmVendor;

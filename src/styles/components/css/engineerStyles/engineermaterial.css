@@ -67,10 +67,8 @@
   border-radius: 3px;
   color: white;
 }
-
-/* Status Styling */
-.status-badge {
-  font-weight: bold;
+.css-1hpgw3h-control {
+    min-height: 52px !important;
 }
 
 /* Responsive Design */

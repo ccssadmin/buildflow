@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Button, Dropdown, Form, Spinner } from "react-bootstrap";
-import { GoAlertFill } from "react-icons/go";
-import { FaUpload, FaCheckCircle } from "react-icons/fa";
+import { Button, Form, Spinner } from "react-bootstrap";
 import Swal from "sweetalert2";
 import { uploadRiskData } from "../../../store/slice/Ceo/riskSlice";
 import { useNavigate } from "react-router-dom";
+import { getProjectDetailsAction } from "../../../store/actions/Ceo/ceoprojectAction";
 
-const RiskComplianceAssessment = ({ formData, handleAddColumn, setFormData }) => {
+const RiskComplianceAssessment = ({ formData, setFormData }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { loading } = useSelector((state) => state.risk);
@@ -19,18 +18,137 @@ const RiskComplianceAssessment = ({ formData, handleAddColumn, setFormData }) =>
   const [localProjectId, setLocalProjectId] = useState(null);
   const [uploadedRisks, setUploadedRisks] = useState({});
 
+  const projectId = localStorage.getItem("projectId");
+
+  // Initial risk data with consistent property names
+  const initialRisks = [
+    {
+      id: 1,
+      riskId: 0,
+      categoryName: "Complete excavation and concrete laying",
+      status: "Pending",
+      projectId: projectId,
+      file: null,
+    },
+    {
+      id: 2,
+      riskId: 0,
+      categoryName: "Environmental Clearance",
+      status: "Pending",
+      projectId: projectId,
+      file: null,
+    },
+    {
+      id: 3,
+      riskId: 0,
+      categoryName: "Labor Safety Measures",
+      status: "Pending",
+      projectId: projectId,
+      file: null,
+    },
+    {
+      id: 4,
+      riskId: 0,
+      categoryName: "PPE Compliance Checklists",
+      status: "Pending",
+      projectId: projectId,
+      file: null,
+    },
+    {
+      id: 5,
+      riskId: 0,
+      categoryName: "Legal Dispute Files",
+      status: "Pending",
+      projectId: projectId,
+      file: null,
+    },
+  ];
+
+  // Initialize formData.risks with initial data if not already present
+  useEffect(() => {
+    if (!formData.risks || formData.risks.length === 0) {
+      setFormData((prev) => ({
+        ...prev,
+        risks: initialRisks,
+      }));
+    }
+  }, [setFormData]);
+
+  useEffect(() => {
+    if (projectId) {
+      getProjectsData(projectId);
+    }
+  }, [projectId]);
+
+  const getProjectsData = async (projectId) => {
+    try {
+      const result = await dispatch(getProjectDetailsAction(projectId));
+      const riskDetails = result?.payload?.value?.risk_management_data;
+      console.log("Risk Details===>", riskDetails);
+
+      if (Array.isArray(riskDetails) && riskDetails.length > 0) {
+        const risks = riskDetails.map((item, index) => ({
+          id: index + 1,
+          riskId: item.risk_id,
+          categoryName: item.category_name, // Fixed: use consistent property name
+          status: item.risk_status,
+          projectId: projectId,
+          file: item.image_url,
+        }));
+        console.log("Processed risks =>", risks);
+
+        setFormData((prev) => ({
+          ...prev,
+          risks, // Use backend data if available
+        }));
+      } else {
+        // If no backend data, keep initial risks
+        console.warn("No valid risk details found, using initial data.");
+        setFormData((prev) => ({
+          ...prev,
+          risks: prev.risks || initialRisks,
+        }));
+      }
+    } catch (error) {
+      console.error("Failed to fetch project details:", error);
+      // On error, ensure we have initial data
+      setFormData((prev) => ({
+        ...prev,
+        risks: prev.risks || initialRisks,
+      }));
+    }
+  };
+
+  const handleAddRow = () => {
+    const newRisk = {
+      id: formData.risks && formData.risks.length > 0
+        ? Math.max(...formData.risks.map(r => r.id)) + 1
+        : 1,
+      riskId: 0,
+      categoryName: "", // Fixed: use consistent property name
+      status: "",
+      projectId: localProjectId || projectId,
+      file: null,
+    };
+
+    setFormData((prev) => ({
+      ...prev,
+      risks: [...(prev.risks || []), newRisk], // Fixed: handle case when risks is undefined
+    }));
+  };
+
   useEffect(() => {
     if (!isAuthenticated || !token) {
-      localStorage.setItem('redirectAfterLogin', window.location.pathname);
+      localStorage.setItem("redirectAfterLogin", window.location.pathname);
       Swal.fire({
         icon: "warning",
         title: "Authentication Required",
         text: "You need to be logged in to access this feature.",
-        confirmButtonText: "Go to Login"
+        confirmButtonText: "Go to Login",
       }).then((result) => {
         if (result.isConfirmed) {
-          navigate('/login');
-        }
+          navigate("/login");
+        } 
       });
     }
   }, [isAuthenticated, token, navigate]);
@@ -68,13 +186,16 @@ const RiskComplianceAssessment = ({ formData, handleAddColumn, setFormData }) =>
         return risk;
       });
       setFormData((prev) => ({ ...prev, risks: updatedRisks }));
-      setUploadingForId(null);
+      
+      // Find the updated risk and upload it
       const risk = updatedRisks.find((r) => r.id === riskId);
-      await handleUpload(risk);
+      if (risk) {
+        await handleUpload(risk);
+      }
     }
   };
 
-  const handleStatusChange = async (riskId, newStatus) => {
+  const handleStatusChange = (riskId, newStatus) => {
     const updatedRisks = formData.risks.map((risk) => {
       if (risk.id === riskId) {
         return { ...risk, status: newStatus };
@@ -82,30 +203,43 @@ const RiskComplianceAssessment = ({ formData, handleAddColumn, setFormData }) =>
       return risk;
     });
     setFormData((prev) => ({ ...prev, risks: updatedRisks }));
+  };
 
-   
+  // Fixed: handleCategoryChange function
+  const handleCategoryChange = (riskId, newCategory) => {
+    const updatedRisks = formData.risks.map((risk) => {
+      if (risk.id === riskId) {
+        return { ...risk, categoryName: newCategory }; // Fixed: use consistent property name
+      }
+      return risk;
+    });
+    setFormData((prev) => ({ ...prev, risks: updatedRisks }));
   };
 
   const handleUpload = async (risk) => {
     if (!isAuthenticated || !token) {
-      localStorage.setItem('redirectAfterLogin', window.location.pathname);
+      localStorage.setItem("redirectAfterLogin", window.location.pathname);
       Swal.fire({
         icon: "error",
         title: "Authentication Required",
         text: "Please log in first.",
-        confirmButtonText: "Go to Login"
+        confirmButtonText: "Go to Login",
       }).then((result) => {
         if (result.isConfirmed) {
-          navigate('/login');
+          navigate("/login");
         }
       });
       return;
     }
 
-    if (!risk.category?.trim()) {
-      Swal.fire({ icon: "warning", title: "Category Name is required." });
-      return;
-    }
+    // Fixed: use consistent property name
+    const categoryName = risk.categoryName;
+
+    // Uncomment if category validation is needed
+    // if (!categoryName?.trim()) {
+    //   Swal.fire({ icon: "warning", title: "Category Name is required." });
+    //   return;
+    // }
 
     if (!risk.status?.trim()) {
       Swal.fire({ icon: "warning", title: "Status is required." });
@@ -123,119 +257,147 @@ const RiskComplianceAssessment = ({ formData, handleAddColumn, setFormData }) =>
     }
 
     try {
+      setUploadingForId(risk.id);
+      
       Swal.fire({
-        title: 'Uploading...',
-        text: `Uploading ${risk.category} file`,
+        title: "Uploading...",
+        text: `Uploading ${risk.categoryName} file`,
         allowOutsideClick: false,
-        didOpen: () => Swal.showLoading()
+        didOpen: () => Swal.showLoading(),
       });
-  
-      // Add more explicit validation and logging here
-      console.log("Before Upload - Risk Data:", {
-        id: risk.id,
-        category: risk.category,
-        status: risk.status,
-        file: risk.file ? {name: risk.file.name, size: risk.file.size, type: risk.file.type} : null,
-        projectId: localProjectId
-      });
-  
-      // Validate file
+
       if (!risk.file || !(risk.file instanceof File) || risk.file.size === 0) {
         Swal.close();
-        Swal.fire({ icon: "warning", title: "Invalid file. Please select a valid file." });
+        Swal.fire({
+          icon: "warning",
+          title: "Invalid file. Please select a valid file.",
+        });
+        setUploadingForId(null);
         return;
       }
-  
-      // Create payload with explicit typing
+
+      // Fixed: use consistent property name
       const riskData = {
-        riskId: risk.dbId || 0,
-        category: String(risk.category).trim(),
+        riskId: risk.riskId || 0,
+        category: String(risk.categoryName || "").trim(),
         status: String(risk.status).trim(),
         projectId: parseInt(localProjectId),
         file: risk.file,
-        id: risk.id
       };
-  
-      console.log("Final payload being sent to dispatch:", riskData);
-  
+
       const resultAction = await dispatch(uploadRiskData(riskData));
-      Swal.close();
-  
-      // Rest of the function...
+      
+      if (resultAction.type.endsWith('/fulfilled')) {
+        Swal.close();
+        Swal.fire({
+          icon: "success",
+          title: "Upload Successful",
+          text: `${risk.categoryName} file uploaded successfully!`,
+          timer: 2000,
+          showConfirmButton: false,
+        });
+        
+        // Mark this risk as uploaded
+        setUploadedRisks(prev => ({
+          ...prev,
+          [risk.id]: true
+        }));
+      } else {
+        throw new Error(resultAction.payload || 'Upload failed');
+      }
+      
     } catch (error) {
-      // Error handling...
+      console.error("Upload failed:", error);
+      Swal.close();
+      Swal.fire({ 
+        icon: "error", 
+        title: "Upload Failed",
+        text: error.message || "An error occurred during upload."
+      });
+    } finally {
+      setUploadingForId(null);
     }
   };
 
   return (
-    <div className="form-section">
+    <div className="form-section risk-container">
       <h2 className="section-title">Risk & Compliance Assessment</h2>
       <table className="tbl mt-4 w-100 table table-bordered">
         <thead>
           <tr>
-            <th>S. No</th>
-            <th>Category</th>
-            <th>Status</th>
-            <th>File</th>
-            {/* <th>Upload</th> */}
+            <th className="text-center text-dark fs-18-500">S. No</th>
+            <th className="text-center text-dark fs-18-500">Category</th>
+            <th className="text-center text-dark fs-18-500">Status</th>
+            <th className="text-center text-dark fs-18-500 w280">File</th>
           </tr>
         </thead>
         <tbody>
-          {formData.risks.map((risk) => (
+          {(formData.risks || []).map((risk, index) => (
             <tr key={risk.id}>
-              <td>{String(risk.id).padStart(2, "0")}</td>
-              <td>{risk.category}</td>
-              <td>
-                <Dropdown>
-                  <Dropdown.Toggle variant="light" id={`dropdown-${risk.id}`}>
-                    {risk.status}
-                  </Dropdown.Toggle>
-                  <Dropdown.Menu>
-                    <Dropdown.Item onClick={() => handleStatusChange(risk.id, "Completed")}>Completed</Dropdown.Item>
-                    <Dropdown.Item onClick={() => handleStatusChange(risk.id, "Pending")}>Pending</Dropdown.Item>
-                  </Dropdown.Menu>
-                </Dropdown>
+              <td className="text-center text-dark-gray fs-16-400">
+                {index + 1}
               </td>
-              <td>
-                {uploadingForId === risk.id ? (
-                  <Form.Control
-                    type="file"
-                    onChange={(e) => handleFileChange(risk.id, e)}
-                    size="sm"
-                    autoFocus
-                  />
-                ) : (
-                  <Button variant="link" onClick={() => setUploadingForId(risk.id)}>
-                    {risk.file ? risk.file.name : "Upload"}
-                  </Button>
-                )}
+              <td className="text-center text-dark-gray fs-16-500">
+                <Form.Control
+                  type="text"
+                  value={risk.categoryName || ""} // Fixed: use consistent property name
+                  onChange={(e) => handleCategoryChange(risk.id, e.target.value)}
+                  size="sm"
+                  placeholder="Enter category name"
+                />
               </td>
-              {/* <td>
-                {uploadedRisks[risk.id] ? (
-                  <Button variant="success" disabled className="btn-sm">
-                    <FaCheckCircle /> Done
-                  </Button>
-                ) : (
-                  <Button
-                    variant="primary"
-                    className="btn-sm"
-                    disabled={loading === risk.id || !risk.file}
-                    onClick={() => handleUpload(risk)}
-                  >
-                    {loading === risk.id ? (
-                      <><Spinner size="sm" animation="border" /> Uploading...</>
-                    ) : (
-                      <><FaUpload /> Upload</>
-                    )}
-                  </Button>
-                )}
-              </td> */}
+              <td className="text-center text-dark-gray fs-16-500 w180">
+                <Form.Select
+                  value={risk.status || ""}
+                  onChange={(e) => handleStatusChange(risk.id, e.target.value)}
+                  size="sm"
+                >
+                  <option value="">Select Status</option>
+                  <option value="Completed">✅ Completed</option>
+                  <option value="Pending">⚠ Pending</option>
+                </Form.Select>
+              </td>
+              <td className="text-center w280">
+                <input
+                  type="file"
+                  id={`file-input-${risk.id}`}
+                  style={{ display: "none" }}
+                  onChange={(e) => handleFileChange(risk.id, e)}
+                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                />
+                <Button
+                  variant="link"
+                  onClick={() => {
+                    document.getElementById(`file-input-${risk.id}`).click();
+                  }}
+                  disabled={uploadingForId === risk.id}
+                >
+                  {uploadingForId === risk.id ? (
+                    <>
+                      <Spinner size="sm" className="me-2" />
+                      Uploading...
+                    </>
+                  ) : (
+                    <>
+                      {risk.file instanceof File
+                        ? risk.file.name
+                        : typeof risk.file === "string"
+                        ? risk.file.split("/").pop()
+                        : "Choose File"}
+                      {uploadedRisks[risk.id] && " ✅"}
+                    </>
+                  )}
+                </Button>
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
-      <div className="add-column">
-        <Button className="text-primary bg-transparent border-0" onClick={handleAddColumn}>
+      <div className="text-end mt-3">
+        <Button
+          className="text-primary bg-transparent border-0 fs-16-500 me-0 ms-auto"
+          onClick={handleAddRow}
+        >
           + Add Row
         </Button>
       </div>

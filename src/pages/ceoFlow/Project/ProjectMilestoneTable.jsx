@@ -1,16 +1,6 @@
 import React from "react";
 import * as XLSX from "xlsx";
 
-// const milestones = [
-//   { name: "Foundation Work", description: "Complete excavation and concrete laying", dueDate: "30 Sep 2022", completion: 100 },
-//   { name: "Structural Framing", description: "Assemble steel and structural framing", dueDate: "15 Dec 2022", completion: 65 },
-//   { name: "Roofing Installation", description: "Complete installation of roofing system", dueDate: "14 May 2023", completion: 0 },
-//   { name: "Exterior Walls", description: "Brickwork, plastering, and painting", dueDate: "30 Oct 2023", completion: 0 },
-//   { name: "Plumbing & Electrical Work", description: "Install pipes, wiring, and fixtures", dueDate: "15 Jan 2024", completion: 0 },
-//   { name: "Interior Design & Finishing", description: "Install doors, windows & interiors", dueDate: "30 Dec 2024", completion: 0 },
-//   { name: "Final Inspection & Handover", description: "Quality check and handover to client", dueDate: "05 May 2025", completion: 0 },
-// ];
-
 // Function to determine status based on completion percentage
 const getStatus = (completion) => {
   if (completion === 100) return "Completed";

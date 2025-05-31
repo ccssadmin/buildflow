@@ -1,29 +1,86 @@
-import { ChevronRight } from "lucide-react";
-import React from "react";
-import { Link, useLocation } from "react-router-dom";
-import pdfImage from "../../../assets/images/pdf.png"; //
-import excelImage from "../../../assets/images/xlsx.jpg"; // Excel preview
+import { Link, useParams } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import fileattach_xlsx from '../../../assets/images/attached-xlsx.png'
+import fileattach_pdf from '../../../assets/images/attached-pdf.png'
+import fileattach_other from '../../../assets/images/attached-pdf.png'
+import { getReportAttachmentsById, getReportById } from '../../../store/actions/report/reportcreateaction';
+const BASE_URL = process.env.REACT_APP_MASTER_API_BASE_URL;
+const ReportViewScreen = ({}) => {
+  const { reportId } = useParams(); // get the reportId from the URL
+  const dispatch = useDispatch();
 
-const CeoReportView = () => {
-  const defaultFiles = [
-    {
-      name: "Requirement Material.xlsx",
-      type: "excel",
-      status: "valid", // Green tick
-    },
-    {
-      name: "Bill.pdf",
-      type: "pdf",
-      status: "invalid", // Red tick
-    },
-  ];
-  const location = useLocation(); // Get current page route
+  const { reportDetails, attachments, loading, error } = useSelector(
+    (state) => state.report
+  );
+
+  useEffect(() => {
+    if (reportId) {
+      dispatch(getReportById(reportId));
+      dispatch(getReportAttachmentsById(reportId));
+    }
+  }, [reportId, dispatch]);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div className="text-danger">{error}</div>;
+
+  if (!reportDetails) return null;
+
+  // Destructure data from API response
+
+  const {
+    reportCode,
+    reportTypeName,
+    projectName,
+    reportDate,
+    reportedBy,
+    reportData = {},
+  } = reportDetails;
+
+  const {
+    dailyProgressSummary = [],
+    materialUsageReport = [],
+    safetyComplianceReport = [],
+    issueRiskReport = [],
+  } = reportData;
+  // Extracts initials from the name
+  const getInitials = (name) => {
+    if (!name) return "";
+    const parts = name.trim().split(" ");
+    const first = parts[0]?.charAt(0).toUpperCase() || "";
+    const second = parts[1]?.charAt(0).toUpperCase() || "";
+    return first + second;
+  };
+
+  // Generates a random color
+  const getRandomColor = () => {
+    const colors = [
+      "#FF5733",
+      "#33B5E5",
+      "#8E44AD",
+      "#16A085",
+      "#E67E22",
+      "#2ECC71",
+      "#3498DB",
+      "#F39C12",
+      "#1ABC9C",
+      "#E74C3C",
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
+  };
+
   return (
-    <div className="page-ceo-finance document-container  p-0">
-      <div class="border-0 breadcrumb-container pe-4 ps-4 pt-3 pb-2 d-flex align-items-center">
-        <Link to="/ceo/reports" class="breadcrumb-item text-decoration-none fs-16-500 text-dark-gray">Report</Link>
+    <div className="report-container">
+      <div className="border-0 breadcrumb-container pt-1 pb-4 d-flex align-items-center">
+        <Link
+          to="/ceo/reports"
+          className="text-decoration-none breadcrumb-item fs-16-500 text-dark-gray"
+          style={{ cursor: "pointer" }}
+        >
+          Report
+        </Link>
         <svg
-          class="mx-2"
+          className="mx-2"
           width="16"
           height="16"
           viewBox="0 0 16 16"
@@ -32,179 +89,234 @@ const CeoReportView = () => {
         >
           <path d="M6 4.5L9.5 8L6 11.5" stroke="#606060"></path>
         </svg>
-        <span class="breadcrumb-item fs-16-50 0 text-primary">
-        Open
-        </span>
+        <span className="breadcrumb-item fs-16-500 text-primary">Open</span>
       </div>
+      <div className="row">
+        <div className="col-sm-12 col-md-6 col-lg-4">
+          <label className="text-dark fs-20-500 d-block mb-2">Report ID</label>
+          <input className="h48px border-radius-4 mb-4 w-100 cursor-not-allowed py-1 px-3 fs-16-500 bg-light text-light-gray-1 border-1-silver-gray" disabled type="text" value={reportCode} readOnly></input>
+        </div>
+        <div className="col-sm-12 col-md-6 col-lg-4">
+          <label className="text-dark fs-20-500 d-block mb-2">Report Type</label>
+          <input
+            className="h48px border-radius-4 mb-4 w-100 cursor-not-allowed py-1 px-3 fs-16-500 bg-light text-dark border-1-silver-gray" disabled type="text" value={reportTypeName} readOnly></input>
+        </div>
+        <div className="col-sm-12 col-md-6 col-lg-4">
+          <label className="text-dark fs-20-500 d-block mb-2">Project</label>
+          <input className="h48px border-radius-4 mb-4 w-100 cursor-not-allowed py-1 px-3 fs-16-500 bg-light text-dark border-1-silver-gray" disabled type="text" value={projectName} readOnly ></input>
+        </div>
+        <div className="col-sm-12 col-md-6 col-lg-4">
+          <label className="text-dark fs-20-500 d-block mb-2">Date & Time</label>
+          <input className="h48px border-radius-4 mb-4 w-100 cursor-not-allowed py-1 px-3 fs-16-500 bg-light text-light-gray-1 border-1-silver-gray" disabled type="text" value={new Date(reportDate).toLocaleDateString()} readOnly></input>
+        </div>
+        <div className="col-sm-12 col-md-6 col-lg-4">
+          <label className="text-dark fs-20-500 d-block mb-2">Reported By</label>
+          <div className="d-flex align-items-center gap-2 mb-4 position-relative">
+            {/* Avatar with initials */}
+            <div
+              className="rounded-circle text-white d-flex align-items-center justify-content-center"
+              style={{
+                width: "36px",
+                height: "36px",
+                fontSize: "16px",
+                flexShrink: 0,
+                backgroundColor: getRandomColor(), // random color
+                position: "absolute",
+                left: "10px"    
+              }}
+            >
+              {getInitials(reportedBy)}
+            </div>
 
-      <div className="document-card">
-        {/* Report Header */}
-        <div className="document-header">
-          <div className="document-field">
-            <p className="document-label">Report ID</p>
-            <p className="document-value"> Daily Report - DPR2025-00152</p>
-          </div>
-          <div className="document-field">
-            <p className="document-label">
-              Report Type <span className="text-red-500">*</span>
-            </p>
-            <select className="document-dropdown">
-              <option>Daily Report</option>
-              <option>Weekly Report</option>
-              <option>Monthly Report</option>
-            </select>
-          </div>
-
-          <div className="document-field">
-            <p className="document-label">
-              Project <span className="text-red-500">*</span>
-            </p>
-            <select className="document-dropdown">
-              <option>BOQ TITLE</option>
-              <option>Project A</option>
-              <option>Project B</option>
-            </select>
-          </div>
-
-          <div className="document-field">
-            <p className="document-label">Date & Time</p>
-            <p className="document-value">15-03-2025 • 06:04 pm</p>
-          </div>
-          <div className="document-reporter">
-            <p className="document-label">Reported By</p>
-            <p className="document-value document-user">
-              <img
-                src="https://via.placeholder.com/30"
-                className="document-avatar"
-              />
-              Marvin McKinney
-            </p>
+            {/* Disabled input with name */}
+            <input
+              className="h48px border-radius-4 w-100 cursor-not-allowed py-1 fs-16-500 bg-light text-dark border-1-silver-gray"
+              disabled
+              type="text"
+              value={reportedBy}
+              readOnly
+              style={{ paddingLeft: "60px" }}
+            />
           </div>
         </div>
 
-        {/* Sections */}
-        {[
-          {
-            title: "Daily Progress Summary",
-            headers: ["S.No", "Work Activities", "Status", "Action"],
-            rows: [
-              [
-                "01",
-                "Steel Reinforcement",
-                "80% Completed",
-                <Link to="/documentview" className="document-link">
-                  View
-                </Link>,
-              ],
-              ["02", "Concrete Pouring", "Delayed (Weather Issue)", ""],
-            ],
-          },
-          {
-            title: "Material Usage Report",
-            headers: ["S.No", "Materials", "Stock", "Level"],
-            rows: [
-              [
-                "01",
-                "Cement",
-                "200 Bags",
-                <select className="stock-dropdown">
-                  <option value="low" className="low-stock">
-                    Low Stock
-                  </option>
-                  <option value="sufficient" className="sufficient">
-                    Sufficient
-                  </option>
-                  <option value="high" className="high-stock">
-                    High Stock
-                  </option>
-                </select>,
-              ],
-              [
-                "02",
-                "Steel Rods",
-                "2 Tons",
-                <select className="stock-dropdown">
-                  <option value="sufficient" className="sufficient">
-                    Sufficient
-                  </option>
-                  <option value="low" className="low-stock">
-                    Low Stock
-                  </option>
-                  <option value="high" className="high-stock">
-                    High Stock
-                  </option>
-                </select>,
-              ],
-            ],
-          },
-          {
-            title: "Safety & Compliance Report",
-            headers: ["S.No", "Safety & Compliance", "Report"],
-            rows: [
-              ["01", "PPE Compliance", "Helmet – 90% | Gloves – 80%"],
-              ["02", "Safety Incident", "Slip & Fall – First Aid"],
-              ["03", "Inspection", "Passed Scaffolding Safety"],
-            ],
-          },
-          {
-            title: "Issue & Risk Report",
-            headers: ["S.No", "Issue & Risk", "Impact"],
-            rows: [
-              [
-                "01",
-                "Material Delay",
-                <span className="high-impact">High</span>,
-              ],
-            ],
-          },
-        ].map((section, index) => (
-          <div key={index} className="document-section">
-            <h2 className="document-title">{section.title}</h2>
-            <table className="document-table">
+      </div>
+
+      <div className="row mb-4">
+        <div className="col-lg-12">
+          <h3 className="fs-26-700 text-dark mb-4 mt-4">Daily Progress Summary</h3>
+          <div className="table-responsive">
+            <table className="tbl w-100">
               <thead>
                 <tr>
-                  {section.headers.map((header, i) => (
-                    <th key={i} className="document-th">
-                      {header}
-                    </th>
-                  ))}
+                  <th className="w48 fs-16-500 text-center text-dark">S.No</th>
+                  <th className="fs-16-500 text-center text-dark">
+                    Work Activities
+                  </th>
+                  <th className="fs-16-500 text-center text-dark">Status</th>
+                  <th className="fs-16-500 text-center text-dark">Action</th>
                 </tr>
               </thead>
               <tbody>
-                {section.rows.map((row, i) => (
-                  <tr key={i} className="document-tr">
-                    {row.map((cell, j) => (
-                      <td key={j} className="document-td">
-                        {cell}
-                      </td>
-                    ))}
+                {dailyProgressSummary.map((item) => (
+                  <tr key={item.serialNo}>
+                    <td className="w48 fs-16-500 text-center text-dark">
+                      {item.serialNo}
+                    </td>
+                    <td className="fs-16-500 text-center text-dark">
+                      {item.workActivity}
+                    </td>
+                    <td className="fs-16-500 text-center text-dark">
+                      {item.status}
+                    </td>
+                    <td className="fs-16-500 text-center text-dark">
+                      {item.filePath ? (
+                        <Link to={`${BASE_URL}${item.filePath}`} target='_blank'>View</Link>
+                      ) : (
+                        'Not Available'
+                      )}
+                    </td>
+
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-        ))}
+        </div>
+      </div>
+      <div className="row mb-4">
+        <div className="col-lg-12">
+          <h3 className="fs-26-700 text-dark mb-4 mt-4">Material Usage Report</h3>
+          <div className="table-responsive">
+            <table className="tbl w-100">
+              <thead>
+                <tr>
+                  <th className="w48 fs-16-500 text-center text-dark">S.No</th>
+                  <th className="fs-16-500 text-center text-dark">Materials</th>
+                  <th className="fs-16-500 text-center text-dark">Stock</th>
+                  <th className="fs-16-500 text-center text-dark">Level</th>
+                </tr>
+              </thead>
+              <tbody>
+                {materialUsageReport.map((item) => (
+                  <tr key={item.serialNo}>
+                    <td className="w48 fs-16-500 text-center text-dark">
+                      {item.serialNo}
+                    </td>
+                    <td className="fs-16-500 text-center text-dark">
+                      {item.material}
+                    </td>
+                    <td className="fs-16-500 text-center text-dark">
+                      {item.stock}
+                    </td>
+                    <td className="fs-16-500 text-center text-dark">
+                      {item.level}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div className="row mb-4">
+        <div className="col-lg-12">
+          <h3 className="fs-26-700 text-dark mb-4 mt-4">Safety & Compliance Report</h3>
+          <div className="table-responsive">
+            <table className="tbl w-100">
+              <thead>
+                <tr>
+                  <th className="w48 fs-16-500 text-center text-dark">S.No</th>
+                  <th className="fs-16-500 text-center text-dark">Item</th>
+                  <th className="fs-16-500 text-center text-dark">Report</th>
+                </tr>
+              </thead>
+              <tbody>
+                {safetyComplianceReport.map((item) => (
+                  <tr key={item.serialNo}>
+                    <td className="w48 fs-16-500 text-center text-dark">
+                      {item.serialNo}
+                    </td>
+                    <td className="fs-16-500 text-center text-dark">
+                      {item.item}
+                    </td>
+                    <td className="fs-16-500 text-center text-dark">
+                      {item.report}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div className="row mb-4">
+        <div className="col-lg-12">
+          <h3 className="fs-26-700 text-dark mb-4 mt-4">Issue & Risk Report</h3>
+          <div className="table-responsive">
+            <table className="tbl w-100">
+              <thead>
+                <tr>
+                  <th className="w48 fs-16-500 text-center text-dark">S.No</th>
+                  <th className="fs-16-500 text-center text-dark">Issue</th>
+                  <th className="fs-16-500 text-center text-dark">Impact</th>
+                </tr>
+              </thead>
+              <tbody>
+                {issueRiskReport.map((item) => (
+                  <tr key={item.serialNo}>
+                    <td className="w48 fs-16-500 text-center text-dark">
+                      {item.serialNo}
+                    </td>
+                    <td className="fs-16-500 text-center text-dark">
+                      {item.issue}
+                    </td>
+                    <td className="fs-16-500 text-center text-dark">
+                      {item.impact}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
 
-      <div className="file-attachment">
-        <h3 className="file-title">Attached File</h3>
-        <div className="file-list">
-          {defaultFiles.map((file, index) => (
-            <div key={index} className="file-item">
-              <a href="https://example.com/path-to-file.pdf" download>
-                <img
-                  src={file.type === "excel" ? excelImage : pdfImage}
-                  alt="File Preview"
-                  className="file-preview"
-                />{" "}
-              </a>
-            </div>
-          ))}
+      <div className="row mb-4">
+        <div className="col-lg-12">
+          <h3 className="fs-26-700 text-dark mb-4 mt-4">Attached File</h3>
+          <div className="attached-files">
+            {loading && <p>Loading attachments...</p>}
+            {error && <p style={{ color: "red" }}>{error}</p>}
+            {!loading && attachments?.length > 0 ? (
+              <ul className="list-unstyled flex-wrap">
+                {attachments.map((file) => (
+                  <li key={file.attachmentId} className="my-2">
+  <a
+    href={`${BASE_URL}/${file.filePath.replace(/\\/g, "/")}`}
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    {file.filePath.endsWith(".pdf") ? (
+      <img className='h148px' src={fileattach_pdf} alt="PDF file" />
+    ) : file.filePath.endsWith(".xlsx") || file.filePath.endsWith(".xls") ? (
+      <img className='h148px' src={fileattach_xlsx} alt="Excel file" />
+    ) : (
+      <img className='h148px' src={fileattach_other} alt="Other file" />
+    )}
+  </a>
+</li>
+
+                ))}
+              </ul>
+            ) : (
+              !loading && <p>No attachments found.</p>
+            )}
+          </div>
         </div>
-        <button className="file-button">Valid</button>
       </div>
     </div>
   );
 };
 
-export default CeoReportView;
+export default ReportViewScreen;

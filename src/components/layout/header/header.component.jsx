@@ -30,7 +30,6 @@ import { updateDefaultWorkspace } from "../../../services";
 import { showToast } from "../../../store/slice/toast";
 import { clearFilterList } from "../../../store/slice/kanban";
 
-
 const Header = ({ onLogout }) => {
   const [
     boardData,
@@ -58,6 +57,21 @@ const Header = ({ onLogout }) => {
   // Get user data from localStorage
   const userData = JSON.parse(localStorage.getItem("userData")) || {};
   const isVendor = localStorage.getItem("userType") === "vendor";
+
+  // Function to get first letter of name
+  const getFirstLetter = (name) => {
+    if (!name) return 'U';
+    return name.charAt(0).toUpperCase();
+  };
+
+  // Get the username based on user type
+  const getUserName = () => {
+    return isVendor 
+      ? userData.vendorName || "Vendor Name"
+      : data.details?.firstName
+        ? data.details?.firstName
+        : "User Name";
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -260,6 +274,83 @@ const Header = ({ onLogout }) => {
 
   return (
     <>
+      {/* Bootstrap CSS for the profile letter avatar */}
+      <style>
+        {`
+          .profile-letter-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #007bff;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            margin-right: 10px;
+          }
+          
+          .profile-letter-avatar-lg {
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+          }
+          
+          .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #f8f9fa;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          }
+          
+          .header-content__options {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+          }
+          
+          .user-info {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+          }
+          
+          .user-info__popup {
+            position: absolute;
+            right: 20px;
+            top: 60px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 15px;
+            width: 250px;
+            z-index: 1000;
+          }
+          
+          .user-info__popup-profile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 15px;
+          }
+          
+          .workspace-list-popup {
+            position: absolute;
+            right: 0;
+            top: 40px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 15px;
+            width: 250px;
+            z-index: 1000;
+          }
+        `}
+      </style>
+      
       <div className="header-content">
         <div className="header-content__headings">
           <div className="header-content__logo-title">
@@ -339,25 +430,15 @@ const Header = ({ onLogout }) => {
 
           <div className="header-user-info" ref={popupRef}>
             <div className="user-info" onClick={handleMenuItem}>
-              {data?.details?.displayName && (
-                <LogoAvatarShowLetter
-                  genaralData={isVendor ? userData : data.details}
-                  profilePhotoName={"photo"}
-                  profileName={isVendor ? "vendorName" : "displayName"}
-                  outerClassName={"user-info__profile-pic"}
-                  innerClassName={"user-icon-photo"}
-                ></LogoAvatarShowLetter>
-              )}
+              <div className="profile-letter-avatar">
+                {getFirstLetter(getUserName())}
+              </div>
               <div
                 className={`user-info__details ${(isVendor ? userData.vendorName : data.details?.firstName) ? (isVendor ? userData.vendorName : data.details?.displayName) : "none"
                   }`}
               >
                 <p className="user-info__details-name" placeholder="User Name">
-                  {isVendor 
-                    ? userData.vendorName || "Vendor Name"
-                    : data.details?.firstName
-                      ? data.details?.firstName
-                      : "User Name"}
+                  {getUserName()}
                 </p>
                 <p className="user-info__details-role" placeholder="Role">
                   {isVendor
@@ -371,29 +452,19 @@ const Header = ({ onLogout }) => {
             {showInfo && (
               <div className="user-info__popup">
                 <div className="user-info__popup-profile">
-                  {data?.details?.displayName && (
-                    <LogoAvatarShowLetter
-                      genaralData={isVendor ? userData : data.details}
-                      profilePhotoName={"photo"}
-                      profileName={isVendor ? "vendorName" : "displayName"}
-                      outerClassName={"user-info__popup-profile-pic"}
-                      innerClassName={"user-icon-photo"}
-                    ></LogoAvatarShowLetter>
-                  )}
+                  <div className="profile-letter-avatar profile-letter-avatar-lg">
+                    {getFirstLetter(getUserName())}
+                  </div>
                   <p
                     className="user-info__popup-profile-name"
                     placeholder="User Name"
                   >
-                    {isVendor
-                      ? userData.vendorName || "Vendor Name"
-                      : data.details?.displayName
-                        ? data.details?.displayName
-                        : "User Name"}
+                    {getUserName()}
                   </p>
                 </div>
                 <div className="user-info__popup-menu" id="show_more_boards">
                   <NavLink
-                    to="/settings"
+                    // to="/settings"
                     className="user-info__popup-menu-settings"
                     onClick={handleReset}
                   >

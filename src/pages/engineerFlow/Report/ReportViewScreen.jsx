@@ -1,195 +1,319 @@
-import React from 'react';
-import { useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import fileattach_xlsx from '../../../assets/images/attached-xlsx.png'
+import fileattach_pdf from '../../../assets/images/attached-pdf.png'
+import fileattach_other from '../../../assets/images/attached-pdf.png'
+import { getReportAttachmentsById, getReportById } from '../../../store/actions/report/reportcreateaction';
+const BASE_URL = process.env.REACT_APP_MASTER_API_BASE_URL;
+const ReportViewScreen = ({}) => {
+  const { reportId } = useParams(); // get the reportId from the URL
+  const dispatch = useDispatch();
 
-const ReportViewScreen = () => {
+  const { reportDetails, attachments, loading, error } = useSelector(
+    (state) => state.report
+  );
 
-  const [selectedStatus, setSelectedStatus] = useState('High');
-  const [selectedStock, setSelectedStock] = useState("LowStock");
+  useEffect(() => {
+    if (reportId) {
+      dispatch(getReportById(reportId));
+      dispatch(getReportAttachmentsById(reportId));
+    }
+  }, [reportId, dispatch]);
 
-  const handleStatusChange = (event) => {
-    setSelectedStatus(event.target.value);
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div className="text-danger">{error}</div>;
+
+  if (!reportDetails) return null;
+
+  // Destructure data from API response
+
+  const {
+    reportCode,
+    reportTypeName,
+    projectName,
+    reportDate,
+    reportedBy,
+    reportData = {},
+  } = reportDetails;
+
+  const {
+    dailyProgressSummary = [],
+    materialUsageReport = [],
+    safetyComplianceReport = [],
+    issueRiskReport = [],
+  } = reportData;
+  // Extracts initials from the name
+  const getInitials = (name) => {
+    if (!name) return "";
+    const parts = name.trim().split(" ");
+    const first = parts[0]?.charAt(0).toUpperCase() || "";
+    const second = parts[1]?.charAt(0).toUpperCase() || "";
+    return first + second;
   };
 
-
-  const handleStockColorChange = (event) => {
-    setSelectedStock(event.target.value);
-  }
-
-  // Define colors for each status
-  const statusColors = {
-    High: 'red',
-    Medium: 'blue',
-    Low: 'green',
+  // Generates a random color
+  const getRandomColor = () => {
+    const colors = [
+      "#FF5733",
+      "#33B5E5",
+      "#8E44AD",
+      "#16A085",
+      "#E67E22",
+      "#2ECC71",
+      "#3498DB",
+      "#F39C12",
+      "#1ABC9C",
+      "#E74C3C",
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
   };
-
-
-  const stockColors = {
-    LowStock : "red",
-    InStock : 'blue',
-    OverStock : 'green'
-    
-  }
-
 
   return (
     <div className="report-container">
-      <div className="header-section">
-        <div className="input-group">
-          <label>Report ID</label>
-          <input type="text" value="DPR2025–00152" readOnly />
-        </div>
-        <div className="input-group">
-          <label>Report Type</label><span className='text-danger'>*</span>
-          <select>
-            <option>Daily Report</option>
-            <option>Weekly Report</option>
-            <option>Monthly Report</option>
-          </select>
-        </div>
-        <div className="input-group">
-          <label>Project</label><span className='text-danger'>*</span>
-          <select>
-            <option>BOQ TITLE</option>
-            <option>Project A</option>
-            <option>Project B</option>
-          </select>
-        </div>
+      <div className="border-0 breadcrumb-container pt-1 pb-4 d-flex align-items-center">
+        <Link
+          to="/admin/engineerreport"
+          className="text-decoration-none breadcrumb-item fs-16-500 text-dark-gray"
+          style={{ cursor: "pointer" }}
+        >
+          Report
+        </Link>
+        <svg
+          className="mx-2"
+          width="16"
+          height="16"
+          viewBox="0 0 16 16"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path d="M6 4.5L9.5 8L6 11.5" stroke="#606060"></path>
+        </svg>
+        <span className="breadcrumb-item fs-16-500 text-primary">Open</span>
       </div>
-
-      <div className="header-section">
-        <div className="input-group">
-          <label>Date & Time</label>
-          <input type="text" value="15–03–2025 • 06:04 pm" readOnly />
+      <div className="row">
+        <div className="col-sm-12 col-md-6 col-lg-4">
+          <label className="text-dark fs-20-500 d-block mb-2">Report ID</label>
+          <input className="h48px border-radius-4 mb-4 w-100 cursor-not-allowed py-1 px-3 fs-16-500 bg-light text-light-gray-1 border-1-silver-gray" disabled type="text" value={reportCode} readOnly></input>
         </div>
-        <div className="input-group">
-          <label>Reported By</label><span className='text-danger'>*</span>
-          <input type="text" value="Marvin McKinney" readOnly />
+        <div className="col-sm-12 col-md-6 col-lg-4">
+          <label className="text-dark fs-20-500 d-block mb-2">Report Type</label>
+          <input
+            className="h48px border-radius-4 mb-4 w-100 cursor-not-allowed py-1 px-3 fs-16-500 bg-light text-dark border-1-silver-gray" disabled type="text" value={reportTypeName} readOnly></input>
         </div>
-      </div>
-
-      <h3>Daily Progress Summary</h3>
-      <table className="styled-table">
-        <thead>
-          <tr>
-            <th>S.No</th>
-            <th>Work Activities</th>
-            <th>Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>01</td>
-            <td>Steel Reinforcement</td>
-            <td>80 % Completed</td>
-            <td><a className= "view">View</a></td>
-          </tr>
-          <tr>
-            <td>02</td>
-            <td>Concrete Pouring</td>
-            <td>Delayed (Weather Issue)</td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h3>Material Usage Report</h3>
-      <table className="styled-table">
-        <thead>
-          <tr>
-            <th>S.No</th>
-            <th>Materials</th>
-            <th>Stock</th>
-            <th>Level</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>01</td>
-            <td>Cement</td>
-            <td>200 Bags</td>
-            <td>
-              <select className="status-dropdown"
-              value={selectedStock}
-              onChange={handleStockColorChange}
-              style={{ color: stockColors[selectedStock] }} 
-              
-              
-              >
-                <option value="LowStock" style={ { color : 'red'}}>Low Stock</option>
-                <option value="InStock" style={ { color : 'blue'}}>In Stock</option>
-                <option value="OverStock" style={ { color : 'green'}}>Over Stock</option>
-              </select>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h3>Safety & Compliance Report</h3>
-      <table className="styled-table">
-        <thead>
-          <tr>
-            <th>S.No</th>
-            <th>Safety & Compliance</th>
-            <th>Report</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>01</td>
-            <td>PPE Compliance</td>
-            <td>Helmet – 90% | Gloves – 80%</td>
-          </tr>
-          <tr>
-            <td>02</td>
-            <td>Safety Incident</td>
-            <td>Slip & Fall – First Aid</td>
-          </tr>
-          <tr>
-            <td>03</td>
-            <td>Inspection</td>
-            <td>Passed Scaffolding Safety</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h3>Issue & Risk Report</h3>
-      <table className="styled-table">
-        <thead>
-          <tr>
-            <th>S.No</th>
-            <th>Issue & Risk</th>
-            <th>Impact</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>01</td>
-            <td>Material Delay</td>
-            
-            <td>
-              
-              <select
-              className=""
-              value={selectedStatus}
-              onChange={handleStatusChange}
-              style={{ color: statusColors[selectedStatus] }} 
+        <div className="col-sm-12 col-md-6 col-lg-4">
+          <label className="text-dark fs-20-500 d-block mb-2">Project</label>
+          <input className="h48px border-radius-4 mb-4 w-100 cursor-not-allowed py-1 px-3 fs-16-500 bg-light text-dark border-1-silver-gray" disabled type="text" value={projectName} readOnly ></input>
+        </div>
+        <div className="col-sm-12 col-md-6 col-lg-4">
+          <label className="text-dark fs-20-500 d-block mb-2">Date & Time</label>
+          <input className="h48px border-radius-4 mb-4 w-100 cursor-not-allowed py-1 px-3 fs-16-500 bg-light text-light-gray-1 border-1-silver-gray" disabled type="text" value={new Date(reportDate).toLocaleDateString()} readOnly></input>
+        </div>
+        <div className="col-sm-12 col-md-6 col-lg-4">
+          <label className="text-dark fs-20-500 d-block mb-2">Reported By</label>
+          <div className="d-flex align-items-center gap-2 mb-4 position-relative">
+            {/* Avatar with initials */}
+            <div
+              className="rounded-circle text-white d-flex align-items-center justify-content-center"
+              style={{
+                width: "36px",
+                height: "36px",
+                fontSize: "16px",
+                flexShrink: 0,
+                backgroundColor: getRandomColor(), // random color
+                position: "absolute",
+                left: "10px"    
+              }}
             >
-              <option value="High" style={{ color: 'red' }}>High</option>
-              <option value="Medium" style={{ color: 'blue' }}>Medium</option>
-              <option value="Low" style={{ color: 'green' }}>Low</option>
-            </select>
-            </td>
-            
-          </tr>
-        </tbody>
-      </table>
+              {getInitials(reportedBy)}
+            </div>
 
-      <h3>Attached File</h3>
-      <div className="attached-files">
-        <label>
-          
-        </label>
+            {/* Disabled input with name */}
+            <input
+              className="h48px border-radius-4 w-100 cursor-not-allowed py-1 fs-16-500 bg-light text-dark border-1-silver-gray"
+              disabled
+              type="text"
+              value={reportedBy}
+              readOnly
+              style={{ paddingLeft: "60px" }}
+            />
+          </div>
+        </div>
+
+      </div>
+
+      <div className="row mb-4">
+        <div className="col-lg-12">
+          <h3 className="fs-26-700 text-dark mb-4 mt-4">Daily Progress Summary</h3>
+          <div className="table-responsive">
+            <table className="tbl w-100">
+              <thead>
+                <tr>
+                  <th className="w48 fs-16-500 text-center text-dark">S.No</th>
+                  <th className="fs-16-500 text-center text-dark">
+                    Work Activities
+                  </th>
+                  <th className="fs-16-500 text-center text-dark">Status</th>
+                  <th className="fs-16-500 text-center text-dark">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {dailyProgressSummary.map((item) => (
+                  <tr key={item.serialNo}>
+                    <td className="w48 fs-16-500 text-center text-dark">
+                      {item.serialNo}
+                    </td>
+                    <td className="fs-16-500 text-center text-dark">
+                      {item.workActivity}
+                    </td>
+                    <td className="fs-16-500 text-center text-dark">
+                      {item.status}
+                    </td>
+                    <td className="fs-16-500 text-center text-dark">
+                      {item.filePath ? (
+                        <Link to={`${BASE_URL}${item.filePath}`} target='_blank'>View</Link>
+                      ) : (
+                        'Not Available'
+                      )}
+                    </td>
+
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div className="row mb-4">
+        <div className="col-lg-12">
+          <h3 className="fs-26-700 text-dark mb-4 mt-4">Material Usage Report</h3>
+          <div className="table-responsive">
+            <table className="tbl w-100">
+              <thead>
+                <tr>
+                  <th className="w48 fs-16-500 text-center text-dark">S.No</th>
+                  <th className="fs-16-500 text-center text-dark">Materials</th>
+                  <th className="fs-16-500 text-center text-dark">Stock</th>
+                  <th className="fs-16-500 text-center text-dark">Level</th>
+                </tr>
+              </thead>
+              <tbody>
+                {materialUsageReport.map((item) => (
+                  <tr key={item.serialNo}>
+                    <td className="w48 fs-16-500 text-center text-dark">
+                      {item.serialNo}
+                    </td>
+                    <td className="fs-16-500 text-center text-dark">
+                      {item.material}
+                    </td>
+                    <td className="fs-16-500 text-center text-dark">
+                      {item.stock}
+                    </td>
+                    <td className="fs-16-500 text-center text-dark">
+                      {item.level}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div className="row mb-4">
+        <div className="col-lg-12">
+          <h3 className="fs-26-700 text-dark mb-4 mt-4">Safety & Compliance Report</h3>
+          <div className="table-responsive">
+            <table className="tbl w-100">
+              <thead>
+                <tr>
+                  <th className="w48 fs-16-500 text-center text-dark">S.No</th>
+                  <th className="fs-16-500 text-center text-dark">Item</th>
+                  <th className="fs-16-500 text-center text-dark">Report</th>
+                </tr>
+              </thead>
+              <tbody>
+                {safetyComplianceReport.map((item) => (
+                  <tr key={item.serialNo}>
+                    <td className="w48 fs-16-500 text-center text-dark">
+                      {item.serialNo}
+                    </td>
+                    <td className="fs-16-500 text-center text-dark">
+                      {item.item}
+                    </td>
+                    <td className="fs-16-500 text-center text-dark">
+                      {item.report}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div className="row mb-4">
+        <div className="col-lg-12">
+          <h3 className="fs-26-700 text-dark mb-4 mt-4">Issue & Risk Report</h3>
+          <div className="table-responsive">
+            <table className="tbl w-100">
+              <thead>
+                <tr>
+                  <th className="w48 fs-16-500 text-center text-dark">S.No</th>
+                  <th className="fs-16-500 text-center text-dark">Issue</th>
+                  <th className="fs-16-500 text-center text-dark">Impact</th>
+                </tr>
+              </thead>
+              <tbody>
+                {issueRiskReport.map((item) => (
+                  <tr key={item.serialNo}>
+                    <td className="w48 fs-16-500 text-center text-dark">
+                      {item.serialNo}
+                    </td>
+                    <td className="fs-16-500 text-center text-dark">
+                      {item.issue}
+                    </td>
+                    <td className="fs-16-500 text-center text-dark">
+                      {item.impact}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div className="row mb-4">
+        <div className="col-lg-12">
+          <h3 className="fs-26-700 text-dark mb-4 mt-4">Attached File</h3>
+          <div className="attached-files">
+            {loading && <p>Loading attachments...</p>}
+            {error && <p style={{ color: "red" }}>{error}</p>}
+            {!loading && attachments?.length > 0 ? (
+              <ul className="list-unstyled">
+                {attachments.map((file) => (
+                  <li key={file.attachmentId}>
+  <a
+    href={`${BASE_URL}/${file.filePath.replace(/\\/g, "/")}`}
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    {file.filePath.endsWith(".pdf") ? (
+      <img className='h148px' src={fileattach_pdf} alt="PDF file" />
+    ) : file.filePath.endsWith(".xlsx") || file.filePath.endsWith(".xls") ? (
+      <img className='h148px' src={fileattach_xlsx} alt="Excel file" />
+    ) : (
+      <img className='h148px' src={fileattach_other} alt="Other file" />
+    )}
+  </a>
+</li>
+
+                ))}
+              </ul>
+            ) : (
+              !loading && <p>No attachments found.</p>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

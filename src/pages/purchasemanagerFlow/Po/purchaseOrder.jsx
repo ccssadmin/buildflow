@@ -360,6 +360,31 @@ export default function POViewPage({ params }) {
 
   console.log("AppovedBy", getApproverName());
 
+
+   const getRandomColor = () => {
+    const colors = [
+      "#FF5733",
+      "#33B5E5",
+      "#8E44AD",
+      "#16A085",
+      "#E67E22",
+      "#2ECC71",
+      "#3498DB",
+      "#F39C12",
+      "#1ABC9C",
+      "#E74C3C",
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
+  };
+
+    const getInitials = (name) => {
+    if (!name) return "";
+    const parts = name.trim().split(" ");
+    const first = parts[0]?.charAt(0).toUpperCase() || "";
+    const second = parts[1]?.charAt(0).toUpperCase() || "";
+    return first + second;
+  };
+
   return (
     <div className="container mt-4 mb-5">
       <h1
@@ -500,6 +525,7 @@ export default function POViewPage({ params }) {
             <label style={{ fontWeight: "500", marginBottom: "8px" }}>
               Vendor Name
             </label>
+            
             <input
               type="text"
               className="form-control"
@@ -672,8 +698,8 @@ export default function POViewPage({ params }) {
                 }}
               >
                 <div className="d-flex justify-content-between">
-                  <p className="m-0 text-dark">Grand Total:</p>{" "}
-                  <p className="m-0 text-dark">
+                  <p className="m-0 text-white">Grand Total:</p>{" "}
+                  <p className="m-0 text-white">
                     ₹ {totalAmount?.toLocaleString()}
                   </p>
                 </div>
