@@ -29,6 +29,7 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
       status: "Pending",
       projectId: projectId,
       file: null,
+      remarks: "",
     },
     {
       id: 2,
@@ -37,6 +38,7 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
       status: "Pending",
       projectId: projectId,
       file: null,
+      remarks: "",
     },
     {
       id: 3,
@@ -45,6 +47,7 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
       status: "Pending",
       projectId: projectId,
       file: null,
+      remarks: "",
     },
     {
       id: 4,
@@ -53,6 +56,7 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
       status: "Pending",
       projectId: projectId,
       file: null,
+      remarks: "",
     },
     {
       id: 5,
@@ -61,6 +65,7 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
       status: "Pending",
       projectId: projectId,
       file: null,
+      remarks: "",
     },
   ];
 
@@ -90,19 +95,19 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
         const risks = riskDetails.map((item, index) => ({
           id: index + 1,
           riskId: item.risk_id,
-          categoryName: item.category_name, // Fixed: use consistent property name
+          categoryName: item.category_name,
           status: item.risk_status,
           projectId: projectId,
           file: item.image_url,
+          remarks: item.remarks || "",
         }));
         console.log("Processed risks =>", risks);
 
         setFormData((prev) => ({
           ...prev,
-          risks, // Use backend data if available
+          risks,
         }));
       } else {
-        // If no backend data, keep initial risks
         console.warn("No valid risk details found, using initial data.");
         setFormData((prev) => ({
           ...prev,
@@ -111,7 +116,6 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
       }
     } catch (error) {
       console.error("Failed to fetch project details:", error);
-      // On error, ensure we have initial data
       setFormData((prev) => ({
         ...prev,
         risks: prev.risks || initialRisks,
@@ -125,15 +129,16 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
         ? Math.max(...formData.risks.map(r => r.id)) + 1
         : 1,
       riskId: 0,
-      categoryName: "", // Fixed: use consistent property name
+      categoryName: "",
       status: "",
       projectId: localProjectId || projectId,
       file: null,
+      remarks: "", // Added remarks field for new rows
     };
 
     setFormData((prev) => ({
       ...prev,
-      risks: [...(prev.risks || []), newRisk], // Fixed: handle case when risks is undefined
+      risks: [...(prev.risks || []), newRisk],
     }));
   };
 
@@ -187,7 +192,6 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
       });
       setFormData((prev) => ({ ...prev, risks: updatedRisks }));
       
-      // Find the updated risk and upload it
       const risk = updatedRisks.find((r) => r.id === riskId);
       if (risk) {
         await handleUpload(risk);
@@ -205,11 +209,21 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
     setFormData((prev) => ({ ...prev, risks: updatedRisks }));
   };
 
-  // Fixed: handleCategoryChange function
   const handleCategoryChange = (riskId, newCategory) => {
     const updatedRisks = formData.risks.map((risk) => {
       if (risk.id === riskId) {
-        return { ...risk, categoryName: newCategory }; // Fixed: use consistent property name
+        return { ...risk, categoryName: newCategory };
+      }
+      return risk;
+    });
+    setFormData((prev) => ({ ...prev, risks: updatedRisks }));
+  };
+
+  // NEW: Handle remarks change
+  const handleRemarksChange = (riskId, newRemarks) => {
+    const updatedRisks = formData.risks.map((risk) => {
+      if (risk.id === riskId) {
+        return { ...risk, remarks: newRemarks };
       }
       return risk;
     });
@@ -232,14 +246,7 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
       return;
     }
 
-    // Fixed: use consistent property name
     const categoryName = risk.categoryName;
-
-    // Uncomment if category validation is needed
-    // if (!categoryName?.trim()) {
-    //   Swal.fire({ icon: "warning", title: "Category Name is required." });
-    //   return;
-    // }
 
     if (!risk.status?.trim()) {
       Swal.fire({ icon: "warning", title: "Status is required." });
@@ -276,13 +283,14 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
         return;
       }
 
-      // Fixed: use consistent property name
+      // UPDATED: Include remarks in the data sent to backend
       const riskData = {
         riskId: risk.riskId || 0,
         category: String(risk.categoryName || "").trim(),
         status: String(risk.status).trim(),
         projectId: parseInt(localProjectId),
         file: risk.file,
+        remarks: String(risk.remarks || "").trim(), // Added remarks to backend payload
       };
 
       const resultAction = await dispatch(uploadRiskData(riskData));
@@ -297,7 +305,6 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
           showConfirmButton: false,
         });
         
-        // Mark this risk as uploaded
         setUploadedRisks(prev => ({
           ...prev,
           [risk.id]: true
@@ -328,6 +335,7 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
             <th className="text-center text-dark fs-18-500">S. No</th>
             <th className="text-center text-dark fs-18-500">Category</th>
             <th className="text-center text-dark fs-18-500">Status</th>
+            <th className="text-center text-dark fs-18-500">Remarks</th>
             <th className="text-center text-dark fs-18-500 w280">File</th>
           </tr>
         </thead>
@@ -340,7 +348,7 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
               <td className="text-center text-dark-gray fs-16-500">
                 <Form.Control
                   type="text"
-                  value={risk.categoryName || ""} // Fixed: use consistent property name
+                  value={risk.categoryName || ""}
                   onChange={(e) => handleCategoryChange(risk.id, e.target.value)}
                   size="sm"
                   placeholder="Enter category name"
@@ -356,6 +364,18 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
                   <option value="Completed">✅ Completed</option>
                   <option value="Pending">⚠ Pending</option>
                 </Form.Select>
+              </td>
+              {/* NEW: Remarks column */}
+              <td className="text-center text-dark-gray fs-16-500">
+                <Form.Control
+                  as="textarea"
+                  rows={2}
+                  value={risk.remarks || ""}
+                  onChange={(e) => handleRemarksChange(risk.id, e.target.value)}
+                  size="sm"
+                  placeholder="Enter remarks"
+                  style={{ resize: 'vertical', minHeight: '60px' }}
+                />
               </td>
               <td className="text-center w280">
                 <input
