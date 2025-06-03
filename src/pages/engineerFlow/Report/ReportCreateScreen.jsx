@@ -20,7 +20,11 @@ import { selectProjectDetails } from '../../../store/selector/ceo/ceoProjectSele
 import EmployeeSelectModal from "./employeeselectmodal";
 
 function ReportCreateScreen() {
-  const { loading } = useSelector((state) => state.report);
+  const {
+    data: reportDataRaw = [],
+    loading,
+    error,
+  } = useSelector((state) => state.report);
   const dispatch = useDispatch();
   const navigate = useNavigate();
    const { projects = [] } = useSelector((state) => state.project);
@@ -28,7 +32,7 @@ const [showModal, setShowModal] = useState(false);
   const [attachedFile, setAttachedFile] = useState([]);
   const [formErrors, setFormErrors] = useState({});
   const { newReportCode } = useSelector((state) => state.report);
-  const { uploadMessage, error } = useSelector((state) => state.report);;
+  const { uploadMessage, error: reportError } = useSelector((state) => state.report);;
   const { fetchProjectDetails } = useProject();
   const [attachedFilePreviews, setAttachedFilePreviews] = useState([]);
   const [sendTo, setSendTo] = useState([]);
@@ -878,8 +882,8 @@ const handleSubmit = async (selectedReceiverIds) => {
   {uploadMessage && (
     <div className="mt-2 text-success">{uploadMessage}</div>
   )}
-  {error && typeof error === "string" && (
-    <div className="mt-2 text-danger">{error}</div>
+  {reportError && typeof reportError === "string" && (
+    <div className="mt-2 text-danger">{reportError}</div>
   )}
 
  {attachedFile.length > 0 && (
