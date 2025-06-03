@@ -9,10 +9,13 @@ function Report() {
   const navigate = useNavigate();
 
   const {
-    data: reportData = [],
+    data: reportDataRaw = [],
     loading,
     error,
   } = useSelector((state) => state.report);
+
+  // Defensive: always use array
+  const reportData = Array.isArray(reportDataRaw) ? reportDataRaw : [];
 
   // Sort reports by reportCode number (e.g., RP#01 -> 1)
 const sortedReports = [...reportData].sort((a, b) => {

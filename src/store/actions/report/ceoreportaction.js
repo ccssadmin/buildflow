@@ -16,6 +16,25 @@ export const getCEOReportsByType = createAsyncThunk(
   }
 );
 
+export const getReportsByEmpId = createAsyncThunk(
+  "ceoReport/getReportsByEmpId",
+  async ({ empId, typeId }, { rejectWithValue }) => {
+    try {
+      let url = `/api/Report/getreportbyempid?empId=${empId}`;
+      if (typeId) {
+        url += `&typeId=${typeId}`;
+      }
+      const response = await api.GET(url);
+      return response.data;
+    } catch (error) {
+      console.error("Get Reports By EmpId Error:", error);
+      return rejectWithValue(error.response?.data?.message || "Something went wrong");
+    }
+  }
+);
+
+
+
 export const getCEOReportTypes = createAsyncThunk(
   "ceoReport/getCEOReportTypes",
   async (_, { rejectWithValue }) => {

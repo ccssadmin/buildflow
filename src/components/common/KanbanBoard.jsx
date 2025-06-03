@@ -12,10 +12,11 @@ const tagColors = {
   Finance: "#CFE2FF",
   PO: "#FFCFCF",
   Open: "#D2F4FF",
-  "In Progress": "#FFEECF",
+  "Work in Progress": "#FFEECF",
   Review: "#E4CFFF",
   Done: "#DAFFCF",
   Approved: "#DAFFCF",
+  Rejected: "#FFCFCF",
 };
 
 const KanbanBoard = () => {
@@ -60,10 +61,10 @@ const KanbanBoard = () => {
   useEffect(() => {
     const getUserId = () => {
       if (state?.emp_id) return state.emp_id;
-      
+
       const userDataString = localStorage.getItem("userData");
       const userData = userDataString ? JSON.parse(userDataString) : null;
-      
+
       // Check if user is a Vendor, use vendorId instead of empId
       if (userRoleName === "Vendor") {
         return userData?.vendorId;
@@ -74,10 +75,19 @@ const KanbanBoard = () => {
     const userId = getUserId();
 
     if (userId) {
-      console.log(`Dispatching getLoginBoardDetailsdAction with ${userRoleName === "Vendor" ? "vendorId" : "empId"}:`, userId);
+      console.log(
+        `Dispatching getLoginBoardDetailsdAction with ${
+          userRoleName === "Vendor" ? "vendorId" : "empId"
+        }:`,
+        userId
+      );
       dispatch(getLoginBoardDetailsdAction(userId, userRoleId)); // Pass both userId and roleId
     } else {
-      console.warn(`❌ ${userRoleName === "Vendor" ? "vendorId" : "empId"} not found in localStorage`);
+      console.warn(
+        `❌ ${
+          userRoleName === "Vendor" ? "vendorId" : "empId"
+        } not found in localStorage`
+      );
       setError("User information not found. Please log in again.");
       setLoading(false);
     }
@@ -124,7 +134,8 @@ const KanbanBoard = () => {
                   tags: ticket.ticketType, // Example tag, could be dynamic based on ticket categories
                   description: ticket.ticketDescription,
                   date: new Date(ticket.ticketCreatedDate).toLocaleDateString(
-                    "en-GB"
+                    "en-GB",
+                    { day: "2-digit", month: "long", year: "numeric" }
                   ),
                   comments: 0,
                   files: 0,
@@ -186,25 +197,26 @@ const KanbanBoard = () => {
     setShowTaskInput(false);
   };
 
-  // Helper function to determine the correct route based on user role
   const getTicketRoute = (ticketId) => {
     // Map role IDs to their respective routes
     const roleRoutes = {
-      1: `/ceo/ticket/${ticketId}`, // CEO
-      10: `/admin/engineerticketdetails/${ticketId}`, // Site Engineer
+      1: `/ceo/ticket/${ticketId}`,
+      10: `/admin/engineerticketdetails/${ticketId}`,
       4: `/aqs/aqsticketdetails/${ticketId}`,
       3: `/aqs/aqsticketdetails/${ticketId}`,
       8: `/pm/pmticket/${ticketId}`,
-      11: `/ticket/${ticketId}`, // Managing Director
-      13: `/finance/ticket/${ticketId}`, // Head Finance
-      15: `/hr/hrticketdetails/${ticketId}`, // HR
-      17: `/purchasemanager/ticket/${ticketId}`, // Purchase Manager
-      20: `/vendor/ticket/${ticketId}`, // Vendor - Added specific route for vendor
+      11: `/ticket/${ticketId}`,
+      13: `/finance/ticket/${ticketId}`,
+      15: `/hr/hrticketdetails/${ticketId}`,
+      17: `/purchasemanager/ticket/${ticketId}`,
+      20: `/vendor/ticket/${ticketId}`,
     };
 
-    // If role ID is not found in the mapping, use a default route or vendor-specific route
-    return roleRoutes[userRoleId] || (
-      userRoleName === "Vendor" ? `/vendor/ticket/${ticketId}` : `/ticket/${ticketId}`
+    return (
+      roleRoutes[userRoleId] ||
+      (userRoleName === "Vendor"
+        ? `/vendor/ticket/${ticketId}`
+        : `/ticket/${ticketId}`)
     );
   };
 
@@ -327,18 +339,25 @@ const KanbanBoard = () => {
   const formatTag = (tag) => {
     console.log("Tag Name=>", tag);
     let text = "";
+    let style = {};
+
     if (tag === "PO_APPROVAL") {
       text = "Po Approval";
+      style = { backgroundColor: "#FFCFCF" };
     } else if (tag === "submit") {
       text = "Project Approval";
+      style = { backgroundColor: "#CFE2FF" };
     } else if (tag === "budget") {
       text = "Budget Approval";
+      style = { backgroundColor: "#FFF3CD" };
     } else if (tag === "BOQ_APPROVAL") {
       text = "Boq Approval";
+      style = { backgroundColor: "#F7CFFF" };
     } else {
-      text = tag; // fallback to raw tag text if unknown
+      text = tag;
+      style = { backgroundColor: "#E0E0E0" };
     }
-    return { text };
+    return { text, style };
   };
 
   return (
@@ -507,76 +526,34 @@ const KanbanBoard = () => {
               ) : (
                 <div
                   className="task-list"
-                  style={{ padding: "12px", flex: 1, overflowY: "auto" }}
+                  style={{
+                    padding: "12px",
+                    flex: 1,
+                    overflowY: "auto",
+                    width: "314px",
+                  }}
                 >
                   {column.tasks && column.tasks.length > 0 ? (
-                    column.tasks.map((task, taskIndex) => (
-                      <div
-                        key={taskIndex}
-                        className="kanban-card"
-                        onClick={() => handleTaskClick(task)}
-                        style={{
-                          cursor: "pointer",
-                          backgroundColor: "#fff",
-                          borderRadius: "6px",
-                          padding: "12px",
-                          marginBottom: "8px",
-                          boxShadow: "0 1px 3px rgba(0,0,0,0.12)",
-                          border: "1px solid #e0e0e0",
-                        }}
-                      >
-                        <h6 className="task-title">{task.title}</h6>
-                        <div className="task-tags bg-crimson-red text-light">
-                          {formatTag(task.tags).text}
-                        </div>
+                    column.tasks.map((task, taskIndex) => {
+                      const tagInfo = formatTag(task.tags);
+                      return (
+                        <div
+                          key={taskIndex}
+                          className="kanban-card"
+                          onClick={() => handleTaskClick(task)}
+                          style={{
+                            cursor: "pointer",
+                            backgroundColor: "#fff",
+                            borderRadius: "6px",
+                            padding: "12px",
+                            marginBottom: "8px",
+                            boxShadow: "0 1px 3px rgba(0,0,0,0.12)",
+                            border: "1px solid #e0e0e0",
+                          }}
+                        >
+                          <h6 className="task-title">{task.title}</h6>
 
-                        <p className="task-description">{task.description}</p>
-                        <div className="task-footer">
-                          <div className="task-metadata">
-                            <div className="task-time">
-                              <svg
-                                viewBox="0 0 24 24"
-                                width="14"
-                                height="14"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                fill="none"
-                              >
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <polyline points="12 6 12 12 16 14"></polyline>
-                              </svg>
-                              <span>{task.date}</span>
-                            </div>
-                            <div className="task-actions">
-                              <div className="task-action-item">
-                                <svg
-                                  viewBox="0 0 24 24"
-                                  width="14"
-                                  height="14"
-                                  stroke="currentColor"
-                                  strokeWidth="2"
-                                  fill="none"
-                                >
-                                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                                </svg>
-                                <span>Comment</span>
-                              </div>
-                              <div className="task-action-item">
-                                <svg
-                                  viewBox="0 0 24 24"
-                                  width="14"
-                                  height="14"
-                                  stroke="currentColor"
-                                  strokeWidth="2"
-                                  fill="none"
-                                >
-                                  <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
-                                </svg>
-                                <span>File Attached</span>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="task-assignees">
+                          <div className="task-assignees d-flex align-items-center">
                             <div className="assignee-avatars">
                               <div className="assignee-avatar">
                                 <img
@@ -592,9 +569,76 @@ const KanbanBoard = () => {
                               </div>
                             </div>
                           </div>
+
+                          <div
+                            className="task-tags text-dark"
+                            style={{
+                              ...tagInfo.style,
+                              borderRadius: "5px",
+                              display: "inline-block",
+                              fontSize: "14px",
+                              padding: "4px 8px",
+                            }}
+                          >
+                            {tagInfo.text}
+                          </div>
+
+                          <p className="task-description">{task.description}</p>
+
+                          <div
+                            className="task-footer"
+                            style={{ marginLeft: "-8px" }}
+                          >
+                            <div className="task-metadata ">
+                              <div className="d-flex align-items-center ">
+                                <div className="task-time">
+                                  <svg
+                                    viewBox="0 0 24 24"
+                                    width="14"
+                                    height="14"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    fill="none"
+                                  >
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                  </svg>
+                                  <span>{task.date}</span>
+                                </div>
+
+                                <div className="task-action-item">
+                                  <svg
+                                    viewBox="0 0 24 24"
+                                    width="14"
+                                    height="14"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    fill="none"
+                                  >
+                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                  </svg>
+                                  <span>Comment</span>
+                                </div>
+
+                                <div className="task-action-item">
+                                  <svg
+                                    viewBox="0 0 24 24"
+                                    width="14"
+                                    height="14"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    fill="none"
+                                  >
+                                    <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                                  </svg>
+                                  <span>File Attached</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    ))
+                      );
+                    })
                   ) : (
                     <div className="empty-column-message">
                       No tasks in this column

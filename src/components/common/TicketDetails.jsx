@@ -937,12 +937,14 @@ const selectedOption = selectedVendor
 >
   Approvals
 </small>
-
           <small className="text-muted mx-2">›</small>
           <small style={{ color: "#FF6F00" }}>
             {ticketData?.name || "Ticket Details"}
           </small>
         </div>
+
+
+
         <div className="mt-3 ms-3">
           <h4>{ticketData?.name || "Ticket Details"}</h4>
           <div className="d-flex align-items-center mt-1">
