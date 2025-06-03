@@ -38,6 +38,7 @@ const TimelineMilestonePlanning = ({
       startDate: "",
       endDate: "",
       status: "Planned",
+      remarks: "",
       order: 1
     },
     {
@@ -47,6 +48,7 @@ const TimelineMilestonePlanning = ({
       startDate: "",
       endDate: "",
       status: "Planned",
+      remarks: "",
       order: 2
     },
     {
@@ -56,6 +58,7 @@ const TimelineMilestonePlanning = ({
       startDate: "",
       endDate: "",
       status: "Planned",
+      remarks: "",
       order: 3
     },
     {
@@ -65,6 +68,7 @@ const TimelineMilestonePlanning = ({
       startDate: "",
       endDate: "",
       status: "Planned",
+      remarks: "",
       order: 4
     },
     {
@@ -74,6 +78,7 @@ const TimelineMilestonePlanning = ({
       startDate: "",
       endDate: "",
       status: "Planned",
+      remarks: "",
       order: 5
     },
     {
@@ -83,6 +88,7 @@ const TimelineMilestonePlanning = ({
       startDate: "",
       endDate: "",
       status: "Planned",
+      remarks: "",
       order: 6
     },
     {
@@ -92,6 +98,7 @@ const TimelineMilestonePlanning = ({
       startDate: "",
       endDate: "",
       status: "Planned",
+      remarks: "",
       order: 7
     }
   ];
@@ -103,8 +110,9 @@ const TimelineMilestonePlanning = ({
         : [...prevSelected, userId]
     );
   };
-    const projectId = localStorage.getItem("projectId");
-    console.log("projecttt    Id =>",projectId)
+  
+  const projectId = localStorage.getItem("projectId");
+  console.log("projecttt    Id =>", projectId)
 
   useEffect(() => {
     if (projectId) {
@@ -124,6 +132,7 @@ const TimelineMilestonePlanning = ({
           startDate: item.milestone_start_date,
           endDate: item.milestone_end_date,
           status: item.milestone_status,
+          remarks: item.remarks || "", // Handle both remark and remarks
           order: index + 1
         }));
         console.log("Processed milestones =>", milestones);
@@ -201,6 +210,7 @@ const TimelineMilestonePlanning = ({
       startDate: "",
       endDate: "",
       status: "Planned",
+      remarks: "", // Added remarks field
       order: maxOrder + 1
     };
 
@@ -316,12 +326,14 @@ const TimelineMilestonePlanning = ({
       return;
     }
 
+    // FIXED: Include remarks in the payload
     const milestoneList = milestonesToSubmit.map((milestone) => ({
       milestoneId: (typeof milestone.id === 'number' && milestone.id > 0) ? milestone.id : 0,
       milestoneName: milestone.name.trim(),
       milestoneDescription: milestone.description.trim(),
       milestoneStartDate: milestone.startDate || null,
       milestoneEndDate: milestone.endDate || null,
+      remarks: milestone.remarks ? milestone.remarks.trim() : "", // Added this line
       Status: milestone.status || "Planned",
     }));
 
@@ -431,7 +443,6 @@ const TimelineMilestonePlanning = ({
           </div>
         </div>
 
-
         {sortedMilestones.length > 0 && (
           <div className="form-section">
             <div className="">
@@ -446,6 +457,7 @@ const TimelineMilestonePlanning = ({
                     <th className="text-center text-dark fs-18-500 w140">Start Date</th>
                     <th className="text-center text-dark fs-18-500 w140">End Date</th>
                     <th className="text-center text-dark fs-18-500">Status</th>
+                    <th className="text-center text-dark fs-18-500">Remarks</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -534,6 +546,22 @@ const TimelineMilestonePlanning = ({
                           <option value="Delayed">Delayed</option>
                         </Form.Select>
                       </td>
+                      {/* FIXED: Added onChange handler for remarks */}
+                      <td className="text-center text-dark-gray fs-16-500">
+                        <Form.Control
+                          type="text"
+                          className="border-1 shadow-none bg-transparent"
+                          value={item.remarks}
+                          onChange={(e) =>
+                            handleInternalMilestoneChange(
+                              item.id,
+                              "remarks",
+                              e.target.value
+                            )
+                          }
+                          placeholder="Enter remarks"
+                        />
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -541,14 +569,16 @@ const TimelineMilestonePlanning = ({
             </div>
           </div>
         )}
+        
         <div className="text-end mt-3">
-        <Button
-          className="text-primary bg-transparent border-0 fs-16-500 me-0 ms-auto"
-          onClick={handleAddMilestone}
-        >
-          + Add Row
-        </Button>
-      </div>
+          <Button
+            className="text-primary bg-transparent border-0 fs-16-500 me-0 ms-auto"
+            onClick={handleAddMilestone}
+          >
+            + Add Row
+          </Button>
+        </div>
+        
         <div className="d-flex justify-content-end mt-4">
           <Button
             onClick={() => setShowModal(true)}

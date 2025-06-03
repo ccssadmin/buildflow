@@ -37,9 +37,21 @@ const BudgetFinancialAllocation = ({
   const getProjectsData = async (projectId) => {
     try {
       const result = await dispatch(getProjectDetailsAction(projectId));
+      const totalCost = result?.payload?.value?.project?.project_actual_cost;
+      console.log("Total Cost====>", totalCost);
       const budgetDetails = result?.payload?.value?.budget_details;
+      const projectDetails = result?.payload?.value;
+
+      // Set totalCost from project details if available
+      if (projectDetails?.totalCost || projectDetails?.total_cost || totalCost) {
+        setFormData((prevState) => ({
+          ...prevState,
+          totalCost: projectDetails.totalCost || projectDetails.total_cost || totalCost,
+        }));
+      }
 
       if (Array.isArray(budgetDetails) && budgetDetails.length > 0) {
+
         const budgetBreakdown = budgetDetails.map((item) => ({
           id: item.project_budget_id,
           category: item.project_expense_category,
@@ -312,6 +324,7 @@ const BudgetFinancialAllocation = ({
       const payload = {
         projectId: parseInt(projectId),
         projectBudgetList: cleanBudgetBreakdown,
+        totalCost: parseFloat(formData.totalCost) || 0, // Include totalCost in payload
       };
 
       console.log("📤 Final Budget Payload:", payload);
@@ -348,6 +361,12 @@ const BudgetFinancialAllocation = ({
     }
   };
 
+  // Format currency display
+  const formatCurrency = (value) => {
+    if (!value) return "0";
+    return parseFloat(value).toLocaleString('en-IN');
+  };
+
   return (
     <div className="budget-financial-page">
       <h2 className="section-title mb-4">Budget & Financial Allocation</h2>
@@ -356,13 +375,27 @@ const BudgetFinancialAllocation = ({
         <div className="col-md-6">
           <Form.Group>
             <Form.Label className="fs-26-700 text-dark">
-              Total Project Budget <span className="required">*</span>
+              Total Project Cost <span className="required">*</span>
+            </Form.Label>
+            <Form.Control
+              type="number"
+              name="totalCost"
+              value={formData.totalCost || ""}
+              onChange={handleInputChange}
+              placeholder="Enter total project cost"
+            />
+          </Form.Group>
+          
+          <Form.Group>
+            <Form.Label className="fs-26-700 text-dark">
+              Total Present Budget <span className="required">*</span>
             </Form.Label>
             <Form.Control
               type="text"
               name="totalBudget"
-              value={formData.totalBudget || 0}
+              value={`₹ ${formatCurrency(formData.totalBudget)}`}
               readOnly
+              style={{ backgroundColor: "#f8f9fa" }}
             />
           </Form.Group>
         </div>

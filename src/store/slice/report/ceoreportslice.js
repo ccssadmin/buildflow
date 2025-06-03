@@ -1,7 +1,7 @@
 // src/redux/slices/ceoReportSlice.js
 
 import { createSlice } from '@reduxjs/toolkit';
-import { getAllCEOReports, getCEOReportsByType, getCEOReportTypes } from '../../actions/report/ceoreportaction';
+import { getAllCEOReports, getCEOReportsByType, getCEOReportTypes, getReportsByEmpId } from '../../actions/report/ceoreportaction';
 
 const ceoReportSlice = createSlice({
   name: "ceoReport",
@@ -58,7 +58,21 @@ const ceoReportSlice = createSlice({
       .addCase(getCEOReportTypes.rejected, (state, action) => {
         state.reportTypesLoading = false;
         state.reportTypesError = action.payload;
-      });
+      })
+      
+           .addCase(getReportsByEmpId.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    })
+    .addCase(getReportsByEmpId.fulfilled, (state, action) => {
+      state.loading = false;
+      state.reports = action.payload?.data || [];
+    })
+    .addCase(getReportsByEmpId.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    });
+      ;
   },
 });
 

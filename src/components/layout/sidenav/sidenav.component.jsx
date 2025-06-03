@@ -26,7 +26,7 @@ const SideNav = ({ onChange }) => {
   const location = useLocation();
   const isProjectActive = location.pathname === "/projects" || location.pathname === "/projectdetails";
   const isApprovelActive = location.pathname === "/approvals" || location.pathname.startsWith("/ticket");
-
+  const isReportsActive = location.pathname.startsWith("/reports") || location.pathname.startsWith("/reportview");
   return (
     <>
       <div className="sidenav-content">
@@ -81,7 +81,25 @@ const SideNav = ({ onChange }) => {
                 )}
               </NavLink>
             </h5>
-
+            {/* REPORTS */}
+            <h5
+              className="sidenav-content__headings-lists--title"
+              title="Reports"
+              disabled={auth?.details?.roleName == null ? true : false}
+            >
+              <NavLink
+                to="reports"
+                className={`link-tag ${isReportsActive ? "active" : ""}`}
+                isActive={(match, location) => 
+                  location.pathname.startsWith('reports') ||
+                  location.pathname.startsWith('reportview')
+                }
+              >
+                <img src={menu.IconReports} alt={"Reports"} />
+                <span>Reports</span>
+                {collaps && "Reports"}
+              </NavLink>
+            </h5>
             <h5 className="sidenav-content__headings-lists--title" title="Settings" disabled={auth?.details?.roleName == null}>
               <NavLink to="/settings" className="link-tag">
                 {() => (
