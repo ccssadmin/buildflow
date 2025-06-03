@@ -540,9 +540,9 @@ const TimelineMilestonePlanning = ({
                             )
                           }
                         >
-                          <option value="Planned">Planned</option>
+                          <option value="Completed">✅ Completed</option>                          
                           <option value="In Progress">In Progress</option>
-                          <option value="Completed">✅ Completed</option>
+                          <option value="Planned">Planned</option>
                           <option value="Delayed">Delayed</option>
                         </Form.Select>
                       </td>

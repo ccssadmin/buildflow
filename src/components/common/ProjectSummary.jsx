@@ -90,14 +90,14 @@ const ProjectSummary = ({ formData, onBackClick }) => {
     return false;
   };
 
-  const displayValue = (value, fallback = "Not Available") => {
+  const displayValue = (value, fallback = "") => {
     if (isEmpty(value)) return fallback;
     if (typeof value === "string") return value.trim();
     return String(value);
   };
 
   const displayAmount = (value, prefix = "₹ ") => {
-    if (isEmpty(value) || isNaN(value)) return "Not Available";
+    if (isEmpty(value) || isNaN(value)) return "";
     const numValue = Number.parseFloat(value);
     return `${prefix}${numValue.toLocaleString("en-IN")}`;
   };
@@ -214,21 +214,21 @@ const ProjectSummary = ({ formData, onBackClick }) => {
 
   const getProjectTypeName = () => {
     const typeId = projectData?.project?.project_type_id;
-    if (!typeId) return "Not Available";
+    if (!typeId) return "";
     return (
       PROJECT_TYPES[typeId] ||
       projectData?.project?.project_type_name ||
-      "Not Available"
+      ""
     );
   };
 
   const getProjectSectorName = () => {
     const sectorId = projectData?.project?.project_sector_id;
-    if (!sectorId) return "Not Available";
+    if (!sectorId) return "";
     return (
       PROJECT_SECTORS[sectorId] ||
       projectData?.project?.project_sector_name ||
-      "Not Available"
+      ""
     );
   };
 
@@ -545,7 +545,7 @@ const ProjectSummary = ({ formData, onBackClick }) => {
         </div>
 
         <Row className="mb-3">
-          <Col md={6}>
+          <Col md={4}>
             <div className="summary-field">
               <label className="text-dark fs-26-700 mb-2">
                 Total Present Budget
@@ -562,22 +562,31 @@ const ProjectSummary = ({ formData, onBackClick }) => {
               />
             </div>
           </Col>
-          <Col md={6}>
+          <Col md={4}>
             <div className="summary-field">
               <label className="text-dark fs-26-700 mb-2">
-                Total Project Cost 
+                Total Project Cost
               </label>
               <Form.Control
                 disabled
                 type="text"
-                value={
-                  projectData?.project?.project_actual_cost
-                }
+                value={projectData?.project?.project_actual_cost}
                 className={`bg-white text-dark-gray h48px fs-16-500  border-radius-4  ${
                   isEmpty(projectData?.project?.project_actual_cost) ? "" : ""
                 }`}
               />
+            </div>
+          </Col>
+          <Col md={4}>
+            <div className="summary-field">
+              <label className="text-dark fs-26-700 mb-2">Attention To</label>
               
+              <Form.Group>
+                
+                <Form.Select disabled className="bg-white text-dark-gray h48px fs-16-500  border-radius-4 border-color-silver-gray">
+                  <option value="">Select Team</option>
+                </Form.Select>
+              </Form.Group>
             </div>
           </Col>
         </Row>
@@ -781,6 +790,7 @@ const ProjectSummary = ({ formData, onBackClick }) => {
               <thead className="table-light">
                 <tr>
                   <th className="text-center text-dark fs-18-500 w48">S.No</th>
+                  <th className="text-center text-dark fs-18-500">Role</th>
                   <th className="text-center text-dark fs-18-500">Employee</th>
                   <th className="text-center text-dark fs-18-500">Amount %</th>
                 </tr>
@@ -790,6 +800,11 @@ const ProjectSummary = ({ formData, onBackClick }) => {
                   <tr key={item.permission_finance_approval_id || index}>
                     <td className="text-center text-dark-gray fs-16-500 w48">
                       {String(index + 1).padStart(2, "0")}
+                    </td>
+                    <td className="text-center text-dark-gray fs-16-500 fw-bold">
+                      {item.role_name === 0
+                        ? ""
+                        : `${displayValue(item.role_name)}`}
                     </td>
                     <td className="text-center text-dark-gray fs-16-500">
                       <div className="d-flex align-items-center justify-content-center">

@@ -372,7 +372,7 @@ const BudgetFinancialAllocation = ({
       <h2 className="section-title mb-4">Budget & Financial Allocation</h2>
 
       <div className="row mb-4">
-        <div className="col-md-6">
+        <div className="col-md-4">
           <Form.Group>
             <Form.Label className="fs-26-700 text-dark">
               Total Project Cost <span className="required">*</span>
@@ -385,7 +385,8 @@ const BudgetFinancialAllocation = ({
               placeholder="Enter total project cost"
             />
           </Form.Group>
-          
+        </div>
+        <div className="col-md-4">
           <Form.Group>
             <Form.Label className="fs-26-700 text-dark">
               Total Present Budget <span className="required">*</span>
@@ -399,11 +400,10 @@ const BudgetFinancialAllocation = ({
             />
           </Form.Group>
         </div>
-
-        <div className="col-md-6">
+        <div className="col-md-4">
           <Form.Group>
             <Form.Label className="fs-26-700 text-dark">
-              Send To <span className="required">*</span>
+              Attention To <span className="required">*</span>
             </Form.Label>
             <Form.Select
               name="sendTo"
@@ -419,6 +419,7 @@ const BudgetFinancialAllocation = ({
             </Form.Select>
           </Form.Group>
         </div>
+
       </div>
 
       <div className="budget-breakdown">
@@ -557,7 +558,7 @@ const BudgetFinancialAllocation = ({
               fill="#FF6F00"
             />
           </svg>
-          Send To
+          Attention To
         </Button>
         <Button
           onClick={handleNextClick}

@@ -874,14 +874,24 @@ const ProjectTeamStakeholder = ({
 
       {!loading && (
         <>
-          {errorMessage && <div className="alert alert-danger mb-3">{errorMessage}</div>}
+          {errorMessage && (
+            <div className="alert alert-danger mb-3">{errorMessage}</div>
+          )}
 
           <Row>
             <Col md={6} lg={4}>
-              <MultiSelect field="projectManager" label="Project Manager" required />
+              <MultiSelect
+                field="projectManager"
+                label="Project Manager"
+                required
+              />
             </Col>
             <Col md={6} lg={4}>
-              <MultiSelect field="assistantProjectManager" label="Assistant Project Manager" required />
+              <MultiSelect
+                field="assistantProjectManager"
+                label="Assistant Project Manager"
+                required
+              />
             </Col>
             <Col md={6} lg={4}>
               <MultiSelect field="leadEngineer" label="Lead Engineer" />
@@ -912,14 +922,18 @@ const ProjectTeamStakeholder = ({
             </Col>
           </Row>
 
-          <h5 className="mt-4 mb-3 fs-28-700">Permission and Finance Approval</h5>
-          <table className="tbl w-100">
+          <h5 className="mt-4 mb-3 fs-28-700">
+            Permission and Finance Approval
+          </h5>
+          <table className="tbl w-100 tbl-permission">
             <thead>
               <tr>
                 <th className="w48 text-center fs-18-500 text-dark">S.No</th>
-                <th className="text-center">Role</th>
+                <th className="text-center  fs-18-500 text-dark">Role</th>
                 <th className="text-center fs-18-500 text-dark">Employee</th>
-                <th className="text-center fs-18-500 text-dark">Amount Limit (%)</th>
+                <th className="text-center fs-18-500 text-dark">
+                  Amount Limit (%)
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -935,9 +949,9 @@ const ProjectTeamStakeholder = ({
                         placeholder="Role will auto-populate"
                         value={item.role}
                         onChange={(e) => {
-                          const updated = [...permissionData]
-                          updated[index].role = e.target.value
-                          setPermissionData(updated)
+                          const updated = [...permissionData];
+                          updated[index].role = e.target.value;
+                          setPermissionData(updated);
                         }}
                         readOnly={item.employeeId !== null} // Make readonly if employee is selected
                       />
@@ -950,9 +964,9 @@ const ProjectTeamStakeholder = ({
                         placeholder="Select Employee"
                         value={item.employee}
                         onChange={(e) => {
-                          const updated = [...permissionData]
-                          updated[index].employee = e.target.value
-                          setPermissionData(updated)
+                          const updated = [...permissionData];
+                          updated[index].employee = e.target.value;
+                          setPermissionData(updated);
                         }}
                         onClick={() => toggleEmployeeDropdown(index)}
                       />
@@ -961,7 +975,11 @@ const ProjectTeamStakeholder = ({
                       {item.showEmployeeDropdown && item.employeesList && (
                         <div
                           className="dropdown-menu show w-100 position-absolute"
-                          style={{ maxHeight: "200px", overflowY: "auto", zIndex: "9999" }}
+                          style={{
+                            maxHeight: "200px",
+                            overflowY: "auto",
+                            zIndex: "9999",
+                          }}
                         >
                           {item.employeesList.map((emp) => (
                             <div
@@ -972,7 +990,9 @@ const ProjectTeamStakeholder = ({
                             >
                               <div className="d-flex justify-content-between align-items-center">
                                 <span>{emp.firstName}</span>
-                                <span className="small fs-12-400 ms-2 text-muted">{emp.roleName || "No Role"}</span>
+                                <span className="small fs-12-400 ms-2 text-muted">
+                                  {emp.roleName || "No Role"}
+                                </span>
                               </div>
                             </div>
                           ))}
@@ -987,9 +1007,9 @@ const ProjectTeamStakeholder = ({
                         placeholder="%"
                         value={item.amount}
                         onChange={(e) => {
-                          const updated = [...permissionData]
-                          updated[index].amount = e.target.value
-                          setPermissionData(updated)
+                          const updated = [...permissionData];
+                          updated[index].amount = e.target.value;
+                          setPermissionData(updated);
                         }}
                       />
                     </td>
@@ -1006,17 +1026,23 @@ const ProjectTeamStakeholder = ({
           </table>
         </>
       )}
-
-      <div className="d-flex justify-content-end align-items-end" style={{ minHeight: "80px", marginTop: "20px" }}>
-        <Button variant="outline-secondary" className="mb-3" onClick={handleAddRow}>
+      <div className="text-end mt-3">
+        <Button
+          className="text-primary bg-transparent border-0 fs-16-500 me-0 ms-auto"
+          onClick={handleAddRow}
+        >
           + Add Row
         </Button>
-
+      </div>
+      <div
+        className="d-flex justify-content-end align-items-end"
+        style={{ minHeight: "80px", marginTop: "20px" }}
+      >
         <Button
           className="btn-primary btn fs-14-600 bg-transparent text-primary border-0 border-radius-2"
           onClick={async () => {
-            const roleKey = "HR"
-            const { success, data } = await fetchAllEmployees()
+            const roleKey = "HR";
+            const { success, data } = await fetchAllEmployees();
 
             if (
               !success ||
@@ -1028,12 +1054,12 @@ const ProjectTeamStakeholder = ({
                 icon: "info",
                 title: "No Employees",
                 text: `No employees found in HR team.`,
-              })
-              return
+              });
+              return;
             }
 
-            setHrEmployees(data.employeesByRole[roleKey])
-            setShowModal(true)
+            setHrEmployees(data.employeesByRole[roleKey]);
+            setShowModal(true);
           }}
         >
           <svg
@@ -1055,9 +1081,9 @@ const ProjectTeamStakeholder = ({
           className="btn-primary btn fs-14-600 bg-primary border-0 border-radius-2"
           onClick={async () => {
             if (!submitLoading) {
-              await handleSubmit()
+              await handleSubmit();
               if (onNext) {
-                onNext()
+                onNext();
               }
             }
           }}
@@ -1074,7 +1100,12 @@ const ProjectTeamStakeholder = ({
         </Button>
       </div>
 
-      <Modal show={showModal} className="model-approvel-send" onHide={() => setShowModal(false)} centered>
+      <Modal
+        show={showModal}
+        className="model-approvel-send"
+        onHide={() => setShowModal(false)}
+        centered
+      >
         <Modal.Body>
           {hrEmployees.map((user) => (
             <div key={user.empId} className="d-flex align-items-center mb-3">
@@ -1092,14 +1123,18 @@ const ProjectTeamStakeholder = ({
               />
               <p className="mb-0 fs-22-700 text-dark">
                 {user.employeeName}
-                <span className="d-block fs-14-400 text-dark-grey">{user.role}</span>
+                <span className="d-block fs-14-400 text-dark-grey">
+                  {user.role}
+                </span>
               </p>
             </div>
           ))}
         </Modal.Body>
         <Modal.Footer className="justify-content-center">
           <Button
-            className={`d-flex justify-content-center ${selectedUsers.length > 0 ? "btn-allow" : "btn-not-allow"}`}
+            className={`d-flex justify-content-center ${
+              selectedUsers.length > 0 ? "btn-allow" : "btn-not-allow"
+            }`}
             onClick={handleTicketSubmission}
             disabled={selectedUsers.length === 0}
           >
@@ -1108,7 +1143,7 @@ const ProjectTeamStakeholder = ({
         </Modal.Footer>
       </Modal>
     </Form>
-  )
+  );
 }
 
 export default ProjectTeamStakeholder
