@@ -17,19 +17,21 @@ import { getCEOReportTypes } from "../../../store/actions/report/ceoreportaction
 import { CiFileOn } from "react-icons/ci";
 import { useProject } from '../../../hooks/Ceo/useCeoProject';
 import { selectProjectDetails } from '../../../store/selector/ceo/ceoProjectSelector';
+import EmployeeSelectModal from "./employeeselectmodal";
 
 function ReportCreateScreen() {
   const { loading } = useSelector((state) => state.report);
   const dispatch = useDispatch();
   const navigate = useNavigate();
    const { projects = [] } = useSelector((state) => state.project);
-
+const [showModal, setShowModal] = useState(false);
   const [attachedFile, setAttachedFile] = useState([]);
   const [formErrors, setFormErrors] = useState({});
   const { newReportCode } = useSelector((state) => state.report);
   const { uploadMessage, error } = useSelector((state) => state.report);;
   const { fetchProjectDetails } = useProject();
   const [attachedFilePreviews, setAttachedFilePreviews] = useState([]);
+  const [sendTo, setSendTo] = useState([]);
  
   const [projectName, setProjectName] = useState('');
   const { reportTypes, reportTypesLoading, reportTypesError } = useSelector(
@@ -340,107 +342,118 @@ const removeAttachedFile = (indexToRemove) => {
   };
 
   // Function to handle form submission
-  const handleSubmit = async () => {
-    if (!validateForm()) {
-      toast.error("Please fill in all required fields");
-      return;
-    }
-  
-    const reportDataobj = {
-      dailyprogresssummary: dailyProgressRows.map((row) => ({
-        serialno: row.id,
-        workactivity: row.workActivity || "",
-        status: row.status || "",
-        action: row.action || "",
-      })),
-      materialusagereport: materialUsageRows.map((row) => ({
-        serialno: row.id,
-        material: row.material || "",
-        stock: row.stock || "",
-        level: row.level || "",
-      })),
-      safetycompliancereport: safetyComplianceRows.map((row) => ({
-        serialno: row.id,
-        item: row.item || "",
-        report: row.report || "",
-      })),
-      issueriskreport: issueRiskRows.map((row) => ({
-        serialno: row.id,
-        issue: row.issue || "",
-        impact: row.impact || "",
-      })),
-    };
-
-    const reportIdNumeric =
-    parseInt(reportData.reportId.replace(/\D/g, "")) || 0;
-
-    const updatedReportData = {
-      reportId: 0,
-      reportCode: reportData.reportId || "RPT-" + new Date().getTime(),
-      reportType: parseInt(reportData.reportTypeId),
-      projectId: reportData.project,
-      reportDate: reportData.reportDate,
-      reportedBy: reportData.reportedBy,
-      report: `Report for ${reportData.project} - ${reportData.reportTypeId}`,
-      reportData: reportDataobj,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    try {
-      const resultAction = await dispatch(upsertReport(updatedReportData));
-      if (upsertReport.fulfilled.match(resultAction)) {
-        toast.success("Report created successfully!");
-        const reportId = resultAction.payload.reportId;
-
-   if (attachedFile.length > 0) {
-  const formData = new FormData();
-  attachedFile.forEach((file) => formData.append("files", file));
-  dispatch(createReportAttachmentAction({ reportId, files: formData }));
-}
-
-
-const sNoArray = [];
-const fileList = [];
-
-dailyProgressRows.forEach((row) => {
-  if (row.photo) {
-    sNoArray.push(row.id);
-    fileList.push(row.photo);
+const handleSubmit = async (selectedReceiverIds) => {
+  if (!validateForm()) {
+    toast.error("Please fill in all required fields");
+    return;
   }
-});
 
-if (fileList.length > 0) {
-  dispatch(
-    createDailyReportAttachmentAction({
-      reportId,
-      sNoArray,
-      fileList,
-    })
-  );
-}
+  const userData = JSON.parse(localStorage.getItem("userData"));
+  const sendBy = userData?.empId || 0;
 
-        navigate("/admin/engineerreport", { state: resultAction.payload });
-      } else {
-        let errorMessage = "Report creation failed. Please try again.";
-        if (resultAction.payload?.errors) {
-          const errorDetails = [];
-          Object.entries(resultAction.payload.errors).forEach(
-            ([key, messages]) => {
-              messages.forEach((msg) => errorDetails.push(`${key}: ${msg}`));
-            }
-          );
-          if (errorDetails.length > 0) {
-            errorMessage = `Report creation failed: ${errorDetails.join(", ")}`;
-          }
-        }
-        toast.error(errorMessage);
-      }
-    } catch (err) {
-      console.error("Unexpected error:", err);
-      toast.error("An unexpected error occurred. Please try again.");
-    }
+  const reportDataobj = {
+    dailyprogresssummary: dailyProgressRows.map((row) => ({
+      serialno: row.id,
+      workactivity: row.workActivity || "",
+      status: row.status || "",
+      action: row.action || "",
+    })),
+    materialusagereport: materialUsageRows.map((row) => ({
+      serialno: row.id,
+      material: row.material || "",
+      stock: row.stock || "",
+      level: row.level || "",
+    })),
+    safetycompliancereport: safetyComplianceRows.map((row) => ({
+      serialno: row.id,
+      item: row.item || "",
+      report: row.report || "",
+    })),
+    issueriskreport: issueRiskRows.map((row) => ({
+      serialno: row.id,
+      issue: row.issue || "",
+      impact: row.impact || "",
+    })),
   };
+
+  const updatedReportData = {
+    reportId: 0,  // backend should set this!
+    reportCode: reportData.reportId || "RPT-" + new Date().getTime(),
+    reportType: parseInt(reportData.reportTypeId),
+    projectId: reportData.project,
+    reportDate: reportData.reportDate,
+    reportedBy: reportData.reportedBy,
+    report: `Report for ${reportData.project} - ${reportData.reportTypeId}`,
+    reportData: reportDataobj,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    send_to: selectedReceiverIds,
+    send_by: sendBy,
+  };
+
+  try {
+    const resultAction = await dispatch(upsertReport(updatedReportData));
+
+    if (upsertReport.fulfilled.match(resultAction)) {
+      toast.success("Report created successfully!");
+
+      const savedReport = resultAction.payload;
+      const reportId = savedReport?.reportId;
+
+      if (!reportId || reportId === 0) {
+        console.warn("Warning: reportId is missing or zero!");
+        // optionally: fetch latest report by code or projectId to recover
+      }
+
+      if (attachedFile.length > 0) {
+        const formData = new FormData();
+        attachedFile.forEach((file) => formData.append("files", file));
+        dispatch(createReportAttachmentAction({ reportId, files: formData }));
+      }
+
+      const sNoArray = [];
+      const fileList = [];
+
+      dailyProgressRows.forEach((row) => {
+        if (row.photo) {
+          sNoArray.push(row.id);
+          fileList.push(row.photo);
+        }
+      });
+
+      if (fileList.length > 0) {
+        dispatch(
+          createDailyReportAttachmentAction({
+            reportId,
+            sNoArray,
+            fileList,
+          })
+        );
+      }
+
+      // ✅ navigate cleanly without passing report object in state
+      navigate("/admin/engineerreport");
+    } else {
+      let errorMessage = "Report creation failed. Please try again.";
+      if (resultAction.payload?.errors) {
+        const errorDetails = [];
+        Object.entries(resultAction.payload.errors).forEach(
+          ([key, messages]) => {
+            messages.forEach((msg) => errorDetails.push(`${key}: ${msg}`));
+          }
+        );
+        if (errorDetails.length > 0) {
+          errorMessage = `Report creation failed: ${errorDetails.join(", ")}`;
+        }
+      }
+      toast.error(errorMessage);
+    }
+  } catch (err) {
+    console.error("Unexpected error:", err);
+    toast.error("An unexpected error occurred. Please try again.");
+  }
+};
+
 
   const getReportTypeNameById = (id) => {
   const found = reportTypes.find(type => type.reportTypeId.toString() === id.toString());
@@ -915,262 +928,21 @@ if (fileList.length > 0) {
         <button
           type="button"
           className="btn btn-primary border-0 w220 bg-primary border-radius-4"
-          onClick={handleSubmit}
-          disabled={loading}
+          onClick={() => setShowModal(true)}
         >
-          {loading ? "Submitting..." : "Submit"}
+          Select Reciver
         </button>
+        {/* Add the EmployeeSelectModal with correct props */}
+      <EmployeeSelectModal
+  show={showModal}
+  onClose={() => setShowModal(false)}
+  onSend={(selectedIds) => {
+    setSendTo(selectedIds);
+    handleSubmit(selectedIds);  // Pass them to the submit function
+  }}
+/>
       </div>
     </div>
   );
 }
-
 export default ReportCreateScreen;
-
-const styles = `
-
-.report-header {
-  margin-bottom: 20px;
-}
-
-.report-header h2 {
-  color: #333;
-  font-size: 24px;
-  margin: 0;
-}
-
-.report-details-section {
-  margin-bottom: 30px;
-}
-table th, table td {
-  height: 48px;
-  padding: 0px 0px !important;
-}
-.detail-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  margin-bottom: 15px;
-}
-
-.detail-item {
-  flex: 1;
-  min-width: 200px;
-}
-
-.detail-item label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-  color: #555;
-}
-
-.detail-value {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-}
-
-.react-datepicker-wrapper {
-  width: 100%;
-}
-
-.report-section {
-  margin-bottom: 30px;
-}
-
-
-.btn-add {
-  background: none;
-  border: none;
-  color: #FF6F00;
-  font-weight: bold;
-  cursor: pointer;
-  padding: 0;
-  margin-top: 15px;
-  float: right;
-}
-
-.btn-add:hover {
-  text-decoration: underline;
-}
-.form-control, .form-control:focus {
-border: 0px !important; 
-text-align: center;
-margin-bottom: 0px;
-padding: 0px;
-height: 48px;
-}
-
-
-.upload-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.upload-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0px 12px;
-  cursor: pointer;
-  font-size: 14px;
-  text-decoration: none;
-  border: none;
-  background: none;
-}
-
-.upload-btn span {
-  color: #0456D0;
-  text-decoration: underline;
-}
-
-.attached-file-section {
-  margin-bottom: 16px;
-}
-
-.header-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.upload-icons {
-  color: #0456D0 !important;
-  font-size: 20px;
-}
-
-.upload-btn-2 {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
-  cursor: pointer;
-  font-size: 20px;
-  text-decoration: none;
-  border: none;
-  background: none;
-}
-
-.upload-btn-2 span {
-  color: #0456D0;
-}
-
-.file-name {
-  margin-left: 10px;
-  font-size: 14px;
-  color: #666;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 150px;
-}
-
-.attached-file-section {
-  margin-bottom: 30px;
-}
-
-
-.file-upload-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.form-buttons {
-  display: flex;
-  justify-content: flex-end;
-  gap: 15px;
-  margin-top: 30px;
-}
-
-.btn-cancel {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  font-weight: bold;
-  width: 120px;
-  height: 40px;
-  margin-right: 1px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.btn-submit {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.btn-cancel {
-  background-color: #f0f0f0;
-  color: #333;
-  border: 1px solid #ddd;
-}
-.btn-cancel:hover{
-  border: 1px solid #ddd;
-}
-.btn-submit {
-  background-color: #FF6F00;
-  color: #fff;
-}
-.text-danger {
-  color: #dc3545;
-  font-size: 12px;
-  margin-top: 5px;
-}
-
-/* Custom select styles */
-.custom-select {
-  position: relative;
-  width: 100%;
-}
-
-.custom-select select, .custom-select select:focus {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  width: 100%;
-  padding: 0px 10px !important;
-  border: 1px solid #C1C1C1 !important;
-  border-radius: 4px;
-  background-color: white;
-  cursor: pointer;
-  text-align: left;
-}
-.custom-select select option {
-padding:  5px 10px !important;
-}
-.custom-select::after {
-  content: "▼";
-  font-size: 12px;
-  color: #555;
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none;
-}
-
-/* For Material Usage and Issue Risk tables */
-.report-table .custom-select {
-  width: auto;
-}
-
-.report-table .custom-select select {
-  width: 100%;
-  min-width: 120px;
-  padding: 0px;
-}
-`;
-
-// Add styles to the document head
-const styleElement = document.createElement("style");
-styleElement.innerHTML = styles;
-document.head.appendChild(styleElement);
