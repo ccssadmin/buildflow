@@ -647,6 +647,8 @@ const App = () => {
           <Route path="projectdetails" element={<ProjectDetails />} />
           <Route path="task" element={<EngineerTask />} />
           <Route path="chat" element={<ChatApp />} />
+          <Route path="reports" element={<CeoReport />} />
+          <Route path="reportview/:reportId" element={<CeoReportView />} />
           <Route path="settings" element={<Settings />} />
           <Route path="*" element={<NotFound />} />
           <Route path="materialview/:boqId" element={<CommonBOQDetails />} />

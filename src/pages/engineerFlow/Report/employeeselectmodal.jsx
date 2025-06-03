@@ -28,10 +28,8 @@ const EmployeeSelectModal = ({ show, onClose,onSend }) => {
           
           const APPROVER_ROLE_CODES = [
             "CEO",
-            "HEADFINANCE", 
             "MD",
             "PROJECTMANAGER",
-            "AQS",
           ];
 
           const approverList = [];
