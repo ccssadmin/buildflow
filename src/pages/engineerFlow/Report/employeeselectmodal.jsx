@@ -151,16 +151,6 @@ const EmployeeSelectModal = ({ show, onClose,onSend }) => {
           </div>
         )}
         
-        {selectedEmployees.length > 0 && (
-          <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-            <p className="text-sm font-medium text-blue-800">
-              Selected ({selectedEmployees.length}):
-            </p>
-            <div className="mt-1 text-sm text-blue-600">
-              {selectedEmployees.map(emp => emp.empName).join(', ')}
-            </div>
-          </div>
-        )}
       </Modal.Body>
 
       <Modal.Footer>
