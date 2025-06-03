@@ -361,14 +361,16 @@ const RiskComplianceAssessment = ({ formData, setFormData }) => {
                   size="sm"
                 >
                   <option value="">Select Status</option>
-                  <option value="Completed">✅ Completed</option>
+                  <option value="Completed">✅ Completed</option>                  
+                  <option value="In Progress">⚠ In Progress</option>
                   <option value="Pending">⚠ Pending</option>
+                  <option value="Nil">⚠ Nil</option>
                 </Form.Select>
               </td>
               {/* NEW: Remarks column */}
               <td className="text-center text-dark-gray fs-16-500">
                 <Form.Control
-                  as="textarea"
+                  type="text"
                   rows={2}
                   value={risk.remarks || ""}
                   onChange={(e) => handleRemarksChange(risk.id, e.target.value)}
