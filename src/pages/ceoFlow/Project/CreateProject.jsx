@@ -13,11 +13,13 @@ import { useRoleBasedEmp } from "../../../hooks/Ceo/useRoleBasedEmp";
 import { useTicket } from "../../../hooks/Ceo/useTicket";
 import { useNavigate, useParams } from "react-router-dom";
 import { useNotification } from "../../../hooks/Ceo/useNotification";
-import { createUploadFilesAction, getProjectDetailsAction } from "../../../store/actions/Ceo/ceoprojectAction";
+import {
+  createUploadFilesAction,
+  getProjectDetailsAction,
+} from "../../../store/actions/Ceo/ceoprojectAction";
 import { useDispatch } from "react-redux";
-import { useLocation } from 'react-router-dom';
+import { useLocation } from "react-router-dom";
 import { set } from "lodash";
-
 
 // Form validation schema
 const validateForm = (step, formData) => {
@@ -63,9 +65,7 @@ const CeoCreateProject = () => {
     // Step 2: Budget & Financial Allocation
     totalBudget: "",
     sendTo: "",
-    budgetBreakdown: [
-     
-    ],
+    budgetBreakdown: [],
 
     // Step 3: Project Team & Stakeholder Assignment
     projectManager: [],
@@ -90,8 +90,8 @@ const CeoCreateProject = () => {
   const getProjectsData = async () => {
     const result = await dispatch(getProjectDetailsAction(route?.projectId));
     if (result?.payload) {
-      let step1  = result?.payload?.value?.project;
-      console.log("GetProjectsData=>" , result?.payload?.value)
+      let step1 = result?.payload?.value?.project;
+      console.log("GetProjectsData=>", result?.payload?.value);
       setFormData((prevState) => ({
         ...prevState,
         projectId: step1?.project_id,
@@ -99,17 +99,15 @@ const CeoCreateProject = () => {
         location: step1?.project_location,
         projectType: step1?.project_type_name,
         projectSectorName: step1?.project_sector_name,
-        description:step1?.project_description,
-        projectStartDate:step1?.project_start_date,
-        expectedCompletionDate:step1?.project_end_date,
-        projectSectorId:step1?.project_sector_name,
-
+        description: step1?.project_description,
+        projectStartDate: step1?.project_start_date,
+        expectedCompletionDate: step1?.project_end_date,
+        projectSectorId: step1?.project_sector_name,
       }));
     }
   };
 
-
-  const handleProjectCreated = (projectId,message) => {
+  const handleProjectCreated = (projectId, message) => {
     if (!projectId) {
       console.error("❌ No project ID received!");
       Swal.fire({
@@ -137,7 +135,7 @@ const CeoCreateProject = () => {
     Swal.fire({
       icon: "success",
       title: "Success!",
-      text:  message || "Project saved successfully!",
+      text: message || "Project saved successfully!",
       timer: 1500,
       showConfirmButton: false,
     });
@@ -339,7 +337,6 @@ const CeoCreateProject = () => {
       dispatch(createUploadFilesAction({ risks: formData.risks }));
       await handleFinalReview();
       return;
-
     }
 
     // Default case: simply move to next step
@@ -457,7 +454,7 @@ const CeoCreateProject = () => {
         ...prevFormData,
         budgetBreakdown: [...prevFormData.budgetBreakdown, newColumn],
       }));
-    } 
+    }
   };
 
   const renderProgressBar = () => {
@@ -524,7 +521,10 @@ const CeoCreateProject = () => {
               <div
                 className={`step-label ${index <= currentStep ? "active" : ""}`}
               >
-                Step {String(index + 1).padStart(2, "0")}
+                <div>Step {String(index + 1).padStart(2, "0")}</div>
+                <div className="step-desc fs-10-400">
+                  {stepDescriptions[index]}
+                </div>
               </div>
             </div>
           ))}
@@ -532,7 +532,14 @@ const CeoCreateProject = () => {
       </div>
     );
   };
-
+  const stepDescriptions = [
+    "Project Basic Details",
+    "Budget & Financial Allocation",
+    "Project Team & Stakeholder Assignment",
+    "Timeline & Milestone Planning",
+    "Risk & Compliance Assessment",
+    // Add more descriptions as needed
+  ];
   const renderProjectBasicDetails = () => {
     return (
       <ProjectBasicDetails
@@ -588,7 +595,6 @@ const CeoCreateProject = () => {
       <TimelineMilestonePlanning
         formData={formData}
         handleMilestoneChange={handleMilestoneChange}
-       
         fetchAllEmployees={fetchAllEmployees}
         employees={employees}
         createTicket={createTicket}
@@ -601,22 +607,17 @@ const CeoCreateProject = () => {
 
   const renderRiskComplianceAssessment = () => {
     return (
-      <RiskComplianceAssessment
-        formData={formData}
-        setFormData={setFormData}
-       
-      />
+      <RiskComplianceAssessment formData={formData} setFormData={setFormData} />
     );
   };
-
 
   const location = useLocation();
 
   useEffect(() => {
-  if (location.state?.step !== undefined) {
-    setCurrentStep(location.state.step);
-  }
-}, [location.state]);
+    if (location.state?.step !== undefined) {
+      setCurrentStep(location.state.step);
+    }
+  }, [location.state]);
 
   const renderFormStep = () => {
     switch (currentStep) {

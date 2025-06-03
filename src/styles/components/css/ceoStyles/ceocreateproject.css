@@ -577,6 +577,15 @@
     color: #8E8E8E;
     cursor: not-allowed !important;
 }
+.page-ceo-createproject .tbl-permission .form-control {
+    height: 36px !important;
+    border: 0px !important;
+    margin-bottom: 0px;
+    padding: 0px 0px !important;
+}
+.page-ceo-createproject  .step-circle.active path {
+    fill: #ffffff;
+}
 /* Responsive Styles */
 @media (max-width: 768px) {
     .page-ceo-createproject .progress-steps {
