@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { Modal, Button } from "react-bootstrap";
 import { getEmployeeRoles } from "../../../store/actions/Engineer/upsertboqaction";
 
-const EmployeeSelectModal = ({ show, onClose,onSend }) => {
+const EmployeeSelectModal = ({ show, onClose, onSend }) => {
   const dispatch = useDispatch();
   const [approverList, setApproverList] = useState([]);
   const [selectedEmployees, setSelectedEmployees] = useState([]);
@@ -14,44 +14,48 @@ const EmployeeSelectModal = ({ show, onClose,onSend }) => {
   useEffect(() => {
     console.log("useEffect triggered, projectId:", projectId);
     console.log("show prop:", show);
-    if (projectId && show) {  // Only fetch when modal is shown
+    if (projectId && show) {
+      // Only fetch when modal is shown
       console.log("Making API call...");
       setLoading(true);
       dispatch(getEmployeeRoles(projectId))
         .unwrap()
         .then((result) => {
           console.log("Full API Response:", result);
-          
+
           // The employee data is directly in the result object, not in result.value
           const employeesByRole = result;
           console.log("Employees by Role:", employeesByRole);
-          
-          const APPROVER_ROLE_CODES = [
-            "CEO",
-            "MD",
-            "PROJECTMANAGER",
-          ];
+
+          const APPROVER_ROLE_CODES = ["CEO", "MD", "PROJECTMANAGER"];
 
           const approverList = [];
 
           // Debug: Check if employeesByRole exists and is an object
-          if (!employeesByRole || typeof employeesByRole !== 'object') {
-            console.error("employeesByRole is not a valid object:", employeesByRole);
+          if (!employeesByRole || typeof employeesByRole !== "object") {
+            console.error(
+              "employeesByRole is not a valid object:",
+              employeesByRole
+            );
             setApproverList([]);
             return;
           }
 
           // Iterate through each role group in employeesByRole
-          Object.keys(employeesByRole).forEach(roleKey => {
+          Object.keys(employeesByRole).forEach((roleKey) => {
             const roleGroup = employeesByRole[roleKey];
             console.log(`Processing role group: ${roleKey}`, roleGroup);
-            
+
             if (Array.isArray(roleGroup)) {
               roleGroup.forEach((employee) => {
                 console.log(`Checking employee:`, employee);
                 console.log(`Employee role_code: ${employee.role_code}`);
-                console.log(`Is in APPROVER_ROLE_CODES: ${APPROVER_ROLE_CODES.includes(employee.role_code)}`);
-                
+                console.log(
+                  `Is in APPROVER_ROLE_CODES: ${APPROVER_ROLE_CODES.includes(
+                    employee.role_code
+                  )}`
+                );
+
                 if (APPROVER_ROLE_CODES.includes(employee.role_code)) {
                   const approverEmployee = {
                     value: employee.emp_id,
@@ -71,7 +75,7 @@ const EmployeeSelectModal = ({ show, onClose,onSend }) => {
 
           console.log("Final Approver List:", approverList);
           console.log("Approver List Length:", approverList.length);
-          
+
           // Set the approver list to state
           setApproverList(approverList);
         })
@@ -88,19 +92,43 @@ const EmployeeSelectModal = ({ show, onClose,onSend }) => {
   }, [dispatch, projectId, show]); // Add 'show' to dependencies
 
   const handleEmployeeSelect = (employee) => {
-    setSelectedEmployees(prev => {
-      const isSelected = prev.some(emp => emp.empId === employee.empId);
+    setSelectedEmployees((prev) => {
+      const isSelected = prev.some((emp) => emp.empId === employee.empId);
       if (isSelected) {
-        return prev.filter(emp => emp.empId !== employee.empId);
+        return prev.filter((emp) => emp.empId !== employee.empId);
       } else {
         return [...prev, employee];
       }
     });
   };
 
+  // Extracts initials from the name
+  const getInitials = (name) => {
+    if (!name) return "";
+    const parts = name.trim().split(" ");
+    const first = parts[0]?.charAt(0).toUpperCase() || "";
+    const second = parts[1]?.charAt(0).toUpperCase() || "";
+    return first + second;
+  };
 
+  // Generates a random color
+  const getRandomColor = () => {
+    const colors = [
+      "#FF5733",
+      "#33B5E5",
+      "#8E44AD",
+      "#16A085",
+      "#E67E22",
+      "#2ECC71",
+      "#3498DB",
+      "#F39C12",
+      "#1ABC9C",
+      "#E74C3C",
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
+  };
   const handleSendReport = () => {
-    const selectedIds = selectedEmployees.map(emp => emp.empId);
+    const selectedIds = selectedEmployees.map((emp) => emp.empId);
     onSend(selectedIds);
     onClose();
   };
@@ -111,10 +139,10 @@ const EmployeeSelectModal = ({ show, onClose,onSend }) => {
         <Modal.Title>Select Employees to Send Report</Modal.Title>
       </Modal.Header>
 
-      <Modal.Body>
+      <Modal.Body className="border-0">
         {loading ? (
           <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <div className="animate-spin  h-8 w-8"></div>
             <span className="ml-2 text-gray-600">Loading employees...</span>
           </div>
         ) : approverList.length === 0 ? (
@@ -123,49 +151,67 @@ const EmployeeSelectModal = ({ show, onClose,onSend }) => {
           </div>
         ) : (
           <div className="space-y-3">
-            <p className="text-sm text-gray-600 mb-4">
-              Select employees who should receive the report:
-            </p>
             {approverList.map((employee) => (
               <div
                 key={employee.empId}
-                className="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer"
+                className="d-flex items-center align-items-center p-3 px-0 hover:bg-gray-50 cursor-pointer"
                 onClick={() => handleEmployeeSelect(employee)}
               >
                 <input
                   type="checkbox"
-                  checked={selectedEmployees.some(emp => emp.empId === employee.empId)}
+                  checked={selectedEmployees.some(
+                    (emp) => emp.empId === employee.empId
+                  )}
                   onChange={() => handleEmployeeSelect(employee)}
-                  className="mr-3 h-4 w-4 text-blue-600 rounded border-gray-300"
+                  className="form-check-input z-2 send-report-checkbox"
                 />
-                <div className="flex-1">
-                  <div className="font-medium text-gray-900">
-                    {employee.empName}
+
+                {/* Employee Avatar and Details */}
+                <div
+                  className="d-flex align-items-center send-report-emp-conatiner"
+                  style={{ paddingLeft: "40px" }}
+                >
+                  {/* Initials Avatar */}
+                  <div
+                    className="rounded-circle text-white d-flex align-items-center justify-content-center me-3"
+                    style={{
+                      width: "36px",
+                      height: "36px",
+                      fontSize: "16px",
+                      backgroundColor: getRandomColor(),
+                      flexShrink: 0,
+                    }}
+                  >
+                    {getInitials(employee.empName)}
                   </div>
-                  <div className="text-sm text-gray-500">
-                    {employee.roleName}
+
+                  {/* Name and Role */}
+                  <div>
+                    <div className="mb-0 fs-22-700 text-dark">
+                      {employee.empName}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      {employee.roleName}
+                    </div>
                   </div>
                 </div>
               </div>
             ))}
           </div>
         )}
-        
       </Modal.Body>
 
       <Modal.Footer>
-        <Button variant="secondary" onClick={onClose}>
-          Cancel
-        </Button>
-        <Button 
-          variant="primary"
+        <Button
           disabled={selectedEmployees.length === 0}
           onClick={handleSendReport}
+          className={`my-0 mx-auto btn-send-report border-0 border-radius-2 btn-approval-send btn ${
+            selectedEmployees.length >= 1 ? "selected-row" : ""
+          }`}
         >
-          Send Report ({selectedEmployees.length})
+          Send Report
         </Button>
       </Modal.Footer>
-
     </Modal>
   );
 };
