@@ -164,27 +164,58 @@ const ProjectTeamStakeholder = ({
           ...updatedFormData,
         }))
 
-        // Enhanced finance approval data processing with proper ordering
+        // Enhanced finance approval data processing with priority roles and additional roles
         if (Array.isArray(finance) && finance.length > 0) {
-          const permissionMapped = finance.map((item, index) => {
-            const teamMember = Array.isArray(team) ? team.find((t) => t.emp_id === item.emp_id) : null
+          // Define the 6 priority roles in the order you want them displayed
+          const priorityRoles = [
+            "Managing Director",
+            "Directors",
+            "CEO",
+            "General Manager (Technology)",
+            "General Manager (Operation)",
+            "Head Finance",
+          ]
+
+          // Map all finance approval data from backend - use role_name directly from finance data
+          const allPermissionData = finance.map((item, index) => {
             return {
               id: index + 1,
-              role: teamMember?.role || "N/A",
+              role: item.role_name || "N/A", // Use role_name from finance data, not team data
               employee: item.emp_name || "N/A",
               employeeId: item.emp_id || 0,
               amount: item.amount || 0,
+              roleCode: item.role_code ? item.role_code.trim() : "",
+              roleId: item.role_id || 0,
             }
           })
 
-          // Sort to ensure Managing Director appears first
-          const sortedPermissions = permissionMapped.sort((a, b) => {
-            if (a.role === "Managing Director") return -1
-            if (b.role === "Managing Director") return 1
-            return 0
+          // Separate priority roles and additional roles
+          const priorityRoleData = []
+          const additionalRoleData = []
+
+          // First, add priority roles in the defined order
+          priorityRoles.forEach((priorityRole) => {
+            const roleData = allPermissionData.filter((item) => item.role === priorityRole)
+            priorityRoleData.push(...roleData)
           })
 
-          setPermissionData(sortedPermissions)
+          // Then, add any additional roles that are not in the priority list
+          allPermissionData.forEach((item) => {
+            if (!priorityRoles.includes(item.role)) {
+              additionalRoleData.push(item)
+            }
+          })
+
+          // Combine priority roles first, then additional roles
+          const finalPermissionData = [...priorityRoleData, ...additionalRoleData]
+
+          // Re-assign sequential IDs
+          const reorderedPermissionData = finalPermissionData.map((item, index) => ({
+            ...item,
+            id: index + 1,
+          }))
+
+          setPermissionData(reorderedPermissionData)
         } else {
           setPermissionData([])
         }
@@ -260,39 +291,44 @@ const ProjectTeamStakeholder = ({
       })
   }, [dispatch])
 
-  // Enhanced updateFinanceApprovalWithSelectedTeam with proper role hierarchy
   const updateFinanceApprovalWithSelectedTeam = () => {
+    // If we already have data from backend, don't override it
+    // This function should only add new data when there's no existing data
+    if (permissionData.length > 0) {
+      return
+    }
+
     const newPermissionData = []
     let idCounter = 1
 
-    // Define the proper hierarchy order for finance approvals
-    const financeHierarchy = [
-      { role: "Managing Director", roleCode: "MD" },
-      { role: "Directors", roleCode: "DIRECTOR" },
-      { role: "CEO", roleCode: "CEO" },
-      { role: "General Manager (Technology)", roleCode: "GMTECH" },
-      { role: "General Manager (Operation)", roleCode: "GMOPER" },
-      { role: "Head Finance", roleCode: "HEADFINANCE" },
-      { role: "Finance", roleCode: "FINANCE" },
+    // Define the 6 priority roles - ONLY these will be shown when creating new project
+    const priorityRoles = [
+      "Managing Director",
+      "Directors",
+      "CEO",
+      "General Manager (Technology)",
+      "General Manager (Operation)",
+      "Head Finance",
     ]
 
-    if (employeesData) {
-      financeHierarchy.forEach(({ role, roleCode }) => {
-        if (employeesData[role]) {
-          employeesData[role].forEach((emp) => {
-            if (emp.rolecode && emp.rolecode.trim() === roleCode) {
-              newPermissionData.push({
-                id: idCounter++,
-                role: role,
-                employee: emp.employeeName,
-                employeeId: emp.empId,
-                amount: existingAmountMap[emp.empId] || 0,
-              })
-            }
+    // Only add the 6 priority roles when creating new data
+    priorityRoles.forEach((role) => {
+      if (employeesData && employeesData[role]) {
+        employeesData[role].forEach((emp) => {
+          newPermissionData.push({
+            id: idCounter++,
+            role: role,
+            employee: emp.employeeName,
+            employeeId: emp.empId,
+            amount: existingAmountMap[emp.empId] || 0,
+            roleCode: emp.rolecode || "",
           })
-        }
-      })
-    }
+        })
+      }
+    })
+
+    // Do NOT add additional roles when creating new data
+    // Additional roles will only be shown if they exist in backend data
 
     setPermissionData(newPermissionData)
   }
