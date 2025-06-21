@@ -170,7 +170,7 @@ const EmployeeSelectModal = ({ show, onClose, onSend }) => {
                 <div
                   className="d-flex align-items-center send-report-emp-conatiner"
                   style={{ paddingLeft: "40px" }}
-                >
+                > 
                   {/* Initials Avatar */}
                   <div
                     className="rounded-circle text-white d-flex align-items-center justify-content-center me-3"
