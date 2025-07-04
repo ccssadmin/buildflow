@@ -26,14 +26,14 @@ const AqsCostEstimationOpen = () => {
             onClick={() => navigate('/aqs/aqscostestimation')}
             style={ { cursor : 'pointer'}}
             >Cost Estimation
-            </span> &gt; <span style={{ color: '#FF6F00' }}>open CE</span>
+            </span> &gt; <span style={{ color: '#1E3A8A' }}>open CE</span>
         </h2>
       </div>
 
       {/* Header Container */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '10px' }}>
         <h1 style={{ color: '#333', marginBottom: 0 }}>Cost Estimation Files</h1>
-        <h3 style={{ display: 'flex', fontSize: '20px', color: '#FF6F00', alignItems: 'center', marginTop: '10px', gap: '5px' }}>
+        <h3 style={{ display: 'flex', fontSize: '20px', color: '#1E3A8A', alignItems: 'center', marginTop: '10px', gap: '5px' }}>
           <BiEditAlt />Edit
         </h3>
       </div>
@@ -193,7 +193,7 @@ const AqsCostEstimationOpen = () => {
           </tbody>
         </table>
 
-        <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px', backgroundColor: '#FF6F00' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px', backgroundColor: '#1E3A8A' }}>
         <thead>
             <tr style={tableHeaderStyle} >
               <th>Total</th>
@@ -211,7 +211,7 @@ const AqsCostEstimationOpen = () => {
 
       {/* Add Column Button */}
       <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '20px', paddingBottom: '20px' }}>
-        <a style={{ color: '#FF6F00' }}>+ Add Column</a>
+        <a style={{ color: '#1E3A8A' }}>+ Add Column</a>
       </div>
 
       {/* Save Draft and Submit Buttons */}
@@ -219,7 +219,7 @@ const AqsCostEstimationOpen = () => {
         <button style={{ padding: '10px 45px', border: 'none', color: 'black', cursor: 'pointer', borderRadius: '5px' }}>
           Save Draft
         </button>
-        <button style={{ padding: '10px 45px', border: 'none', backgroundColor: '#FF6F00', color: 'white', cursor: 'pointer', borderRadius: '5px' }}>
+        <button style={{ padding: '10px 45px', border: 'none', backgroundColor: '#1E3A8A', color: 'white', cursor: 'pointer', borderRadius: '5px' }}>
           Submit
         </button>
       </div>

@@ -329,21 +329,21 @@ const ProjectSummary = ({ formData, onBackClick }) => {
             >
               <path
                 d="M3 21H21"
-                stroke="#FF6F00"
+                stroke="#1E3A8A"
                 stroke-width="1.4"
                 stroke-linecap="round"
                 stroke-linejoin="round"
               />
               <path
                 d="M7 17V13L17 3L21 7L11 17H7Z"
-                stroke="#FF6F00"
+                stroke="#1E3A8A"
                 stroke-width="1.4"
                 stroke-linecap="round"
                 stroke-linejoin="round"
               />
               <path
                 d="M14 6L18 10"
-                stroke="#FF6F00"
+                stroke="#1E3A8A"
                 stroke-width="1.4"
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -520,21 +520,21 @@ const ProjectSummary = ({ formData, onBackClick }) => {
             >
               <path
                 d="M3 21H21"
-                stroke="#FF6F00"
+                stroke="#1E3A8A"
                 stroke-width="1.4"
                 stroke-linecap="round"
                 stroke-linejoin="round"
               />
               <path
                 d="M7 17V13L17 3L21 7L11 17H7Z"
-                stroke="#FF6F00"
+                stroke="#1E3A8A"
                 stroke-width="1.4"
                 stroke-linecap="round"
                 stroke-linejoin="round"
               />
               <path
                 d="M14 6L18 10"
-                stroke="#FF6F00"
+                stroke="#1E3A8A"
                 stroke-width="1.4"
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -661,21 +661,21 @@ const ProjectSummary = ({ formData, onBackClick }) => {
             >
               <path
                 d="M3 21H21"
-                stroke="#FF6F00"
+                stroke="#1E3A8A"
                 stroke-width="1.4"
                 stroke-linecap="round"
                 stroke-linejoin="round"
               />
               <path
                 d="M7 17V13L17 3L21 7L11 17H7Z"
-                stroke="#FF6F00"
+                stroke="#1E3A8A"
                 stroke-width="1.4"
                 stroke-linecap="round"
                 stroke-linejoin="round"
               />
               <path
                 d="M14 6L18 10"
-                stroke="#FF6F00"
+                stroke="#1E3A8A"
                 stroke-width="1.4"
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -861,21 +861,21 @@ const ProjectSummary = ({ formData, onBackClick }) => {
             >
               <path
                 d="M3 21H21"
-                stroke="#FF6F00"
+                stroke="#1E3A8A"
                 stroke-width="1.4"
                 stroke-linecap="round"
                 stroke-linejoin="round"
               />
               <path
                 d="M7 17V13L17 3L21 7L11 17H7Z"
-                stroke="#FF6F00"
+                stroke="#1E3A8A"
                 stroke-width="1.4"
                 stroke-linecap="round"
                 stroke-linejoin="round"
               />
               <path
                 d="M14 6L18 10"
-                stroke="#FF6F00"
+                stroke="#1E3A8A"
                 stroke-width="1.4"
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -955,21 +955,21 @@ const ProjectSummary = ({ formData, onBackClick }) => {
             >
               <path
                 d="M3 21H21"
-                stroke="#FF6F00"
+                stroke="#1E3A8A"
                 stroke-width="1.4"
                 stroke-linecap="round"
                 stroke-linejoin="round"
               />
               <path
                 d="M7 17V13L17 3L21 7L11 17H7Z"
-                stroke="#FF6F00"
+                stroke="#1E3A8A"
                 stroke-width="1.4"
                 stroke-linecap="round"
                 stroke-linejoin="round"
               />
               <path
                 d="M14 6L18 10"
-                stroke="#FF6F00"
+                stroke="#1E3A8A"
                 stroke-width="1.4"
                 stroke-linecap="round"
                 stroke-linejoin="round"

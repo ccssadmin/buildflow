@@ -143,7 +143,7 @@ const MaterialViewScreen = () => {
           >
             BOQ
           </span>{" "}
-          &gt; <span style={{ color: "#FF6F00" }}>View BOQ</span>
+          &gt; <span style={{ color: "#1E3A8A" }}>View BOQ</span>
         </h2>
       </div>
 

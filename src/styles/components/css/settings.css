@@ -23,9 +23,9 @@
     border-bottom: 4px solid transparent;
 }
 .page-settings .nav-tabs .nav-link.active {    
-    color:#FF6F00 !important;
+    color:#1E3A8A !important;
     border: 0px;
-    border-bottom: 3px solid #FF6F00 !important;
+    border-bottom: 3px solid #1E3A8A !important;
     background-color: transparent !important;
 }
 .page-settings .img-profile {

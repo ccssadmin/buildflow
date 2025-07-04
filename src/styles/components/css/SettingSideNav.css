@@ -23,14 +23,14 @@
 }
 
 .custom-list-item:hover{
-    color: #FF6F00 !important;
+    color: #1E3A8A !important;
 }
 
 .custom-list-item.active {
     background-color: white !important;
-    color: #FF6F00 !important;
+    color: #1E3A8A !important;
     font-weight: bold;
-    border-bottom: 4px solid #FF6F00 !important;
+    border-bottom: 4px solid #1E3A8A !important;
 }
 
 

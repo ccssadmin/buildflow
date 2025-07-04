@@ -628,7 +628,7 @@ const EngineerTicketDetails = () => {
             Approvals
           </small>
           <small className="text-muted mx-2">›</small>
-          <small style={{ color: "#FF6F00" }}>
+          <small style={{ color: "#1E3A8A" }}>
             {ticketDetails?.name || "Ticket Details"}
           </small>
         </div>
@@ -793,7 +793,7 @@ const EngineerTicketDetails = () => {
                     <Button
                       variant="warning"
                       className="text-white px-3 py-1 ms-auto"
-                      style={{ backgroundColor: "#FF6F00" }}
+                      style={{ backgroundColor: "#1E3A8A" }}
                       onClick={handleSendComment}
                     >
                       Send
@@ -830,7 +830,7 @@ const EngineerTicketDetails = () => {
                     style={{
                       borderRadius: "4px 4px 0 0",
                       backgroundColor:
-                        activeTab === "all" ? "#FF6F00" : "transparent",
+                        activeTab === "all" ? "#1E3A8A" : "transparent",
                     }}
                   >
                     All
@@ -848,7 +848,7 @@ const EngineerTicketDetails = () => {
                       borderRadius: "4px 4px 0 0",
                       backgroundColor:
                         activeTab === "approvalstatus"
-                          ? "#FF6F00"
+                          ? "#1E3A8A"
                           : "transparent",
                       marginRight: 3,
                     }}
@@ -865,7 +865,7 @@ const EngineerTicketDetails = () => {
                     style={{
                       borderRadius: "4px 4px 0 0",
                       backgroundColor:
-                        activeTab === "comments" ? "#FF6F00" : "transparent",
+                        activeTab === "comments" ? "#1E3A8A" : "transparent",
                     }}
                   >
                     Comments
@@ -880,7 +880,7 @@ const EngineerTicketDetails = () => {
                     style={{
                       borderRadius: "4px 4px 0 0",
                       backgroundColor:
-                        activeTab === "files" ? "#FF6F00" : "transparent",
+                        activeTab === "files" ? "#1E3A8A" : "transparent",
                     }}
                   >
                     Files
@@ -895,7 +895,7 @@ const EngineerTicketDetails = () => {
                     style={{
                       borderRadius: "4px 4px 0 0",
                       backgroundColor:
-                        activeTab === "history" ? "#FF6F00" : "transparent",
+                        activeTab === "history" ? "#1E3A8A" : "transparent",
                     }}
                   >
                     History
@@ -1058,7 +1058,7 @@ const EngineerTicketDetails = () => {
                   <h6 className="mb-0">Attached Files</h6>
                   <Button
                     variant="warning"
-                    style={{ backgroundColor: "#FF6F00" }}
+                    style={{ backgroundColor: "#1E3A8A" }}
                     size="sm"
                     className="text-white"
                     onClick={() => fileInputRef.current.click()}
@@ -1074,7 +1074,7 @@ const EngineerTicketDetails = () => {
                     <p className="mt-2">No files attached yet</p>
                     <Button
                       variant="outline-warning"
-                      style={{ backgroundColor: "#FF6F00", color: "white" }}
+                      style={{ backgroundColor: "#1E3A8A", color: "white" }}
                       size="sm"
                       onClick={() => fileInputRef.current.click()}
                     >
@@ -1107,7 +1107,7 @@ const EngineerTicketDetails = () => {
                   <h6 className="mb-0">Attached Images</h6>
                   <Button
                     variant="warning"
-                    style={{ backgroundColor: "#FF6F00" }}
+                    style={{ backgroundColor: "#1E3A8A" }}
                     size="sm"
                     className="text-white"
                     onClick={() => imageInputRef.current.click()}
@@ -1123,7 +1123,7 @@ const EngineerTicketDetails = () => {
                     <p className="mt-2">No images attached yet</p>
                     <Button
                       variant="outline-warning"
-                      style={{ backgroundColor: "#FF6F00", color: "white" }}
+                      style={{ backgroundColor: "#1E3A8A", color: "white" }}
                       size="sm"
                       onClick={() => imageInputRef.current.click()}
                     >
@@ -1258,7 +1258,7 @@ const EngineerTicketDetails = () => {
           <div
             className="p-3"
             style={{
-              borderLeft: "1px solid #FF6F0080",
+              borderLeft: "1px solid #1E3A8A80",
               borderTopLeftRadius: "20px",
             }}
           >
@@ -1285,13 +1285,13 @@ const EngineerTicketDetails = () => {
                 <Button
                   variant="link"
                   className="p-0 d-flex align-items-center border-no-underline"
-                  style={{ color: "#FF6F00", textDecoration: "none" }}
+                  style={{ color: "#1E3A8A", textDecoration: "none" }}
                   onClick={() => setShowAssignSelector(!showAssignSelector)}
                 >
-                  <span style={{ color: "#FF6F00" }}>
+                  <span style={{ color: "#1E3A8A" }}>
                     {currentAssignee ? currentAssignee.name : "Assign To"}
                   </span>
-                  <AiOutlineUser className="ms-1" style={{ fill: "#FF6F00" }} />
+                  <AiOutlineUser className="ms-1" style={{ fill: "#1E3A8A" }} />
                 </Button>
 
                 {showAssignSelector && (
@@ -1431,20 +1431,20 @@ const EngineerTicketDetails = () => {
                   <Button
                     variant="link"
                     className="p-0 d-flex align-items-center border-no-underline"
-                    style={{ color: "#FF6F00", textDecoration: "none" }}
+                    style={{ color: "#1E3A8A", textDecoration: "none" }}
                     onClick={() =>
                       setShowDepartmentSelector(!showDepartmentSelector)
                     }
                     disabled={isLoading}
                   >
-                    <span style={{ color: "#FF6F00" }}>
+                    <span style={{ color: "#1E3A8A" }}>
                       {currentDepartment
                         ? currentDepartment.deptName
                         : "Select Department"}
                     </span>
                     <AiOutlineUser
                       className="ms-1"
-                      style={{ fill: "#FF6F00" }}
+                      style={{ fill: "#1E3A8A" }}
                     />
                   </Button>
 
@@ -1482,20 +1482,20 @@ const EngineerTicketDetails = () => {
                     <Button
                       variant="link"
                       className="p-0 d-flex align-items-center border-no-underline"
-                      style={{ color: "#FF6F00", textDecoration: "none" }}
+                      style={{ color: "#1E3A8A", textDecoration: "none" }}
                       onClick={() =>
                         setShowEmployeeSelector(!showEmployeeSelector)
                       }
                       disabled={isLoading}
                     >
-                      <span style={{ color: "#FF6F00" }}>
+                      <span style={{ color: "#1E3A8A" }}>
                         {currentEmployee
                           ? currentEmployee.employeeName
                           : "Select Employee"}
                       </span>
                       <AiOutlineUser
                         className="ms-1"
-                        style={{ fill: "#FF6F00" }}
+                        style={{ fill: "#1E3A8A" }}
                       />
                     </Button>
                   )}
@@ -1697,13 +1697,13 @@ const EngineerTicketDetails = () => {
                 <Button
                   variant="link"
                   className="p-0 d-flex align-items-center border-no-underline"
-                  style={{ color: "#FF6F00", textDecoration: "none" }}
+                  style={{ color: "#1E3A8A", textDecoration: "none" }}
                   onClick={() =>
                     setShowParticipantSelector(!showParticipantSelector)
                   }
                 >
-                  <span style={{ color: "#FF6F00" }}>Add</span>
-                  <AiOutlineUser className="ms-1" style={{ fill: "#FF6F00" }} />
+                  <span style={{ color: "#1E3A8A" }}>Add</span>
+                  <AiOutlineUser className="ms-1" style={{ fill: "#1E3A8A" }} />
                 </Button>
 
                 {showParticipantSelector && (
@@ -1766,7 +1766,7 @@ const EngineerTicketDetails = () => {
               <Button
                 variant="warning"
                 className="text-white px-4 ms-2"
-                style={{ backgroundColor: "#FF6F00" }}
+                style={{ backgroundColor: "#1E3A8A" }}
                 onClick={handleSave}
                 disabled={isLoading}
               >

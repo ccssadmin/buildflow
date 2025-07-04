@@ -105,7 +105,7 @@ h6.site-category {
     font-weight: 400;
 }
 span.project-status {
-    background: #FF6F00;
+    background: #1E3A8A;
     border-radius: 2px;
     padding: 10px;
     color: #ffffff;
@@ -207,7 +207,7 @@ a.requests-count {
     top: 0;
     left: 0;
     height: 100%;
-    background-color: #ff6f00;
+    background-color: #1E3A8A;
     border-radius: 4px;
     transition: width 0.3s ease;
   }
@@ -217,7 +217,7 @@ a.requests-count {
     top: 50%;
     width: 56px;
     height: 32px;
-    background-color: #ff6f00;
+    background-color: #1E3A8A;
     border: 1px solid #C65600;
     border-radius: 2px;
     transform: translate(-50%, -50%);

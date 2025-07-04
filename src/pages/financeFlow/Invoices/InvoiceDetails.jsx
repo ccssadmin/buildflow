@@ -18,7 +18,7 @@ export default function FinanceInvoiceDetails() {
                   style={ { cursor : 'pointer'}}
                   >Invoices & billing</span>
                   <span className="">&gt;</span>
-                  <span style={{ color : '#FF6F00' ,  cursor : 'pointer'}}>Detailed</span>
+                  <span style={{ color : '#1E3A8A' ,  cursor : 'pointer'}}>Detailed</span>
                 </div>
 
                 {/* Vendor Header */}
@@ -147,7 +147,7 @@ export default function FinanceInvoiceDetails() {
 
                 {/* Payment Button */}
                 <div className="d-flex justify-content-end">
-                  <button className="btn btn-primary px-4 py-2" style={{ backgroundColor: "#FF6F00", border: "none" }}>
+                  <button className="btn btn-primary px-4 py-2" style={{ backgroundColor: "#1E3A8A", border: "none" }}>
                     Pay Now
                   </button>
                 </div>

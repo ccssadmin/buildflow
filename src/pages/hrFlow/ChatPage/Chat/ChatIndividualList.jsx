@@ -37,7 +37,7 @@ const ChatIndividualList = ({ selectedChat, setSelectedChat }) => {
               style={{
                 width: "40px",
                 height: "40px",
-                backgroundColor: "#FF6F00",
+                backgroundColor: "#1E3A8A",
                 fontWeight: "bold",
               }}
             >
@@ -46,7 +46,7 @@ const ChatIndividualList = ({ selectedChat, setSelectedChat }) => {
             <span>{user.name}</span>
           </div>
           {user.unread > 0 && (
-            <span className="badge" style={{ backgroundColor: "#FF6F00", color: "white" }}>
+            <span className="badge" style={{ backgroundColor: "#1E3A8A", color: "white" }}>
               {user.unread}
             </span>
           )}

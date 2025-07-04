@@ -92,7 +92,7 @@ const ChatIndividualScreen = ({ selectedChat }) => {
               }`}
               style={{
                 maxWidth: "80%",
-                backgroundColor: msg.sender === "me" ? "#FF6F00" : "white",
+                backgroundColor: msg.sender === "me" ? "#1E3A8A" : "white",
               }}
             >
               {msg.text}
@@ -137,7 +137,7 @@ const ChatIndividualScreen = ({ selectedChat }) => {
           size={24}
           onClick={sendMessage}
           style={{
-            color: "#FF6F00",
+            color: "#1E3A8A",
             cursor: "pointer",
           }}
         />

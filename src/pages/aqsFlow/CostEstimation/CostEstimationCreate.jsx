@@ -19,7 +19,7 @@ const navigate = useNavigate();
                onClick={ ( ) => navigate('/aqs/aqscostestimation')}
                style={ { cursor : 'pointer'}}
                >Cost Estimation</span>
-               &gt; <span style={{ color: '#FF6F00' }}>Create CE</span>
+               &gt; <span style={{ color: '#1E3A8A' }}>Create CE</span>
              </h2>
            </div>
      
@@ -133,7 +133,7 @@ const navigate = useNavigate();
 
       {/* Add Column Button */}
       <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '20px', paddingBottom: '20px' }}>
-        <a style={{ color: '#FF6F00', cursor: 'pointer' }}>+ Add Column</a>
+        <a style={{ color: '#1E3A8A', cursor: 'pointer' }}>+ Add Column</a>
       </div>
 
       {/* Save Draft and Submit Buttons */}
@@ -141,7 +141,7 @@ const navigate = useNavigate();
         <button style={{ padding: '10px 45px', border: 'none', color: 'black', cursor: 'pointer', borderRadius: '5px' }}>
           Save Draft
         </button>
-        <button style={{ padding: '10px 45px', border: 'none', backgroundColor: '#FF6F00', color: 'white', cursor: 'pointer', borderRadius: '5px' }}>
+        <button style={{ padding: '10px 45px', border: 'none', backgroundColor: '#1E3A8A', color: 'white', cursor: 'pointer', borderRadius: '5px' }}>
           Submit
         </button>
       </div>

@@ -122,7 +122,7 @@ const GroupChatScreen = ({ selectedGroup }) => {
                   }`}
                   style={{ 
                     maxWidth: "80%", 
-                    backgroundColor: msg.sender === "Me" ? "#FF6F00" : "white",
+                    backgroundColor: msg.sender === "Me" ? "#1E3A8A" : "white",
                     color: msg.sender === "Me" ? "white" : "black"
                   }}
                 >
@@ -156,7 +156,7 @@ const GroupChatScreen = ({ selectedGroup }) => {
         />
         <FiSend
           className="icon send-icon"
-          style={{ color: "#FF6F00", cursor: "pointer" }}
+          style={{ color: "#1E3A8A", cursor: "pointer" }}
           onClick={sendMessage}
         />
       </div>

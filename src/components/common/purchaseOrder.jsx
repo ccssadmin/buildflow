@@ -658,7 +658,7 @@ const tdStyle = {
 </div>
 
 {/* Total section styled like image */}
-<div className="mt-3" style={{ backgroundColor: "#FF6F00", padding: "12px 16px", borderRadius: "4px" }}>
+<div className="mt-3" style={{ backgroundColor: "#1E3A8A", padding: "12px 16px", borderRadius: "4px" }}>
   <div className="d-flex justify-content-between align-items-center">
     <p className="m-0 text-white" style={{ fontWeight: "500" }}>Total</p>
     <p className="m-0 text-white" style={{ fontWeight: "500" }}>

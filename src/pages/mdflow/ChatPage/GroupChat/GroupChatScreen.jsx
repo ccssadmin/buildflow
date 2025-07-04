@@ -103,7 +103,7 @@ const GroupChatScreen = ({ selectedGroup }) => {
         />
         <FiSend
           className="icon send-icon"
-          style={{ color: "#FF6F00", cursor: "pointer" }}
+          style={{ color: "#1E3A8A", cursor: "pointer" }}
           onClick={sendMessage}
         />
       </div>

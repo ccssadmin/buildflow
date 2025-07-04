@@ -83,11 +83,11 @@
 .btn-login {
     width: 180px;
     height: 42px;
-    background-color: #FF6F00;
+    background-color: #1E3A8A;
     border-radius: 2px;
     padding: 10px;
     color: #ffffff;
-    border: 1px solid #FF6F00;
+    border: 1px solid #1E3A8A;
     box-shadow: unset;
 }
 .btn-switch-role {

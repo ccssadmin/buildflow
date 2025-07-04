@@ -32,7 +32,7 @@ const GroupChatList = ({ selectedGroup, setSelectedGroup }) => {
           {group.unread > 0 && (
             <span
               className="badge"
-              style={{ backgroundColor: "#FF6F00", color: "white" }}
+              style={{ backgroundColor: "#1E3A8A", color: "white" }}
             >
               {group.unread}
             </span>

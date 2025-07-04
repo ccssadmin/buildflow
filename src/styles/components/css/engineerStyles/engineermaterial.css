@@ -30,7 +30,7 @@
 
 /* Create Button Styling */
 .create-button {
-  background-color: #FF6F00 !important;
+  background-color: #1E3A8A !important;
   color: white !important;
   width: 140px;
   height: 40px;
@@ -43,7 +43,7 @@
 
 /* Remove hover effect for the Create button */
 .create-button:hover {
-  background-color: #FF6F00 !important;
+  background-color: #1E3A8A !important;
 }
 
 /* Table Styling */

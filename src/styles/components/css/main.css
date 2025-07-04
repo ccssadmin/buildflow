@@ -1,5 +1,5 @@
 :root {
-    --primary-color : #FF6F00; 
+    --primary-color : #1E3A8A; 
     --gray-color : #C7C7C7;
     --light-gray : #E8E8E8;
     --light-gray-1 : #BBBBBB;
@@ -13,7 +13,7 @@
     --golden-yellow : #F1C300;
     /* --bright-royal-blue : #0456D0;
     --bright-shade-blue : #0077FF; */
-    --burnt-orange : #C65600;
+    --burnt-orange : #1E3A8A;
     --green : #30A335;
     --bright-royal-blue-1 : #0456D0;
     --off-white-gray: #EBEBEB;
@@ -302,7 +302,7 @@ main .left-container-100 {
 }
 main .right-container {
     padding: 20px;
-    border-left: 1px solid #FF6F0033;
+    border-left: 1px solid #1E3A8A33;
     width: 29%;
     position: fixed;
     height: calc(100vh - 113px);
@@ -500,9 +500,9 @@ h5.sidenav-content__headings-lists--title {
     border-color: var(--primary-color) !important;
 }
 body .form-check-input:focus {
-    border-color: #ff6f0047 !important;
+    border-color: #1E3A8A47 !important;
     outline: 0 !important;
-    box-shadow: 0 0 0 0.25rem #ff6f0047;
+    box-shadow: 0 0 0 0.25rem #1E3A8A47;
 }
 @media (max-width: 1440px) {
     

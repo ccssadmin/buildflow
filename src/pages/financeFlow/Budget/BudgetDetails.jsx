@@ -17,7 +17,7 @@ export default function FinanceBudgetDetails() {
                onClick={ () => navigation('/finance/budget')}
                style={ { cursor : 'pointer'}}
                >Budget Screen</span>
-               &gt; <span style={{ color: '#FF6F00' }}>Budget Detailed</span>
+               &gt; <span style={{ color: '#1E3A8A' }}>Budget Detailed</span>
              </h2>
            </div>
 

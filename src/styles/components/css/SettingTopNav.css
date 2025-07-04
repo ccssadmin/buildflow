@@ -19,13 +19,13 @@ h1{
 }
 
 .custom-tab.active{
-    color: #FF6F00 !important;
-    border-bottom: 3px solid #FF6F00 !important;
+    color: #1E3A8A !important;
+    border-bottom: 3px solid #1E3A8A !important;
     padding-bottom: 10px;
 }
 
 
 .custom-tab:hover {
-    color: #FF6F00 !important;
+    color: #1E3A8A !important;
 }
 

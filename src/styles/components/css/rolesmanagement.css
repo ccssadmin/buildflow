@@ -102,7 +102,7 @@
 }
 
 .manage__roles__details__container-sidemenu li.active {
-    color: #FF6F00 !important;
+    color: #1E3A8A !important;
 }
 .page-rolesmanagement table th, .page-rolesmanagement table td {
     border: 1px solid #C4C4C4;
@@ -137,8 +137,8 @@
 }
 
 .page-rolesmanagement button.submit {
-    background-color:#FF6F00 !important;
-    border: #FF6F00 !important;
+    background-color:#1E3A8A !important;
+    border: #1E3A8A !important;
     color: #fff;
     display: flex;
     align-items: center;

@@ -45,7 +45,7 @@
   }
   
   .hrms-btn-orange:hover {
-    background-color: #FF6F00;
+    background-color: #1E3A8A;
   }
   
   
@@ -136,7 +136,7 @@
   }
   
   .addemployee-link:hover {
-    color:#FF6F00;
+    color:#1E3A8A;
     text-decoration: underline;
   }
   
@@ -145,7 +145,7 @@
   }
   
   .addemployee-current {
-    color: #FF6F00;
+    color: #1E3A8A;
     font-weight: 600;
   }
   
@@ -283,13 +283,13 @@ button.addemployee-btn-delete {
   
   .addemployee-form-group input:focus,
   .addemployee-form-group select:focus {
-    border-color:#FF6F00;
+    border-color:#1E3A8A;
     outline: none;
   }
 
   .email-input:focus,
   .email-input:hover {
-  border-color: #FF6F00;
+  border-color: #1E3A8A;
   outline: none;
 }
 
@@ -317,7 +317,7 @@ button.addemployee-btn-delete {
   
   .addemployee-btn-save {
     padding: 10px 20px;
-    background-color:#FF6F00;
+    background-color:#1E3A8A;
     color: #fff;
     border: none;
     width: 140px;
@@ -326,7 +326,7 @@ button.addemployee-btn-delete {
   }
   
   .addemployee-btn-save:hover {
-    background-color:#FF6F00;
+    background-color:#1E3A8A;
   }
 
   .addemployee-success {

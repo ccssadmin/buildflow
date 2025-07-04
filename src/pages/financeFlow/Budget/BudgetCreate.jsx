@@ -60,7 +60,7 @@ export default function FinanceBudgetCreate() {
                onClick={() => navigation('/finance/budget')}
                style={ { cursor : 'pointer'}}
                >Budget Screen</span>
-               &gt; <span style={{ color: '#FF6F00' }}>Budget Creation</span>
+               &gt; <span style={{ color: '#1E3A8A' }}>Budget Creation</span>
              </h2>
            </div>
 
@@ -118,12 +118,12 @@ export default function FinanceBudgetCreate() {
               
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button style={{ ...buttonStyle, background: '#6c757d' }}>Save Draft</button>
-                <button style={{ ...buttonStyle, background: '#FF6F00' }}>Submit</button>
+                <button style={{ ...buttonStyle, background: '#1E3A8A' }}>Submit</button>
               </div> */}
 
                  {/* Add Column Button */}
       <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '20px', paddingBottom: '20px' }}>
-        <a style={{ color: '#FF6F00', cursor: 'pointer' }}>+ Add Column</a>
+        <a style={{ color: '#1E3A8A', cursor: 'pointer' }}>+ Add Column</a>
       </div>
 
       {/* Save Draft and Submit Buttons */}
@@ -131,7 +131,7 @@ export default function FinanceBudgetCreate() {
         <button style={{ padding: '10px 45px', border: 'none', color: 'black', cursor: 'pointer', borderRadius: '5px' }}>
           Save Draft
         </button>
-        <button style={{ padding: '10px 45px', border: 'none', backgroundColor: '#FF6F00', color: 'white', cursor: 'pointer', borderRadius: '5px' }}>
+        <button style={{ padding: '10px 45px', border: 'none', backgroundColor: '#1E3A8A', color: 'white', cursor: 'pointer', borderRadius: '5px' }}>
           Submit
         </button>
       </div>

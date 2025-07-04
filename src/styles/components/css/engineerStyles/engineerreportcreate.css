@@ -66,7 +66,7 @@
 .btn-add-column {
   background-color: transparent;
   border: none;
-  color: #FF6F00 !important;
+  color: #1E3A8A !important;
   font-weight: bold !important;
   padding: 0;
 }
@@ -98,7 +98,7 @@
 }
 
 .report-container .btn-submit {
-  background-color:#FF6F00 !important;
+  background-color:#1E3A8A !important;
   color: white !important;
 }
 
@@ -159,7 +159,7 @@
 .report-container .btn-add {
   background: none;
   border: none;
-  color: #FF6F00;
+  color: #1E3A8A;
   font-weight: bold;
   cursor: pointer;
   padding: 0;
@@ -291,7 +291,7 @@ height: 48px;
   border: 1px solid #ddd;
 }
 .btn-submit {
-  background-color: #FF6F00;
+  background-color: #1E3A8A;
   color: #fff;
 }
 .text-danger {
@@ -348,7 +348,7 @@ padding:  5px 10px !important;
     cursor: not-allowed !important;
 }
 .btn-send-report.selected-row {
-    background-color: #FF6F00 !important;
+    background-color: #1E3A8A !important;
     color: #ffffff !important ;
     cursor: pointer !important;
 }

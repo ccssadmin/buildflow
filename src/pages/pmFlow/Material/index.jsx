@@ -98,7 +98,7 @@ const pickColor = (seed) => colors[seed % colors.length];
           />
           <button
             className="btn fw-bold"
-            style={{ backgroundColor: "#FF6F00", color: "#FFFFFF" }}
+            style={{ backgroundColor: "#1E3A8A", color: "#FFFFFF" }}
              onClick={() => navigate('/pm/reports')}
           >
             Generate Report

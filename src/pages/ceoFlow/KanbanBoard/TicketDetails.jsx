@@ -364,7 +364,7 @@ const EngineerTicketDetails = () => {
             style={{ cursor: 'pointer' }}
           >Approvals</small>
           <small className="text-muted mx-2">›</small>
-          <small style={{ color: '#FF6F00' }}>E-office</small>
+          <small style={{ color: '#1E3A8A' }}>E-office</small>
         </div>
         <div className="mt-3 ms-3">
           <h4>E-office</h4>
@@ -480,7 +480,7 @@ const EngineerTicketDetails = () => {
                     <Button
                       variant="warning"
                       className="text-white px-3 py-1 ms-auto"
-                      style={{ backgroundColor: "#FF6F00" }}
+                      style={{ backgroundColor: "#1E3A8A" }}
                       onClick={handleSendComment}
                     >
                       Send
@@ -500,7 +500,7 @@ const EngineerTicketDetails = () => {
                     onClick={() => handleTabChange('all')}
                     style={{
                       borderRadius: '4px 4px 0 0',
-                      backgroundColor: activeTab === 'all' ? '#FF6F00' : 'transparent'
+                      backgroundColor: activeTab === 'all' ? '#1E3A8A' : 'transparent'
                     }}
                   >
                     All
@@ -512,7 +512,7 @@ const EngineerTicketDetails = () => {
                     onClick={() => handleTabChange('approvalstatus')}
                     style={{
                       borderRadius: '4px 4px 0 0',
-                      backgroundColor: activeTab === 'approvalstatus' ? '#FF6F00' : 'transparent',
+                      backgroundColor: activeTab === 'approvalstatus' ? '#1E3A8A' : 'transparent',
                       marginRight : 3
                     }}
                   >
@@ -525,7 +525,7 @@ const EngineerTicketDetails = () => {
                     onClick={() => handleTabChange('comments')}
                     style={{
                       borderRadius: '4px 4px 0 0',
-                      backgroundColor: activeTab === 'comments' ? '#FF6F00' : 'transparent'
+                      backgroundColor: activeTab === 'comments' ? '#1E3A8A' : 'transparent'
                     }}
                   >
                     Comments
@@ -537,7 +537,7 @@ const EngineerTicketDetails = () => {
                     onClick={() => handleTabChange('files')}
                     style={{
                       borderRadius: '4px 4px 0 0',
-                      backgroundColor: activeTab === 'files' ? '#FF6F00' : 'transparent'
+                      backgroundColor: activeTab === 'files' ? '#1E3A8A' : 'transparent'
                     }}
                   >
                     Files
@@ -549,7 +549,7 @@ const EngineerTicketDetails = () => {
                     onClick={() => handleTabChange('history')}
                     style={{
                       borderRadius: '4px 4px 0 0',
-                      backgroundColor: activeTab === 'history' ? '#FF6F00' : 'transparent'
+                      backgroundColor: activeTab === 'history' ? '#1E3A8A' : 'transparent'
                     }}
                   >
                     History
@@ -680,7 +680,7 @@ const EngineerTicketDetails = () => {
               <div className="mt-4">
                 <div className="d-flex justify-content-between align-items-center mb-3">
                   <h6 className="mb-0">Attached Files</h6>
-                  <Button variant="warning" style={{ backgroundColor: '#FF6F00' }} size="sm" className="text-white" onClick={() => fileInputRef.current.click()}>
+                  <Button variant="warning" style={{ backgroundColor: '#1E3A8A' }} size="sm" className="text-white" onClick={() => fileInputRef.current.click()}>
                     Upload File
                   </Button>
                 </div>
@@ -689,7 +689,7 @@ const EngineerTicketDetails = () => {
                   <div className="text-center py-5 text-muted">
                     <BsPaperclip size={32} />
                     <p className="mt-2">No files attached yet</p>
-                    <Button variant="outline-warning" style={{ backgroundColor: '#FF6F00', color: 'white' }} size="sm" onClick={() => fileInputRef.current.click()}>
+                    <Button variant="outline-warning" style={{ backgroundColor: '#1E3A8A', color: 'white' }} size="sm" onClick={() => fileInputRef.current.click()}>
                       Upload File
                     </Button>
                   </div>
@@ -713,7 +713,7 @@ const EngineerTicketDetails = () => {
 
                 <div className="d-flex justify-content-between align-items-center mt-4 mb-3">
                   <h6 className="mb-0">Attached Images</h6>
-                  <Button variant="warning" style={{ backgroundColor: '#FF6F00' }} size="sm" className="text-white" onClick={() => imageInputRef.current.click()}>
+                  <Button variant="warning" style={{ backgroundColor: '#1E3A8A' }} size="sm" className="text-white" onClick={() => imageInputRef.current.click()}>
                     Upload Image
                   </Button>
                 </div>
@@ -722,7 +722,7 @@ const EngineerTicketDetails = () => {
                   <div className="text-center py-5 text-muted">
                     <BsImage size={32} />
                     <p className="mt-2">No images attached yet</p>
-                    <Button variant="outline-warning" style={{ backgroundColor: '#FF6F00', color: 'white' }} size="sm" onClick={() => imageInputRef.current.click()}>
+                    <Button variant="outline-warning" style={{ backgroundColor: '#1E3A8A', color: 'white' }} size="sm" onClick={() => imageInputRef.current.click()}>
                       Upload Image
                     </Button>
                   </div>
@@ -813,7 +813,7 @@ const EngineerTicketDetails = () => {
 
         {/* Right Column - Scrollable */}
         <Col md={4} className="ticket-sidebar" style={{ height: 'calc(100vh - 130px)', overflowY: 'auto', position: 'sticky', top: '0', marginTop: '-100px', }}>
-          <div className="p-3" style={{ borderLeft: '1px solid #FF6F0080', borderTopLeftRadius: '20px', }}>
+          <div className="p-3" style={{ borderLeft: '1px solid #1E3A8A80', borderTopLeftRadius: '20px', }}>
             {/* Ticket Owner */}
             <div className="mb-3 d-flex justify-content-between align-items-center border-bottom pb-3">
               <span className="text-muted">Ticket Owner</span>
@@ -829,13 +829,13 @@ const EngineerTicketDetails = () => {
                 <Button
                   variant="link"
                   className="p-0 d-flex align-items-center border-no-underline"
-                  style={{ color: '#FF6F00', textDecoration: 'none' }}
+                  style={{ color: '#1E3A8A', textDecoration: 'none' }}
                   onClick={() => setShowAssignSelector(!showAssignSelector)}
                 >
-                  <span style={{ color: '#FF6F00' }}>
+                  <span style={{ color: '#1E3A8A' }}>
                     {currentAssignee ? currentAssignee.name : 'Assign To'}
                   </span>
-                  <AiOutlineUser className="ms-1" style={{ fill: '#FF6F00' }} />
+                  <AiOutlineUser className="ms-1" style={{ fill: '#1E3A8A' }} />
                 </Button>
 
 
@@ -928,11 +928,11 @@ const EngineerTicketDetails = () => {
                 <Button
                   variant="link"
                   className="p-0 d-flex align-items-center border-no-underline"
-                  style={{ color: '#FF6F00', textDecoration: 'none' }}
+                  style={{ color: '#1E3A8A', textDecoration: 'none' }}
                   onClick={() => setShowDepartmentSelector(!showDepartmentSelector)}
                 >
-                  <span style={{ color: '#FF6F00' }}>{currentDepartment ? currentDepartment.name : 'Move To'}</span>
-                  <AiOutlineUser className="ms-1" style={{ fill: '#FF6F00' }} />
+                  <span style={{ color: '#1E3A8A' }}>{currentDepartment ? currentDepartment.name : 'Move To'}</span>
+                  <AiOutlineUser className="ms-1" style={{ fill: '#1E3A8A' }} />
                 </Button>
 
                 {showDepartmentSelector && (
@@ -1048,11 +1048,11 @@ const EngineerTicketDetails = () => {
                 <Button
                   variant="link"
                   className="p-0 d-flex align-items-center border-no-underline"
-                  style={{ color: '#FF6F00', textDecoration: 'none' }}
+                  style={{ color: '#1E3A8A', textDecoration: 'none' }}
                   onClick={() => setShowParticipantSelector(!showParticipantSelector)}
                 >
-                  <span style={{ color: '#FF6F00' }}>Add</span>
-                  <AiOutlineUser className="ms-1" style={{ fill: '#FF6F00' }} />
+                  <span style={{ color: '#1E3A8A' }}>Add</span>
+                  <AiOutlineUser className="ms-1" style={{ fill: '#1E3A8A' }} />
                 </Button>
 
                 {showParticipantSelector && (
@@ -1102,7 +1102,7 @@ const EngineerTicketDetails = () => {
                           <Button
                             variant="warning"
                             className="text-white px-4 ms-2"
-                            style={{ backgroundColor: '#FF6F00' }}
+                            style={{ backgroundColor: '#1E3A8A' }}
                             onClick={handleSave}
                           >
                             <RiSaveFill style={{ color: 'white', marginRight: '5px' }} />

@@ -112,7 +112,7 @@ const TaskTable = () => {
                                 <button className="btn fs-16-500 text-dark-gray-color me-5"><img src={x_mark} alt="" />  Remove</button>
                                 <button 
                                     className="btn btn-primary text-light border-0 border-radius-2 fs-14-600 me-0" 
-                                    style={{ backgroundColor: '#FF6F00' }}
+                                    style={{ backgroundColor: '#1E3A8A' }}
                                     onClick={addTaskRow}
                                 >
                                     Add Task

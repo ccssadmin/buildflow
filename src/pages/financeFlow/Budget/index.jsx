@@ -72,7 +72,7 @@ export default function FinanceBudget() {
                     onClick={handleCreate}
                     style={{
                       padding: '8px 16px',
-                      backgroundColor: '#FF6F00',
+                      backgroundColor: '#1E3A8A',
                       border: 'none',
                       borderRadius: '4px',
                       color: 'white',

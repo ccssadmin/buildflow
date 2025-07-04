@@ -38,7 +38,7 @@ const ChatApp = () => {
         >
           <FiMessageSquare
             className="fs-3"
-            style={{ color: activeSection === "chats" ? "#FF6F00" : "gray"  , marginRight : 4}}
+            style={{ color: activeSection === "chats" ? "#1E3A8A" : "gray"  , marginRight : 4}}
           />
           <span
             className={`small ${activeSection === "chats" ? "text-dark" : "text-muted"}`}
@@ -59,7 +59,7 @@ const ChatApp = () => {
         >
           <FiUsers
             className="fs-3"
-            style={{ color: activeSection === "groups" ? "#FF6F00" : "gray"  , marginRight : 4}}
+            style={{ color: activeSection === "groups" ? "#1E3A8A" : "gray"  , marginRight : 4}}
           />
           <span
             className={`small ${activeSection === "groups" ? "text-dark" : "text-muted"}`}

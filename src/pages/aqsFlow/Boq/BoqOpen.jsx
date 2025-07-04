@@ -25,7 +25,7 @@ const BoqOpen = () => {
             onClick={() => navigate('/aqs/aqsboq')}
             style={ { cursor : 'pointer'}}
             >BOQ
-            </span> &gt; <span style={{ color: '#FF6F00' }}>Open BOQ</span>
+            </span> &gt; <span style={{ color: '#1E3A8A' }}>Open BOQ</span>
         </h2>
       </div>
      <h3 className="mt-3">New BOQ</h3>

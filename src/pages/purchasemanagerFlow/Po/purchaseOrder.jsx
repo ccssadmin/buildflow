@@ -694,7 +694,7 @@ export default function POViewPage({ params }) {
                 style={{
                   fontWeight: "bold",
                   padding: "12px 16px",
-                  backgroundColor: "#FF6F00",
+                  backgroundColor: "#1E3A8A",
                 }}
               >
                 <div className="d-flex justify-content-between">

@@ -7,7 +7,7 @@
     border: 0;
 }
 span.pending-approvel-count {
-    background-color: #C65600;
+    background-color: #1E3A8A;
     color: #fff;
     font-size: 12px;
     width: 32px;
@@ -24,7 +24,7 @@ span.pending-approvel-count {
 }
 .badge-prioritize.text-medium{
     background: #FFEC4033 !important;
-    color: #FF9500;
+    color: #1E3A8A;
 }
 .card-pending-approvel-content {
     border-bottom: 1px solid var(--gray-color);
@@ -95,7 +95,7 @@ span.pending-approvel-count {
   
   /* Marketing department */
   .dept-marketing {
-    background-color: #FF9100 !important; /* Orange */
+    background-color: #1E3A8A !important; /* Orange */
   }
   
   /* Operations department */

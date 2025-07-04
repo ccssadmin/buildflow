@@ -14,8 +14,8 @@
     padding: 12px;
 }
 .tab-nav-notification .nav-item .nav-link.active {
-    background: #FF6F0033 !important;
-    color: #FF6F00 !important;
+    background: #1E3A8A33 !important;
+    color: #1E3A8A !important;
     position: relative;
     
 }
@@ -27,7 +27,7 @@
     position: absolute;
     width: 5px;
     height: 5px;
-    background-color: #FF6F00;
+    background-color: #1E3A8A;
     right: 10px;
     border-radius: 50%;
     top: calc(50% - 2.5px);
@@ -437,8 +437,8 @@ ul#notification_tab li:first-child button {
     margin: 0px 5px;
   }
   .selected-weekly-date {
-    background-color: #FF6F0033;
-    color: #FF6F00;
+    background-color: #1E3A8A33;
+    color: #1E3A8A;
     border-radius: 10px;
   }
   .week-date-arrow {
